@@ -68,7 +68,7 @@ Return as JSON object with these six scores.`
     maxTokens: 1000,
     temperature: 0.4,
     systemPrompt: `Recommend the top 3-5 most appropriate visualizations for this document.
-Available types: structured-view, mind-map, flowchart, knowledge-graph, uml-class, uml-sequence, uml-activity, executive-dashboard, timeline, gantt, comparison-matrix, priority-matrix, raci-matrix.
+Available types: structured-view, mind-map, flowchart, knowledge-graph, executive-dashboard, timeline.
 For each recommendation include: type, score (0-1), and rationale (one sentence).
 Return as JSON array.`
   },
