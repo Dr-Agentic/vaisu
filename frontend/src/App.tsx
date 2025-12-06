@@ -9,7 +9,17 @@ import { VisualizationRenderer } from './components/visualizations/Visualization
 import { FileText, X, AlertCircle } from 'lucide-react';
 
 function App() {
-  const { document, analysis, isLoading, isAnalyzing, error, clearDocument, clearError } = useDocumentStore();
+  const { 
+    document, 
+    analysis, 
+    isLoading, 
+    isAnalyzing, 
+    error, 
+    progressPercent,
+    progressMessage,
+    clearDocument, 
+    clearError 
+  } = useDocumentStore();
 
   const hasDocument = document !== null;
   const hasAnalysis = analysis !== null;
@@ -96,40 +106,60 @@ function App() {
               <h2 className="text-xl font-bold text-gray-900 mb-2">{document.title}</h2>
               <div className="flex gap-4 text-sm text-gray-600">
                 <span>{document.metadata.wordCount.toLocaleString()} words</span>
-                <span>•</span>
-                <span>{document.structure.sections.length} sections</span>
+                {document.structure?.sections && (
+                  <>
+                    <span>•</span>
+                    <span>{document.structure.sections.length} sections</span>
+                  </>
+                )}
                 <span>•</span>
                 <span>{document.metadata.fileType.toUpperCase()}</span>
               </div>
             </div>
 
-            {/* Loading State */}
-            {(isLoading || isAnalyzing) && (
-              <div className="bg-white rounded-lg p-12 shadow-sm border border-gray-200">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-                  <p className="text-lg text-gray-600">
-                    {isAnalyzing ? 'Analyzing document...' : 'Processing...'}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    This may take a few moments
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* TLDR and Executive Summary */}
-            {hasAnalysis && (
+            {/* TLDR and Executive Summary - Show as soon as available */}
+            {analysis?.tldr && analysis?.executiveSummary && (
               <div className="space-y-6">
                 <TLDRBox content={analysis.tldr} />
                 <ExecutiveSummary summary={analysis.executiveSummary} />
               </div>
             )}
 
-            {/* Visualization Section */}
-            {hasAnalysis && (
+            {/* Loading State with Progress - Show if still analyzing */}
+            {(isLoading || isAnalyzing) && (
+              <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                    <p className="text-base text-gray-900 font-medium">
+                      {analysis?.tldr ? 'Generating visualizations...' : 'Analyzing document...'}
+                    </p>
+                  </div>
+                  
+                  <div className="w-full max-w-md space-y-2">
+                    {/* Progress Bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-primary-500 to-secondary-500 h-full transition-all duration-500 ease-out"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                    
+                    {/* Progress Message */}
+                    <div className="text-center">
+                      <p className="text-xs text-gray-600">
+                        {progressMessage || 'This may take a few moments'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Visualization Section - Show structured view as soon as document is available */}
+            {hasDocument && !isLoading && (
               <div className="space-y-6">
-                <VisualizationSelector />
+                {hasAnalysis && <VisualizationSelector />}
                 <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                   <VisualizationRenderer />
                 </div>

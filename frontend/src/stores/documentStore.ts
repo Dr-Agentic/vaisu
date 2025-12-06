@@ -10,6 +10,9 @@ interface DocumentStore {
   error: string | null;
   currentVisualization: VisualizationType;
   visualizationData: Map<VisualizationType, any>;
+  progressStep: string;
+  progressPercent: number;
+  progressMessage: string;
   
   uploadDocument: (file: File) => Promise<void>;
   uploadText: (text: string) => Promise<void>;
@@ -28,13 +31,20 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   error: null,
   currentVisualization: 'structured-view',
   visualizationData: new Map(),
+  progressStep: '',
+  progressPercent: 0,
+  progressMessage: '',
 
   uploadDocument: async (file: File) => {
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.uploadDocument(file);
+      set({ document: response.document });
       
-      // Automatically analyze after upload
+      // Load structured view immediately (doesn't need analysis)
+      get().loadVisualization('structured-view');
+      
+      // Then analyze in background
       await get().analyzeDocument();
     } catch (error: any) {
       set({ error: error.message || 'Failed to upload document', isLoading: false });
@@ -63,20 +73,58 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     const { document } = get();
     if (!document) return;
 
-    set({ isAnalyzing: true, error: null });
+    set({ isAnalyzing: true, error: null, progressStep: 'starting', progressPercent: 0, progressMessage: 'Starting analysis...' });
+    
+    // Start polling for progress and partial results
+    const pollInterval = setInterval(async () => {
+      try {
+        const progress = await apiClient.getProgress(document.id);
+        const updates: any = {
+          progressStep: progress.step,
+          progressPercent: progress.progress,
+          progressMessage: progress.message
+        };
+        
+        // If we have partial analysis results, update them immediately
+        if (progress.partialAnalysis) {
+          updates.analysis = {
+            ...get().analysis,
+            ...progress.partialAnalysis
+          };
+        }
+        
+        set(updates);
+      } catch (err) {
+        // Ignore polling errors
+      }
+    }, 500); // Poll every 500ms
+    
     try {
       const response = await apiClient.analyzeDocument(document.id);
+      clearInterval(pollInterval);
       set({
         document: response.document,
         analysis: response.analysis,
         isAnalyzing: false,
-        isLoading: false
+        isLoading: false,
+        progressStep: 'complete',
+        progressPercent: 100,
+        progressMessage: 'Analysis complete!'
       });
       
-      // Load default visualization
-      await get().loadVisualization('structured-view');
+      // Load structured-view visualization immediately (priority visualization)
+      // This shows the document structure which is always available
+      get().loadVisualization('structured-view');
     } catch (error: any) {
-      set({ error: error.message || 'Failed to analyze document', isAnalyzing: false, isLoading: false });
+      clearInterval(pollInterval);
+      set({ 
+        error: error.message || 'Failed to analyze document', 
+        isAnalyzing: false, 
+        isLoading: false,
+        progressStep: 'error',
+        progressPercent: 0,
+        progressMessage: 'Analysis failed'
+      });
     }
   },
 
@@ -113,7 +161,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       isAnalyzing: false,
       error: null,
       currentVisualization: 'structured-view',
-      visualizationData: new Map()
+      visualizationData: new Map(),
+      progressStep: '',
+      progressPercent: 0,
+      progressMessage: ''
     });
   },
 

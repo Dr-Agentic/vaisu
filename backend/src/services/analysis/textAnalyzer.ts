@@ -11,32 +11,60 @@ import type {
 } from '../../../../shared/src/types.js';
 import { getOpenRouterClient } from '../llm/openRouterClient.js';
 
+export type ProgressCallback = (
+  step: string, 
+  progress: number, 
+  message: string,
+  partialAnalysis?: Partial<DocumentAnalysis>
+) => void;
+
 export class TextAnalyzer {
   private get llmClient() {
     return getOpenRouterClient();
   }
-  async analyzeDocument(document: Document): Promise<DocumentAnalysis> {
+  
+  async analyzeDocument(
+    document: Document,
+    onProgress?: ProgressCallback
+  ): Promise<DocumentAnalysis> {
     console.log(`Analyzing document: ${document.id}`);
 
-    // Run analyses in parallel where possible
-    const [
-      tldr,
-      executiveSummary,
-      entities,
-      signals
-    ] = await Promise.all([
+    onProgress?.('initialization', 5, 'Starting analysis...');
+
+    // Priority 1: Get TLDR and Executive Summary first (most important for user)
+    onProgress?.('priority-analysis', 10, 'Generating TLDR and executive summary...');
+    
+    const [tldr, executiveSummary] = await Promise.all([
       this.generateTLDR(document.content),
-      this.generateExecutiveSummary(document.content),
+      this.generateExecutiveSummary(document.content)
+    ]);
+
+    // Provide early results to user immediately
+    onProgress?.('early-results', 30, 'TLDR and summary ready! Continuing analysis...', {
+      tldr,
+      executiveSummary
+    });
+
+    // Priority 2: Run remaining analyses in parallel
+    onProgress?.('detailed-analysis', 35, 'Extracting entities and analyzing signals...');
+    
+    const [entities, signals] = await Promise.all([
       this.extractEntities(document.content),
       this.analyzeSignals(document.content)
     ]);
 
+    onProgress?.('relationships', 50, 'Detecting relationships between entities...');
+    
     // Relationships depend on entities
     const relationships = await this.detectRelationships(document.content, entities);
 
+    onProgress?.('sections', 65, 'Generating section summaries...');
+    
     // Generate section summaries
     await this.generateSectionSummaries(document);
 
+    onProgress?.('recommendations', 85, 'Generating visualization recommendations...');
+    
     // Recommendations based on all analysis
     const recommendations = await this.recommendVisualizations(
       document,
@@ -45,12 +73,14 @@ export class TextAnalyzer {
       relationships.length
     );
 
+    onProgress?.('complete', 100, 'Analysis complete!');
+
     return {
       tldr,
       executiveSummary,
       entities,
       relationships,
-      metrics: executiveSummary.kpis,
+      metrics: [], // KPIs are in executiveSummary, metrics would need separate extraction
       signals,
       recommendations
     };
@@ -69,11 +99,20 @@ export class TextAnalyzer {
     try {
       const parsed = await this.llmClient.parseJSONResponse<ExecutiveSummary>(response);
       
+      // Validate and filter KPIs to ensure they have valid numeric values
+      const validKpis = (parsed.kpis || []).filter(kpi => 
+        kpi && 
+        typeof kpi.value === 'number' && 
+        !isNaN(kpi.value) &&
+        kpi.label &&
+        kpi.unit
+      );
+      
       // Ensure all required fields exist
       return {
         headline: parsed.headline || 'Document Summary',
         keyIdeas: parsed.keyIdeas || [],
-        kpis: parsed.kpis || [],
+        kpis: validKpis,
         risks: parsed.risks || [],
         opportunities: parsed.opportunities || [],
         callToAction: parsed.callToAction || 'Review the document for details'

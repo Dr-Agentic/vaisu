@@ -50,6 +50,13 @@ export interface DocumentAnalysis {
   recommendations: VisualizationRecommendation[];
 }
 
+export interface AnalysisProgress {
+  step: string;
+  progress: number; // 0-100
+  message: string;
+  partialAnalysis?: Partial<DocumentAnalysis>; // Early results
+}
+
 export interface ExecutiveSummary {
   headline: string;
   keyIdeas: string[];

@@ -43,6 +43,11 @@ export const apiClient = {
     return response.data;
   },
 
+  async getProgress(documentId: string): Promise<{ step: string; progress: number; message: string }> {
+    const response = await client.get(`/documents/${documentId}/progress`);
+    return response.data;
+  },
+
   async generateVisualization(documentId: string, type: VisualizationType): Promise<any> {
     const response = await client.post(`/documents/${documentId}/visualizations/${type}`);
     return response.data.data;

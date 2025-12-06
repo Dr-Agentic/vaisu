@@ -7,6 +7,15 @@ import type { Document, DocumentAnalysis } from '../../../shared/src/types.js';
 
 const router = Router();
 
+// Store for progress tracking with partial results
+interface ProgressInfo {
+  step: string;
+  progress: number;
+  message: string;
+  partialAnalysis?: Partial<DocumentAnalysis>;
+}
+const progressStore = new Map<string, ProgressInfo>();
+
 // Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -49,11 +58,7 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
     res.json({
       documentId: document.id,
       message: 'Document uploaded successfully',
-      document: {
-        id: document.id,
-        title: document.title,
-        metadata: document.metadata
-      }
+      document
     });
   } catch (error: any) {
     console.error('Upload error:', error);
@@ -66,7 +71,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
   try {
     const { documentId, text } = req.body;
 
-    let document: Document;
+    let document: Document | undefined;
 
     if (documentId) {
       document = documents.get(documentId);
@@ -83,10 +88,23 @@ router.post('/analyze', async (req: Request, res: Response) => {
     }
 
     const startTime = Date.now();
-    const analysis = await textAnalyzer.analyzeDocument(document);
+    
+    // Progress callback to send updates with partial results
+    const onProgress = (
+      step: string, 
+      progress: number, 
+      message: string,
+      partialAnalysis?: Partial<DocumentAnalysis>
+    ) => {
+      console.log(`[${document.id}] ${progress}% - ${message}`);
+      progressStore.set(document.id, { step, progress, message, partialAnalysis });
+    };
+    
+    const analysis = await textAnalyzer.analyzeDocument(document, onProgress);
     const processingTime = Date.now() - startTime;
 
-    // Store analysis
+    // Clear progress and store analysis
+    progressStore.delete(document.id);
     analyses.set(document.id, analysis);
     document.analysis = analysis;
 
@@ -127,9 +145,10 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       return res.status(404).json({ error: 'Document not found' });
     }
 
+    // Structured view doesn't need analysis, others do
     const analysis = analyses.get(id);
-    if (!analysis) {
-      return res.status(404).json({ error: 'Document not analyzed yet' });
+    if (!analysis && type !== 'structured-view') {
+      return res.status(404).json({ error: 'Document not analyzed yet. Analysis required for this visualization.' });
     }
 
     const vizKey = `${id}-${type}`;
@@ -143,11 +162,11 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       });
     }
 
-    // Generate visualization
+    // Generate visualization (analysis may be undefined for structured-view)
     const data = await visualizationGenerator.generateVisualization(
       type as any,
       document,
-      analysis
+      analysis!
     );
 
     visualizations.set(vizKey, data);
@@ -160,6 +179,18 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
   } catch (error: any) {
     console.error('Visualization error:', error);
     res.status(500).json({ error: error.message || 'Failed to generate visualization' });
+  }
+});
+
+// GET /api/documents/:id/progress - Get analysis progress
+router.get('/:id/progress', (req: Request, res: Response) => {
+  const { id } = req.params;
+  const progress = progressStore.get(id);
+  
+  if (progress) {
+    res.json(progress);
+  } else {
+    res.json({ step: 'complete', progress: 100, message: 'Analysis complete or not started' });
   }
 });
 

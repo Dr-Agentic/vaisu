@@ -42,7 +42,7 @@ export function ExecutiveSummary({ summary }: ExecutiveSummaryProps) {
               </div>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">
-                  {kpi.value.toLocaleString()}
+                  {typeof kpi.value === 'number' ? kpi.value.toLocaleString() : '—'}
                 </span>
                 <span className="text-lg opacity-90">{kpi.unit}</span>
               </div>

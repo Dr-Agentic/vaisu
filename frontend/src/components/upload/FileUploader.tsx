@@ -4,7 +4,7 @@ import { Upload, FileText } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
 
 export function FileUploader() {
-  const { uploadDocument, isLoading } = useDocumentStore();
+  const { uploadDocument, isLoading, progressMessage, progressPercent } = useDocumentStore();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -40,7 +40,20 @@ export function FileUploader() {
         {isLoading ? (
           <>
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            <p className="text-lg text-gray-600">Processing document...</p>
+            <div className="text-center space-y-2">
+              <p className="text-lg text-gray-900 font-medium">Processing document...</p>
+              {progressPercent > 0 && (
+                <>
+                  <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto">
+                    <div 
+                      className="bg-primary-600 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${progressPercent}%` }}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600">{progressMessage}</p>
+                </>
+              )}
+            </div>
           </>
         ) : (
           <>
