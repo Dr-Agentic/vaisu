@@ -9,10 +9,6 @@ export function VisualizationRenderer() {
   const { currentVisualization, visualizationData, document } = useDocumentStore();
 
   const data = visualizationData.get(currentVisualization);
-  
-  console.log('[VisualizationRenderer] Current visualization:', currentVisualization);
-  console.log('[VisualizationRenderer] Visualization data map size:', visualizationData.size);
-  console.log('[VisualizationRenderer] Data for current viz:', data);
 
   if (!data) {
     return (

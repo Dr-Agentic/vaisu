@@ -95,10 +95,17 @@ export class VisualizationGenerator {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     const colorIndex = level % colors.length;
     
+    // Fallback emojis if LLM doesn't provide one
+    const fallbackEmojis = ['📄', '📊', '🔧', '💡', '🌐', '📈', '⚙️'];
+    
     return {
       id: node.id || `node-${Math.random().toString(36).substr(2, 9)}`,
       label: node.label || 'Untitled',
+      subtitle: node.subtitle || (node.summary || '').substring(0, 40),
+      icon: node.icon || fallbackEmojis[level % fallbackEmojis.length],
       summary: node.summary || '',
+      detailedExplanation: node.detailedExplanation || node.summary || 'No additional details available.',
+      sourceTextExcerpt: node.sourceTextExcerpt,
       children: (node.children || []).map((child: any) => 
         this.convertLLMNodeToMindMapNode(child, level + 1)
       ),
@@ -117,7 +124,11 @@ export class VisualizationGenerator {
     const root = {
       id: 'root',
       label: document.title,
+      subtitle: analysis.tldr.substring(0, 40),
+      icon: '📄',
       summary: analysis.tldr,
+      detailedExplanation: analysis.tldr,
+      sourceTextExcerpt: document.content.substring(0, 200),
       children: this.convertSectionsToMindMapNodes(document.structure.sections, 1),
       level: 0,
       color: '#4F46E5',
@@ -143,14 +154,20 @@ export class VisualizationGenerator {
 
   private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
+    const fallbackEmojis = ['📊', '🔧', '💡', '🌐', '📈', '⚙️', '🏗️'];
     
-    return sections.map((section) => {
+    return sections.map((section, index) => {
       const colorIndex = level % colors.length;
+      const summary = section.summary || section.content.substring(0, 100) + '...';
       
       return {
         id: section.id,
         label: section.title,
-        summary: section.summary || section.content.substring(0, 100) + '...',
+        subtitle: summary.substring(0, 40),
+        icon: fallbackEmojis[index % fallbackEmojis.length],
+        summary: summary,
+        detailedExplanation: section.summary || section.content.substring(0, 300),
+        sourceTextExcerpt: section.content.substring(0, 200),
         children: section.children ? this.convertSectionsToMindMapNodes(section.children, level + 1) : [],
         level: level,
         color: colors[colorIndex],

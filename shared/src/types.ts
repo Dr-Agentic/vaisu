@@ -161,12 +161,15 @@ export interface MindMapData {
 export interface MindMapNode {
   id: string;
   label: string;
+  subtitle: string; // 40-char headline for quick context
   summary: string;
   children: MindMapNode[];
   level: number;
   color: string;
-  icon?: string;
+  icon: string; // Emoji metaphor for visual categorization
   sourceRef: TextSpan;
+  detailedExplanation: string; // For hover tooltip
+  sourceTextExcerpt?: string; // Original text excerpt if available
   metadata: {
     importance: number;
     confidence: number;

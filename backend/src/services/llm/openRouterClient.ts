@@ -131,7 +131,7 @@ export class OpenRouterClient {
 
       return JSON.parse(content) as T;
     } catch (error) {
-      console.error('Failed to parse JSON response:', response.content);
+      console.error('Failed to parse JSON response:', response.content.substring(0, 200));
       throw new Error('Invalid JSON response from LLM');
     }
   }

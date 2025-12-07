@@ -18,7 +18,10 @@ export function MindMap({ data }: MindMapProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<MindMapNode | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<MindMapNode | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number } | null>(null);
   const [nodePositions, setNodePositions] = useState<Map<string, NodePosition>>(new Map());
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (data.root) {
@@ -115,6 +118,64 @@ export function MindMap({ data }: MindMapProps) {
     setPan({ x: 0, y: 0 });
   };
 
+  const handleNodeHover = (node: MindMapNode) => {
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set timeout for hover delay (300ms)
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredNode(node);
+      
+      // Get node position in SVG coordinates
+      const pos = nodePositions.get(node.id);
+      const canvas = canvasRef.current;
+      
+      if (pos && canvas) {
+        const canvasRect = canvas.getBoundingClientRect();
+        const canvasWidth = canvasRect.width;
+        const canvasHeight = canvasRect.height;
+        
+        // SVG viewBox is 2000x1200, map to actual canvas size
+        const scaleX = canvasWidth / 2000;
+        const scaleY = canvasHeight / 1200;
+        
+        // Convert SVG coordinates to canvas pixel coordinates
+        let screenX = pos.x * scaleX * zoom + pan.x;
+        let screenY = pos.y * scaleY * zoom + pan.y;
+        
+        // Clamp to canvas boundaries with padding
+        const padding = 20;
+        screenX = Math.max(padding, Math.min(canvasWidth - 320 - padding, screenX));
+        screenY = Math.max(padding, Math.min(canvasHeight - 200 - padding, screenY));
+        
+        setTooltipPosition({
+          x: screenX,
+          y: screenY
+        });
+      }
+    }, 300);
+  };
+
+  const handleNodeLeave = () => {
+    // Clear timeout if user moves away before delay
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    setHoveredNode(null);
+    setTooltipPosition(null);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const renderNode = (node: MindMapNode) => {
     const pos = nodePositions.get(node.id);
     if (!pos) return null;
@@ -122,16 +183,24 @@ export function MindMap({ data }: MindMapProps) {
     const isRoot = node.id === data.root.id;
     const isSelected = selectedNode?.id === node.id;
     
-    // Rectangle dimensions based on level
-    const width = isRoot ? 180 : 160;
-    const height = isRoot ? 50 : 40;
+    // Rectangle dimensions - increased height for subtitle
+    const width = isRoot ? 200 : 180;
+    const height = isRoot ? 70 : 65;
     const rx = 8; // Border radius
     
+    // Icon size - proportional to text
+    const iconSize = isRoot ? 16 : 14;
+    
     // Calculate text to fit in box
-    const maxChars = isRoot ? 25 : 22;
-    const displayText = node.label.length > maxChars 
-      ? node.label.substring(0, maxChars - 3) + '...' 
+    const maxLabelChars = isRoot ? 20 : 18;
+    const displayLabel = node.label.length > maxLabelChars 
+      ? node.label.substring(0, maxLabelChars - 3) + '...' 
       : node.label;
+    
+    const maxSubtitleChars = 40;
+    const displaySubtitle = node.subtitle.length > maxSubtitleChars 
+      ? node.subtitle.substring(0, maxSubtitleChars - 3) + '...' 
+      : node.subtitle;
     
     return (
       <g key={node.id}>
@@ -148,12 +217,26 @@ export function MindMap({ data }: MindMapProps) {
           strokeWidth={isSelected ? 3 : 1}
           className="cursor-pointer transition-all duration-200 hover:opacity-90"
           onClick={() => setSelectedNode(node)}
+          onMouseEnter={() => handleNodeHover(node)}
+          onMouseLeave={handleNodeLeave}
         />
+        
+        {/* Icon (emoji) - positioned on the left side, vertically centered */}
+        <text
+          x={pos.x - width / 2 + iconSize + 4}
+          y={pos.y}
+          fontSize={iconSize}
+          dominantBaseline="middle"
+          textAnchor="middle"
+          className="pointer-events-none select-none"
+        >
+          {node.icon}
+        </text>
         
         {/* Node label */}
         <text
           x={pos.x}
-          y={pos.y}
+          y={pos.y - 8}
           textAnchor="middle"
           dominantBaseline="middle"
           fill="white"
@@ -161,7 +244,22 @@ export function MindMap({ data }: MindMapProps) {
           fontWeight={isRoot ? 'bold' : '600'}
           className="pointer-events-none select-none"
         >
-          {displayText}
+          {displayLabel}
+        </text>
+        
+        {/* Subtitle */}
+        <text
+          x={pos.x}
+          y={pos.y + 10}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="white"
+          fillOpacity={0.85}
+          fontSize={9}
+          fontWeight="400"
+          className="pointer-events-none select-none"
+        >
+          {displaySubtitle}
         </text>
       </g>
     );
@@ -233,11 +331,11 @@ export function MindMap({ data }: MindMapProps) {
   };
 
   return (
-    <div className="w-full h-[600px] bg-gray-50 rounded-lg">
+    <div className="w-full h-[600px] bg-gray-50 rounded-lg relative">
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="mind-map-canvas relative w-full h-full cursor-move overflow-hidden rounded-lg"
+        className="mind-map-canvas w-full h-full cursor-move overflow-hidden rounded-lg"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -263,7 +361,7 @@ export function MindMap({ data }: MindMapProps) {
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 flex flex-col gap-2">
+      <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-2 flex flex-col gap-2 pointer-events-auto">
         <button
           onClick={handleZoomIn}
           className="p-2 hover:bg-gray-100 rounded transition-colors"
@@ -289,7 +387,7 @@ export function MindMap({ data }: MindMapProps) {
 
       {/* Node Details Panel */}
       {selectedNode && (
-        <div className="absolute top-2 left-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm">
+        <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm pointer-events-auto">
           <div className="flex items-start justify-between mb-2">
             <h3 className="font-semibold text-gray-900">{selectedNode.label}</h3>
             <button
@@ -313,7 +411,7 @@ export function MindMap({ data }: MindMapProps) {
       )}
 
       {/* Instructions */}
-      <div className="absolute bottom-2 left-2 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs text-gray-600">
+      <div className="absolute bottom-4 left-4 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs text-gray-600 pointer-events-none">
         <div className="font-medium mb-1">Controls:</div>
         <div>• Click and drag to pan</div>
         <div>• Use zoom controls (bottom-right)</div>
@@ -322,7 +420,7 @@ export function MindMap({ data }: MindMapProps) {
       </div>
 
       {/* Legend */}
-      <div className="absolute top-2 right-2 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs">
+      <div className="absolute top-4 right-4 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs pointer-events-none">
         <div className="font-medium text-gray-900 mb-2">Hierarchy Levels</div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
@@ -343,6 +441,42 @@ export function MindMap({ data }: MindMapProps) {
           </div>
         </div>
       </div>
+
+      {/* Hover Tooltip */}
+      {hoveredNode && tooltipPosition && (
+        <div
+          className="absolute bg-white rounded-lg shadow-lg border border-gray-300 p-4 w-80 pointer-events-none z-50"
+          style={{
+            left: `${tooltipPosition.x + 20}px`,
+            top: `${tooltipPosition.y - 40}px`
+          }}
+        >
+          <div className="flex items-start gap-3 mb-3">
+            <span className="text-2xl">{hoveredNode.icon}</span>
+            <div className="flex-1">
+              <h4 className="font-semibold text-gray-900 text-sm mb-1">{hoveredNode.label}</h4>
+              <p className="text-xs text-gray-600 mb-2">{hoveredNode.subtitle}</p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-700 leading-relaxed" style={{ lineHeight: '1.5' }}>
+                {hoveredNode.detailedExplanation}
+              </p>
+            </div>
+            
+            {hoveredNode.sourceTextExcerpt && (
+              <div className="pt-3 border-t border-gray-200">
+                <p className="text-xs font-medium text-gray-500 mb-1">From source:</p>
+                <p className="text-xs text-gray-600 italic leading-relaxed" style={{ lineHeight: '1.5' }}>
+                  "{hoveredNode.sourceTextExcerpt}"
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

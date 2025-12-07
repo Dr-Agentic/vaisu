@@ -11,19 +11,31 @@ vi.mock('../../llm/openRouterClient', () => ({
           {
             id: 'root',
             label: 'Test Document',
+            subtitle: 'A test document for mind map',
+            icon: '📄',
             summary: 'A test document for mind map generation',
+            detailedExplanation: 'This is a comprehensive test document used for validating mind map generation functionality.',
+            sourceTextExcerpt: 'This is a test document with some content.',
             importance: 1.0,
             children: [
               {
                 id: 'node-1',
                 label: 'Section 1',
+                subtitle: 'First section overview',
+                icon: '📊',
                 summary: 'First section',
+                detailedExplanation: 'The first section contains important information about the topic.',
+                sourceTextExcerpt: 'Introduction content from the document.',
                 importance: 0.8,
                 children: [
                   {
                     id: 'node-1-1',
                     label: 'Subsection 1.1',
+                    subtitle: 'First subsection details',
+                    icon: '🔧',
                     summary: 'First subsection',
+                    detailedExplanation: 'This subsection provides detailed background information.',
+                    sourceTextExcerpt: 'Background content from the document.',
                     importance: 0.6,
                     children: []
                   }
@@ -32,7 +44,11 @@ vi.mock('../../llm/openRouterClient', () => ({
               {
                 id: 'node-2',
                 label: 'Section 2',
+                subtitle: 'Second section overview',
+                icon: '💡',
                 summary: 'Second section',
+                detailedExplanation: 'The second section concludes the main points.',
+                sourceTextExcerpt: 'Conclusion content from the document.',
                 importance: 0.7,
                 children: []
               }
@@ -255,6 +271,56 @@ describe('VisualizationGenerator', () => {
       expect(result.root.metadata).toBeDefined();
       expect(result.root.metadata.importance).toBeGreaterThan(0);
       expect(result.root.metadata.confidence).toBeGreaterThan(0);
+    });
+
+    it('should include subtitle for each node', async () => {
+      const result = (await generator.generateVisualization(
+        'mind-map',
+        mockDocument,
+        mockAnalysis
+      )) as MindMapData;
+
+      expect(result.root.subtitle).toBeDefined();
+      expect(result.root.subtitle.length).toBeLessThanOrEqual(40);
+      expect(result.root.children[0].subtitle).toBeDefined();
+      expect(result.root.children[0].children[0].subtitle).toBeDefined();
+    });
+
+    it('should include icon emoji for each node', async () => {
+      const result = (await generator.generateVisualization(
+        'mind-map',
+        mockDocument,
+        mockAnalysis
+      )) as MindMapData;
+
+      expect(result.root.icon).toBeDefined();
+      expect(result.root.icon).toBe('📄');
+      expect(result.root.children[0].icon).toBeDefined();
+      expect(result.root.children[0].icon).toBe('📊');
+      expect(result.root.children[0].children[0].icon).toBe('🔧');
+    });
+
+    it('should include detailed explanation for each node', async () => {
+      const result = (await generator.generateVisualization(
+        'mind-map',
+        mockDocument,
+        mockAnalysis
+      )) as MindMapData;
+
+      expect(result.root.detailedExplanation).toBeDefined();
+      expect(result.root.detailedExplanation.length).toBeGreaterThan(result.root.summary.length);
+      expect(result.root.children[0].detailedExplanation).toBeDefined();
+    });
+
+    it('should include source text excerpt when available', async () => {
+      const result = (await generator.generateVisualization(
+        'mind-map',
+        mockDocument,
+        mockAnalysis
+      )) as MindMapData;
+
+      expect(result.root.sourceTextExcerpt).toBeDefined();
+      expect(result.root.children[0].sourceTextExcerpt).toBeDefined();
     });
 
     it('should fallback to structure-based generation on LLM failure', async () => {

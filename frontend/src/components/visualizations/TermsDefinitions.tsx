@@ -10,13 +10,8 @@ export function TermsDefinitions({ data }: TermsDefinitionsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
 
-  console.log('[TermsDefinitions] Received data:', data);
-  console.log('[TermsDefinitions] Terms count:', data?.terms?.length);
-  console.log('[TermsDefinitions] Metadata:', data?.metadata);
-
   // Safety check for data structure
   if (!data || !data.terms || !Array.isArray(data.terms)) {
-    console.error('[TermsDefinitions] Invalid data structure:', data);
     return (
       <div className="text-center py-12 bg-gray-50 rounded-lg">
         <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-3" />
