@@ -115,9 +115,21 @@ describe('TextAnalyzer', () => {
 
   describe('recommendVisualizations', () => {
     it('should recommend 3-5 visualizations', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: SMALL_BUSINESS_REPORT,
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: { sections: [{} as any, {} as any], hierarchy: [] }
+      } as any;
+      
+      const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
+      
       const recommendations = await analyzer.recommendVisualizations(
-        SMALL_BUSINESS_REPORT,
-        {} as any // Mock analysis
+        mockDocument,
+        mockSignals,
+        5, // entityCount
+        3  // relationshipCount
       );
 
       expect(recommendations.length).toBeGreaterThanOrEqual(3);
@@ -125,9 +137,21 @@ describe('TextAnalyzer', () => {
     });
 
     it('should include rationale for each recommendation', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: SMALL_BUSINESS_REPORT,
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: { sections: [{} as any], hierarchy: [] }
+      } as any;
+      
+      const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
+      
       const recommendations = await analyzer.recommendVisualizations(
-        SMALL_BUSINESS_REPORT,
-        {} as any
+        mockDocument,
+        mockSignals,
+        5,
+        3
       );
 
       recommendations.forEach(rec => {
@@ -139,9 +163,21 @@ describe('TextAnalyzer', () => {
     });
 
     it('should rank recommendations by score', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: SMALL_BUSINESS_REPORT,
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: { sections: [{} as any], hierarchy: [] }
+      } as any;
+      
+      const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
+      
       const recommendations = await analyzer.recommendVisualizations(
-        SMALL_BUSINESS_REPORT,
-        {} as any
+        mockDocument,
+        mockSignals,
+        5,
+        3
       );
 
       for (let i = 0; i < recommendations.length - 1; i++) {
@@ -152,21 +188,51 @@ describe('TextAnalyzer', () => {
     });
 
     it('should recommend executive dashboard for quantitative content', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: QUANTITATIVE_REPORT,
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: { sections: [{} as any], hierarchy: [] }
+      } as any;
+      
+      const mockSignals = { structural: 0.5, process: 0.2, quantitative: 0.9, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
+      
       const recommendations = await analyzer.recommendVisualizations(
-        QUANTITATIVE_REPORT,
-        {} as any
+        mockDocument,
+        mockSignals,
+        5,
+        3
       );
 
       const hasExecutiveDashboard = recommendations.some(
         rec => rec.type === 'executive-dashboard'
       );
+      
+      // Debug: log recommendations if test fails
+      if (!hasExecutiveDashboard) {
+        console.log('Recommendations received:', recommendations.map(r => r.type));
+      }
+      
       expect(hasExecutiveDashboard).toBe(true);
     });
 
     it('should recommend flowchart for process content', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: PROCESS_DOCUMENT,
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: { sections: [{} as any], hierarchy: [] }
+      } as any;
+      
+      const mockSignals = { structural: 0.5, process: 0.9, quantitative: 0.2, technical: 0.3, argumentative: 0.2, temporal: 0.3 };
+      
       const recommendations = await analyzer.recommendVisualizations(
-        PROCESS_DOCUMENT,
-        {} as any
+        mockDocument,
+        mockSignals,
+        5,
+        3
       );
 
       const hasFlowchart = recommendations.some(
@@ -248,11 +314,9 @@ describe('TextAnalyzer', () => {
             throw new Error('Transient error');
           }
           return {
-            choices: [{
-              message: {
-                content: 'Success after retry'
-              }
-            }]
+            content: 'Success after retry',
+            tokensUsed: 100,
+            model: 'test-model'
           };
         })
       };
@@ -261,6 +325,7 @@ describe('TextAnalyzer', () => {
       const result = await retryAnalyzer.generateTLDR(SMALL_BUSINESS_REPORT);
 
       expect(result).toBeDefined();
+      expect(result).toBe('Success after retry');
       expect(callCount).toBeGreaterThan(1);
     });
   });

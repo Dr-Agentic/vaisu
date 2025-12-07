@@ -325,7 +325,8 @@ export type TaskType =
   | 'vizRecommendation'
   | 'kpiExtraction'
   | 'glossary'
-  | 'qa';
+  | 'qa'
+  | 'mindMapGeneration';
 
 export interface LLMCallConfig {
   model: string;

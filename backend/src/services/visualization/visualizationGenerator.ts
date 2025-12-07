@@ -20,7 +20,7 @@ export class VisualizationGenerator {
         return this.generateStructuredView(document);
       
       case 'mind-map':
-        return this.generateMindMap(document, analysis);
+        return await this.generateMindMap(document, analysis);
       
       case 'flowchart':
         return this.generateFlowchart(document, analysis);
@@ -48,8 +48,68 @@ export class VisualizationGenerator {
     };
   }
 
-  private generateMindMap(document: Document, analysis: DocumentAnalysis): MindMapData {
-    // Build mind map from document structure using the hierarchical sections
+  private async generateMindMap(document: Document, analysis: DocumentAnalysis): Promise<MindMapData> {
+    // Use LLM to generate a meaningful mind map structure
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
+    
+    try {
+      // Prepare document content for LLM (limit size)
+      const contentSample = document.content.substring(0, 8000);
+      const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}`;
+      
+      const response = await llmClient.callWithFallback('mindMapGeneration', prompt);
+      
+      // Parse LLM response
+      const parsed = llmClient.parseJSONResponse<{ nodes: any[] }>(response);
+      
+      if (parsed.nodes && parsed.nodes.length > 0) {
+        // Convert LLM nodes to mind map structure
+        const root = this.convertLLMNodeToMindMapNode(parsed.nodes[0], 0);
+        
+        return {
+          root,
+          layout: 'radial',
+          theme: {
+            primary: '#4F46E5',
+            secondary: '#7C3AED',
+            accent: '#10B981',
+            background: '#FFFFFF',
+            text: '#1F2937'
+          }
+        };
+      }
+    } catch (error) {
+      console.error('LLM mind map generation failed, falling back to structure-based:', error);
+    }
+    
+    // Fallback to structure-based generation
+    return this.generateMindMapFromStructure(document, analysis);
+  }
+
+  private convertLLMNodeToMindMapNode(node: any, level: number): any {
+    const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
+    const colorIndex = level % colors.length;
+    
+    return {
+      id: node.id || `node-${Math.random().toString(36).substr(2, 9)}`,
+      label: node.label || 'Untitled',
+      summary: node.summary || '',
+      children: (node.children || []).map((child: any) => 
+        this.convertLLMNodeToMindMapNode(child, level + 1)
+      ),
+      level: level,
+      color: colors[colorIndex],
+      sourceRef: { start: 0, end: 0, text: '' },
+      metadata: {
+        importance: node.importance || Math.max(0.3, 0.9 - (level * 0.15)),
+        confidence: 0.85
+      }
+    };
+  }
+
+  private generateMindMapFromStructure(document: Document, analysis: DocumentAnalysis): MindMapData {
+    // Fallback: Build mind map from document structure
     const root = {
       id: 'root',
       label: document.title,

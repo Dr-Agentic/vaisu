@@ -1,15 +1,32 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import request from 'supertest';
 import express from 'express';
 import { documentsRouter } from '../documents';
 import { SMALL_BUSINESS_REPORT } from '../../../../test/fixtures/documents';
+import { textAnalyzer } from '../../services/analysis/textAnalyzer';
+import { createMockOpenRouterClient } from '../../../../test/mocks/openRouterMock';
 
 describe('Documents API Integration Tests', () => {
   let app: express.Application;
 
   beforeAll(() => {
+    // Mock the LLM client for integration tests
+    const mockClient = createMockOpenRouterClient();
+    (textAnalyzer as any)._llmClient = mockClient;
+    
     app = express();
+    
+    // JSON parsing with error handling
     app.use(express.json());
+    
+    // Error handler for JSON parsing
+    app.use((err: any, req: any, res: any, next: any) => {
+      if (err instanceof SyntaxError && 'body' in err) {
+        return res.status(400).json({ error: 'Invalid JSON' });
+      }
+      next();
+    });
+    
     app.use('/api/documents', documentsRouter);
   });
 
@@ -101,12 +118,12 @@ describe('Documents API Integration Tests', () => {
 
   describe('GET /api/documents/:id', () => {
     it('should retrieve document by ID', async () => {
-      // First upload a document
+      // First analyze a document
       const uploadResponse = await request(app)
         .post('/api/documents/analyze')
         .send({ text: SMALL_BUSINESS_REPORT });
 
-      const documentId = uploadResponse.body.documentId;
+      const documentId = uploadResponse.body.document.id;
 
       // Then retrieve it
       const response = await request(app)

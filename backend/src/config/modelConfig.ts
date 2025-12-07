@@ -96,6 +96,49 @@ Return as JSON array with: term, definition, domain, confidence.`
     maxTokens: 800,
     temperature: 0.6,
     systemPrompt: 'Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.'
+  },
+  mindMapGeneration: {
+    primary: 'x-ai/grok-4.1-fast',
+    fallback: 'openai/gpt-3.5-turbo',
+    maxTokens: 3000,
+    temperature: 0.4,
+    systemPrompt: `Analyze the document and create a hierarchical mind map structure with 3-5 levels of depth.
+
+Create a tree structure where:
+- Root node: Main topic/title
+- Level 1: Major themes or sections (3-7 nodes)
+- Level 2: Key concepts under each theme (2-5 nodes per parent)
+- Level 3+: Supporting details (1-3 nodes per parent)
+
+For each node include:
+- id: unique identifier
+- label: concise title (2-5 words)
+- summary: brief description (1-2 sentences)
+- children: array of child nodes
+- importance: 0.3-1.0 based on significance
+
+Return ONLY valid JSON matching this structure:
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "label": "Main Topic",
+      "summary": "Brief description",
+      "children": [
+        {
+          "id": "node-1-1",
+          "label": "Subtopic",
+          "summary": "Details",
+          "children": [],
+          "importance": 0.8
+        }
+      ],
+      "importance": 1.0
+    }
+  ]
+}
+
+Focus on creating a meaningful hierarchy that captures the document's structure and key concepts.`
   }
 };
 

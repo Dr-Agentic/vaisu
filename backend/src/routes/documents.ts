@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { documentParser } from '../services/documentParser.js';
 import { textAnalyzer } from '../services/analysis/textAnalyzer.js';
@@ -6,6 +6,19 @@ import { visualizationGenerator } from '../services/visualization/visualizationG
 import type { Document, DocumentAnalysis } from '../../../shared/src/types.js';
 
 const router = Router();
+
+// CORS middleware
+router.use((req: Request, res: Response, next: NextFunction) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
+  
+  next();
+});
 
 // Store for progress tracking with partial results
 interface ProgressInfo {
@@ -38,7 +51,19 @@ const analyses = new Map<string, DocumentAnalysis>();
 const visualizations = new Map<string, any>();
 
 // POST /api/documents/upload
-router.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
+router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
+  upload.single('file')(req, res, (err: any) => {
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(413).json({ error: 'File too large. Maximum size is 10MB.' });
+      }
+      return res.status(400).json({ error: err.message });
+    } else if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+    next();
+  });
+}, async (req: Request, res: Response) => {
   try {
     let document: Document;
 
@@ -195,3 +220,4 @@ router.get('/:id/progress', (req: Request, res: Response) => {
 });
 
 export default router;
+export { router as documentsRouter };

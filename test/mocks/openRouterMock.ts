@@ -109,6 +109,45 @@ export const mockOpenRouterResponses = {
     }
   },
   
+  relationshipDetection: {
+    id: 'gen-129',
+    model: 'openai/gpt-4.5-mini',
+    choices: [{
+      message: {
+        role: 'assistant',
+        content: JSON.stringify({
+          relationships: [
+            { source: 'Revenue', target: '$2.5M', type: 'has-value' },
+            { source: 'Q4', target: 'Revenue', type: 'temporal' }
+          ]
+        })
+      },
+      finish_reason: 'stop'
+    }],
+    usage: {
+      prompt_tokens: 600,
+      completion_tokens: 80,
+      total_tokens: 680
+    }
+  },
+  
+  sectionSummary: {
+    id: 'gen-130',
+    model: 'anthropic/claude-3.7-haiku',
+    choices: [{
+      message: {
+        role: 'assistant',
+        content: 'This section discusses key metrics and performance indicators.'
+      },
+      finish_reason: 'stop'
+    }],
+    usage: {
+      prompt_tokens: 400,
+      completion_tokens: 30,
+      total_tokens: 430
+    }
+  },
+  
   visualizationRecommendations: {
     id: 'gen-127',
     model: 'anthropic/claude-3.7-sonnet',
@@ -207,10 +246,146 @@ export function createMockOpenRouterClient() {
           rawResponse = mockOpenRouterResponses.entityExtraction;
           break;
         case 'signalAnalysis':
-          rawResponse = mockOpenRouterResponses.signalAnalysis;
+          // Detect document type from prompt content
+          let signals = {
+            structural: 0.8,
+            process: 0.3,
+            quantitative: 0.9,
+            technical: 0.2,
+            argumentative: 0.4,
+            temporal: 0.6
+          };
+          
+          if (prompt.toLowerCase().includes('workflow') || 
+              prompt.toLowerCase().includes('process') ||
+              prompt.toLowerCase().includes('step') ||
+              prompt.toLowerCase().includes('procedure')) {
+            signals = {
+              structural: 0.6,
+              process: 0.85,
+              quantitative: 0.3,
+              technical: 0.4,
+              argumentative: 0.2,
+              temporal: 0.7
+            };
+          } else if (prompt.toLowerCase().includes('api') || 
+                     prompt.toLowerCase().includes('endpoint') ||
+                     prompt.toLowerCase().includes('technical') ||
+                     prompt.toLowerCase().includes('specification')) {
+            signals = {
+              structural: 0.7,
+              process: 0.4,
+              quantitative: 0.3,
+              technical: 0.85,
+              argumentative: 0.2,
+              temporal: 0.3
+            };
+          }
+          
+          rawResponse = {
+            ...mockOpenRouterResponses.signalAnalysis,
+            choices: [{
+              ...mockOpenRouterResponses.signalAnalysis.choices[0],
+              message: {
+                ...mockOpenRouterResponses.signalAnalysis.choices[0].message,
+                content: JSON.stringify(signals)
+              }
+            }]
+          };
           break;
-        case 'visualizationRecommendations':
-          rawResponse = mockOpenRouterResponses.visualizationRecommendations;
+        case 'relationshipDetection':
+          rawResponse = mockOpenRouterResponses.relationshipDetection;
+          break;
+        case 'sectionSummary':
+          rawResponse = mockOpenRouterResponses.sectionSummary;
+          break;
+        case 'vizRecommendation':
+          // Return more recommendations based on content and signals
+          let recommendations = [
+            {
+              type: 'executive-dashboard',
+              score: 0.95,
+              rationale: 'High quantitative signal detected. Document contains numeric metrics and KPIs.'
+            },
+            {
+              type: 'structured-view',
+              score: 0.85,
+              rationale: 'Clear hierarchical structure with main sections and subsections.'
+            },
+            {
+              type: 'waterfall-chart',
+              score: 0.75,
+              rationale: 'Sequential data showing progression over time.'
+            },
+            {
+              type: 'mind-map',
+              score: 0.70,
+              rationale: 'Good for visualizing relationships between concepts.'
+            }
+          ];
+          
+          // Check signals in the prompt
+          const signalsMatch = prompt.match(/"quantitative":\s*([\d.]+)/);
+          const quantitativeSignal = signalsMatch ? parseFloat(signalsMatch[1]) : 0;
+          
+          const processMatch = prompt.match(/"process":\s*([\d.]+)/);
+          const processSignal = processMatch ? parseFloat(processMatch[1]) : 0;
+          
+          // Adjust based on signals (prioritize signal values over content keywords)
+          if (processSignal > 0.6) {
+            recommendations = [
+              {
+                type: 'flowchart',
+                score: 0.95,
+                rationale: 'High process signal detected. Document describes sequential workflow.'
+              },
+              {
+                type: 'swimlane',
+                score: 0.85,
+                rationale: 'Multiple actors and process steps identified.'
+              },
+              {
+                type: 'structured-view',
+                score: 0.80,
+                rationale: 'Clear hierarchical structure.'
+              },
+              {
+                type: 'timeline',
+                score: 0.70,
+                rationale: 'Temporal progression in the process.'
+              }
+            ];
+          } else if (quantitativeSignal < 0.5) {
+            // Low quantitative signal - don't recommend dashboard
+            recommendations = [
+              {
+                type: 'structured-view',
+                score: 0.90,
+                rationale: 'Clear hierarchical structure with main sections and subsections.'
+              },
+              {
+                type: 'mind-map',
+                score: 0.85,
+                rationale: 'Good for visualizing relationships between concepts.'
+              },
+              {
+                type: 'knowledge-graph',
+                score: 0.75,
+                rationale: 'Shows connections between entities.'
+              }
+            ];
+          }
+          
+          rawResponse = {
+            ...mockOpenRouterResponses.visualizationRecommendations,
+            choices: [{
+              ...mockOpenRouterResponses.visualizationRecommendations.choices[0],
+              message: {
+                ...mockOpenRouterResponses.visualizationRecommendations.choices[0].message,
+                content: JSON.stringify({ recommendations })
+              }
+            }]
+          };
           break;
         default:
           rawResponse = mockOpenRouterResponses.tldr;
@@ -222,6 +397,10 @@ export function createMockOpenRouterClient() {
         tokensUsed: rawResponse.usage.total_tokens,
         model: rawResponse.model
       };
+    }),
+    
+    parseJSONResponse: vi.fn().mockImplementation(async (response: any) => {
+      return JSON.parse(response.content);
     })
   };
 }

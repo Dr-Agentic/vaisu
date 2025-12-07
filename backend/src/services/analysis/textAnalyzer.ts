@@ -92,10 +92,23 @@ export class TextAnalyzer {
     };
   }
 
-  async generateTLDR(text: string): Promise<string> {
+  async generateTLDR(text: string, retries = 2): Promise<string> {
     const sample = text.substring(0, 4000); // Limit for speed
-    const response = await this.llmClient.callWithFallback('tldr', sample);
-    return response.content.trim();
+    
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        const response = await this.llmClient.callWithFallback('tldr', sample);
+        return response.content.trim();
+      } catch (error: any) {
+        if (attempt === retries) {
+          throw error;
+        }
+        console.warn(`TLDR generation failed (attempt ${attempt + 1}/${retries + 1}), retrying...`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      }
+    }
+    
+    throw new Error('Failed to generate TLDR after retries');
   }
 
   async generateExecutiveSummary(text: string): Promise<ExecutiveSummary> {
@@ -237,7 +250,7 @@ ${document.content.substring(0, 1000)}`;
     const response = await this.llmClient.callWithFallback('vizRecommendation', prompt);
     
     try {
-      const parsed = await this.llmClient.parseJSONResponse<{ recommendations: VisualizationRecommendation[] }>(response);
+      const parsed = JSON.parse(response.content) as { recommendations: VisualizationRecommendation[] };
       
       // Always include structured-view as default
       const recommendations = parsed.recommendations || [];

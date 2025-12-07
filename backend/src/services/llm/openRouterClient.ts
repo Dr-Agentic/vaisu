@@ -7,8 +7,8 @@ export class OpenRouterClient {
   private apiKey: string;
   private appUrl: string;
 
-  constructor() {
-    this.apiKey = process.env.OPENROUTER_API_KEY || '';
+  constructor(apiKey?: string) {
+    this.apiKey = apiKey || process.env.OPENROUTER_API_KEY || '';
     this.appUrl = process.env.APP_URL || 'http://localhost:5173';
     
     if (!this.apiKey || this.apiKey.includes('REPLACE') || this.apiKey.length < 20) {
@@ -118,7 +118,7 @@ export class OpenRouterClient {
     return results;
   }
 
-  async parseJSONResponse<T>(response: LLMResponse): Promise<T> {
+  parseJSONResponse<T>(response: LLMResponse): T {
     try {
       // Try to extract JSON from markdown code blocks if present
       let content = response.content.trim();

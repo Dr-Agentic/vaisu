@@ -28,57 +28,57 @@ export function MindMap({ data }: MindMapProps) {
 
   const calculateNodePositions = () => {
     const positions = new Map<string, NodePosition>();
-    const centerX = 500;
-    const centerY = 400;
     
-    // Position root at center
-    positions.set(data.root.id, { x: centerX, y: centerY });
+    // Start from left side
+    const startX = 50;
+    const startY = 400;
     
-    // Position children in radial layout
+    // Position root on the left
+    positions.set(data.root.id, { x: startX, y: startY });
+    
+    // Position children in horizontal layout
     if (data.root.children && data.root.children.length > 0) {
-      positionChildrenRadial(data.root, centerX, centerY, 180, 0, Math.PI * 2, positions);
+      positionChildrenHorizontal(data.root, startX, startY, positions);
     }
     
     setNodePositions(positions);
   };
 
-  const positionChildrenRadial = (
+  const positionChildrenHorizontal = (
     node: MindMapNode,
-    centerX: number,
-    centerY: number,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    positions: Map<string, NodePosition>
+    parentX: number,
+    parentY: number,
+    positions: Map<string, NodePosition>,
+    level: number = 0
   ) => {
     const children = node.children || [];
     if (children.length === 0) return;
 
-    const angleStep = (endAngle - startAngle) / children.length;
+    // Horizontal spacing between levels
+    const levelSpacing = 250;
+    const childX = parentX + levelSpacing;
     
-    children.forEach((child, index) => {
-      const angle = startAngle + angleStep * (index + 0.5);
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
+    // Calculate total height needed for all children and their descendants
+    const getSubtreeHeight = (n: MindMapNode): number => {
+      if (!n.children || n.children.length === 0) return 80;
+      return n.children.reduce((sum, child) => sum + getSubtreeHeight(child), 0);
+    };
+    
+    const totalHeight = children.reduce((sum, child) => sum + getSubtreeHeight(child), 0);
+    let currentY = parentY - totalHeight / 2;
+    
+    children.forEach((child) => {
+      const childHeight = getSubtreeHeight(child);
+      const childY = currentY + childHeight / 2;
       
-      positions.set(child.id, { x, y });
+      positions.set(child.id, { x: childX, y: childY });
       
       // Recursively position grandchildren
       if (child.children && child.children.length > 0) {
-        const childAngleSpan = angleStep * 0.8;
-        const childStartAngle = angle - childAngleSpan / 2;
-        const childEndAngle = angle + childAngleSpan / 2;
-        
-        positionChildrenRadial(
-          child,
-          x,
-          y,
-          radius * 0.65,
-          childStartAngle,
-          childEndAngle,
-          positions
-        );
+        positionChildrenHorizontal(child, childX, childY, positions, level + 1);
       }
+      
+      currentY += childHeight;
     });
   };
 
@@ -122,17 +122,31 @@ export function MindMap({ data }: MindMapProps) {
     const isRoot = node.id === data.root.id;
     const isSelected = selectedNode?.id === node.id;
     
+    // Rectangle dimensions based on level
+    const width = isRoot ? 180 : 160;
+    const height = isRoot ? 50 : 40;
+    const rx = 8; // Border radius
+    
+    // Calculate text to fit in box
+    const maxChars = isRoot ? 25 : 22;
+    const displayText = node.label.length > maxChars 
+      ? node.label.substring(0, maxChars - 3) + '...' 
+      : node.label;
+    
     return (
       <g key={node.id}>
-        {/* Node circle */}
-        <circle
-          cx={pos.x}
-          cy={pos.y}
-          r={isRoot ? 60 : 40}
+        {/* Node rectangle */}
+        <rect
+          x={pos.x - width / 2}
+          y={pos.y - height / 2}
+          width={width}
+          height={height}
+          rx={rx}
+          ry={rx}
           fill={node.color}
-          stroke={isSelected ? '#FFF' : 'none'}
-          strokeWidth={isSelected ? 4 : 0}
-          className="cursor-pointer transition-all duration-200 hover:opacity-80"
+          stroke={isSelected ? '#FFF' : node.color}
+          strokeWidth={isSelected ? 3 : 1}
+          className="cursor-pointer transition-all duration-200 hover:opacity-90"
           onClick={() => setSelectedNode(node)}
         />
         
@@ -143,13 +157,11 @@ export function MindMap({ data }: MindMapProps) {
           textAnchor="middle"
           dominantBaseline="middle"
           fill="white"
-          fontSize={isRoot ? 14 : 11}
+          fontSize={isRoot ? 13 : 11}
           fontWeight={isRoot ? 'bold' : '600'}
           className="pointer-events-none select-none"
         >
-          {node.label.length > (isRoot ? 25 : 18) 
-            ? node.label.substring(0, isRoot ? 22 : 15) + '...' 
-            : node.label}
+          {displayText}
         </text>
       </g>
     );
@@ -161,16 +173,30 @@ export function MindMap({ data }: MindMapProps) {
     
     if (!parentPos || !childPos) return null;
 
+    const isRoot = parent.id === data.root.id;
+    const parentWidth = isRoot ? 180 : 160;
+    
+    // Start from right edge of parent
+    const startX = parentPos.x + parentWidth / 2;
+    const startY = parentPos.y;
+    
+    // End at left edge of child
+    const childWidth = 160;
+    const endX = childPos.x - childWidth / 2;
+    const endY = childPos.y;
+    
+    // Create curved path for better aesthetics
+    const midX = (startX + endX) / 2;
+    const path = `M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`;
+
     return (
-      <line
+      <path
         key={`${parent.id}-${child.id}`}
-        x1={parentPos.x}
-        y1={parentPos.y}
-        x2={childPos.x}
-        y2={childPos.y}
-        stroke={parent.color}
+        d={path}
+        stroke={child.color}
         strokeWidth={2}
-        opacity={0.6}
+        fill="none"
+        opacity={0.5}
       />
     );
   };
@@ -220,11 +246,11 @@ export function MindMap({ data }: MindMapProps) {
         <svg
           width="100%"
           height="100%"
-          viewBox="0 0 1000 800"
-          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 2000 1200"
+          preserveAspectRatio="xMinYMid meet"
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-            transformOrigin: 'center center',
+            transformOrigin: 'left center',
             transition: isDragging ? 'none' : 'transform 0.2s ease-out'
           }}
         >
@@ -292,6 +318,7 @@ export function MindMap({ data }: MindMapProps) {
         <div>• Click and drag to pan</div>
         <div>• Use zoom controls (bottom-right)</div>
         <div>• Click nodes for details</div>
+        <div className="mt-1 text-gray-500">Left to right: general to detailed</div>
       </div>
 
       {/* Legend */}
@@ -299,19 +326,19 @@ export function MindMap({ data }: MindMapProps) {
         <div className="font-medium text-gray-900 mb-2">Hierarchy Levels</div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#4F46E5' }}></div>
+            <div className="w-6 h-3 rounded" style={{ backgroundColor: '#4F46E5' }}></div>
             <span className="text-gray-600">Level 1</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#7C3AED' }}></div>
+            <div className="w-6 h-3 rounded" style={{ backgroundColor: '#7C3AED' }}></div>
             <span className="text-gray-600">Level 2</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#10B981' }}></div>
+            <div className="w-6 h-3 rounded" style={{ backgroundColor: '#10B981' }}></div>
             <span className="text-gray-600">Level 3</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: '#F59E0B' }}></div>
+            <div className="w-6 h-3 rounded" style={{ backgroundColor: '#F59E0B' }}></div>
             <span className="text-gray-600">Level 4+</span>
           </div>
         </div>
