@@ -186,21 +186,39 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
     // Check cache
     if (visualizationData.has(type)) {
+      console.log(`[loadVisualization] Using cached data for ${type}`, visualizationData.get(type));
       set({ currentVisualization: type });
       return;
     }
 
     try {
+      console.log(`[loadVisualization] Fetching ${type} from API`);
       const data = await apiClient.generateVisualization(document.id, type);
+      console.log(`[loadVisualization] Received data for ${type}:`, data);
+      
+      // Validate data structure for terms-definitions
+      if (type === 'terms-definitions') {
+        if (!data || !data.terms || !Array.isArray(data.terms)) {
+          console.error(`[loadVisualization] Invalid terms-definitions data structure:`, data);
+          throw new Error('Invalid data structure received for terms-definitions');
+        }
+        console.log(`[loadVisualization] terms-definitions has ${data.terms.length} terms`);
+      }
+      
       const newMap = new Map(visualizationData);
       newMap.set(type, data);
       set({ visualizationData: newMap, currentVisualization: type });
+      console.log(`[loadVisualization] Cached ${type}, total cached:`, newMap.size);
     } catch (error: any) {
+      console.error(`[loadVisualization] Error loading ${type}:`, error);
       set({ error: error.message || 'Failed to load visualization' });
     }
   },
 
   setCurrentVisualization: (type: VisualizationType) => {
+    console.log(`[setCurrentVisualization] Switching to ${type}`);
+    console.log(`[setCurrentVisualization] Current cache size:`, get().visualizationData.size);
+    console.log(`[setCurrentVisualization] Cache keys:`, Array.from(get().visualizationData.keys()));
     set({ currentVisualization: type });
     get().loadVisualization(type);
   },

@@ -2,12 +2,17 @@ import React from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { StructuredView } from './StructuredView';
 import { MindMap } from './MindMap';
+import { TermsDefinitions } from './TermsDefinitions';
 import { Loader2 } from 'lucide-react';
 
 export function VisualizationRenderer() {
   const { currentVisualization, visualizationData, document } = useDocumentStore();
 
   const data = visualizationData.get(currentVisualization);
+  
+  console.log('[VisualizationRenderer] Current visualization:', currentVisualization);
+  console.log('[VisualizationRenderer] Visualization data map size:', visualizationData.size);
+  console.log('[VisualizationRenderer] Data for current viz:', data);
 
   if (!data) {
     return (
@@ -56,6 +61,9 @@ export function VisualizationRenderer() {
           </pre>
         </div>
       );
+    
+    case 'terms-definitions':
+      return <TermsDefinitions data={data} />;
     
     default:
       return (

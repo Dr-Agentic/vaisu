@@ -6,7 +6,8 @@ import type {
   FlowchartData,
   KnowledgeGraphData,
   DashboardData,
-  TimelineData
+  TimelineData,
+  TermsDefinitionsData
 } from '../../../../shared/src/types.js';
 
 export class VisualizationGenerator {
@@ -33,6 +34,9 @@ export class VisualizationGenerator {
       
       case 'timeline':
         return this.generateTimeline(document, analysis);
+      
+      case 'terms-definitions':
+        return await this.generateTermsDefinitions(document, analysis);
       
       default:
         throw new Error(`Visualization type ${type} not yet implemented`);
@@ -262,6 +266,78 @@ export class VisualizationGenerator {
     return {
       events,
       scale: 'month'
+    };
+  }
+
+  private async generateTermsDefinitions(
+    document: Document,
+    analysis: DocumentAnalysis
+  ): Promise<TermsDefinitionsData> {
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
+    
+    try {
+      // Prepare document content (limit to 10000 chars for context)
+      const contentSample = document.content.substring(0, 10000);
+      const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}\n\nExtract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as JSON array with format: { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }`;
+      
+      const response = await llmClient.callWithFallback('glossary', prompt);
+      const parsed = llmClient.parseJSONResponse<{ terms: any[], domain?: string }>(response);
+      
+      if (parsed.terms && parsed.terms.length > 0) {
+        // Sort terms alphabetically
+        const sortedTerms = parsed.terms
+          .map((t, index) => ({
+            id: `term-${index}`,
+            term: t.term || t.text || 'Unknown',
+            definition: t.definition || 'No definition provided',
+            type: t.type || 'concept',
+            confidence: t.confidence || 0.8,
+            mentions: t.mentions || 1,
+            context: t.context
+          }))
+          .sort((a, b) => a.term.localeCompare(b.term));
+        
+        return {
+          terms: sortedTerms,
+          metadata: {
+            totalTerms: sortedTerms.length,
+            extractionConfidence: 0.85,
+            documentDomain: parsed.domain || 'general'
+          }
+        };
+      }
+    } catch (error) {
+      console.error('LLM glossary extraction failed, falling back to entity extraction:', error);
+    }
+    
+    // Fallback: extract from existing entities
+    return this.generateTermsFromEntities(analysis);
+  }
+
+  private generateTermsFromEntities(analysis: DocumentAnalysis): TermsDefinitionsData {
+    // Fallback implementation using existing entity extraction
+    const terms = analysis.entities
+      .filter(e => e.type === 'technical' || e.type === 'concept')
+      .slice(0, 30)
+      .map((entity, index) => ({
+        id: `term-${index}`,
+        term: entity.text,
+        definition: entity.context || 'Technical term from document',
+        type: (entity.type === 'technical' ? 'technical' : 'concept') as 'technical' | 'concept',
+        confidence: entity.importance,
+        mentions: entity.mentions.length,
+        context: entity.context
+      }))
+      .sort((a, b) => a.term.localeCompare(b.term));
+    
+    return {
+      terms,
+      metadata: {
+        totalTerms: terms.length,
+        extractionConfidence: 0.7,
+        documentDomain: 'general'
+      }
     };
   }
 

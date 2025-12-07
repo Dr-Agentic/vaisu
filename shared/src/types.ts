@@ -141,7 +141,8 @@ export type VisualizationType =
   | 'gantt'
   | 'comparison-matrix'
   | 'priority-matrix'
-  | 'raci-matrix';
+  | 'raci-matrix'
+  | 'terms-definitions';
 
 export interface VisualizationRecommendation {
   type: VisualizationType;
@@ -272,6 +273,25 @@ export interface TimelineEvent {
   endDate?: Date;
   category: string;
   color: string;
+}
+
+export interface TermsDefinitionsData {
+  terms: GlossaryTerm[];
+  metadata: {
+    totalTerms: number;
+    extractionConfidence: number;
+    documentDomain: string;
+  };
+}
+
+export interface GlossaryTerm {
+  id: string;
+  term: string;
+  definition: string;
+  type: 'acronym' | 'technical' | 'jargon' | 'concept';
+  confidence: number;
+  mentions: number;
+  context?: string;
 }
 
 // API Request/Response types

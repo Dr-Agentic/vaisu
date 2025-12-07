@@ -8,7 +8,8 @@ import {
   BarChart3,
   Calendar,
   Table,
-  Star
+  Star,
+  BookOpen
 } from 'lucide-react';
 
 const VISUALIZATION_INFO: Record<VisualizationType, { name: string; icon: any; description: string }> = {
@@ -76,6 +77,11 @@ const VISUALIZATION_INFO: Record<VisualizationType, { name: string; icon: any; d
     name: 'UML Activity',
     icon: GitBranch,
     description: 'Activity flow'
+  },
+  'terms-definitions': {
+    name: 'Terms & Definitions',
+    icon: BookOpen,
+    description: 'Key terms and glossary'
   }
 };
 
@@ -144,7 +150,7 @@ export function VisualizationSelector() {
   };
 
   return (
-    <div className="sticky top-0 z-20 bg-white border-b border-gray-200 shadow-soft -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-6 mb-6">
+    <div className="bg-white border-b border-gray-200 shadow-soft -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-6 mb-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Visualizations</h2>
         

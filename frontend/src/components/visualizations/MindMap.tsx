@@ -233,11 +233,11 @@ export function MindMap({ data }: MindMapProps) {
   };
 
   return (
-    <div className="relative w-full h-full min-h-[600px] bg-gray-50 rounded-lg overflow-hidden">
+    <div className="w-full h-[600px] bg-gray-50 rounded-lg">
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="mind-map-canvas w-full h-full cursor-move"
+        className="mind-map-canvas relative w-full h-full cursor-move overflow-hidden rounded-lg"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -263,7 +263,7 @@ export function MindMap({ data }: MindMapProps) {
       </div>
 
       {/* Zoom Controls */}
-      <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-lg border border-gray-200 p-2 flex flex-col gap-2">
+      <div className="absolute bottom-2 right-2 bg-white rounded-lg shadow-lg border border-gray-200 p-2 flex flex-col gap-2">
         <button
           onClick={handleZoomIn}
           className="p-2 hover:bg-gray-100 rounded transition-colors"
@@ -289,7 +289,7 @@ export function MindMap({ data }: MindMapProps) {
 
       {/* Node Details Panel */}
       {selectedNode && (
-        <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm">
+        <div className="absolute top-2 left-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 max-w-sm">
           <div className="flex items-start justify-between mb-2">
             <h3 className="font-semibold text-gray-900">{selectedNode.label}</h3>
             <button
@@ -313,7 +313,7 @@ export function MindMap({ data }: MindMapProps) {
       )}
 
       {/* Instructions */}
-      <div className="absolute bottom-4 left-4 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs text-gray-600">
+      <div className="absolute bottom-2 left-2 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs text-gray-600">
         <div className="font-medium mb-1">Controls:</div>
         <div>• Click and drag to pan</div>
         <div>• Use zoom controls (bottom-right)</div>
@@ -322,7 +322,7 @@ export function MindMap({ data }: MindMapProps) {
       </div>
 
       {/* Legend */}
-      <div className="absolute top-4 right-4 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs">
+      <div className="absolute top-2 right-2 bg-white/90 rounded-lg shadow-sm border border-gray-200 px-3 py-2 text-xs">
         <div className="font-medium text-gray-900 mb-2">Hierarchy Levels</div>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
