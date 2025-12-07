@@ -19,8 +19,14 @@ export type ProgressCallback = (
 ) => void;
 
 export class TextAnalyzer {
+  private _llmClient: any;
+
+  constructor(llmClient?: any) {
+    this._llmClient = llmClient;
+  }
+
   private get llmClient() {
-    return getOpenRouterClient();
+    return this._llmClient || getOpenRouterClient();
   }
   
   async analyzeDocument(
@@ -97,7 +103,7 @@ export class TextAnalyzer {
     const response = await this.llmClient.callWithFallback('executiveSummary', sample);
     
     try {
-      const parsed = await this.llmClient.parseJSONResponse<ExecutiveSummary>(response);
+      const parsed = JSON.parse(response.content) as ExecutiveSummary;
       
       // Validate and filter KPIs to ensure they have valid numeric values
       const validKpis = (parsed.kpis || []).filter(kpi => 
@@ -167,7 +173,7 @@ export class TextAnalyzer {
     const response = await this.llmClient.callWithFallback('signalAnalysis', sample);
     
     try {
-      const parsed = await this.llmClient.parseJSONResponse<SignalAnalysis>(response);
+      const parsed = JSON.parse(response.content) as SignalAnalysis;
       return parsed;
     } catch (error) {
       console.error('Failed to parse signals, using defaults');

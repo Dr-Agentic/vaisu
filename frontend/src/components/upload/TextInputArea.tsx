@@ -25,7 +25,7 @@ export function TextInputArea() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Or paste your text here..."
-          className="w-full h-64 p-4 border-2 border-gray-300 rounded-lg focus:border-primary-500 focus:outline-none resize-none"
+          className="w-full h-64 p-4 border-2 border-gray-300 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-20 focus:outline-none resize-none transition-all duration-200 hover:border-gray-400"
           disabled={isLoading}
         />
         {text && (
@@ -47,7 +47,7 @@ export function TextInputArea() {
         <button
           onClick={handleSubmit}
           disabled={!text.trim() || isLoading}
-          className="flex items-center gap-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-600 to-secondary-600 text-white rounded-xl hover:from-primary-700 hover:to-secondary-700 hover:scale-[1.02] hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all duration-200"
         >
           {isLoading ? (
             <>

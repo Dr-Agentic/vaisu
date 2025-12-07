@@ -174,7 +174,8 @@ export const mockOpenRouterResponses = {
 };
 
 /**
- * Create a mock OpenRouter client
+ * Create a mock OpenRouter client that returns simplified responses
+ * matching the format returned by the real OpenRouterClient
  */
 export function createMockOpenRouterClient() {
   return {
@@ -182,42 +183,45 @@ export function createMockOpenRouterClient() {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 10));
       
-      // Return appropriate mock based on prompt content
-      if (config.messages[0].content.includes('TLDR')) {
-        return mockOpenRouterResponses.tldr;
-      } else if (config.messages[0].content.includes('executive summary')) {
-        return mockOpenRouterResponses.executiveSummary;
-      } else if (config.messages[0].content.includes('entities')) {
-        return mockOpenRouterResponses.entityExtraction;
-      } else if (config.messages[0].content.includes('signal')) {
-        return mockOpenRouterResponses.signalAnalysis;
-      } else if (config.messages[0].content.includes('visualizations')) {
-        return mockOpenRouterResponses.visualizationRecommendations;
-      } else if (config.messages[0].content.includes('summarize')) {
-        return mockOpenRouterResponses.sectionSummaries;
-      }
-      
-      // Default response
-      return mockOpenRouterResponses.tldr;
+      // Return simplified format matching real OpenRouterClient
+      const rawResponse = mockOpenRouterResponses.tldr;
+      return {
+        content: rawResponse.choices[0].message.content,
+        tokensUsed: rawResponse.usage.total_tokens,
+        model: rawResponse.model
+      };
     }),
     
     callWithFallback: vi.fn().mockImplementation(async (task: string, prompt: string) => {
       await new Promise(resolve => setTimeout(resolve, 10));
       
+      let rawResponse;
       switch (task) {
         case 'tldr':
-          return mockOpenRouterResponses.tldr;
+          rawResponse = mockOpenRouterResponses.tldr;
+          break;
         case 'executiveSummary':
-          return mockOpenRouterResponses.executiveSummary;
+          rawResponse = mockOpenRouterResponses.executiveSummary;
+          break;
         case 'entityExtraction':
-          return mockOpenRouterResponses.entityExtraction;
+          rawResponse = mockOpenRouterResponses.entityExtraction;
+          break;
         case 'signalAnalysis':
-          return mockOpenRouterResponses.signalAnalysis;
+          rawResponse = mockOpenRouterResponses.signalAnalysis;
+          break;
         case 'visualizationRecommendations':
-          return mockOpenRouterResponses.visualizationRecommendations;
+          rawResponse = mockOpenRouterResponses.visualizationRecommendations;
+          break;
         default:
-          return mockOpenRouterResponses.tldr;
+          rawResponse = mockOpenRouterResponses.tldr;
       }
+      
+      // Return simplified format matching real OpenRouterClient
+      return {
+        content: rawResponse.choices[0].message.content,
+        tokensUsed: rawResponse.usage.total_tokens,
+        model: rawResponse.model
+      };
     })
   };
 }

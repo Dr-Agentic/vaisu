@@ -1,11 +1,14 @@
-import React from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDocumentStore } from './stores/documentStore';
+import { HeroSection } from './components/layout/HeroSection';
 import { FileUploader } from './components/upload/FileUploader';
 import { TextInputArea } from './components/upload/TextInputArea';
 import { TLDRBox } from './components/summary/TLDRBox';
 import { ExecutiveSummary } from './components/summary/ExecutiveSummary';
 import { VisualizationSelector } from './components/visualizations/VisualizationSelector';
 import { VisualizationRenderer } from './components/visualizations/VisualizationRenderer';
+import { ToastContainer } from './components/feedback/ToastContainer';
+import { SkeletonCard, SkeletonGrid } from './components/feedback/SkeletonCard';
 import { FileText, X, AlertCircle } from 'lucide-react';
 
 function App() {
@@ -17,17 +20,38 @@ function App() {
     error, 
     progressPercent,
     progressMessage,
+    toasts,
     clearDocument, 
-    clearError 
+    clearError,
+    removeToast
   } = useDocumentStore();
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleGetStarted = () => {
+    uploadSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const hasDocument = document !== null;
   const hasAnalysis = analysis !== null;
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
+      
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <header className={`bg-white border-b border-gray-200 sticky top-0 z-30 transition-shadow duration-200 ${isScrolled ? 'shadow-medium' : 'shadow-soft'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -43,7 +67,7 @@ function App() {
             {hasDocument && (
               <button
                 onClick={clearDocument}
-                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 hover:scale-105 rounded-xl transition-all duration-200"
               >
                 <X className="w-4 h-4" />
                 New Document
@@ -57,33 +81,37 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Error Display */}
         {error && (
-          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 rounded-xl p-4 flex items-start gap-3 shadow-medium animate-slide-in-right">
             <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-red-800">{error}</p>
             </div>
             <button
               onClick={clearError}
-              className="text-red-600 hover:text-red-800"
+              className="text-red-600 hover:text-red-800 hover:scale-110 transition-all duration-200"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
         )}
 
-        {/* Upload Section */}
+        {/* Hero Section */}
         {!hasDocument && (
-          <div className="space-y-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                Transform Text into Visual Insights
-              </h2>
-              <p className="text-lg text-gray-600">
-                Upload a document or paste text to generate interactive visualizations
-              </p>
-            </div>
+          <>
+            <HeroSection onGetStarted={handleGetStarted} />
+            
+            {/* Upload Section */}
+            <div ref={uploadSectionRef} className="space-y-8 py-16">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  Get Started
+                </h2>
+                <p className="text-lg text-gray-600">
+                  Upload a document or paste text to generate interactive visualizations
+                </p>
+              </div>
 
-            <FileUploader />
+              <FileUploader />
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -94,15 +122,16 @@ function App() {
               </div>
             </div>
 
-            <TextInputArea />
-          </div>
+              <TextInputArea />
+            </div>
+          </>
         )}
 
         {/* Analysis Results */}
         {hasDocument && (
           <div className="space-y-8">
             {/* Document Info */}
-            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="bg-white rounded-xl p-6 shadow-medium border border-gray-200 hover:shadow-strong hover:-translate-y-1 transition-all duration-250">
               <h2 className="text-xl font-bold text-gray-900 mb-2">{document.title}</h2>
               <div className="flex gap-4 text-sm text-gray-600">
                 <span>{document.metadata.wordCount.toLocaleString()} words</span>
@@ -126,30 +155,34 @@ function App() {
             )}
 
             {/* Loading State with Progress - Show if still analyzing */}
-            {(isLoading || isAnalyzing) && (
-              <div className="bg-white rounded-lg p-8 shadow-sm border border-gray-200">
-                <div className="flex flex-col items-center gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-                    <p className="text-base text-gray-900 font-medium">
-                      {analysis?.tldr ? 'Generating visualizations...' : 'Analyzing document...'}
-                    </p>
-                  </div>
-                  
-                  <div className="w-full max-w-md space-y-2">
-                    {/* Progress Bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-gradient-to-r from-primary-500 to-secondary-500 h-full transition-all duration-500 ease-out"
-                        style={{ width: `${progressPercent}%` }}
-                      />
+            {(isLoading || isAnalyzing) && !analysis?.tldr && (
+              <div className="space-y-6">
+                <SkeletonCard />
+                <SkeletonGrid count={3} />
+                
+                {/* Progress Bar */}
+                <div className="bg-white rounded-xl p-6 shadow-medium border border-gray-200">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                      <p className="text-sm text-gray-900 font-medium">
+                        Analyzing document...
+                      </p>
                     </div>
                     
-                    {/* Progress Message */}
-                    <div className="text-center">
-                      <p className="text-xs text-gray-600">
-                        {progressMessage || 'This may take a few moments'}
-                      </p>
+                    <div className="w-full max-w-md space-y-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div 
+                          className="bg-gradient-to-r from-primary-500 to-secondary-500 h-full transition-all duration-500 ease-out"
+                          style={{ width: `${progressPercent}%` }}
+                        />
+                      </div>
+                      
+                      <div className="text-center">
+                        <p className="text-xs text-gray-600">
+                          {progressMessage || 'This may take a few moments'}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -160,7 +193,7 @@ function App() {
             {hasDocument && !isLoading && (
               <div className="space-y-6">
                 {hasAnalysis && <VisualizationSelector />}
-                <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="bg-white rounded-xl p-6 shadow-medium border border-gray-200">
                   <VisualizationRenderer />
                 </div>
               </div>

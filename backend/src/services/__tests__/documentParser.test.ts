@@ -27,8 +27,11 @@ describe('DocumentParser', () => {
       const result = await parser.parseText(HIERARCHICAL_DOCUMENT);
 
       expect(result.structure).toBeDefined();
-      expect(result.structure.sections).toHaveLength(3); // 3 main sections
-      expect(result.structure.sections[0].title).toBe('Introduction');
+      // Document has 1 top-level section (H1 title) with 3 H2 children
+      expect(result.structure.sections).toHaveLength(1);
+      expect(result.structure.sections[0].title).toBe('Software Architecture Guide');
+      expect(result.structure.sections[0].children).toHaveLength(3);
+      expect(result.structure.sections[0].children[0].title).toBe('1. Introduction');
     });
 
     it('should handle empty documents', async () => {
@@ -62,24 +65,31 @@ describe('DocumentParser', () => {
       const result = await parser.parseText(SMALL_BUSINESS_REPORT);
       const sections = result.structure.sections;
 
-      expect(sections[0].content).toBeDefined();
-      expect(sections[0].content.length).toBeGreaterThan(0);
+      // Top-level section (H1) has children (H2 sections) with content
+      expect(sections[0].children).toBeDefined();
+      expect(sections[0].children.length).toBeGreaterThan(0);
+      expect(sections[0].children[0].content).toBeDefined();
+      expect(sections[0].children[0].content.length).toBeGreaterThan(0);
     });
 
     it('should handle documents without headings', async () => {
       const plainText = 'This is just plain text without any headings.';
       const result = await parser.parseText(plainText);
 
-      expect(result.structure.sections).toHaveLength(0);
+      // Document without headings should have 1 section containing all content
+      expect(result.structure.sections).toHaveLength(1);
+      expect(result.structure.sections[0].title).toBe('Document');
+      expect(result.structure.sections[0].content).toBe(plainText);
     });
 
     it('should preserve section order', async () => {
       const result = await parser.parseText(HIERARCHICAL_DOCUMENT);
       const sections = result.structure.sections;
 
-      expect(sections[0].title).toBe('Introduction');
-      expect(sections[1].title).toBe('Backend Architecture');
-      expect(sections[2].title).toBe('Frontend Architecture');
+      // Check the order of H2 children under the H1 title
+      expect(sections[0].children[0].title).toBe('1. Introduction');
+      expect(sections[0].children[1].title).toBe('2. Backend Architecture');
+      expect(sections[0].children[2].title).toBe('3. Frontend Architecture');
     });
   });
 

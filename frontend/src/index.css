@@ -20,3 +20,68 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Custom Gradient Utilities */
+@layer utilities {
+  .gradient-border {
+    border-image: linear-gradient(90deg, #6366F1, #8B5CF6, #22D3EE) 1;
+  }
+  
+  .gradient-border-animated {
+    position: relative;
+    background: white;
+  }
+  
+  .gradient-border-animated::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 3px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6, #22D3EE);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  
+  .bg-shimmer {
+    background: linear-gradient(90deg, #E0E7FF 0%, #C7D2FE 50%, #E0E7FF 100%);
+    background-size: 200% 100%;
+  }
+  
+  .bg-gradient-hero-animated {
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+    background-size: 200% 200%;
+  }
+}
+
+/* Smooth Scrolling */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus Visible for Keyboard Navigation */
+  *:focus-visible {
+    outline: 2px solid #6366F1;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Remove focus outline for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

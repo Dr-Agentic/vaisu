@@ -1,6 +1,15 @@
 import { create } from 'zustand';
 import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
 import { apiClient } from '../services/apiClient';
+import type { ToastType } from '../components/feedback/Toast';
+
+export interface ToastMessage {
+  id: string;
+  type: ToastType;
+  title: string;
+  message?: string;
+  duration?: number;
+}
 
 interface DocumentStore {
   document: Document | null;
@@ -13,6 +22,7 @@ interface DocumentStore {
   progressStep: string;
   progressPercent: number;
   progressMessage: string;
+  toasts: ToastMessage[];
   
   uploadDocument: (file: File) => Promise<void>;
   uploadText: (text: string) => Promise<void>;
@@ -21,6 +31,8 @@ interface DocumentStore {
   setCurrentVisualization: (type: VisualizationType) => void;
   clearDocument: () => void;
   clearError: () => void;
+  addToast: (toast: Omit<ToastMessage, 'id'>) => void;
+  removeToast: (id: string) => void;
 }
 
 export const useDocumentStore = create<DocumentStore>((set, get) => ({
@@ -34,12 +46,20 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   progressStep: '',
   progressPercent: 0,
   progressMessage: '',
+  toasts: [],
 
   uploadDocument: async (file: File) => {
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.uploadDocument(file);
       set({ document: response.document });
+      
+      get().addToast({
+        type: 'success',
+        title: 'Document uploaded successfully',
+        message: 'Starting analysis...',
+        duration: 3000
+      });
       
       // Load structured view immediately (doesn't need analysis)
       get().loadVisualization('structured-view');
@@ -48,6 +68,12 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       await get().analyzeDocument();
     } catch (error: any) {
       set({ error: error.message || 'Failed to upload document', isLoading: false });
+      get().addToast({
+        type: 'error',
+        title: 'Upload failed',
+        message: error.message || 'Failed to upload document',
+        duration: 0
+      });
     }
   },
 
@@ -62,10 +88,23 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isAnalyzing: false
       });
       
+      get().addToast({
+        type: 'success',
+        title: 'Text analyzed successfully',
+        message: 'Visualizations are ready',
+        duration: 3000
+      });
+      
       // Load default visualization
       await get().loadVisualization('structured-view');
     } catch (error: any) {
       set({ error: error.message || 'Failed to analyze text', isLoading: false });
+      get().addToast({
+        type: 'error',
+        title: 'Analysis failed',
+        message: error.message || 'Failed to analyze text',
+        duration: 0
+      });
     }
   },
 
@@ -86,10 +125,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         };
         
         // If we have partial analysis results, update them immediately
-        if (progress.partialAnalysis) {
+        if ('partialAnalysis' in progress && progress.partialAnalysis) {
           updates.analysis = {
             ...get().analysis,
-            ...progress.partialAnalysis
+            ...(progress as any).partialAnalysis
           };
         }
         
@@ -112,6 +151,13 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         progressMessage: 'Analysis complete!'
       });
       
+      get().addToast({
+        type: 'success',
+        title: 'Analysis complete',
+        message: 'All visualizations are ready to explore',
+        duration: 5000
+      });
+      
       // Load structured-view visualization immediately (priority visualization)
       // This shows the document structure which is always available
       get().loadVisualization('structured-view');
@@ -124,6 +170,12 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         progressStep: 'error',
         progressPercent: 0,
         progressMessage: 'Analysis failed'
+      });
+      get().addToast({
+        type: 'error',
+        title: 'Analysis failed',
+        message: error.message || 'Failed to analyze document',
+        duration: 0
       });
     }
   },
@@ -170,5 +222,18 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
   clearError: () => {
     set({ error: null });
+  },
+
+  addToast: (toast: Omit<ToastMessage, 'id'>) => {
+    const id = `toast-${Date.now()}-${Math.random()}`;
+    set((state) => ({
+      toasts: [...state.toasts, { ...toast, id }]
+    }));
+  },
+
+  removeToast: (id: string) => {
+    set((state) => ({
+      toasts: state.toasts.filter((t) => t.id !== id)
+    }));
   }
 }));

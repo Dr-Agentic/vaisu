@@ -4,6 +4,9 @@ import type { Document, DocumentStructure, Section } from '../../../shared/src/t
 import { createHash } from 'crypto';
 
 export class DocumentParser {
+  /**
+   * Parse a document from a file buffer (for file uploads)
+   */
   async parseDocument(buffer: Buffer, filename: string): Promise<Document> {
     const fileType = this.getFileType(filename);
     const text = await this.extractText(buffer, fileType);
@@ -19,6 +22,33 @@ export class DocumentParser {
         wordCount: this.countWords(text),
         uploadDate: new Date(),
         fileType,
+        language: 'en' // TODO: detect language
+      },
+      structure
+    };
+  }
+
+  /**
+   * Parse plain text directly (for paste functionality and testing)
+   */
+  async parseText(text: string, title: string = 'Untitled'): Promise<Document> {
+    // Sanitize input to prevent XSS
+    const sanitizedText = this.sanitizeText(text);
+    
+    // Detect structure
+    const structure = await this.detectStructure(sanitizedText);
+    
+    // Generate document ID
+    const documentId = this.generateDocumentId(sanitizedText);
+
+    return {
+      id: documentId,
+      title: this.extractTitle(sanitizedText, title),
+      content: sanitizedText,
+      metadata: {
+        wordCount: this.countWords(sanitizedText),
+        uploadDate: new Date(),
+        fileType: 'txt',
         language: 'en' // TODO: detect language
       },
       structure
@@ -44,8 +74,9 @@ export class DocumentParser {
   }
 
   async detectStructure(text: string): Promise<DocumentStructure> {
-    const sections = this.identifySections(text);
-    const hierarchy = this.buildHierarchy(sections);
+    const flatSections = this.identifySections(text);
+    const sections = this.buildSectionHierarchy(flatSections);
+    const hierarchy = this.buildHierarchy(flatSections);
 
     return {
       sections,
@@ -53,7 +84,62 @@ export class DocumentParser {
     };
   }
 
+  /**
+   * Build hierarchical section structure where child sections are nested in parent sections
+   */
+  private buildSectionHierarchy(flatSections: Section[]): Section[] {
+    if (flatSections.length === 0) return [];
+    
+    const result: Section[] = [];
+    const stack: Section[] = [];
+
+    for (const section of flatSections) {
+      // Clear children array (will be populated)
+      section.children = [];
+      
+      // Find parent by popping stack until we find a section with lower level
+      while (stack.length > 0 && stack[stack.length - 1].level >= section.level) {
+        stack.pop();
+      }
+
+      if (stack.length === 0) {
+        // Top-level section
+        result.push(section);
+      } else {
+        // Child section - add to parent's children
+        stack[stack.length - 1].children.push(section);
+      }
+
+      stack.push(section);
+    }
+
+    return result;
+  }
+
+  /**
+   * Sanitize text to prevent XSS attacks
+   */
+  private sanitizeText(text: string): string {
+    if (!text) return '';
+    
+    // Remove script tags and their content
+    let sanitized = text.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    
+    // Remove event handlers (onclick, onerror, etc.)
+    sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
+    
+    // Remove javascript: protocol
+    sanitized = sanitized.replace(/javascript:/gi, '');
+    
+    return sanitized;
+  }
+
   private identifySections(text: string): Section[] {
+    // Handle empty text
+    if (!text || text.trim().length === 0) {
+      return [];
+    }
+    
     const sections: Section[] = [];
     const lines = text.split('\n');
     
@@ -100,8 +186,8 @@ export class DocumentParser {
       sections.push(currentSection as Section);
     }
 
-    // If no sections detected, create one section for entire document
-    if (sections.length === 0) {
+    // If no sections detected and text is not empty, create one section for entire document
+    if (sections.length === 0 && text.trim().length > 0) {
       sections.push({
         id: 'section-0',
         level: 1,

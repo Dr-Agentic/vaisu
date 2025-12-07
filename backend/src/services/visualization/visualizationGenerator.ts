@@ -49,12 +49,12 @@ export class VisualizationGenerator {
   }
 
   private generateMindMap(document: Document, analysis: DocumentAnalysis): MindMapData {
-    // Build mind map from document structure
+    // Build mind map from document structure using the hierarchical sections
     const root = {
       id: 'root',
       label: document.title,
       summary: analysis.tldr,
-      children: this.buildMindMapChildren(document.structure.sections, 0),
+      children: this.convertSectionsToMindMapNodes(document.structure.sections, 1),
       level: 0,
       color: '#4F46E5',
       sourceRef: { start: 0, end: 0, text: '' },
@@ -77,28 +77,30 @@ export class VisualizationGenerator {
     };
   }
 
-  private buildMindMapChildren(sections: any[], level: number): any[] {
-    const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444'];
+  private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
+    const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     
-    return sections
-      .filter(s => s.level === level + 1)
-      .map((section, index) => ({
+    return sections.map((section) => {
+      const colorIndex = level % colors.length;
+      
+      return {
         id: section.id,
         label: section.title,
-        summary: section.summary || section.content.substring(0, 100),
-        children: this.buildMindMapChildren(sections, level + 1),
-        level: level + 1,
-        color: colors[level % colors.length],
+        summary: section.summary || section.content.substring(0, 100) + '...',
+        children: section.children ? this.convertSectionsToMindMapNodes(section.children, level + 1) : [],
+        level: level,
+        color: colors[colorIndex],
         sourceRef: {
-          start: section.startIndex,
-          end: section.endIndex,
+          start: section.startIndex || 0,
+          end: section.endIndex || 0,
           text: section.content.substring(0, 50)
         },
         metadata: {
-          importance: 0.8 - (level * 0.1),
-          confidence: 0.9
+          importance: Math.max(0.3, 0.9 - (level * 0.15)),
+          confidence: 0.85
         }
-      }));
+      };
+    });
   }
 
   private generateFlowchart(document: Document, analysis: DocumentAnalysis): FlowchartData {

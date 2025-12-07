@@ -28,11 +28,18 @@ export function FileUploader() {
     <div
       {...getRootProps()}
       className={`
-        border-2 border-dashed rounded-lg p-12 text-center cursor-pointer
-        transition-all duration-200
-        ${isDragActive ? 'border-primary-500 bg-primary-50' : 'border-gray-300 hover:border-primary-400'}
+        border-3 border-dashed rounded-xl text-center cursor-pointer
+        transition-all duration-200 ease-out
+        ${isDragActive 
+          ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-glow animate-pulse-slow' 
+          : 'border-gray-300 hover:border-primary-400 hover:bg-gradient-panel hover:shadow-medium hover:scale-[1.01]'
+        }
         ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
+        py-16 px-12
       `}
+      style={{
+        borderWidth: '3px'
+      }}
     >
       <input {...getInputProps()} />
       
