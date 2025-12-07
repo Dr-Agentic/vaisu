@@ -92,13 +92,18 @@ export class TextAnalyzer {
     };
   }
 
-  async generateTLDR(text: string, retries = 2): Promise<string> {
+  async generateTLDR(text: string, retries = 2): Promise<{ text: string; confidence?: number; generatedAt?: string; model?: string }> {
     const sample = text.substring(0, 4000); // Limit for speed
     
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const response = await this.llmClient.callWithFallback('tldr', sample);
-        return response.content.trim();
+        return {
+          text: response.content.trim(),
+          confidence: 0.85,
+          generatedAt: new Date().toISOString(),
+          model: response.model
+        };
       } catch (error: any) {
         if (attempt === retries) {
           throw error;

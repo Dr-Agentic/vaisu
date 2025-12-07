@@ -22,8 +22,12 @@ describe('TextAnalyzer', () => {
       const tldr = await analyzer.generateTLDR(SMALL_BUSINESS_REPORT);
 
       expect(tldr).toBeDefined();
-      expect(tldr.length).toBeGreaterThan(0);
-      expect(tldr.length).toBeLessThan(500); // Should be concise
+      expect(tldr.text).toBeDefined();
+      expect(tldr.text.length).toBeGreaterThan(0);
+      expect(tldr.text.length).toBeLessThan(500); // Should be concise
+      expect(tldr.confidence).toBeDefined();
+      expect(tldr.generatedAt).toBeDefined();
+      expect(tldr.model).toBeDefined();
       expect(mockLLMClient.callWithFallback).toHaveBeenCalledWith(
         'tldr',
         expect.any(String)
@@ -325,7 +329,9 @@ describe('TextAnalyzer', () => {
       const result = await retryAnalyzer.generateTLDR(SMALL_BUSINESS_REPORT);
 
       expect(result).toBeDefined();
-      expect(result).toBe('Success after retry');
+      expect(result.text).toBe('Success after retry');
+      expect(result.confidence).toBeDefined();
+      expect(result.model).toBe('test-model');
       expect(callCount).toBeGreaterThan(1);
     });
   });

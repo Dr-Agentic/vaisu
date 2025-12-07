@@ -105,7 +105,7 @@ describe('Documents API Integration Tests', () => {
     });
 
     it('should reject oversized files', async () => {
-      const largeBuffer = Buffer.alloc(20 * 1024 * 1024); // 20MB
+      const largeBuffer = Buffer.alloc(1100 * 1024 * 1024); // 1.1GB (exceeds 1GB limit)
       
       const response = await request(app)
         .post('/api/documents/upload')
@@ -113,6 +113,7 @@ describe('Documents API Integration Tests', () => {
         .expect(413);
 
       expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toContain('1GB');
     });
   });
 

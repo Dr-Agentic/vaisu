@@ -1,10 +1,10 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
 
 export function FileUploader() {
-  const { uploadDocument, isLoading, progressMessage, progressPercent } = useDocumentStore();
+  const { uploadDocument, isLoading, progressMessage, progressPercent, addToast } = useDocumentStore();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -12,15 +12,47 @@ export function FileUploader() {
     }
   }, [uploadDocument]);
 
+  const onDropRejected = useCallback((fileRejections: any[]) => {
+    if (fileRejections.length > 0) {
+      const rejection = fileRejections[0];
+      const errors = rejection.errors;
+      
+      if (errors.some((e: any) => e.code === 'file-too-large')) {
+        const fileSizeMB = (rejection.file.size / (1024 * 1024)).toFixed(2);
+        addToast({
+          type: 'error',
+          title: 'File too large',
+          message: `The file "${rejection.file.name}" is ${fileSizeMB}MB. Maximum size is 1GB.`,
+          duration: 0
+        });
+      } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
+        addToast({
+          type: 'error',
+          title: 'Invalid file type',
+          message: `The file "${rejection.file.name}" is not supported. Please upload .txt, .pdf, or .docx files.`,
+          duration: 0
+        });
+      } else {
+        addToast({
+          type: 'error',
+          title: 'Upload rejected',
+          message: errors[0]?.message || 'File could not be uploaded',
+          duration: 0
+        });
+      }
+    }
+  }, [addToast]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: {
       'text/plain': ['.txt'],
       'application/pdf': ['.pdf'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
     },
     maxFiles: 1,
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 1024 * 1024 * 1024, // 1GB
     disabled: isLoading
   });
 
@@ -87,7 +119,7 @@ export function FileUploader() {
                 .docx
               </span>
             </div>
-            <p className="text-xs text-gray-400">Maximum file size: 10MB</p>
+            <p className="text-xs text-gray-400">Maximum file size: 1GB</p>
           </>
         )}
       </div>

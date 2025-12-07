@@ -1,0 +1,102 @@
+import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from '../config/aws.js';
+import type { DocumentRecord } from './types.js';
+
+/**
+ * Find document by content hash and filename (deduplication check)
+ */
+export async function findByHashAndFilename(
+  hash: string,
+  filename: string
+): Promise<DocumentRecord | null> {
+  const command = new QueryCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'contentHash = :hash AND filename = :filename',
+    ExpressionAttributeValues: {
+      ':hash': hash,
+      ':filename': filename,
+    },
+    Limit: 1,
+  });
+
+  const response = await dynamoDBClient.send(command);
+
+  if (!response.Items || response.Items.length === 0) {
+    return null;
+  }
+
+  return response.Items[0] as DocumentRecord;
+}
+
+/**
+ * Create new document record
+ */
+export async function create(document: DocumentRecord): Promise<void> {
+  const command = new PutCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    Item: {
+      ...document,
+      SK: 'METADATA',
+    },
+  });
+
+  await dynamoDBClient.send(command);
+}
+
+/**
+ * Find document by ID
+ */
+export async function findById(documentId: string): Promise<DocumentRecord | null> {
+  const command = new GetCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    Key: {
+      documentId,
+      SK: 'METADATA',
+    },
+  });
+
+  const response = await dynamoDBClient.send(command);
+
+  if (!response.Item) {
+    return null;
+  }
+
+  return response.Item as DocumentRecord;
+}
+
+/**
+ * Update access metadata (lastAccessedAt, accessCount)
+ */
+export async function updateAccessMetadata(documentId: string): Promise<void> {
+  const command = new UpdateCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    Key: {
+      documentId,
+      SK: 'METADATA',
+    },
+    UpdateExpression: 'SET lastAccessedAt = :now, accessCount = if_not_exists(accessCount, :zero) + :one',
+    ExpressionAttributeValues: {
+      ':now': new Date().toISOString(),
+      ':zero': 0,
+      ':one': 1,
+    },
+  });
+
+  await dynamoDBClient.send(command);
+}
+
+/**
+ * Delete document record
+ */
+export async function deleteDocument(documentId: string): Promise<void> {
+  const command = new DeleteCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    Key: {
+      documentId,
+      SK: 'METADATA',
+    },
+  });
+
+  await dynamoDBClient.send(command);
+}

@@ -5,6 +5,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import documentsRouter from './routes/documents.js';
+import { validateAWSConfig } from './config/aws.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,8 +16,8 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.json({ limit: '1gb' }));
+app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 
 // Routes
 app.use('/api/documents', documentsRouter);
@@ -37,6 +38,13 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     error: err.message || 'Internal server error'
   });
 });
+
+// Validate AWS configuration on startup
+try {
+  validateAWSConfig();
+} catch (error) {
+  console.error('⚠️  AWS configuration error:', error instanceof Error ? error.message : error);
+}
 
 // Start server
 app.listen(PORT, () => {

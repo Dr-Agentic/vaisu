@@ -11,6 +11,16 @@ export interface ToastMessage {
   duration?: number;
 }
 
+export interface DocumentListItem {
+  id: string;
+  title: string;
+  fileType: string;
+  uploadDate: Date;
+  tldr?: { text: string; confidence?: number; generatedAt?: string; model?: string } | string; // Support both old and new format
+  summaryHeadline?: string;
+  wordCount: number;
+}
+
 interface DocumentStore {
   document: Document | null;
   analysis: DocumentAnalysis | null;
@@ -24,6 +34,11 @@ interface DocumentStore {
   progressMessage: string;
   toasts: ToastMessage[];
   
+  // Document history
+  documentList: DocumentListItem[];
+  isLoadingList: boolean;
+  searchQuery: string;
+  
   uploadDocument: (file: File) => Promise<void>;
   uploadText: (text: string) => Promise<void>;
   analyzeDocument: () => Promise<void>;
@@ -33,6 +48,12 @@ interface DocumentStore {
   clearError: () => void;
   addToast: (toast: Omit<ToastMessage, 'id'>) => void;
   removeToast: (id: string) => void;
+  
+  // Document history methods
+  fetchDocumentList: () => Promise<void>;
+  loadDocumentById: (id: string) => Promise<void>;
+  setSearchQuery: (query: string) => void;
+  searchDocuments: (query: string) => Promise<void>;
 }
 
 export const useDocumentStore = create<DocumentStore>((set, get) => ({
@@ -47,6 +68,11 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   progressPercent: 0,
   progressMessage: '',
   toasts: [],
+  
+  // Document history
+  documentList: [],
+  isLoadingList: false,
+  searchQuery: '',
 
   uploadDocument: async (file: File) => {
     set({ isLoading: true, error: null });
@@ -60,6 +86,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         message: 'Starting analysis...',
         duration: 3000
       });
+      
+      // Refresh document list
+      get().fetchDocumentList();
       
       // Load structured view immediately (doesn't need analysis)
       get().loadVisualization('structured-view');
@@ -94,6 +123,9 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         message: 'Visualizations are ready',
         duration: 3000
       });
+      
+      // Refresh document list
+      get().fetchDocumentList();
       
       // Load default visualization
       await get().loadVisualization('structured-view');
@@ -243,5 +275,88 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     set((state) => ({
       toasts: state.toasts.filter((t) => t.id !== id)
     }));
+  },
+
+  // Document history methods
+  fetchDocumentList: async () => {
+    set({ isLoadingList: true });
+    try {
+      const response = await apiClient.listDocuments();
+      set({ documentList: response.documents, isLoadingList: false });
+    } catch (error: any) {
+      console.error('Failed to fetch document list:', error);
+      set({ isLoadingList: false });
+      get().addToast({
+        type: 'error',
+        title: 'Failed to load documents',
+        message: error.message,
+        duration: 5000
+      });
+    }
+  },
+
+  loadDocumentById: async (id: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await apiClient.getDocumentFull(id);
+      
+      // Convert visualizations object to Map
+      const vizMap = new Map<VisualizationType, any>();
+      if (response.visualizations) {
+        Object.entries(response.visualizations).forEach(([type, data]) => {
+          vizMap.set(type as VisualizationType, data);
+        });
+      }
+      
+      set({
+        document: response.document,
+        analysis: response.analysis || null,
+        visualizationData: vizMap,
+        isLoading: false,
+        currentVisualization: 'structured-view'
+      });
+      
+      get().addToast({
+        type: 'success',
+        title: 'Document loaded',
+        message: 'All cached data restored',
+        duration: 3000
+      });
+    } catch (error: any) {
+      set({ error: error.message || 'Failed to load document', isLoading: false });
+      get().addToast({
+        type: 'error',
+        title: 'Failed to load document',
+        message: error.message,
+        duration: 0
+      });
+    }
+  },
+
+  setSearchQuery: (query: string) => {
+    set({ searchQuery: query });
+  },
+
+  searchDocuments: async (query: string) => {
+    set({ isLoadingList: true, searchQuery: query });
+    try {
+      if (!query.trim()) {
+        // If empty query, fetch all documents
+        await get().fetchDocumentList();
+        return;
+      }
+      
+      const response = await apiClient.searchDocuments(query);
+      set({ documentList: response.documents, isLoadingList: false });
+    } catch (error: any) {
+      console.error('Failed to search documents:', error);
+      set({ isLoadingList: false });
+      get().addToast({
+        type: 'error',
+        title: 'Search failed',
+        message: error.message,
+        duration: 5000
+      });
+    }
   }
 }));

@@ -40,8 +40,15 @@ export interface HierarchyNode {
   children: HierarchyNode[];
 }
 
+export interface TLDRSummary {
+  text: string;
+  confidence?: number;
+  generatedAt?: string;
+  model?: string;
+}
+
 export interface DocumentAnalysis {
-  tldr: string;
+  tldr: TLDRSummary;
   executiveSummary: ExecutiveSummary;
   entities: Entity[];
   relationships: Relationship[];
@@ -309,15 +316,53 @@ export interface UploadDocumentResponse {
   message: string;
 }
 
+export interface DocumentListItem {
+  id: string;
+  title: string;
+  fileType: string;
+  uploadDate: Date;
+  tldr?: string;
+  summaryHeadline?: string;
+  wordCount: number;
+}
+
+export interface ListDocumentsResponse {
+  documents: DocumentListItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface SearchDocumentsResponse {
+  documents: DocumentListItem[];
+  total: number;
+  query: string;
+}
+
+export interface GetDocumentFullResponse {
+  document: Document;
+  analysis?: DocumentAnalysis;
+  visualizations: Map<VisualizationType, any>;
+}
+
 export interface AnalyzeDocumentRequest {
   documentId?: string;
   text?: string;
 }
 
 export interface AnalyzeDocumentResponse {
+  documentId: string;
   document: Document;
   analysis: DocumentAnalysis;
   processingTime: number;
+  cached?: boolean;
+}
+
+export interface GetDocumentResponse {
+  documentId: string;
+  document: Document;
+  analysis: DocumentAnalysis;
+  presignedUrl?: string;
 }
 
 export interface GenerateVisualizationRequest {

@@ -43,6 +43,25 @@ export const apiClient = {
     return response.data;
   },
 
+  async getDocumentFull(documentId: string): Promise<{ document: Document; analysis?: DocumentAnalysis; visualizations: Record<string, any> }> {
+    const response = await client.get(`/documents/${documentId}/full`);
+    return response.data;
+  },
+
+  async listDocuments(limit = 50, offset = 0): Promise<{ documents: any[]; total: number; limit: number; offset: number }> {
+    const response = await client.get('/documents', {
+      params: { limit, offset }
+    });
+    return response.data;
+  },
+
+  async searchDocuments(query: string): Promise<{ documents: any[]; total: number; query: string }> {
+    const response = await client.get('/documents/search', {
+      params: { q: query }
+    });
+    return response.data;
+  },
+
   async getProgress(documentId: string): Promise<{ step: string; progress: number; message: string }> {
     const response = await client.get(`/documents/${documentId}/progress`);
     return response.data;

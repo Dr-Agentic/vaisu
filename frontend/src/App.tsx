@@ -9,6 +9,7 @@ import { VisualizationSelector } from './components/visualizations/Visualization
 import { VisualizationRenderer } from './components/visualizations/VisualizationRenderer';
 import { ToastContainer } from './components/feedback/ToastContainer';
 import { SkeletonCard, SkeletonGrid } from './components/feedback/SkeletonCard';
+import { DocumentHistorySidebar, DocumentHistoryToggle } from './components/history/DocumentHistorySidebar';
 import { FileText, X, AlertCircle } from 'lucide-react';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
   } = useDocumentStore();
 
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const uploadSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,9 +48,24 @@ function App() {
   const hasAnalysis = analysis !== null;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
+      
+      {/* Document History Sidebar */}
+      <DocumentHistorySidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)} 
+      />
+      
+      {/* Sidebar Toggle for Mobile */}
+      <DocumentHistoryToggle 
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)} 
+        isOpen={isSidebarOpen} 
+      />
+      
+      {/* Main Content Wrapper */}
+      <div className="flex-1 flex flex-col min-w-0">
       
       {/* Header */}
       <header className={`bg-white border-b border-gray-200 sticky top-0 z-30 transition-shadow duration-200 ${isScrolled ? 'shadow-medium' : 'shadow-soft'}`}>
@@ -149,7 +166,7 @@ function App() {
             {/* TLDR and Executive Summary - Show as soon as available */}
             {analysis?.tldr && analysis?.executiveSummary && (
               <div className="space-y-6">
-                <TLDRBox content={analysis.tldr} />
+                <TLDRBox content={typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text} />
                 <ExecutiveSummary summary={analysis.executiveSummary} />
               </div>
             )}
@@ -210,6 +227,7 @@ function App() {
           </p>
         </div>
       </footer>
+      </div>
     </div>
   );
 }

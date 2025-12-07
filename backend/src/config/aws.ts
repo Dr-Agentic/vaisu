@@ -1,0 +1,152 @@
+import { S3Client } from '@aws-sdk/client-s3';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+
+// Environment variables (evaluated lazily to ensure dotenv has loaded)
+function getAWSRegion() {
+  return process.env.AWS_REGION || 'us-east-1';
+}
+
+function getAWSAccessKeyId() {
+  return process.env.AWS_ACCESS_KEY_ID;
+}
+
+function getAWSSecretAccessKey() {
+  return process.env.AWS_SECRET_ACCESS_KEY;
+}
+
+function isPersistenceEnabledEnv() {
+  return process.env.ENABLE_PERSISTENCE === 'true';
+}
+
+// S3 Configuration
+export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || 'vaisu-documents-dev';
+
+// DynamoDB Configuration
+export const DYNAMODB_DOCUMENTS_TABLE = process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents';
+export const DYNAMODB_ANALYSES_TABLE = process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses';
+
+/**
+ * Check if AWS persistence is enabled and configured
+ */
+export function isPersistenceEnabled(): boolean {
+  if (!isPersistenceEnabledEnv()) {
+    return false;
+  }
+
+  const hasCredentials = getAWSAccessKeyId() && getAWSSecretAccessKey();
+  if (!hasCredentials) {
+    console.warn('AWS persistence enabled but credentials not configured');
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validate AWS configuration
+ * Throws error if persistence is enabled but configuration is invalid
+ */
+export function validateAWSConfig(): void {
+  if (!isPersistenceEnabledEnv()) {
+    console.info('AWS persistence disabled');
+    return;
+  }
+
+  const accessKeyId = getAWSAccessKeyId();
+  const secretAccessKey = getAWSSecretAccessKey();
+
+  if (!accessKeyId || !secretAccessKey) {
+    throw new Error('AWS credentials not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY');
+  }
+
+  if (!S3_BUCKET_NAME) {
+    throw new Error('S3_BUCKET_NAME not configured');
+  }
+
+  if (!DYNAMODB_DOCUMENTS_TABLE || !DYNAMODB_ANALYSES_TABLE) {
+    throw new Error('DynamoDB table names not configured');
+  }
+
+  console.info('✅ AWS persistence enabled:', {
+    region: getAWSRegion(),
+    s3Bucket: S3_BUCKET_NAME,
+    documentsTable: DYNAMODB_DOCUMENTS_TABLE,
+    analysesTable: DYNAMODB_ANALYSES_TABLE,
+  });
+}
+
+/**
+ * Initialize S3 client
+ */
+export function createS3Client(): S3Client {
+  const accessKeyId = getAWSAccessKeyId();
+  const secretAccessKey = getAWSSecretAccessKey();
+  
+  return new S3Client({
+    region: getAWSRegion(),
+    credentials: accessKeyId && secretAccessKey
+      ? {
+          accessKeyId,
+          secretAccessKey,
+        }
+      : undefined,
+  });
+}
+
+/**
+ * Initialize DynamoDB client with Document Client wrapper
+ */
+export function createDynamoDBClient(): DynamoDBDocumentClient {
+  const accessKeyId = getAWSAccessKeyId();
+  const secretAccessKey = getAWSSecretAccessKey();
+  
+  const client = new DynamoDBClient({
+    region: getAWSRegion(),
+    credentials: accessKeyId && secretAccessKey
+      ? {
+          accessKeyId,
+          secretAccessKey,
+        }
+      : undefined,
+  });
+
+  // Wrap with Document Client for easier JSON handling
+  return DynamoDBDocumentClient.from(client, {
+    marshallOptions: {
+      removeUndefinedValues: true,
+      convertClassInstanceToMap: true,
+    },
+  });
+}
+
+// Lazy singleton instances (created on first access to ensure env vars are loaded)
+let _s3Client: S3Client | null = null;
+let _dynamoDBClient: DynamoDBDocumentClient | null = null;
+
+export function getS3Client(): S3Client {
+  if (!_s3Client) {
+    _s3Client = createS3Client();
+  }
+  return _s3Client;
+}
+
+export function getDynamoDBClient(): DynamoDBDocumentClient {
+  if (!_dynamoDBClient) {
+    _dynamoDBClient = createDynamoDBClient();
+  }
+  return _dynamoDBClient;
+}
+
+// Legacy exports for backward compatibility
+export const s3Client = new Proxy({} as S3Client, {
+  get(target, prop) {
+    return (getS3Client() as any)[prop];
+  }
+});
+
+export const dynamoDBClient = new Proxy({} as DynamoDBDocumentClient, {
+  get(target, prop) {
+    return (getDynamoDBClient() as any)[prop];
+  }
+});
