@@ -28,18 +28,70 @@ Return as JSON matching the ExecutiveSummary interface.`
     fallback: 'openai/gpt-3.5-turbo',
     maxTokens: 2000,
     temperature: 0.1,
-    systemPrompt: `Extract named entities from the text and return as JSON array.
-For each entity include: text, type (person/organization/location/concept/product/metric/date/technical), importance (0-1), and context.
-Return only valid JSON.`
+    systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, organizations, locations, concepts, products, technologies, and key terms.
+
+For each entity provide:
+- id: unique identifier (e.g., "entity-1", "entity-2")
+- text: the entity name/text
+- type: one of: person, organization, location, concept, product, metric, date, technical
+- importance: 0.0-1.0 (how central is this entity to the document)
+- context: brief explanation of the entity's role/significance
+- mentions: array with at least one mention object containing start, end, text
+
+Return ONLY valid JSON in this exact format:
+{
+  "entities": [
+    {
+      "id": "entity-1",
+      "text": "AWS",
+      "type": "organization",
+      "importance": 0.9,
+      "context": "Cloud platform provider",
+      "mentions": [{"start": 0, "end": 3, "text": "AWS"}]
+    },
+    {
+      "id": "entity-2",
+      "text": "Machine Learning",
+      "type": "concept",
+      "importance": 0.8,
+      "context": "Core technology discussed",
+      "mentions": [{"start": 0, "end": 16, "text": "Machine Learning"}]
+    }
+  ]
+}
+
+Extract at least 10-30 entities if the document is substantial. Be thorough.`
   },
   relationshipDetection: {
     primary: 'x-ai/grok-4.1-fast',
     fallback: 'openai/gpt-3.5-turbo',
     maxTokens: 2000,
     temperature: 0.3,
-    systemPrompt: `Analyze relationships between entities in the text.
-For each relationship include: source entity, target entity, type (causes/requires/part-of/relates-to/implements/uses/depends-on), and strength (0-1).
-Return as JSON array.`
+    systemPrompt: `Analyze relationships between the provided entities based on the text.
+
+For each relationship provide:
+- id: unique identifier (e.g., "rel-1", "rel-2")
+- source: ID of source entity
+- target: ID of target entity  
+- type: one of: causes, requires, part-of, relates-to, implements, uses, depends-on
+- strength: 0.0-1.0 (how strong/important is this relationship)
+- evidence: array with at least one evidence object containing start, end, text from the document
+
+Return ONLY valid JSON in this exact format:
+{
+  "relationships": [
+    {
+      "id": "rel-1",
+      "source": "entity-1",
+      "target": "entity-2",
+      "type": "uses",
+      "strength": 0.8,
+      "evidence": [{"start": 0, "end": 50, "text": "AWS uses Machine Learning for..."}]
+    }
+  ]
+}
+
+Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`
   },
   sectionSummary: {
     primary: 'x-ai/grok-4.1-fast',

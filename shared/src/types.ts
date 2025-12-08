@@ -227,6 +227,7 @@ export interface KnowledgeGraphData {
   nodes: GraphNode[];
   edges: GraphEdge[];
   clusters: Cluster[];
+  hierarchy?: HierarchyInfo;
 }
 
 export interface GraphNode {
@@ -239,7 +240,26 @@ export interface GraphNode {
   metadata: {
     centrality: number;
     connections: number;
+    description?: string;
+    sourceQuote?: string;
+    sourceSpan?: TextSpan;
   };
+}
+
+export interface EnhancedGraphNode extends GraphNode {
+  // Computed properties
+  degree: number;
+  betweenness: number;
+  eigenvector: number;
+  clusterId: string;
+  clusterColor: string;
+  
+  // Hierarchical properties
+  isExpandable: boolean;
+  isExpanded: boolean;
+  children: string[]; // Child node IDs
+  parent: string | null;
+  depth: number;
 }
 
 export interface GraphEdge {
@@ -249,6 +269,7 @@ export interface GraphEdge {
   type: RelationType;
   strength: number;
   label?: string;
+  evidence?: TextSpan[];
 }
 
 export interface Cluster {
@@ -256,6 +277,13 @@ export interface Cluster {
   label: string;
   nodeIds: string[];
   color: string;
+  boundary?: { x: number; y: number }[]; // Convex hull points
+}
+
+export interface HierarchyInfo {
+  rootNodes: string[];
+  maxDepth: number;
+  nodeDepths: Map<string, number>;
 }
 
 export interface DashboardData {
@@ -421,3 +449,83 @@ export interface ModelConfig {
   temperature: number;
   systemPrompt: string;
 }
+
+// Knowledge Graph State Management Types
+
+export type LayoutAlgorithm = 'force-directed' | 'hierarchical' | 'circular';
+
+export interface FilterState {
+  visibleEntityTypes: Set<EntityType>;
+  importanceThreshold: number;
+  searchQuery: string;
+  visibleRelationTypes: Set<RelationType>;
+}
+
+export interface GraphSnapshot {
+  id: string;
+  timestamp: Date;
+  nodePositions: Map<string, { x: number; y: number }>;
+  zoom: number;
+  pan: { x: number; y: number };
+  filters: FilterState;
+  selectedNodeIds: string[];
+  expandedNodeIds: string[];
+}
+
+export interface BreadcrumbItem {
+  nodeId: string;
+  label: string;
+  depth: number;
+}
+
+export interface GraphState {
+  // Data
+  nodes: EnhancedGraphNode[];
+  edges: GraphEdge[];
+  clusters: Cluster[];
+  
+  // Layout
+  layoutAlgorithm: LayoutAlgorithm;
+  nodePositions: Map<string, { x: number; y: number }>;
+  isLayouting: boolean;
+  
+  // Viewport
+  zoom: number;
+  pan: { x: number; y: number };
+  
+  // Selection
+  selectedNodeIds: Set<string>;
+  selectedEdgeIds: Set<string>;
+  hoveredNodeId: string | null;
+  
+  // Filters
+  visibleEntityTypes: Set<EntityType>;
+  importanceThreshold: number;
+  searchQuery: string;
+  visibleRelationTypes: Set<RelationType>;
+  
+  // Exploration
+  expandedNodeIds: Set<string>;
+  explorationDepth: number;
+  breadcrumbs: BreadcrumbItem[];
+  
+  // Snapshots
+  snapshots: GraphSnapshot[];
+  currentSnapshotIndex: number;
+  
+  // Performance
+  performanceMode: boolean;
+  
+  // Actions
+  setLayout: (algorithm: LayoutAlgorithm) => void;
+  selectNode: (id: string, multi: boolean) => void;
+  selectEdge: (id: string) => void;
+  expandNode: (id: string) => void;
+  collapseNode: (id: string) => void;
+  applyFilters: (filters: Partial<FilterState>) => void;
+  saveSnapshot: () => void;
+  restoreSnapshot: (index: number) => void;
+  setPerformanceMode: (enabled: boolean) => void;
+}
+
+export type ExportFormat = 'png' | 'svg' | 'html' | 'json';

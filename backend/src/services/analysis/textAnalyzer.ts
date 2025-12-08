@@ -9,26 +9,26 @@ import type {
   KPI,
   Metric
 } from '../../../../shared/src/types.js';
-import { getOpenRouterClient } from '../llm/openRouterClient.js';
+import { getOpenRouterClient, OpenRouterClient } from '../llm/openRouterClient.js';
 
 export type ProgressCallback = (
-  step: string, 
-  progress: number, 
+  step: string,
+  progress: number,
   message: string,
   partialAnalysis?: Partial<DocumentAnalysis>
 ) => void;
 
 export class TextAnalyzer {
-  private _llmClient: any;
+  private _llmClient: OpenRouterClient | null;
 
-  constructor(llmClient?: any) {
-    this._llmClient = llmClient;
+  constructor(llmClient?: OpenRouterClient) {
+    this._llmClient = llmClient || null;
   }
 
-  private get llmClient() {
+  private get llmClient(): OpenRouterClient {
     return this._llmClient || getOpenRouterClient();
   }
-  
+
   async analyzeDocument(
     document: Document,
     onProgress?: ProgressCallback
@@ -39,7 +39,7 @@ export class TextAnalyzer {
 
     // Priority 1: Get TLDR and Executive Summary first (most important for user)
     onProgress?.('priority-analysis', 10, 'Generating TLDR and executive summary...');
-    
+
     const [tldr, executiveSummary] = await Promise.all([
       this.generateTLDR(document.content),
       this.generateExecutiveSummary(document.content)
@@ -53,24 +53,24 @@ export class TextAnalyzer {
 
     // Priority 2: Run remaining analyses in parallel
     onProgress?.('detailed-analysis', 35, 'Extracting entities and analyzing signals...');
-    
+
     const [entities, signals] = await Promise.all([
       this.extractEntities(document.content),
       this.analyzeSignals(document.content)
     ]);
 
     onProgress?.('relationships', 50, 'Detecting relationships between entities...');
-    
+
     // Relationships depend on entities
     const relationships = await this.detectRelationships(document.content, entities);
 
     onProgress?.('sections', 65, 'Generating section summaries...');
-    
+
     // Generate section summaries
     await this.generateSectionSummaries(document);
 
     onProgress?.('recommendations', 85, 'Generating visualization recommendations...');
-    
+
     // Recommendations based on all analysis
     const recommendations = await this.recommendVisualizations(
       document,
@@ -94,7 +94,7 @@ export class TextAnalyzer {
 
   async generateTLDR(text: string, retries = 2): Promise<{ text: string; confidence?: number; generatedAt?: string; model?: string }> {
     const sample = text.substring(0, 4000); // Limit for speed
-    
+
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const response = await this.llmClient.callWithFallback('tldr', sample);
@@ -112,26 +112,26 @@ export class TextAnalyzer {
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
       }
     }
-    
+
     throw new Error('Failed to generate TLDR after retries');
   }
 
   async generateExecutiveSummary(text: string): Promise<ExecutiveSummary> {
     const sample = text.substring(0, 6000);
     const response = await this.llmClient.callWithFallback('executiveSummary', sample);
-    
+
     try {
       const parsed = JSON.parse(response.content) as ExecutiveSummary;
-      
+
       // Validate and filter KPIs to ensure they have valid numeric values
-      const validKpis = (parsed.kpis || []).filter(kpi => 
-        kpi && 
-        typeof kpi.value === 'number' && 
+      const validKpis = (parsed.kpis || []).filter(kpi =>
+        kpi &&
+        typeof kpi.value === 'number' &&
         !isNaN(kpi.value) &&
         kpi.label &&
         kpi.unit
       );
-      
+
       // Ensure all required fields exist
       return {
         headline: parsed.headline || 'Document Summary',
@@ -157,31 +157,74 @@ export class TextAnalyzer {
   async extractEntities(text: string): Promise<Entity[]> {
     const sample = text.substring(0, 5000);
     const response = await this.llmClient.callWithFallback('entityExtraction', sample);
-    
+
     try {
-      const parsed = await this.llmClient.parseJSONResponse<{ entities: Entity[] }>(response);
-      return parsed.entities || [];
+      const parsed = this.llmClient.parseJSONResponse<{ entities: Entity[] }>(response);
+      const entities = parsed.entities || [];
+      console.log(`✅ Extracted ${entities.length} entities`);
+
+      // Log first 5 entities for debugging
+      console.log('📊 Sample entities:', JSON.stringify(entities.slice(0, 5).map((e: Entity) => ({
+        id: e.id,
+        text: e.text,
+        type: e.type
+      })), null, 2));
+
+      return entities;
     } catch (error) {
-      console.error('Failed to parse entities');
+      console.error('Failed to parse entities:', error);
       return [];
     }
   }
 
   async detectRelationships(text: string, entities: Entity[]): Promise<Relationship[]> {
     if (entities.length === 0) {
+      console.log('⚠️  No entities found, skipping relationship detection');
       return [];
     }
 
     const entityList = entities.map(e => e.text).join(', ');
     const prompt = `Text: ${text.substring(0, 4000)}\n\nEntities: ${entityList}`;
-    
+
     const response = await this.llmClient.callWithFallback('relationshipDetection', prompt);
-    
+
     try {
-      const parsed = await this.llmClient.parseJSONResponse<{ relationships: Relationship[] }>(response);
-      return parsed.relationships || [];
+      const parsed = this.llmClient.parseJSONResponse<{ relationships: Relationship[] }>(response);
+      const relationships = parsed.relationships || [];
+      console.log(`✅ Detected ${relationships.length} relationships`);
+
+      // Log first 5 relationships for debugging
+      console.log('🔗 Sample relationships:', JSON.stringify(relationships.slice(0, 5).map((r: Relationship) => ({
+        source: r.source,
+        target: r.target,
+        type: r.type
+      })), null, 2));
+
+      // Check for mismatches between relationship IDs and entity IDs
+      const entityIds = new Set(entities.map((e: Entity) => e.id));
+      const entityTexts = new Set(entities.map((e: Entity) => e.text));
+      const mismatches = relationships.filter((r: Relationship) =>
+        !entityIds.has(r.source) && !entityIds.has(r.target)
+      );
+
+      if (mismatches.length > 0) {
+        console.warn(`⚠️  Found ${mismatches.length} relationships with non-matching IDs`);
+        console.warn('Sample mismatch:', JSON.stringify(mismatches.slice(0, 2), null, 2));
+        console.warn('Checking if using text instead of ID...');
+
+        const usingText = mismatches.filter((r: Relationship) =>
+          entityTexts.has(r.source) || entityTexts.has(r.target)
+        );
+
+        if (usingText.length > 0) {
+          console.error('❌ LLM is using entity TEXT instead of entity ID in relationships!');
+          console.error('Example:', JSON.stringify(usingText[0], null, 2));
+        }
+      }
+
+      return relationships;
     } catch (error) {
-      console.error('Failed to parse relationships');
+      console.error('Failed to parse relationships:', error);
       return [];
     }
   }
@@ -189,7 +232,7 @@ export class TextAnalyzer {
   async analyzeSignals(text: string): Promise<SignalAnalysis> {
     const sample = text.substring(0, 3000);
     const response = await this.llmClient.callWithFallback('signalAnalysis', sample);
-    
+
     try {
       const parsed = JSON.parse(response.content) as SignalAnalysis;
       return parsed;
@@ -253,10 +296,10 @@ Sample text:
 ${document.content.substring(0, 1000)}`;
 
     const response = await this.llmClient.callWithFallback('vizRecommendation', prompt);
-    
+
     try {
       const parsed = JSON.parse(response.content) as { recommendations: VisualizationRecommendation[] };
-      
+
       // Always include structured-view as default
       const recommendations = parsed.recommendations || [];
       if (!recommendations.find(r => r.type === 'structured-view')) {

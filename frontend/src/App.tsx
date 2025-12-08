@@ -206,6 +206,29 @@ function App() {
               </div>
             )}
 
+            {/* Progress Bar for Visualization Generation - Show when loading individual visualizations */}
+            {isLoading && hasAnalysis && progressMessage && (
+              <div className="bg-white rounded-xl p-6 shadow-medium border border-gray-200">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
+                    <p className="text-sm text-gray-900 font-medium">
+                      {progressMessage}
+                    </p>
+                  </div>
+                  
+                  <div className="w-full max-w-md">
+                    <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-primary-500 to-secondary-500 h-full transition-all duration-500 ease-out"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Visualization Section - Show structured view as soon as document is available */}
             {hasDocument && !isLoading && (
               <div className="space-y-6">

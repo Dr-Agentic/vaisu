@@ -7,7 +7,9 @@ import type {
   KnowledgeGraphData,
   DashboardData,
   TimelineData,
-  TermsDefinitionsData
+  TermsDefinitionsData,
+  Entity,
+  HierarchyInfo
 } from '../../../../shared/src/types.js';
 
 export class VisualizationGenerator {
@@ -27,7 +29,7 @@ export class VisualizationGenerator {
         return this.generateFlowchart(document, analysis);
       
       case 'knowledge-graph':
-        return this.generateKnowledgeGraph(analysis);
+        return this.generateKnowledgeGraph(analysis, document);
       
       case 'executive-dashboard':
         return this.generateDashboard(analysis);
@@ -121,13 +123,14 @@ export class VisualizationGenerator {
 
   private generateMindMapFromStructure(document: Document, analysis: DocumentAnalysis): MindMapData {
     // Fallback: Build mind map from document structure
+    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
     const root = {
       id: 'root',
       label: document.title,
-      subtitle: analysis.tldr.substring(0, 40),
+      subtitle: tldrText.substring(0, 40),
       icon: '📄',
-      summary: analysis.tldr,
-      detailedExplanation: analysis.tldr,
+      summary: tldrText,
+      detailedExplanation: tldrText,
       sourceTextExcerpt: document.content.substring(0, 200),
       children: this.convertSectionsToMindMapNodes(document.structure.sections, 1),
       level: 0,
@@ -213,7 +216,26 @@ export class VisualizationGenerator {
     };
   }
 
-  private generateKnowledgeGraph(analysis: DocumentAnalysis): KnowledgeGraphData {
+  private generateKnowledgeGraph(analysis: DocumentAnalysis, document?: Document): KnowledgeGraphData {
+    const entitiesCount = analysis.entities?.length || 0;
+    const relationshipsCount = analysis.relationships?.length || 0;
+    console.log(`🔍 Generating knowledge graph from ${entitiesCount} entities and ${relationshipsCount} relationships`);
+    
+    // If no entities, return empty graph
+    if (entitiesCount === 0) {
+      console.warn('⚠️  No entities found in analysis - returning empty knowledge graph');
+      return {
+        nodes: [],
+        edges: [],
+        clusters: []
+      };
+    }
+    
+    // Log raw entities for debugging
+    console.log('📊 Raw entities from LLM:', JSON.stringify(analysis.entities.slice(0, 5), null, 2));
+    console.log('🔗 Raw relationships from LLM:', JSON.stringify(analysis.relationships.slice(0, 5), null, 2));
+    
+    // Enhanced entity processing with descriptions and source quotes
     const nodes = analysis.entities.map(entity => ({
       id: entity.id,
       label: entity.text,
@@ -222,18 +244,38 @@ export class VisualizationGenerator {
       color: this.getEntityColor(entity.type),
       metadata: {
         centrality: entity.importance,
-        connections: 0
+        connections: 0,
+        description: entity.context || '',
+        sourceQuote: this.extractSourceQuote(entity, document),
+        sourceSpan: entity.mentions[0] || undefined
       }
     }));
 
+    // Enhanced relationship processing with evidence
     const edges = analysis.relationships.map((rel, index) => ({
       id: `rel-${index}`,
       source: rel.source,
       target: rel.target,
       type: rel.type,
       strength: rel.strength,
-      label: rel.type
+      label: rel.type,
+      evidence: rel.evidence
     }));
+    
+    // Validate edges and log issues
+    const nodeIds = new Set(nodes.map(n => n.id));
+    const invalidEdges = edges.filter(edge => !nodeIds.has(edge.source) || !nodeIds.has(edge.target));
+    
+    if (invalidEdges.length > 0) {
+      console.error('❌ Found invalid edges in knowledge graph:');
+      invalidEdges.forEach(edge => {
+        const sourceExists = nodeIds.has(edge.source);
+        const targetExists = nodeIds.has(edge.target);
+        console.error(`  - Edge ${edge.id}: ${edge.source} -> ${edge.target}`);
+        console.error(`    Source exists: ${sourceExists}, Target exists: ${targetExists}`);
+      });
+      console.error(`\n📋 Available node IDs (first 10):`, Array.from(nodeIds).slice(0, 10));
+    }
 
     // Update connection counts
     edges.forEach(edge => {
@@ -243,10 +285,80 @@ export class VisualizationGenerator {
       if (targetNode) targetNode.metadata.connections++;
     });
 
+    // Detect hierarchical relationships for recursive exploration
+    const hierarchicalEdges = edges.filter(e => 
+      ['part-of', 'contains', 'implements'].includes(e.type)
+    );
+
+    // Build parent-child relationships
+    const hierarchy = this.buildHierarchy(nodes, hierarchicalEdges);
+
     return {
       nodes,
       edges,
-      clusters: []
+      clusters: [], // Computed on frontend
+      hierarchy
+    };
+  }
+
+  private extractSourceQuote(entity: Entity, document?: Document): string {
+    if (!document || entity.mentions.length === 0) return '';
+    
+    const mention = entity.mentions[0];
+    // Extract surrounding context (50 chars before/after)
+    const start = Math.max(0, mention.start - 50);
+    const end = Math.min(document.content.length, mention.end + 50);
+    return document.content.substring(start, end);
+  }
+
+  private buildHierarchy(
+    nodes: any[],
+    hierarchicalEdges: any[]
+  ): HierarchyInfo {
+    const nodeDepths = new Map<string, number>();
+    const parentMap = new Map<string, string>();
+    const childrenMap = new Map<string, string[]>();
+    
+    // Initialize maps
+    nodes.forEach(node => {
+      nodeDepths.set(node.id, 0);
+      childrenMap.set(node.id, []);
+    });
+    
+    // Build parent-child relationships
+    hierarchicalEdges.forEach(edge => {
+      const parentId = edge.source;
+      const childId = edge.target;
+      
+      parentMap.set(childId, parentId);
+      const children = childrenMap.get(parentId) || [];
+      children.push(childId);
+      childrenMap.set(parentId, children);
+    });
+    
+    // Calculate depths using BFS
+    const rootNodes = nodes
+      .filter(node => !parentMap.has(node.id))
+      .map(node => node.id);
+    
+    const queue = rootNodes.map(id => ({ id, depth: 0 }));
+    let maxDepth = 0;
+    
+    while (queue.length > 0) {
+      const { id, depth } = queue.shift()!;
+      nodeDepths.set(id, depth);
+      maxDepth = Math.max(maxDepth, depth);
+      
+      const children = childrenMap.get(id) || [];
+      children.forEach(childId => {
+        queue.push({ id: childId, depth: depth + 1 });
+      });
+    }
+    
+    return {
+      rootNodes,
+      maxDepth,
+      nodeDepths
     };
   }
 

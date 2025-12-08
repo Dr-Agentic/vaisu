@@ -100,3 +100,42 @@ export async function deleteDocument(documentId: string): Promise<void> {
 
   await dynamoDBClient.send(command);
 }
+
+/**
+ * List all documents for a user (with pagination)
+ * Note: Uses Scan operation since GSI2 (userId index) is not yet created.
+ * For production, add GSI2 with userId as partition key for better performance.
+ */
+export async function listByUserId(
+  userId: string,
+  limit: number = 50,
+  lastEvaluatedKey?: Record<string, any>
+): Promise<{ documents: DocumentRecord[]; lastEvaluatedKey?: Record<string, any> }> {
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
+  
+  const command = new ScanCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    FilterExpression: 'userId = :userId AND SK = :sk',
+    ExpressionAttributeValues: {
+      ':userId': userId,
+      ':sk': 'METADATA',
+    },
+    Limit: limit,
+    ExclusiveStartKey: lastEvaluatedKey,
+  });
+
+  const response = await dynamoDBClient.send(command);
+
+  // Sort by uploadedAt (newest first) since Scan doesn't guarantee order
+  const sortedDocuments = (response.Items || [])
+    .sort((a: any, b: any) => {
+      const dateA = new Date(a.uploadedAt).getTime();
+      const dateB = new Date(b.uploadedAt).getTime();
+      return dateB - dateA;
+    });
+
+  return {
+    documents: sortedDocuments as DocumentRecord[],
+    lastEvaluatedKey: response.LastEvaluatedKey,
+  };
+}

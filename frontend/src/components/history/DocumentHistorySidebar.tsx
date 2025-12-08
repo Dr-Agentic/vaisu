@@ -1,7 +1,8 @@
 import React from 'react';
-import { X, ChevronLeft, ChevronRight, History } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, History, RefreshCw } from 'lucide-react';
 import { DocumentSearch } from './DocumentSearch';
 import { DocumentList } from './DocumentList';
+import { useDocumentStore } from '../../stores/documentStore';
 
 interface DocumentHistorySidebarProps {
   isOpen: boolean;
@@ -12,6 +13,12 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
   isOpen,
   onClose
 }) => {
+  const { fetchDocumentList, isLoadingList } = useDocumentStore();
+
+  const handleRefresh = () => {
+    fetchDocumentList();
+  };
+
   return (
     <>
       {/* Mobile overlay */}
@@ -42,13 +49,27 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
               Document History
             </h2>
           </div>
-          <button
-            onClick={onClose}
-            className="lg:hidden p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded"
-            aria-label="Close sidebar"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleRefresh}
+              disabled={isLoadingList}
+              className="p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50"
+              aria-label="Refresh documents"
+              title="Refresh documents"
+            >
+              <RefreshCw 
+                size={18} 
+                className={`text-gray-600 dark:text-gray-400 ${isLoadingList ? 'animate-spin' : ''}`}
+              />
+            </button>
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1 hover:bg-gray-200 dark:hover:bg-gray-800 rounded"
+              aria-label="Close sidebar"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Search */}

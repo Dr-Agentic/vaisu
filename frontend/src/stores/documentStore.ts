@@ -222,8 +222,26 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       return;
     }
 
+    // Show progress for visualization generation
+    set({
+      isLoading: true,
+      progressStep: 'generating',
+      progressPercent: 0,
+      progressMessage: `Generating ${type.replace('-', ' ')} visualization...`
+    });
+
     try {
+      // Simulate progress updates for better UX
+      const progressInterval = setInterval(() => {
+        const current = get().progressPercent;
+        if (current < 90) {
+          set({ progressPercent: current + 10 });
+        }
+      }, 300);
+
       const data = await apiClient.generateVisualization(document.id, type);
+      
+      clearInterval(progressInterval);
       
       // Validate data structure for terms-definitions
       if (type === 'terms-definitions') {
@@ -234,9 +252,31 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       
       const newMap = new Map(visualizationData);
       newMap.set(type, data);
-      set({ visualizationData: newMap, currentVisualization: type });
+      set({ 
+        visualizationData: newMap, 
+        currentVisualization: type,
+        isLoading: false,
+        progressStep: 'complete',
+        progressPercent: 100,
+        progressMessage: 'Visualization ready!'
+      });
+
+      // Clear progress after a short delay
+      setTimeout(() => {
+        set({
+          progressStep: '',
+          progressPercent: 0,
+          progressMessage: ''
+        });
+      }, 1000);
     } catch (error: any) {
-      set({ error: error.message || 'Failed to load visualization' });
+      set({ 
+        error: error.message || 'Failed to load visualization',
+        isLoading: false,
+        progressStep: 'error',
+        progressPercent: 0,
+        progressMessage: 'Failed to generate visualization'
+      });
     }
   },
 

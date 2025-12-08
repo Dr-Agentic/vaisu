@@ -4,11 +4,17 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import documentsRouter from './routes/documents.js';
 import { validateAWSConfig } from './config/aws.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Middleware
 app.use(cors({
@@ -19,7 +25,7 @@ app.use(cors({
 app.use(express.json({ limit: '1gb' }));
 app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 
-// Routes
+// API Routes
 app.use('/api/documents', documentsRouter);
 
 // Health check
@@ -30,6 +36,18 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+// Serve frontend static files in production
+if (isProduction) {
+  const frontendDistPath = path.join(__dirname, '../../frontend/dist');
+  
+  app.use(express.static(frontendDistPath));
+  
+  // Handle client-side routing - serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

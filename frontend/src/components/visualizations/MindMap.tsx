@@ -13,7 +13,7 @@ interface NodePosition {
 
 export function MindMap({ data }: MindMapProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(2.0); // Start at 2x zoom for readable text
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -114,7 +114,7 @@ export function MindMap({ data }: MindMapProps) {
   };
 
   const handleReset = () => {
-    setZoom(1);
+    setZoom(2.0); // Reset to default readable zoom level
     setPan({ x: 0, y: 0 });
   };
 
@@ -183,21 +183,27 @@ export function MindMap({ data }: MindMapProps) {
     const isRoot = node.id === data.root.id;
     const isSelected = selectedNode?.id === node.id;
     
-    // Rectangle dimensions - increased height for subtitle
-    const width = isRoot ? 200 : 180;
+    // Dynamic width calculation based on text length
+    // Approximate 8px per character for label, with min/max bounds
+    const labelWidth = Math.max(node.label.length * 8, 180);
+    const subtitleWidth = Math.max(node.subtitle.length * 6, 180);
+    const calculatedWidth = Math.max(labelWidth, subtitleWidth);
+    
+    // Set width with comfortable padding, capped at reasonable max
+    const width = Math.min(Math.max(calculatedWidth + 40, isRoot ? 220 : 200), 400);
     const height = isRoot ? 70 : 65;
     const rx = 8; // Border radius
     
     // Icon size - proportional to text
     const iconSize = isRoot ? 16 : 14;
     
-    // Calculate text to fit in box
-    const maxLabelChars = isRoot ? 20 : 18;
+    // Calculate text to fit in box - now more generous
+    const maxLabelChars = Math.floor((width - 50) / 8); // Account for icon and padding
     const displayLabel = node.label.length > maxLabelChars 
       ? node.label.substring(0, maxLabelChars - 3) + '...' 
       : node.label;
     
-    const maxSubtitleChars = 40;
+    const maxSubtitleChars = Math.floor((width - 30) / 6);
     const displaySubtitle = node.subtitle.length > maxSubtitleChars 
       ? node.subtitle.substring(0, maxSubtitleChars - 3) + '...' 
       : node.subtitle;
@@ -272,14 +278,23 @@ export function MindMap({ data }: MindMapProps) {
     if (!parentPos || !childPos) return null;
 
     const isRoot = parent.id === data.root.id;
-    const parentWidth = isRoot ? 180 : 160;
+    
+    // Calculate dynamic widths for parent and child
+    const parentLabelWidth = Math.max(parent.label.length * 8, 180);
+    const parentSubtitleWidth = Math.max(parent.subtitle.length * 6, 180);
+    const parentCalculatedWidth = Math.max(parentLabelWidth, parentSubtitleWidth);
+    const parentWidth = Math.min(Math.max(parentCalculatedWidth + 40, isRoot ? 220 : 200), 400);
+    
+    const childLabelWidth = Math.max(child.label.length * 8, 180);
+    const childSubtitleWidth = Math.max(child.subtitle.length * 6, 180);
+    const childCalculatedWidth = Math.max(childLabelWidth, childSubtitleWidth);
+    const childWidth = Math.min(Math.max(childCalculatedWidth + 40, 200), 400);
     
     // Start from right edge of parent
     const startX = parentPos.x + parentWidth / 2;
     const startY = parentPos.y;
     
     // End at left edge of child
-    const childWidth = 160;
     const endX = childPos.x - childWidth / 2;
     const endY = childPos.y;
     

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: vaisu
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build:prod
+    startCommand: npm run start:prod
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: ENABLE_PERSISTENCE
+        value: false
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      # These must be added via Render Dashboard (secrets):
+      # - OPENROUTER_API_KEY
+      # - APP_URL (set to your Render URL)

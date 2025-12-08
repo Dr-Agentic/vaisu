@@ -328,14 +328,60 @@ router.get('/:id', (req: Request, res: Response) => {
 router.post('/:id/visualizations/:type', async (req: Request, res: Response) => {
   try {
     const { id, type } = req.params;
+    console.log(`📊 Visualization request: type=${type}, documentId=${id}`);
+    console.log(`📦 In-memory documents: ${documents.size} items`);
 
-    const document = documents.get(id);
-    if (!document) {
-      return res.status(404).json({ error: 'Document not found' });
+    let document = documents.get(id);
+    let analysis = analyses.get(id);
+
+    // If not in memory, try loading from DynamoDB
+    if (!document && isPersistenceEnabled()) {
+      console.log(`🔍 Document not in memory, checking DynamoDB...`);
+      try {
+        const docRecord = await documentRepository.findById(id);
+        const analysisRecord = await analysisRepository.findByDocumentId(id);
+        
+        if (docRecord && analysisRecord) {
+          console.log(`✅ Found in DynamoDB: ${docRecord.filename}`);
+          
+          // Load content from S3 if needed
+          const content = await s3Storage.getDocumentContent(docRecord.s3Key);
+          
+          // Reconstruct document
+          document = {
+            id: docRecord.documentId,
+            title: docRecord.filename,
+            content,
+            metadata: {
+              fileType: docRecord.contentType,
+              uploadDate: new Date(docRecord.uploadedAt),
+              wordCount: content.split(/\s+/).length,
+              language: 'en',
+            },
+            structure: analysisRecord.analysis.structure,
+          };
+          
+          analysis = analysisRecord.analysis;
+          
+          // Cache in memory for future requests
+          documents.set(id, document);
+          analyses.set(id, analysis);
+          
+          // Update access metadata
+          await documentRepository.updateAccessMetadata(id);
+        }
+      } catch (dbError) {
+        console.error('DynamoDB lookup error:', dbError);
+      }
     }
 
+    if (!document) {
+      console.log(`❌ Document ${id} not found in memory or DynamoDB`);
+      return res.status(404).json({ error: 'Document not found' });
+    }
+    console.log(`✅ Using document: ${document.title}`);
+
     // Structured view doesn't need analysis, others do
-    const analysis = analyses.get(id);
     if (!analysis && type !== 'structured-view') {
       return res.status(404).json({ error: 'Document not analyzed yet. Analysis required for this visualization.' });
     }
@@ -384,10 +430,52 @@ router.get('/:id/progress', (req: Request, res: Response) => {
 });
 
 // GET /api/documents/:id/full - Get document with all data
-router.get('/:id/full', (req: Request, res: Response) => {
+router.get('/:id/full', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     
+    // Try DynamoDB first if persistence is enabled
+    if (isPersistenceEnabled()) {
+      try {
+        const docRecord = await documentRepository.findById(id);
+        const analysisRecord = await analysisRepository.findByDocumentId(id);
+        
+        if (docRecord && analysisRecord) {
+          // Update access metadata
+          await documentRepository.updateAccessMetadata(id);
+          
+          // Reconstruct Document object from DynamoDB record
+          const document: Document = {
+            id: docRecord.documentId,
+            title: docRecord.filename,
+            content: '', // Content is in S3, not loaded here
+            metadata: {
+              fileType: docRecord.contentType,
+              uploadDate: new Date(docRecord.uploadedAt),
+              wordCount: 0, // Not stored in DynamoDB
+              language: 'en', // Default language
+            },
+            structure: analysisRecord.analysis.structure,
+          };
+          
+          // Extract visualizations from analysis if they exist
+          const docVisualizations: Record<string, any> = {};
+          // Visualizations are stored in the analysis object
+          // For now, return empty visualizations as they're generated on-demand
+          
+          return res.json({
+            document,
+            analysis: analysisRecord.analysis,
+            visualizations: docVisualizations
+          });
+        }
+      } catch (dbError) {
+        console.error('DynamoDB fetch error (falling back to memory):', dbError);
+        // Fall through to in-memory storage
+      }
+    }
+    
+    // Fallback to in-memory storage
     const document = documents.get(id);
     if (!document) {
       return res.status(404).json({ error: 'Document not found' });
@@ -416,12 +504,50 @@ router.get('/:id/full', (req: Request, res: Response) => {
 });
 
 // GET /api/documents - List all documents (must be last to not conflict with other routes)
-router.get('/', (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
     
-    // Convert to array and sort by upload date (newest first)
+    // If persistence is enabled, fetch from DynamoDB
+    if (isPersistenceEnabled()) {
+      try {
+        console.log('📋 Fetching documents from DynamoDB...');
+        const userId = '1'; // Default anonymous user
+        const result = await documentRepository.listByUserId(userId, limit);
+        
+        // Fetch analyses for each document
+        const documentList = await Promise.all(
+          result.documents.map(async (docRecord) => {
+            const analysisRecord = await analysisRepository.findByDocumentId(docRecord.documentId);
+            
+            return {
+              id: docRecord.documentId,
+              title: docRecord.filename,
+              fileType: docRecord.contentType,
+              uploadDate: docRecord.uploadedAt,
+              tldr: analysisRecord?.analysis?.tldr,
+              summaryHeadline: analysisRecord?.analysis?.executiveSummary?.headline,
+              wordCount: 0, // Not stored in DynamoDB record
+            };
+          })
+        );
+        
+        console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
+        
+        return res.json({
+          documents: documentList,
+          total: documentList.length,
+          limit,
+          offset: 0,
+        });
+      } catch (dbError) {
+        console.error('DynamoDB fetch error (falling back to memory):', dbError);
+        // Fall through to in-memory storage
+      }
+    }
+    
+    // Fallback to in-memory storage
     const allDocs = Array.from(documents.values())
       .sort((a, b) => new Date(b.metadata.uploadDate).getTime() - new Date(a.metadata.uploadDate).getTime());
     
