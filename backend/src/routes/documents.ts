@@ -359,7 +359,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
               wordCount: content.split(/\s+/).length,
               language: 'en',
             },
-            structure: analysisRecord.analysis.structure,
+            structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
           };
           
           analysis = analysisRecord.analysis;
@@ -458,7 +458,7 @@ router.get('/:id/full', async (req: Request, res: Response) => {
               wordCount: 0, // Not stored in DynamoDB
               language: 'en', // Default language
             },
-            structure: analysisRecord.analysis.structure,
+            structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
           };
           
           // Extract visualizations from analysis if they exist
