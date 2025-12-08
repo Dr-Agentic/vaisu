@@ -345,7 +345,8 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
           console.log(`✅ Found in DynamoDB: ${docRecord.filename}`);
           
           // Load content from S3 if needed
-          const content = await s3Storage.getDocumentContent(docRecord.s3Key);
+          const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
+          const content = contentBuffer.toString('utf-8');
           
           // Reconstruct document
           document = {
@@ -365,7 +366,9 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
           
           // Cache in memory for future requests
           documents.set(id, document);
-          analyses.set(id, analysis);
+          if (analysis) {
+            analyses.set(id, analysis);
+          }
           
           // Update access metadata
           await documentRepository.updateAccessMetadata(id);
@@ -401,7 +404,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
     const data = await visualizationGenerator.generateVisualization(
       type as any,
       document,
-      analysis!
+      analysis as any
     );
 
     visualizations.set(vizKey, data);

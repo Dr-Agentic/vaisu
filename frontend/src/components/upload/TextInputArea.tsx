@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Send, X } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
 

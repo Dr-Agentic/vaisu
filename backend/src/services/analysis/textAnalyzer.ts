@@ -183,8 +183,9 @@ export class TextAnalyzer {
       return [];
     }
 
-    const entityList = entities.map(e => e.text).join(', ');
-    const prompt = `Text: ${text.substring(0, 4000)}\n\nEntities: ${entityList}`;
+    // Create entity list with IDs and text for the LLM
+    const entityList = entities.map(e => `${e.id}: "${e.text}" (${e.type})`).join('\n');
+    const prompt = `Text: ${text.substring(0, 4000)}\n\nEntities (use the ID in source/target fields):\n${entityList}\n\nAnalyze the text and find relationships between these entities. Use the entity IDs (e.g., "entity-1") in your response, not the entity names.`;
 
     const response = await this.llmClient.callWithFallback('relationshipDetection', prompt);
 
@@ -204,7 +205,7 @@ export class TextAnalyzer {
       const entityIds = new Set(entities.map((e: Entity) => e.id));
       const entityTexts = new Set(entities.map((e: Entity) => e.text));
       const mismatches = relationships.filter((r: Relationship) =>
-        !entityIds.has(r.source) && !entityIds.has(r.target)
+        !entityIds.has(r.source) || !entityIds.has(r.target)
       );
 
       if (mismatches.length > 0) {
@@ -219,6 +220,7 @@ export class TextAnalyzer {
         if (usingText.length > 0) {
           console.error('❌ LLM is using entity TEXT instead of entity ID in relationships!');
           console.error('Example:', JSON.stringify(usingText[0], null, 2));
+          console.error('This will be auto-fixed in the visualization generator.');
         }
       }
 

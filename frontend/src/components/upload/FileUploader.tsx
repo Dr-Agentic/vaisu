@@ -10,7 +10,8 @@ export function FileUploader() {
     if (acceptedFiles.length > 0) {
       uploadDocument(acceptedFiles[0]);
     }
-  }, [uploadDocument]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // uploadDocument is a stable Zustand action
 
   const onDropRejected = useCallback((fileRejections: any[]) => {
     if (fileRejections.length > 0) {
@@ -41,7 +42,8 @@ export function FileUploader() {
         });
       }
     }
-  }, [addToast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // addToast is a stable Zustand action
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

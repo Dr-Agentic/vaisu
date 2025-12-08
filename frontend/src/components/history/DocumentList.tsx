@@ -15,7 +15,8 @@ export const DocumentList: React.FC = () => {
 
   useEffect(() => {
     fetchDocumentList();
-  }, [fetchDocumentList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // fetchDocumentList is a stable Zustand action
 
   if (isLoadingList) {
     return (

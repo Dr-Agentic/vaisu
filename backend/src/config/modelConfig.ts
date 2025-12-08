@@ -26,7 +26,7 @@ Return as JSON matching the ExecutiveSummary interface.`
   entityExtraction: {
     primary: 'x-ai/grok-4.1-fast',
     fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 2000,
+    maxTokens: 50000,
     temperature: 0.1,
     systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, organizations, locations, concepts, products, technologies, and key terms.
 
@@ -65,14 +65,16 @@ Extract at least 10-30 entities if the document is substantial. Be thorough.`
   relationshipDetection: {
     primary: 'x-ai/grok-4.1-fast',
     fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 2000,
+    maxTokens: 50000,
     temperature: 0.3,
     systemPrompt: `Analyze relationships between the provided entities based on the text.
 
+CRITICAL: You will be given a list of entities with their IDs. You MUST use the exact entity ID (e.g., "entity-1", "entity-2") in the source and target fields, NOT the entity text/name.
+
 For each relationship provide:
 - id: unique identifier (e.g., "rel-1", "rel-2")
-- source: ID of source entity
-- target: ID of target entity  
+- source: EXACT ID of source entity (e.g., "entity-1") - DO NOT use entity text
+- target: EXACT ID of target entity (e.g., "entity-2") - DO NOT use entity text
 - type: one of: causes, requires, part-of, relates-to, implements, uses, depends-on
 - strength: 0.0-1.0 (how strong/important is this relationship)
 - evidence: array with at least one evidence object containing start, end, text from the document
@@ -90,6 +92,8 @@ Return ONLY valid JSON in this exact format:
     }
   ]
 }
+
+REMEMBER: Use entity IDs (entity-1, entity-2, etc.) NOT entity names (AWS, Machine Learning, etc.) in source and target fields!
 
 Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`
   },

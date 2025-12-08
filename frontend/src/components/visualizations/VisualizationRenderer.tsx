@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { StructuredView } from './StructuredView';
 import { MindMap } from './MindMap';
@@ -12,11 +12,13 @@ export function VisualizationRenderer() {
   const data = visualizationData.get(currentVisualization);
 
   // Auto-load visualization if not in cache
+  // Note: loadVisualization is a stable Zustand action and doesn't need to be in deps
   useEffect(() => {
     if (document && !data) {
       loadVisualization(currentVisualization);
     }
-  }, [currentVisualization, document, data, loadVisualization]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentVisualization, document, data]);
 
   if (!data) {
     return (
@@ -28,14 +30,6 @@ export function VisualizationRenderer() {
       </div>
     );
   }
-
-  // Debug logging
-  console.log('VisualizationRenderer:', {
-    currentVisualization,
-    hasData: !!data,
-    dataKeys: data ? Object.keys(data) : [],
-    dataType: typeof data
-  });
 
   switch (currentVisualization) {
     case 'structured-view':
@@ -55,7 +49,6 @@ export function VisualizationRenderer() {
       );
     
     case 'knowledge-graph':
-      console.log('Rendering KnowledgeGraph with data:', data);
       if (!data || !data.nodes || data.nodes.length === 0) {
         return (
           <div className="bg-gray-50 rounded-lg p-8 text-center">

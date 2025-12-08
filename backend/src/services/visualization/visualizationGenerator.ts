@@ -235,6 +235,17 @@ export class VisualizationGenerator {
     console.log('📊 Raw entities from LLM:', JSON.stringify(analysis.entities.slice(0, 5), null, 2));
     console.log('🔗 Raw relationships from LLM:', JSON.stringify(analysis.relationships.slice(0, 5), null, 2));
     
+    // Create entity text to ID mapping for fixing relationships
+    const entityTextToId = new Map<string, string>();
+    const entityIdSet = new Set<string>();
+    
+    analysis.entities.forEach(entity => {
+      entityIdSet.add(entity.id);
+      entityTextToId.set(entity.text.toLowerCase(), entity.id);
+      // Also map the ID to itself in case it's used correctly
+      entityTextToId.set(entity.id.toLowerCase(), entity.id);
+    });
+    
     // Enhanced entity processing with descriptions and source quotes
     const nodes = analysis.entities.map(entity => ({
       id: entity.id,
@@ -251,23 +262,56 @@ export class VisualizationGenerator {
       }
     }));
 
-    // Enhanced relationship processing with evidence
-    const edges = analysis.relationships.map((rel, index) => ({
-      id: `rel-${index}`,
-      source: rel.source,
-      target: rel.target,
-      type: rel.type,
-      strength: rel.strength,
-      label: rel.type,
-      evidence: rel.evidence
-    }));
+    // Enhanced relationship processing with evidence and ID fixing
+    const edges = analysis.relationships
+      .map((rel, index) => {
+        // Try to fix source/target if they're using text instead of IDs
+        let source = rel.source;
+        let target = rel.target;
+        
+        // Check if source/target are valid IDs
+        if (!entityIdSet.has(source)) {
+          // Try to find by text
+          const fixedSource = entityTextToId.get(source.toLowerCase());
+          if (fixedSource) {
+            console.warn(`🔧 Fixed relationship source: "${source}" -> "${fixedSource}"`);
+            source = fixedSource;
+          } else {
+            console.error(`❌ Cannot find entity for source: "${source}"`);
+            return null; // Invalid edge
+          }
+        }
+        
+        if (!entityIdSet.has(target)) {
+          // Try to find by text
+          const fixedTarget = entityTextToId.get(target.toLowerCase());
+          if (fixedTarget) {
+            console.warn(`🔧 Fixed relationship target: "${target}" -> "${fixedTarget}"`);
+            target = fixedTarget;
+          } else {
+            console.error(`❌ Cannot find entity for target: "${target}"`);
+            return null; // Invalid edge
+          }
+        }
+        
+        return {
+          id: rel.id || `rel-${index}`,
+          source,
+          target,
+          type: rel.type,
+          strength: rel.strength,
+          label: rel.type,
+          evidence: rel.evidence
+        };
+      })
+      .filter(edge => edge !== null) as any[]; // Remove invalid edges
     
     // Validate edges and log issues
     const nodeIds = new Set(nodes.map(n => n.id));
     const invalidEdges = edges.filter(edge => !nodeIds.has(edge.source) || !nodeIds.has(edge.target));
     
     if (invalidEdges.length > 0) {
-      console.error('❌ Found invalid edges in knowledge graph:');
+      console.error('❌ Found invalid edges in knowledge graph after fixing:');
       invalidEdges.forEach(edge => {
         const sourceExists = nodeIds.has(edge.source);
         const targetExists = nodeIds.has(edge.target);
@@ -276,9 +320,14 @@ export class VisualizationGenerator {
       });
       console.error(`\n📋 Available node IDs (first 10):`, Array.from(nodeIds).slice(0, 10));
     }
+    
+    // Filter out any remaining invalid edges
+    const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+    
+    console.log(`✅ Knowledge graph: ${nodes.length} nodes, ${validEdges.length} valid edges (${edges.length - validEdges.length} filtered out)`);
 
     // Update connection counts
-    edges.forEach(edge => {
+    validEdges.forEach(edge => {
       const sourceNode = nodes.find(n => n.id === edge.source);
       const targetNode = nodes.find(n => n.id === edge.target);
       if (sourceNode) sourceNode.metadata.connections++;
@@ -286,7 +335,7 @@ export class VisualizationGenerator {
     });
 
     // Detect hierarchical relationships for recursive exploration
-    const hierarchicalEdges = edges.filter(e => 
+    const hierarchicalEdges = validEdges.filter(e => 
       ['part-of', 'contains', 'implements'].includes(e.type)
     );
 
@@ -295,7 +344,7 @@ export class VisualizationGenerator {
 
     return {
       nodes,
-      edges,
+      edges: validEdges,
       clusters: [], // Computed on frontend
       hierarchy
     };
