@@ -9,7 +9,8 @@ import {
   Calendar,
   Table,
   Star,
-  BookOpen
+  BookOpen,
+  Box
 } from 'lucide-react';
 
 const VISUALIZATION_INFO: Record<VisualizationType, { name: string; icon: any; description: string }> = {
@@ -63,10 +64,10 @@ const VISUALIZATION_INFO: Record<VisualizationType, { name: string; icon: any; d
     icon: Table,
     description: 'Responsibility assignment'
   },
-  'uml-class': {
+  'uml-class-diagram': {
     name: 'UML Class Diagram',
-    icon: GitBranch,
-    description: 'Class relationships'
+    icon: Box,
+    description: 'Object-oriented class structures and relationships'
   },
   'uml-sequence': {
     name: 'UML Sequence',

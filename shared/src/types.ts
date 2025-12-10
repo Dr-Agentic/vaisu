@@ -140,7 +140,7 @@ export type VisualizationType =
   | 'mind-map'
   | 'flowchart'
   | 'knowledge-graph'
-  | 'uml-class'
+  | 'uml-class-diagram'
   | 'uml-sequence'
   | 'uml-activity'
   | 'executive-dashboard'
@@ -332,6 +332,114 @@ export interface GlossaryTerm {
   context?: string;
 }
 
+// UML Class Diagram Types
+
+export interface UMLDiagramData {
+  classes: ClassEntity[];
+  relationships: UMLRelationship[];
+  packages: Package[];
+  metadata: DiagramMetadata;
+}
+
+export interface ClassEntity {
+  id: string;
+  name: string;
+  type: 'class' | 'interface' | 'abstract' | 'enum';
+  stereotype?: string;
+  package?: string;
+  
+  // Members
+  attributes: Attribute[];
+  methods: Method[];
+  
+  // Computed properties
+  position?: Position;
+  size?: Size;
+  
+  // Context (for hover tooltips)
+  description: string;
+  sourceQuote: string;
+  sourceSpan: TextSpan | null;
+  documentLink: string;
+}
+
+export interface Attribute {
+  id: string;
+  name: string;
+  type: string;
+  visibility: 'public' | 'private' | 'protected' | 'package';
+  isStatic: boolean;
+  defaultValue?: string;
+}
+
+export interface Method {
+  id: string;
+  name: string;
+  returnType: string;
+  visibility: 'public' | 'private' | 'protected' | 'package';
+  isStatic: boolean;
+  isAbstract: boolean;
+  parameters: Parameter[];
+}
+
+export interface Parameter {
+  name: string;
+  type: string;
+  defaultValue?: string;
+}
+
+export interface UMLRelationship {
+  id: string;
+  source: string; // Class ID
+  target: string; // Class ID
+  type: 'inheritance' | 'realization' | 'composition' | 'aggregation' | 'association' | 'dependency';
+  
+  // Optional properties
+  sourceMultiplicity?: string;
+  targetMultiplicity?: string;
+  sourceRole?: string;
+  targetRole?: string;
+  label?: string;
+  
+  // Context (for hover tooltips)
+  description: string;
+  sourceQuote: string;
+  evidence: string[];
+}
+
+export interface Package {
+  id: string;
+  name: string;
+  parent?: string;
+  classes: string[]; // Class IDs
+  color: string;
+}
+
+export interface DiagramMetadata {
+  totalClasses: number;
+  totalRelationships: number;
+  extractionConfidence: number;
+  documentDomain: string;
+  generatedAt: string;
+}
+
+export interface Position {
+  x: number;
+  y: number;
+}
+
+export interface Size {
+  width: number;
+  height: number;
+}
+
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 // API Request/Response types
 
 export interface UploadDocumentRequest {
@@ -422,7 +530,8 @@ export type TaskType =
   | 'kpiExtraction'
   | 'glossary'
   | 'qa'
-  | 'mindMapGeneration';
+  | 'mindMapGeneration'
+  | 'uml-extraction';
 
 export interface LLMCallConfig {
   model: string;

@@ -5,13 +5,11 @@ services:
     region: oregon
     plan: free
     buildCommand: npm install && npm run build:prod
-    startCommand: npm run start:prod
+    startCommand: node backend/dist/server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 3001
       - key: ENABLE_PERSISTENCE
         value: true
       - key: OPENROUTER_BASE_URL

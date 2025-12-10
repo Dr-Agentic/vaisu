@@ -8,9 +8,57 @@ import type {
   DashboardData,
   TimelineData,
   TermsDefinitionsData,
+  UMLDiagramData,
+  ClassEntity,
+  UMLRelationship,
+  Package,
+  TextSpan,
   Entity,
   HierarchyInfo
 } from '../../../../shared/src/types.js';
+
+// Internal types for LLM extraction
+interface UMLExtractionResult {
+  classes: {
+    name: string;
+    type?: 'class' | 'interface' | 'abstract' | 'enum';
+    stereotype?: string;
+    package?: string;
+    description?: string;
+    sourceQuote?: string;
+    attributes?: {
+      name: string;
+      type: string;
+      visibility: 'public' | 'private' | 'protected' | 'package';
+      isStatic: boolean;
+      defaultValue?: string;
+    }[];
+    methods?: {
+      name: string;
+      returnType: string;
+      visibility: 'public' | 'private' | 'protected' | 'package';
+      isStatic: boolean;
+      isAbstract: boolean;
+      parameters: { name: string; type: string; defaultValue?: string }[];
+    }[];
+  }[];
+  relationships: {
+    source: string;
+    target: string;
+    type: 'inheritance' | 'realization' | 'composition' | 'aggregation' | 'association' | 'dependency';
+    sourceMultiplicity?: string;
+    targetMultiplicity?: string;
+    sourceRole?: string;
+    targetRole?: string;
+    label?: string;
+    description?: string;
+    evidence?: string;
+  }[];
+  packages?: {
+    name: string;
+    classes: string[];
+  }[];
+}
 
 export class VisualizationGenerator {
   async generateVisualization(
@@ -39,6 +87,9 @@ export class VisualizationGenerator {
       
       case 'terms-definitions':
         return await this.generateTermsDefinitions(document, analysis);
+      
+      case 'uml-class-diagram':
+        return await this.generateUMLClassDiagram(document, analysis);
       
       default:
         throw new Error(`Visualization type ${type} not yet implemented`);
@@ -517,6 +568,218 @@ export class VisualizationGenerator {
         documentDomain: 'general'
       }
     };
+  }
+
+  private async generateUMLClassDiagram(
+    document: Document,
+    analysis: DocumentAnalysis
+  ): Promise<UMLDiagramData> {
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
+    
+    // Prepare context
+    const contentSample = document.content.substring(0, 15000);
+    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
+    const prompt = this.buildUMLExtractionPrompt(document, analysis, contentSample);
+    
+    try {
+      const response = await llmClient.callWithFallback('uml-extraction', prompt);
+      const parsed = llmClient.parseJSONResponse<UMLExtractionResult>(response);
+      
+      if (parsed.classes && parsed.classes.length > 0) {
+        return this.processUMLExtraction(parsed, document);
+      }
+    } catch (error) {
+      console.error('LLM UML extraction failed:', error);
+    }
+    
+    // Fallback: Generate from entities
+    return this.generateUMLFromEntities(analysis, document);
+  }
+
+  private buildUMLExtractionPrompt(
+    document: Document,
+    analysis: DocumentAnalysis,
+    content: string
+  ): string {
+    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
+    
+    return `Document Title: ${document.title}
+TLDR: ${tldrText}
+
+Content:
+${content}
+
+Extract object-oriented structures from this document. Focus on classes, interfaces, relationships, and architectural patterns mentioned in the text.`;
+  }
+
+  private processUMLExtraction(
+    parsed: UMLExtractionResult,
+    document: Document
+  ): UMLDiagramData {
+    // Process classes
+    const classes: ClassEntity[] = parsed.classes.map((cls, index) => ({
+      id: `class-${index}`,
+      name: cls.name,
+      type: cls.type || 'class',
+      stereotype: cls.stereotype,
+      package: cls.package,
+      attributes: cls.attributes || [],
+      methods: cls.methods || [],
+      description: cls.description || '',
+      sourceQuote: cls.sourceQuote || '',
+      sourceSpan: this.findTextSpan(document.content, cls.sourceQuote),
+      documentLink: `#document-${document.id}`
+    }));
+    
+    // Create class name to ID mapping
+    const nameToId = new Map(classes.map(c => [c.name, c.id]));
+    
+    // Process relationships
+    const relationships: UMLRelationship[] = parsed.relationships
+      .map((rel, index) => {
+        const sourceId = nameToId.get(rel.source);
+        const targetId = nameToId.get(rel.target);
+        
+        if (!sourceId || !targetId) {
+          console.warn(`Relationship references unknown class: ${rel.source} -> ${rel.target}`);
+          return null;
+        }
+        
+        return {
+          id: `rel-${index}`,
+          source: sourceId,
+          target: targetId,
+          type: rel.type,
+          sourceMultiplicity: rel.sourceMultiplicity,
+          targetMultiplicity: rel.targetMultiplicity,
+          sourceRole: rel.sourceRole,
+          targetRole: rel.targetRole,
+          label: rel.label,
+          description: rel.description || '',
+          sourceQuote: rel.evidence || '',
+          evidence: [rel.evidence || '']
+        };
+      })
+      .filter(Boolean) as UMLRelationship[];
+    
+    // Process packages
+    const packages: Package[] = parsed.packages?.map((pkg, index) => ({
+      id: `pkg-${index}`,
+      name: pkg.name,
+      classes: pkg.classes.map(name => nameToId.get(name)).filter(Boolean) as string[],
+      color: this.getPackageColor(index)
+    })) || [];
+    
+    return {
+      classes,
+      relationships,
+      packages,
+      metadata: {
+        totalClasses: classes.length,
+        totalRelationships: relationships.length,
+        extractionConfidence: 0.85,
+        documentDomain: this.detectDomain(document.content),
+        generatedAt: new Date().toISOString()
+      }
+    };
+  }
+
+  private findTextSpan(content: string, quote: string): TextSpan | null {
+    if (!quote) return null;
+    
+    const index = content.indexOf(quote);
+    if (index === -1) return null;
+    
+    return {
+      start: index,
+      end: index + quote.length,
+      text: quote
+    };
+  }
+
+  private getPackageColor(index: number): string {
+    const colors = ['#DBEAFE', '#FEE2E2', '#D1FAE5', '#FEF3C7', '#E0E7FF', '#FCE7F3'];
+    return colors[index % colors.length];
+  }
+
+  private detectDomain(content: string): string {
+    const keywords = {
+      'web': ['http', 'api', 'rest', 'endpoint', 'controller'],
+      'database': ['table', 'query', 'repository', 'entity', 'orm'],
+      'business': ['service', 'transaction', 'workflow', 'process'],
+      'ui': ['component', 'view', 'render', 'template', 'widget']
+    };
+    
+    const lowerContent = content.toLowerCase();
+    const scores = Object.entries(keywords).map(([domain, words]) => ({
+      domain,
+      score: words.filter(word => lowerContent.includes(word)).length
+    }));
+    
+    scores.sort((a, b) => b.score - a.score);
+    return scores[0]?.domain || 'general';
+  }
+
+  private generateUMLFromEntities(
+    analysis: DocumentAnalysis,
+    document: Document
+  ): UMLDiagramData {
+    // Fallback implementation using existing entity extraction
+    const classes: ClassEntity[] = analysis.entities
+      .filter(e => e.type === 'technical' || e.type === 'concept')
+      .slice(0, 20)
+      .map((entity, index) => ({
+        id: `class-${index}`,
+        name: entity.text,
+        type: 'class' as const,
+        package: undefined,
+        attributes: [],
+        methods: [],
+        description: entity.context || 'Extracted from document entities',
+        sourceQuote: entity.mentions[0]?.text || '',
+        sourceSpan: entity.mentions[0] || null,
+        documentLink: `#document-${document.id}`
+      }));
+    
+    // Generate simple relationships from existing relationships
+    const relationships: UMLRelationship[] = analysis.relationships
+      .slice(0, 30)
+      .map((rel, index) => ({
+        id: `rel-${index}`,
+        source: rel.source,
+        target: rel.target,
+        type: this.mapRelationshipType(rel.type),
+        description: rel.type,
+        sourceQuote: rel.evidence?.[0]?.text || '',
+        evidence: rel.evidence?.map(e => e.text) || []
+      }));
+    
+    return {
+      classes,
+      relationships,
+      packages: [],
+      metadata: {
+        totalClasses: classes.length,
+        totalRelationships: relationships.length,
+        extractionConfidence: 0.6,
+        documentDomain: 'general',
+        generatedAt: new Date().toISOString()
+      }
+    };
+  }
+
+  private mapRelationshipType(type: string): UMLRelationship['type'] {
+    const mapping: Record<string, UMLRelationship['type']> = {
+      'extends': 'inheritance',
+      'implements': 'realization',
+      'contains': 'composition',
+      'has': 'aggregation',
+      'uses': 'dependency',
+      'relates-to': 'association'
+    };
+    
+    return mapping[type] || 'association';
   }
 
   private getEntityColor(type: string): string {

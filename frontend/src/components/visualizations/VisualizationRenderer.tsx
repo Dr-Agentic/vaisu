@@ -4,6 +4,7 @@ import { StructuredView } from './StructuredView';
 import { MindMap } from './MindMap';
 import { TermsDefinitions } from './TermsDefinitions';
 import { KnowledgeGraph } from './knowledge-graph/KnowledgeGraph';
+import { UMLClassDiagram } from './uml-class-diagram/UMLClassDiagram';
 import { Loader2 } from 'lucide-react';
 
 export function VisualizationRenderer() {
@@ -74,6 +75,20 @@ export function VisualizationRenderer() {
     
     case 'terms-definitions':
       return <TermsDefinitions data={data} />;
+    
+    case 'uml-class-diagram':
+      if (!data || !data.classes || data.classes.length === 0) {
+        return (
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <p className="text-gray-600 mb-4">No class structures found in this document.</p>
+            <p className="text-sm text-gray-500">
+              UML class diagrams require object-oriented structures like classes, interfaces, and their relationships.
+              Try uploading technical documentation or API specifications.
+            </p>
+          </div>
+        );
+      }
+      return <UMLClassDiagram data={data} height={600} />;
     
     default:
       return (

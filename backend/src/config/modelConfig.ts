@@ -212,6 +212,99 @@ Return ONLY valid JSON matching this structure:
 }
 
 Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`
+  },
+  'uml-extraction': {
+    primary: 'anthropic/claude-3-5-sonnet-20241022',
+    fallback: 'openai/gpt-4o',
+    maxTokens: 8000,
+    temperature: 0.3,
+    systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical document and extract object-oriented structures.
+
+Extract the following:
+
+1. **Classes**: Identify classes, interfaces, abstract classes, and enumerations
+   - For each class, extract:
+     - Name
+     - Type (class/interface/abstract/enum)
+     - Stereotype (if mentioned: entity, service, controller, repository, etc.)
+     - Package/namespace
+     - Description (purpose and responsibilities)
+     - Attributes (name, type, visibility, static, default value)
+     - Methods (name, return type, visibility, static, abstract, parameters)
+     - Source quote (representative text from document mentioning this class)
+
+2. **Relationships**: Identify relationships between classes
+   - Inheritance (extends, inherits from, is a, subclass of)
+   - Interface realization (implements, realizes, conforms to)
+   - Composition (contains, owns, composed of - strong lifecycle)
+   - Aggregation (has a, includes - weak lifecycle)
+   - Association (uses, relates to, connected to)
+   - Dependency (depends on, requires)
+   - For each relationship, extract:
+     - Source and target class names
+     - Relationship type
+     - Multiplicity (if mentioned: 1, 0..1, 1..*, *, 0..*)
+     - Role names (if mentioned)
+     - Description
+     - Evidence quote from document
+
+3. **Packages**: Group related classes into packages/namespaces
+
+Return as JSON with this structure:
+{
+  "classes": [
+    {
+      "name": "ClassName",
+      "type": "class|interface|abstract|enum",
+      "stereotype": "entity|service|controller|...",
+      "package": "com.example.package",
+      "description": "Full description of the class",
+      "sourceQuote": "Representative quote from document",
+      "attributes": [
+        {
+          "name": "attributeName",
+          "type": "String",
+          "visibility": "public|private|protected|package",
+          "isStatic": false,
+          "defaultValue": "optional"
+        }
+      ],
+      "methods": [
+        {
+          "name": "methodName",
+          "returnType": "void",
+          "visibility": "public",
+          "isStatic": false,
+          "isAbstract": false,
+          "parameters": [
+            { "name": "param1", "type": "String" }
+          ]
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "source": "ClassName1",
+      "target": "ClassName2",
+      "type": "inheritance|realization|composition|aggregation|association|dependency",
+      "sourceMultiplicity": "1",
+      "targetMultiplicity": "0..*",
+      "sourceRole": "optional",
+      "targetRole": "optional",
+      "description": "Relationship description",
+      "evidence": "Quote showing this relationship"
+    }
+  ],
+  "packages": [
+    {
+      "name": "com.example.package",
+      "classes": ["ClassName1", "ClassName2"]
+    }
+  ]
+}
+
+Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`
   }
 };
 
