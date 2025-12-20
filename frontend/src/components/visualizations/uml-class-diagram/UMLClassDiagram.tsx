@@ -1,7 +1,7 @@
-import React, { useEffect, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toPng, toSvg } from 'html-to-image';
-import type { UMLDiagramData, ClassEntity } from '@shared/types';
+import type { UMLDiagramData, ClassEntity, UMLRelationship } from '@shared/types';
 import { DiagramCanvas } from './components/DiagramCanvas';
 import { ControlPanel } from './controls/ControlPanel';
 import { TooltipManager } from './components/TooltipManager';
@@ -45,7 +45,6 @@ export function UMLClassDiagram({
     setZoom,
     setPan,
     selectClass,
-    clearSelection,
     setHoveredElement,
     applyFilters,
     toggleLegend,
@@ -122,7 +121,7 @@ export function UMLClassDiagram({
   const filteredData = useMemo(() => {
     if (!data) return null;
 
-    const visibleClasses = data.classes.filter(cls => {
+    const visibleClasses = data.classes.filter((cls: ClassEntity) => {
       const typeMatch = filters.visibleTypes.has(cls.type);
       const stereotypeMatch = !cls.stereotype || filters.visibleStereotypes.has(cls.stereotype);
       const packageMatch = !cls.package || filters.visiblePackages.has(cls.package);
@@ -132,9 +131,9 @@ export function UMLClassDiagram({
       return typeMatch && stereotypeMatch && packageMatch && searchMatch;
     });
 
-    const visibleClassIds = new Set(visibleClasses.map(c => c.id));
+    const visibleClassIds = new Set(visibleClasses.map((c: ClassEntity) => c.id));
 
-    const visibleRelationships = data.relationships.filter(rel => {
+    const visibleRelationships = data.relationships.filter((rel: UMLRelationship) => {
       const typeMatch = filters.visibleRelationships.has(rel.type);
       const endpointsVisible = visibleClassIds.has(rel.source) && visibleClassIds.has(rel.target);
 

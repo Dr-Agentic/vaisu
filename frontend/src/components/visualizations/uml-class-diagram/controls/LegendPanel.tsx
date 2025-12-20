@@ -1,7 +1,4 @@
-import React from 'react';
-import { X } from 'lucide-react';
-
-const LEGEND_ITEMS = [
+const LEGEND_ITEMS: { category: string; items: { symbol: string; label: string; color: string; note?: string }[] }[] = [
   {
     category: 'Class Types',
     items: [
@@ -39,7 +36,7 @@ export function LegendPanel() {
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-gray-900">UML Notation</h3>
       </div>
-      
+
       <div className="space-y-4">
         {LEGEND_ITEMS.map((category) => (
           <div key={category.category}>
@@ -66,7 +63,7 @@ export function LegendPanel() {
           </div>
         ))}
       </div>
-      
+
       <div className="mt-4 pt-3 border-t border-gray-200 text-xs text-gray-500">
         <p>Keyboard shortcuts:</p>
         <div className="mt-1 space-y-1">

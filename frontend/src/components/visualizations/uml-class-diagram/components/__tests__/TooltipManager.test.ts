@@ -49,9 +49,12 @@ describe('TooltipManager Logic Tests', () => {
     target: 'class-2',
     type: 'inheritance',
     description: 'UserService extends BaseService',
-    multiplicity: { from: '1', to: '1' },
-    roles: { from: 'child', to: 'parent' },
-    sourceQuote: 'UserService extends BaseService to inherit common functionality'
+    sourceMultiplicity: '1',
+    targetMultiplicity: '1',
+    sourceRole: 'child',
+    targetRole: 'parent',
+    sourceQuote: 'UserService extends BaseService to inherit common functionality',
+    evidence: []
   };
 
   const mockRelationships = [
@@ -71,7 +74,7 @@ describe('TooltipManager Logic Tests', () => {
   it('property test: tooltip appears after specified delay (Property 28)', () => {
     const hoverDelay = 400;
     let tooltipVisible = false;
-    
+
     // Simulate hover delay logic
     const simulateHoverDelay = (delay: number) => {
       return new Promise<void>((resolve) => {
@@ -84,17 +87,17 @@ describe('TooltipManager Logic Tests', () => {
 
     // Start hover
     const hoverPromise = simulateHoverDelay(hoverDelay);
-    
+
     // Tooltip should not be visible immediately
     expect(tooltipVisible).toBe(false);
-    
+
     // Advance time by less than delay
     vi.advanceTimersByTime(hoverDelay - 100);
     expect(tooltipVisible).toBe(false);
-    
+
     // Advance time to complete delay
     vi.advanceTimersByTime(100);
-    
+
     return hoverPromise.then(() => {
       expect(tooltipVisible).toBe(true);
     });
@@ -122,7 +125,7 @@ describe('TooltipManager Logic Tests', () => {
     };
 
     const content = validateTooltipContent(mockClassEntity);
-    
+
     // Required sections should always be present
     expect(content.header).toBe(true);
     expect(content.classIcon).toBe(true);
@@ -131,7 +134,7 @@ describe('TooltipManager Logic Tests', () => {
     expect(content.statistics).toBe(true);
     expect(content.memberCount).toBe(true);
     expect(content.relationshipCount).toBe(true);
-    
+
     // Optional sections based on data availability
     expect(content.stereotype).toBe(true); // mockClassEntity has stereotype
     expect(content.description).toBe(true); // mockClassEntity has description
@@ -148,19 +151,19 @@ describe('TooltipManager Logic Tests', () => {
       padding: number = 20
     ) => {
       const offset = 20;
-      
+
       return {
         x: Math.max(
-          padding, 
+          padding,
           Math.min(
-            mousePos.x + offset, 
+            mousePos.x + offset,
             viewport.width - tooltipSize.width - padding
           )
         ),
         y: Math.max(
-          padding, 
+          padding,
           Math.min(
-            mousePos.y + offset, 
+            mousePos.y + offset,
             viewport.height - tooltipSize.height - padding
           )
         )
@@ -169,7 +172,7 @@ describe('TooltipManager Logic Tests', () => {
 
     const viewport = { width: 1000, height: 800 };
     const tooltipSize = { width: 380, height: 400 };
-    
+
     // Test normal positioning
     const normalPos = calculateTooltipPosition(
       { x: 100, y: 100 },
@@ -178,7 +181,7 @@ describe('TooltipManager Logic Tests', () => {
     );
     expect(normalPos.x).toBe(120); // 100 + 20 offset
     expect(normalPos.y).toBe(120); // 100 + 20 offset
-    
+
     // Test right edge clamping
     const rightEdgePos = calculateTooltipPosition(
       { x: 900, y: 100 },
@@ -186,7 +189,7 @@ describe('TooltipManager Logic Tests', () => {
       viewport
     );
     expect(rightEdgePos.x).toBe(600); // 1000 - 380 - 20 padding
-    
+
     // Test bottom edge clamping
     const bottomEdgePos = calculateTooltipPosition(
       { x: 100, y: 700 },
@@ -212,7 +215,7 @@ describe('TooltipManager Logic Tests', () => {
     };
 
     const stats = calculateRelationshipStats('class-1', mockRelationships);
-    
+
     expect(stats.total).toBe(2);
     expect(stats.outgoing).toBe(1); // class-1 -> class-2
     expect(stats.incoming).toBe(1); // class-3 -> class-1
@@ -221,22 +224,22 @@ describe('TooltipManager Logic Tests', () => {
   it('validates source context extraction', () => {
     const getSourceContext = (quote: string, fullText?: string, contextLength: number = 50) => {
       if (!fullText || !quote) return quote;
-      
+
       const index = fullText.indexOf(quote);
       if (index === -1) return quote;
-      
+
       const start = Math.max(0, index - contextLength);
       const end = Math.min(fullText.length, index + quote.length + contextLength);
       const context = fullText.slice(start, end);
-      
+
       return start > 0 ? `...${context}` : context;
     };
 
     const fullText = 'This is a long document. The UserService class manages user operations. It provides authentication.';
     const quote = 'UserService class manages user operations';
-    
+
     const context = getSourceContext(quote, fullText, 20);
-    
+
     expect(context).toContain(quote);
     expect(context.length).toBeGreaterThan(quote.length);
     expect(context).toContain('...'); // Should have leading ellipsis
@@ -246,7 +249,7 @@ describe('TooltipManager Logic Tests', () => {
     const getTypeIcon = (type: string) => {
       const iconMap = {
         'interface': 'Code',
-        'abstract': 'Database', 
+        'abstract': 'Database',
         'enum': 'Package',
         'class': 'Users'
       };
@@ -282,15 +285,15 @@ describe('TooltipManager Logic Tests', () => {
   it('validates tooltip timeout cleanup', () => {
     let timeoutId: NodeJS.Timeout | null = null;
     let tooltipVisible = false;
-    
+
     const startHover = (delay: number) => {
       if (timeoutId) clearTimeout(timeoutId);
-      
+
       timeoutId = setTimeout(() => {
         tooltipVisible = true;
       }, delay);
     };
-    
+
     const stopHover = () => {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -302,11 +305,11 @@ describe('TooltipManager Logic Tests', () => {
     // Start hover
     startHover(400);
     expect(tooltipVisible).toBe(false);
-    
+
     // Stop hover before timeout
     vi.advanceTimersByTime(200);
     stopHover();
-    
+
     // Advance past original timeout
     vi.advanceTimersByTime(300);
     expect(tooltipVisible).toBe(false); // Should not appear due to cleanup
@@ -322,7 +325,7 @@ describe('TooltipManager Logic Tests', () => {
     };
 
     const memberCount = calculateMemberCount(mockClassEntity);
-    
+
     expect(memberCount.attributes).toBe(1);
     expect(memberCount.methods).toBe(1);
     expect(memberCount.total).toBe(2);
@@ -345,10 +348,10 @@ describe('TooltipManager Logic Tests', () => {
 
     const classContent = validateClassTypeContent(mockClassEntity);
     const interfaceContent = validateClassTypeContent(interfaceEntity);
-    
+
     expect(classContent.hasStereotype).toBe(true);
     expect(classContent.iconType).toBe('class');
-    
+
     expect(interfaceContent.hasStereotype).toBe(false);
     expect(interfaceContent.iconType).toBe('interface');
   });
@@ -358,15 +361,15 @@ describe('TooltipManager Logic Tests', () => {
       return {
         hasHeader: true,
         hasTypeDescription: true,
-        hasMultiplicity: !!relationship.multiplicity,
-        hasRoles: !!relationship.roles,
+        hasMultiplicity: !!(relationship.sourceMultiplicity || relationship.targetMultiplicity),
+        hasRoles: !!(relationship.sourceRole || relationship.targetRole),
         hasDescription: !!relationship.description,
         hasSourceQuote: !!relationship.sourceQuote
       };
     };
 
     const content = validateRelationshipTooltip(mockRelationship);
-    
+
     expect(content.hasHeader).toBe(true);
     expect(content.hasTypeDescription).toBe(true);
     expect(content.hasMultiplicity).toBe(true);

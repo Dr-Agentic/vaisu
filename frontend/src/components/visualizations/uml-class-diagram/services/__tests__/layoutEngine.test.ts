@@ -51,14 +51,18 @@ describe('LayoutEngine Logic Tests', () => {
       source: 'class-2',
       target: 'class-1',
       type: 'inheritance',
-      description: 'UserService extends BaseService'
+      description: 'UserService extends BaseService',
+      sourceQuote: 'quote',
+      evidence: []
     },
     {
       id: 'rel-2',
       source: 'class-3',
       target: 'class-1',
       type: 'inheritance',
-      description: 'AdminService extends BaseService'
+      description: 'AdminService extends BaseService',
+      sourceQuote: 'quote',
+      evidence: []
     }
   ];
 
@@ -181,14 +185,18 @@ describe('LayoutEngine Logic Tests', () => {
         source: 'class-1',
         target: 'class-2',
         type: 'inheritance',
-        description: 'Class1 extends Class2'
+        description: 'Class1 extends Class2',
+        sourceQuote: 'quote',
+        evidence: []
       },
       {
         id: 'rel-2',
         source: 'class-2',
         target: 'class-1',
         type: 'inheritance',
-        description: 'Class2 extends Class1' // Creates cycle
+        description: 'Class2 extends Class1', // Creates cycle
+        sourceQuote: 'quote',
+        evidence: []
       }
     ];
 
@@ -203,13 +211,13 @@ describe('LayoutEngine Logic Tests', () => {
 
   it('validates layout caching mechanism', async () => {
     const options = { algorithm: 'hierarchical' as const, direction: 'TB' as const };
-    
+
     // First computation
     const result1 = await layoutEngine.compute(mockClasses, mockRelationships, options);
-    
+
     // Second computation with same inputs should use cache
     const result2 = await layoutEngine.compute(mockClasses, mockRelationships, options);
-    
+
     // Results should be identical (cached)
     expect(result1.positions.size).toBe(result2.positions.size);
     expect(result1.bounds).toEqual(result2.bounds);

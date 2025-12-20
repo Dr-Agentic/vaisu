@@ -27,8 +27,7 @@ export function DiagramCanvas({
   hoveredElement,
   onClassSelect,
   onHover,
-  onPanChange,
-  onZoomChange
+  onPanChange
 }: DiagramCanvasProps) {
   // State for panning
   const isDragging = React.useRef(false);

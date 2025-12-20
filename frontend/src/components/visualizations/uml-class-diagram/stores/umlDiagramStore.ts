@@ -1,9 +1,9 @@
 import { create } from 'zustand';
-import type { 
-  UMLDiagramData, 
-  ClassEntity, 
-  UMLRelationship, 
-  Position 
+import type {
+  UMLDiagramData,
+  ClassEntity,
+  UMLRelationship,
+  Position
 } from '@shared/types';
 
 export interface FilterState {
@@ -25,29 +25,29 @@ interface UMLDiagramState {
   // Data
   data: UMLDiagramData | null;
   layoutResult: LayoutResult | null;
-  
+
   // Viewport
   zoom: number;
   pan: Position;
-  
+
   // Selection
   selectedClassIds: Set<string>;
   selectedRelationshipIds: Set<string>;
-  
+
   // Hover
   hoveredElement: ClassEntity | UMLRelationship | null;
   tooltipVisible: boolean;
   tooltipPosition: Position;
-  
+
   // Filters
   filters: FilterState;
-  
+
   // UI State
   isLayouting: boolean;
   layoutAlgorithm: 'hierarchical' | 'force-directed';
   showLegend: boolean;
   showPackages: boolean;
-  
+
   // Actions
   setData: (data: UMLDiagramData) => void;
   setLayoutResult: (result: LayoutResult) => void;
@@ -88,24 +88,24 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
   layoutAlgorithm: 'hierarchical',
   showLegend: false,
   showPackages: true,
-  
+
   // Actions
   setData: (data) => {
     set({ data });
-    
+
     // Update filter options based on available data
     const availableStereotypes = new Set(
       data.classes
         .map(c => c.stereotype)
         .filter(Boolean) as string[]
     );
-    
+
     const availablePackages = new Set(
       data.classes
         .map(c => c.package)
         .filter(Boolean) as string[]
     );
-    
+
     set(state => ({
       filters: {
         ...state.filters,
@@ -114,48 +114,48 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
       }
     }));
   },
-  
+
   setLayoutResult: (result) => set({ layoutResult: result }),
-  
+
   setZoom: (zoom) => {
     // Clamp zoom between 0.1x and 3.0x
     const clampedZoom = Math.max(0.1, Math.min(3.0, zoom));
     set({ zoom: clampedZoom });
   },
-  
+
   setPan: (pan) => set({ pan }),
-  
+
   selectClass: (id, multi) => {
     set(state => {
       const newSelection = new Set(multi ? state.selectedClassIds : []);
-      
+
       if (newSelection.has(id)) {
         newSelection.delete(id);
       } else {
         newSelection.add(id);
       }
-      
+
       return {
         selectedClassIds: newSelection,
         selectedRelationshipIds: new Set() // Clear relationship selection
       };
     });
   },
-  
+
   selectRelationship: (id) => {
-    set(state => ({
+    set({
       selectedRelationshipIds: new Set([id]),
       selectedClassIds: new Set() // Clear class selection
-    }));
+    });
   },
-  
+
   clearSelection: () => {
     set({
       selectedClassIds: new Set(),
       selectedRelationshipIds: new Set()
     });
   },
-  
+
   setHoveredElement: (element, position) => {
     if (element && position) {
       set({
@@ -170,29 +170,29 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
       });
     }
   },
-  
+
   applyFilters: (newFilters) => {
     set(state => ({
       filters: { ...state.filters, ...newFilters }
     }));
   },
-  
+
   resetFilters: () => {
     const { data } = get();
     if (!data) return;
-    
+
     const availableStereotypes = new Set(
       data.classes
         .map(c => c.stereotype)
         .filter(Boolean) as string[]
     );
-    
+
     const availablePackages = new Set(
       data.classes
         .map(c => c.package)
         .filter(Boolean) as string[]
     );
-    
+
     set({
       filters: {
         ...defaultFilters,
@@ -201,13 +201,13 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
       }
     });
   },
-  
+
   toggleLegend: () => {
     set(state => ({ showLegend: !state.showLegend }));
   },
-  
+
   setLayouting: (isLayouting) => set({ isLayouting }),
-  
+
   resetView: () => {
     set({
       zoom: 1.0,

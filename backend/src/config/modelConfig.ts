@@ -211,7 +211,75 @@ Return ONLY valid JSON matching this structure:
   ]
 }
 
-Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`
+    Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`
+  },
+  argumentMapGeneration: {
+    primary: 'x-ai/grok-4.1-fast',
+    fallback: 'openai/gpt-4o',
+    maxTokens: 4000,
+    temperature: 0.3,
+    systemPrompt: `Analyze the text to generate an interactive argument map based on the specific schema provided.
+
+The goal is to map the claims, arguments, evidence, and their relationships.
+
+### Node Types
+- **claim**: Main assertion or idea
+- **argument**: Reason supporting or attacking a claim
+- **evidence**: Factual or empirical support
+- **counterargument**: Attacks a claim or argument
+- **rebuttal**: Attacks a counterargument
+- **alternative**: Competing or replacement idea
+
+### Edge Types
+- **supports**: Connects argument/evidence to what it supports
+- **attacks**: Connects argument/counterargument to what it attacks
+- **rebuts**: Specific for rebuttal -> counterargument
+- **is-alternative-to**: Connects alternative -> claim
+- **depends-on**: logical dependency
+
+### Requirements
+- Create a logical hierarchy with the main claim at the top/center.
+- Assign polarity (support/attack/neutral) and confidence (0-1).
+- Provide a concise summary (1-2 lines) for each node.
+
+Return ONLY valid JSON in this exact format:
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "type": "claim",
+      "label": "Main Claim",
+      "summary": "The central thesis of the text.",
+      "polarity": "neutral",
+      "confidence": 0.9,
+      "impact": "high"
+    },
+    {
+      "id": "node-2",
+      "type": "argument",
+      "label": "Supporting Argument",
+      "summary": "Reason why the claim is true.",
+      "polarity": "support",
+      "confidence": 0.8,
+      "impact": "medium"
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge-1",
+      "source": "node-2",
+      "target": "node-1",
+      "type": "supports",
+      "strength": 0.8,
+      "rationale": "Directly supports the main premise."
+    }
+  ],
+  "metadata": {
+    "mainClaimId": "node-1",
+    "totalClaims": 1,
+    "totalEvidence": 0
+  }
+}`
   },
   'uml-extraction': {
     primary: 'anthropic/claude-3-5-sonnet-20241022',

@@ -5,6 +5,7 @@ import { MindMap } from './MindMap';
 import { TermsDefinitions } from './TermsDefinitions';
 import { KnowledgeGraph } from './knowledge-graph/KnowledgeGraph';
 import { UMLClassDiagram } from './uml-class-diagram/UMLClassDiagram';
+import { ArgumentMap } from './argument-map/ArgumentMap';
 import { Loader2 } from 'lucide-react';
 
 export function VisualizationRenderer() {
@@ -35,10 +36,10 @@ export function VisualizationRenderer() {
   switch (currentVisualization) {
     case 'structured-view':
       return <StructuredView data={data} />;
-    
+
     case 'mind-map':
       return <MindMap data={data} />;
-    
+
     case 'flowchart':
       return (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -48,7 +49,7 @@ export function VisualizationRenderer() {
           </pre>
         </div>
       );
-    
+
     case 'knowledge-graph':
       if (!data || !data.nodes || data.nodes.length === 0) {
         return (
@@ -62,7 +63,7 @@ export function VisualizationRenderer() {
         );
       }
       return <KnowledgeGraph data={data} height={600} />;
-    
+
     case 'executive-dashboard':
       return (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
@@ -72,10 +73,10 @@ export function VisualizationRenderer() {
           </pre>
         </div>
       );
-    
+
     case 'terms-definitions':
       return <TermsDefinitions data={data} />;
-    
+
     case 'uml-class-diagram':
       if (!data || !data.classes || data.classes.length === 0) {
         return (
@@ -89,7 +90,17 @@ export function VisualizationRenderer() {
         );
       }
       return <UMLClassDiagram data={data} height={600} />;
-    
+
+    case 'argument-map':
+      if (!data || !data.nodes || data.nodes.length === 0) {
+        return (
+          <div className="bg-gray-50 rounded-lg p-8 text-center">
+            <p className="text-gray-600 mb-4">No argument structure found.</p>
+          </div>
+        );
+      }
+      return <ArgumentMap data={data} height={600} />;
+
     default:
       return (
         <div className="bg-gray-50 rounded-lg p-8 text-center">

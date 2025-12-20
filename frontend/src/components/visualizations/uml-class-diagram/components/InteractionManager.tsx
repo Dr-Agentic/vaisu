@@ -23,10 +23,8 @@ interface PanZoomState {
 export const InteractionManager: React.FC<InteractionManagerProps> = ({
   zoom,
   pan,
-  selectedClassIds,
   onZoomChange,
   onPanChange,
-  onClassSelect,
   children
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,25 +37,25 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
   // Handle mouse wheel zoom
   const handleWheel = useCallback((event: WheelEvent) => {
     event.preventDefault();
-    
+
     const container = containerRef.current;
     if (!container) return;
-    
+
     const rect = container.getBoundingClientRect();
     const mouseX = event.clientX - rect.left;
     const mouseY = event.clientY - rect.top;
-    
+
     // Calculate zoom factor
     const zoomFactor = event.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = Math.max(0.1, Math.min(3.0, zoom * zoomFactor));
-    
+
     // Zoom towards cursor position
     const zoomRatio = newZoom / zoom;
     const newPan = {
       x: mouseX - (mouseX - pan.x) * zoomRatio,
       y: mouseY - (mouseY - pan.y) * zoomRatio
     };
-    
+
     onZoomChange(newZoom);
     onPanChange(newPan);
   }, [zoom, pan, onZoomChange, onPanChange]);
@@ -65,62 +63,62 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
   // Handle mouse down for panning
   const handleMouseDown = useCallback((event: React.MouseEvent) => {
     if (event.button !== 0) return; // Only left mouse button
-    
+
     panZoomState.current.isDragging = true;
     panZoomState.current.lastMousePos = { x: event.clientX, y: event.clientY };
     panZoomState.current.momentum = { x: 0, y: 0 };
-    
+
     event.preventDefault();
   }, []);
 
   // Handle mouse move for panning
   const handleMouseMove = useCallback((event: MouseEvent) => {
     if (!panZoomState.current.isDragging) return;
-    
+
     const deltaX = event.clientX - panZoomState.current.lastMousePos.x;
     const deltaY = event.clientY - panZoomState.current.lastMousePos.y;
-    
+
     // Update momentum for smooth deceleration
     panZoomState.current.momentum = { x: deltaX, y: deltaY };
-    
+
     const newPan = {
       x: pan.x + deltaX,
       y: pan.y + deltaY
     };
-    
+
     onPanChange(newPan);
-    
+
     panZoomState.current.lastMousePos = { x: event.clientX, y: event.clientY };
   }, [pan, onPanChange]);
 
   // Handle mouse up to stop panning
   const handleMouseUp = useCallback(() => {
     if (!panZoomState.current.isDragging) return;
-    
+
     panZoomState.current.isDragging = false;
-    
+
     // Apply momentum for smooth deceleration
     const applyMomentum = () => {
       const { momentum } = panZoomState.current;
       const friction = 0.95;
-      
+
       if (Math.abs(momentum.x) > 0.1 || Math.abs(momentum.y) > 0.1) {
         const newPan = {
           x: pan.x + momentum.x,
           y: pan.y + momentum.y
         };
-        
+
         onPanChange(newPan);
-        
+
         panZoomState.current.momentum = {
           x: momentum.x * friction,
           y: momentum.y * friction
         };
-        
+
         requestAnimationFrame(applyMomentum);
       }
     };
-    
+
     requestAnimationFrame(applyMomentum);
   }, [pan, onPanChange]);
 
@@ -135,7 +133,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
       // Two touches - prepare for pinch zoom
       panZoomState.current.isDragging = false;
     }
-    
+
     event.preventDefault();
   }, []);
 
@@ -145,37 +143,37 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
       const touch = event.touches[0];
       const deltaX = touch.clientX - panZoomState.current.lastMousePos.x;
       const deltaY = touch.clientY - panZoomState.current.lastMousePos.y;
-      
+
       const newPan = {
         x: pan.x + deltaX,
         y: pan.y + deltaY
       };
-      
+
       onPanChange(newPan);
       panZoomState.current.lastMousePos = { x: touch.clientX, y: touch.clientY };
     } else if (event.touches.length === 2) {
       // Pinch to zoom
       const touch1 = event.touches[0];
       const touch2 = event.touches[1];
-      
+
       const distance = Math.sqrt(
-        Math.pow(touch2.clientX - touch1.clientX, 2) + 
+        Math.pow(touch2.clientX - touch1.clientX, 2) +
         Math.pow(touch2.clientY - touch1.clientY, 2)
       );
-      
+
       // Store initial distance on first pinch
       if (!panZoomState.current.lastMousePos.x) {
         panZoomState.current.lastMousePos.x = distance;
         return;
       }
-      
+
       const zoomFactor = distance / panZoomState.current.lastMousePos.x;
       const newZoom = Math.max(0.1, Math.min(3.0, zoom * zoomFactor));
-      
+
       onZoomChange(newZoom);
       panZoomState.current.lastMousePos.x = distance;
     }
-    
+
     event.preventDefault();
   }, [zoom, pan, onZoomChange, onPanChange]);
 
@@ -194,7 +192,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
         onZoomChange(1.0);
         onPanChange({ x: 0, y: 0 });
         break;
-      
+
       case 'r':
       case 'R':
         // Reset view
@@ -202,14 +200,14 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
         onZoomChange(1.0);
         onPanChange({ x: 0, y: 0 });
         break;
-      
+
       case '+':
       case '=':
         // Zoom in
         event.preventDefault();
         onZoomChange(Math.min(3.0, zoom * 1.2));
         break;
-      
+
       case '-':
       case '_':
         // Zoom out
@@ -223,19 +221,19 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    
+
     // Mouse events
     container.addEventListener('wheel', handleWheel, { passive: false });
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-    
+
     // Touch events
     container.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', handleTouchEnd);
-    
+
     // Keyboard events
     document.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       container.removeEventListener('wheel', handleWheel);
       document.removeEventListener('mousemove', handleMouseMove);
@@ -274,17 +272,16 @@ interface SelectionManagerProps {
   onSelectionChange: (selectedIds: Set<string>) => void;
 }
 
-export const SelectionManager: React.FC<SelectionManagerProps> = ({
+export const SelectionManager = ({
   selectedClassIds,
-  hoveredClassId,
   classes,
   relationships,
   onSelectionChange
-}) => {
+}: SelectionManagerProps) => {
   // Get connected classes for a given class
   const getConnectedClasses = useCallback((classId: string): Set<string> => {
     const connected = new Set<string>();
-    
+
     relationships.forEach(rel => {
       if (rel.source === classId) {
         connected.add(rel.target);
@@ -292,7 +289,7 @@ export const SelectionManager: React.FC<SelectionManagerProps> = ({
         connected.add(rel.source);
       }
     });
-    
+
     return connected;
   }, [relationships]);
 
@@ -300,12 +297,12 @@ export const SelectionManager: React.FC<SelectionManagerProps> = ({
   const getInheritanceChain = useCallback((classId: string): Set<string> => {
     const chain = new Set<string>();
     const visited = new Set<string>();
-    
+
     const traverse = (id: string) => {
       if (visited.has(id)) return;
       visited.add(id);
       chain.add(id);
-      
+
       // Find parent classes (inheritance relationships)
       relationships.forEach(rel => {
         if (rel.type === 'inheritance') {
@@ -317,7 +314,7 @@ export const SelectionManager: React.FC<SelectionManagerProps> = ({
         }
       });
     };
-    
+
     traverse(classId);
     return chain;
   }, [relationships]);
@@ -349,21 +346,21 @@ export const SelectionManager: React.FC<SelectionManagerProps> = ({
   // Calculate which classes should be dimmed
   const getDimmedClasses = useCallback((): Set<string> => {
     if (selectedClassIds.size === 0) return new Set();
-    
+
     const connectedClasses = new Set<string>();
     selectedClassIds.forEach(id => {
       connectedClasses.add(id);
       const connected = getConnectedClasses(id);
       connected.forEach(connectedId => connectedClasses.add(connectedId));
     });
-    
+
     const dimmedClasses = new Set<string>();
     classes.forEach(cls => {
       if (!connectedClasses.has(cls.id)) {
         dimmedClasses.add(cls.id);
       }
     });
-    
+
     return dimmedClasses;
   }, [selectedClassIds, classes, getConnectedClasses]);
 
@@ -396,20 +393,20 @@ export const HoverEffects: React.FC<HoverEffectsProps> = ({
     let transform = 'scale(1)';
     let opacity = 1;
     let filter = '';
-    
+
     if (isDimmed) {
       opacity = 0.3;
     }
-    
+
     if (isHovered) {
       transform = 'scale(1.05)';
       filter = 'drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2))';
     }
-    
+
     if (isSelected) {
       filter += ' drop-shadow(0 0 0 3px #3B82F6)';
     }
-    
+
     return {
       transform,
       opacity,
@@ -454,12 +451,12 @@ export const zoomToFit = (
   const scaleX = (viewportWidth - 2 * padding) / bounds.width;
   const scaleY = (viewportHeight - 2 * padding) / bounds.height;
   const zoom = Math.min(scaleX, scaleY, 1.0); // Don't zoom in beyond 100%
-  
+
   const pan = {
     x: (viewportWidth - bounds.width * zoom) / 2 - bounds.x * zoom,
     y: (viewportHeight - bounds.height * zoom) / 2 - bounds.y * zoom
   };
-  
+
   return { zoom, pan };
 };
 
@@ -477,19 +474,19 @@ export const zoomToSelection = (
   if (selectedPositions.length === 0) {
     return { zoom: 1.0, pan: { x: 0, y: 0 } };
   }
-  
+
   // Calculate bounding box of selected classes
   const minX = Math.min(...selectedPositions.map(p => p.x));
   const maxX = Math.max(...selectedPositions.map(p => p.x + nodeWidth));
   const minY = Math.min(...selectedPositions.map(p => p.y));
   const maxY = Math.max(...selectedPositions.map(p => p.y + nodeHeight));
-  
+
   const bounds = {
     x: minX,
     y: minY,
     width: maxX - minX,
     height: maxY - minY
   };
-  
+
   return zoomToFit(bounds, viewportWidth, viewportHeight, padding);
 };

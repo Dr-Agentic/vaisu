@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, ExternalLink, Package, Users, Code, Database } from 'lucide-react';
@@ -326,27 +326,27 @@ function RelationshipTooltip({ relationship }: { relationship: UMLRelationship }
         </h4>
 
         {/* Multiplicity information */}
-        {relationship.multiplicity && (
+        {(relationship.sourceMultiplicity || relationship.targetMultiplicity) && (
           <div className="mb-3">
             <div className="flex items-center gap-1 mb-1">
               <Users className="w-3 h-3 text-gray-500" />
               <span className="text-xs text-gray-500">Multiplicity</span>
             </div>
             <p className="text-sm text-gray-700">
-              {relationship.multiplicity.from || '1'} → {relationship.multiplicity.to || '1'}
+              {relationship.sourceMultiplicity || '1'} → {relationship.targetMultiplicity || '1'}
             </p>
           </div>
         )}
 
         {/* Role information */}
-        {relationship.roles && (
+        {(relationship.sourceRole || relationship.targetRole) && (
           <div className="mb-3">
             <div className="flex items-center gap-1 mb-1">
               <Package className="w-3 h-3 text-gray-500" />
               <span className="text-xs text-gray-500">Roles</span>
             </div>
             <p className="text-sm text-gray-700">
-              {relationship.roles.from} ↔ {relationship.roles.to}
+              {relationship.sourceRole || 'src'} ↔ {relationship.targetRole || 'tgt'}
             </p>
           </div>
         )}

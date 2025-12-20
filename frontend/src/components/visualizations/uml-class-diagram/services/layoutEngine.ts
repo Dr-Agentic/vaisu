@@ -104,7 +104,6 @@ function preventCollisions(
       if (dx < minDx && dy < minDy) {
         // Collision detected - adjust position
         const adjustX = (minDx - dx) / 2;
-        const adjustY = (minDy - dy) / 2;
 
         if (pos1.x < pos2.x) {
           adjustedPositions.set(id1, { x: pos1.x - adjustX, y: pos1.y });
@@ -346,66 +345,7 @@ class LayoutEngine {
     };
   }
 
-  private buildHierarchy(
-    classes: ClassEntity[],
-    relationships: UMLRelationship[]
-  ): { levels: ClassEntity[][]; rootClasses: ClassEntity[] } {
-    // Find inheritance relationships
-    const inheritanceRels = relationships.filter(r => r.type === 'inheritance');
 
-    // Build parent-child map
-    const childToParent = new Map<string, string>();
-    const parentToChildren = new Map<string, string[]>();
-
-    inheritanceRels.forEach(rel => {
-      childToParent.set(rel.source, rel.target);
-
-      if (!parentToChildren.has(rel.target)) {
-        parentToChildren.set(rel.target, []);
-      }
-      parentToChildren.get(rel.target)!.push(rel.source);
-    });
-
-    // Find root classes (no parents)
-    const rootClasses = classes.filter(cls => !childToParent.has(cls.id));
-
-    // Build levels using BFS
-    const levels: ClassEntity[][] = [];
-    const visited = new Set<string>();
-    let currentLevel = rootClasses.slice();
-
-    while (currentLevel.length > 0) {
-      levels.push(currentLevel);
-      currentLevel.forEach(cls => visited.add(cls.id));
-
-      const nextLevel: ClassEntity[] = [];
-      currentLevel.forEach(cls => {
-        const children = parentToChildren.get(cls.id) || [];
-        children.forEach(childId => {
-          if (!visited.has(childId)) {
-            const childClass = classes.find(c => c.id === childId);
-            if (childClass) {
-              nextLevel.push(childClass);
-            }
-          }
-        });
-      });
-
-      currentLevel = nextLevel;
-    }
-
-    // Add any remaining classes (not in inheritance hierarchy) to the first level
-    const unvisited = classes.filter(cls => !visited.has(cls.id));
-    if (unvisited.length > 0) {
-      if (levels.length === 0) {
-        levels.push(unvisited);
-      } else {
-        levels[0].push(...unvisited);
-      }
-    }
-
-    return { levels, rootClasses };
-  }
 }
 
 export const layoutEngine = new LayoutEngine();

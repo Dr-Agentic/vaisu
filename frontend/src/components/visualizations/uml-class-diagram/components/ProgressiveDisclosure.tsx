@@ -91,19 +91,19 @@ export function formatMethodSignature(
   const name = method.isAbstract ? `<i>${method.name}</i>` : method.name;
   const isStatic = method.isStatic ? '<u>' : '';
   const staticClose = method.isStatic ? '</u>' : '';
-  
+
   if (!config.showParameterNames) {
     // Simple signature without parameter names
     const paramCount = method.parameters.length;
     const params = paramCount > 0 ? `${paramCount} params` : '';
     return `${visibility}${isStatic}${name}(${params}): ${method.returnType}${staticClose}`;
   }
-  
+
   // Full signature with parameter names
   const params = method.parameters
     .map(p => `${p.name}: ${p.type}`)
     .join(', ');
-  
+
   return `${visibility}${isStatic}${name}(${params}): ${method.returnType}${staticClose}`;
 }
 
@@ -117,13 +117,13 @@ export function formatAttributeSignature(
   const visibility = getVisibilitySymbol(attribute.visibility);
   const isStatic = attribute.isStatic ? '<u>' : '';
   const staticClose = attribute.isStatic ? '</u>' : '';
-  
+
   let signature = `${visibility}${isStatic}${attribute.name}: ${attribute.type}${staticClose}`;
-  
+
   if (config.showDetails && attribute.defaultValue) {
     signature += ` = ${attribute.defaultValue}`;
   }
-  
+
   return signature;
 }
 
@@ -144,13 +144,11 @@ function getVisibilitySymbol(visibility: string): string {
  * Animated container for smooth zoom transitions
  */
 export const ProgressiveDisclosure: React.FC<ProgressiveDisclosureProps> = ({
-  classEntity,
   zoom,
   children
 }) => {
-  const config = getVisibilityConfig(zoom);
   const fontSize = getFontSize(zoom);
-  
+
   return (
     <div
       className="transition-all duration-250 ease-out"
@@ -183,23 +181,23 @@ export const ProgressiveCompartment: React.FC<CompartmentProps> = ({
   maxItems = 10
 }) => {
   if (!visible) return null;
-  
+
   const shouldScroll = shouldUseScrollableCompartment(items.length, zoom);
   const displayItems = shouldScroll ? items.slice(0, maxItems) : items;
   const hasMore = shouldScroll && items.length > maxItems;
-  
+
   return (
     <div className="compartment border-t border-gray-300">
       <div className="compartment-header text-xs font-semibold text-gray-600 px-2 py-1">
         {title} ({items.length})
       </div>
-      <div 
+      <div
         className={`compartment-content px-2 py-1 ${shouldScroll ? 'max-h-32 overflow-y-auto' : ''}`}
         style={{ fontSize: getFontSize(zoom, 10) }}
       >
         {displayItems.map(item => (
-          <div 
-            key={item.id} 
+          <div
+            key={item.id}
             className="text-xs leading-tight mb-1"
             dangerouslySetInnerHTML={{ __html: item.signature }}
           />
@@ -229,7 +227,7 @@ export const EnhancedDetails: React.FC<EnhancedDetailsProps> = ({
   visible
 }) => {
   if (!visible || zoom < 1.5) return null;
-  
+
   return (
     <div className="enhanced-details bg-gray-50 border-t border-gray-300 p-2 text-xs">
       {classEntity.stereotype && (
@@ -270,7 +268,7 @@ export const ZoomBasedEdgeLabel: React.FC<ZoomBasedEdgeLabelProps> = ({
   y
 }) => {
   if (zoom < minZoom) return null;
-  
+
   return (
     <text
       x={x}

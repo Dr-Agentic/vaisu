@@ -211,7 +211,7 @@ const calculateLinePoints = (
 
   // Create orthogonal path
   const midX = startX + (endX - startX) * 0.5;
-  const midY = startY + (endY - startY) * 0.5;
+  // midY removed as unused (variable), but we return the property
 
   return {
     path: `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`,
@@ -272,7 +272,7 @@ export const RelationshipLineRenderer: React.FC<RelationshipLineRendererProps> =
         <ArrowMarker id="dependency-end" color="#9ca3af" type="arrow" />
       </defs>
 
-      {Array.from(relationshipGroups.entries()).map(([groupKey, groupRels]) => {
+      {Array.from(relationshipGroups.entries()).map(([, groupRels]) => {
         return groupRels.map((relationship, index) => {
           const fromPos = classPositions.get(relationship.source);
           const toPos = classPositions.get(relationship.target);

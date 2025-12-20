@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ZoomIn, ZoomOut, RotateCcw, Eye, Download, HelpCircle, ChevronDown } from 'lucide-react';
+import { useState } from 'react';
+import { ZoomIn, ZoomOut, RotateCcw, Download, HelpCircle, ChevronDown } from 'lucide-react';
 import type { UMLDiagramData } from '@shared/types';
 import type { FilterState } from '../stores/umlDiagramStore';
 
@@ -16,8 +16,6 @@ interface ControlPanelProps {
 
 export function ControlPanel({
   data,
-  filters,
-  onFilterChange,
   onExport,
   zoom,
   onZoomChange,
@@ -93,8 +91,8 @@ export function ControlPanel({
         <button
           onClick={onToggleLegend}
           className={`p-2 rounded-lg border ${showLegend
-              ? 'bg-blue-50 border-blue-300 text-blue-700'
-              : 'border-gray-300 hover:bg-gray-100'
+            ? 'bg-blue-50 border-blue-300 text-blue-700'
+            : 'border-gray-300 hover:bg-gray-100'
             }`}
           title="Toggle Legend"
         >
@@ -107,8 +105,8 @@ export function ControlPanel({
             <button
               onClick={() => setShowExportMenu(!showExportMenu)}
               className={`p-2 rounded-lg border flex items-center gap-1 ${showExportMenu
-                  ? 'bg-blue-50 border-blue-300 text-blue-700'
-                  : 'border-gray-300 hover:bg-gray-100'
+                ? 'bg-blue-50 border-blue-300 text-blue-700'
+                : 'border-gray-300 hover:bg-gray-100'
                 }`}
               title="Export Diagram"
             >
