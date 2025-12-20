@@ -1,10 +1,10 @@
-import React from 'react';
-import type { Relationship, Position } from '@shared/types';
-import { ZoomBasedEdgeLabel, getVisibilityConfig } from './ProgressiveDisclosure';
+import type { UMLRelationship, Position, ClassEntity } from '@shared/types';
+import { calculateClassDimensions } from './layoutUtils';
 
 interface RelationshipLineRendererProps {
-  relationships: Relationship[];
+  relationships: UMLRelationship[];
   classPositions: Map<string, Position>;
+  classes: Map<string, ClassEntity>;
   zoom: number;
 }
 
@@ -75,7 +75,7 @@ const ArrowMarker: React.FC<ArrowMarkerProps> = ({ id, color, filled = false, ty
 
 const getRelationshipStyle = (type: string, zoom: number): LineStyle => {
   const baseWidth = Math.max(1, Math.min(3, zoom * 1.5));
-  
+
   switch (type) {
     case 'inheritance':
       return {
@@ -83,7 +83,7 @@ const getRelationshipStyle = (type: string, zoom: number): LineStyle => {
         strokeWidth: baseWidth,
         markerEnd: 'url(#inheritance-end)'
       };
-    case 'interface':
+    case 'realization': // mapped from 'interface' in previous code, but type is 'realization' in UMLRelationship
       return {
         stroke: '#10b981', // green
         strokeWidth: baseWidth,
@@ -123,52 +123,101 @@ const getRelationshipStyle = (type: string, zoom: number): LineStyle => {
   }
 };
 
+const getRectIntersection = (
+  center: Position,
+  width: number,
+  height: number,
+  target: Position
+): Position => {
+  const dx = target.x - center.x;
+  const dy = target.y - center.y;
+
+  if (dx === 0 && dy === 0) return center;
+
+  // Calculate half dimensions
+  const hW = width / 2;
+  const hH = height / 2;
+
+  // Calculate intersection with box-like boundaries using a simple ray casting approach
+  // We determine which side (top, right, bottom, left) the ray intersects
+  // Slope m = dy / dx
+  // y = m*x (relative to center)
+
+  // Try vertical edges (x = +/- hW)
+  // x = hW => y = m * hW. If -hH <= y <= hH, then it intersects the right edge.
+  // x = -hW => y = m * -hW. If -hH <= y <= hH, then it intersects the left edge.
+
+  if (dx !== 0) {
+    const m = dy / dx;
+    const xEdge = dx > 0 ? hW : -hW;
+    const yIntersect = m * xEdge;
+
+    if (yIntersect >= -hH && yIntersect <= hH) {
+      return { x: center.x + xEdge, y: center.y + yIntersect };
+    }
+  }
+
+  // Try horizontal edges (y = +/- hH)
+  if (dy !== 0) {
+    const mInv = dx / dy; // distinct from m to avoid div by zero
+    const yEdge = dy > 0 ? hH : -hH;
+    const xIntersect = mInv * yEdge;
+
+    if (xIntersect >= -hW && xIntersect <= hW) {
+      return { x: center.x + xIntersect, y: center.y + yEdge };
+    }
+  }
+
+  // Fallback (should be covered above unless point is inside, but here we assume target is outside)
+  return center;
+};
+
 const calculateLinePoints = (
   from: Position,
   to: Position,
-  fromId: string,
-  toId: string,
-  offset: number = 0
-): string => {
-  // Calculate connection points on class box edges
-  const fromCenter = { x: from.x + 100, y: from.y + 60 }; // Assuming 200x120 class boxes
-  const toCenter = { x: to.x + 100, y: to.y + 60 };
-  
-  // Calculate direction vector
-  const dx = toCenter.x - fromCenter.x;
-  const dy = toCenter.y - fromCenter.y;
+  fromClass: ClassEntity | undefined,
+  toClass: ClassEntity | undefined,
+  offset: number = 0,
+  zoom: number
+): { path: string, midX: number, midY: number } | null => {
+  if (!fromClass || !toClass) return null;
+
+  // Get dimensions (assuming expanded for now to avoid detachment on large classes)
+  // We pass 'false' for collapsed to ensure we target the full possible box
+  // Ideally we would know the actual collapsed state
+  const fromDim = calculateClassDimensions(fromClass, zoom, { attributes: false, methods: false });
+  const toDim = calculateClassDimensions(toClass, zoom, { attributes: false, methods: false });
+
+  const fromStart = getRectIntersection(from, fromDim.width, fromDim.height, to);
+  const toEnd = getRectIntersection(to, toDim.width, toDim.height, from);
+
+  // Apply parallel offset
+  const dx = toEnd.x - fromStart.x;
+  const dy = toEnd.y - fromStart.y;
   const length = Math.sqrt(dx * dx + dy * dy);
-  
-  if (length === 0) return '';
-  
-  // Normalize direction
+
+  if (length === 0) return null;
+
   const unitX = dx / length;
   const unitY = dy / length;
-  
-  // Calculate edge connection points
-  const fromEdge = {
-    x: fromCenter.x + unitX * 100, // Half box width
-    y: fromCenter.y + unitY * 60   // Half box height
-  };
-  
-  const toEdge = {
-    x: toCenter.x - unitX * 100,
-    y: toCenter.y - unitY * 60
-  };
-  
-  // Apply offset for parallel relationships
+
   const perpX = -unitY * offset;
   const perpY = unitX * offset;
-  
-  const startX = fromEdge.x + perpX;
-  const startY = fromEdge.y + perpY;
-  const endX = toEdge.x + perpX;
-  const endY = toEdge.y + perpY;
-  
-  // Create orthogonal path for better readability
+
+  const startX = fromStart.x + perpX;
+  const startY = fromStart.y + perpY;
+  const endX = toEnd.x + perpX;
+  const endY = toEnd.y + perpY;
+
+  // Create orthogonal path
   const midX = startX + (endX - startX) * 0.5;
-  
-  return `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`;
+  const midY = startY + (endY - startY) * 0.5;
+
+  return {
+    path: `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`,
+    midX,
+    midY: startY + (endY - startY) / 2
+  };
 };
 
 const MultiplicityLabel: React.FC<{
@@ -178,7 +227,7 @@ const MultiplicityLabel: React.FC<{
   zoom: number;
 }> = ({ text, x, y, zoom }) => {
   if (zoom < 0.9) return null;
-  
+
   return (
     <text
       x={x}
@@ -197,13 +246,14 @@ const MultiplicityLabel: React.FC<{
 export const RelationshipLineRenderer: React.FC<RelationshipLineRendererProps> = ({
   relationships,
   classPositions,
+  classes,
   zoom
 }) => {
   // Group parallel relationships for offset calculation
-  const relationshipGroups = new Map<string, Relationship[]>();
-  
+  const relationshipGroups = new Map<string, UMLRelationship[]>();
+
   relationships.forEach(rel => {
-    const key = [rel.from, rel.to].sort().join('-');
+    const key = [rel.source, rel.target].sort().join('-');
     if (!relationshipGroups.has(key)) {
       relationshipGroups.set(key, []);
     }
@@ -221,71 +271,98 @@ export const RelationshipLineRenderer: React.FC<RelationshipLineRendererProps> =
         <ArrowMarker id="association-end" color="#6b7280" type="arrow" />
         <ArrowMarker id="dependency-end" color="#9ca3af" type="arrow" />
       </defs>
-      
+
       {Array.from(relationshipGroups.entries()).map(([groupKey, groupRels]) => {
         return groupRels.map((relationship, index) => {
-          const fromPos = classPositions.get(relationship.from);
-          const toPos = classPositions.get(relationship.to);
-          
-          if (!fromPos || !toPos) return null;
-          
+          const fromPos = classPositions.get(relationship.source);
+          const toPos = classPositions.get(relationship.target);
+          const fromClass = classes.get(relationship.source);
+          const toClass = classes.get(relationship.target);
+
+          if (!fromPos || !toPos || !fromClass || !toClass) return null;
+
           const style = getRelationshipStyle(relationship.type, zoom);
           const offset = groupRels.length > 1 ? (index - (groupRels.length - 1) / 2) * 8 : 0;
-          const pathData = calculateLinePoints(fromPos, toPos, relationship.from, relationship.to, offset);
-          
-          if (!pathData) return null;
-          
+          const result = calculateLinePoints(
+            fromPos,
+            toPos,
+            fromClass,
+            toClass,
+            offset,
+            zoom
+          );
+
+          if (!result) return null;
+
           return (
-            <g key={`${relationship.from}-${relationship.to}-${index}`}>
+            <g key={`${relationship.source}-${relationship.target}-${index}`}>
               <path
-                d={pathData}
+                d={result.path}
                 fill="none"
                 {...style}
                 className="hover:stroke-opacity-80 transition-all duration-150"
               />
-              
+
               {/* Multiplicity labels */}
-              {relationship.multiplicity && zoom >= 0.9 && (
+              {zoom >= 0.9 && (
                 <>
-                  {relationship.multiplicity.from && (
+                  {relationship.sourceMultiplicity && (
                     <MultiplicityLabel
-                      text={relationship.multiplicity.from}
-                      x={fromPos.x + 120}
-                      y={fromPos.y + 40}
+                      text={relationship.sourceMultiplicity}
+                      x={fromPos.x + (toPos.x - fromPos.x) * 0.15 + (offset * 2)}
+                      y={fromPos.y + (toPos.y - fromPos.y) * 0.15}
                       zoom={zoom}
                     />
                   )}
-                  {relationship.multiplicity.to && (
+                  {relationship.targetMultiplicity && (
                     <MultiplicityLabel
-                      text={relationship.multiplicity.to}
-                      x={toPos.x + 80}
-                      y={toPos.y + 40}
+                      text={relationship.targetMultiplicity}
+                      x={toPos.x - (toPos.x - fromPos.x) * 0.15 + (offset * 2)}
+                      y={toPos.y - (toPos.y - fromPos.y) * 0.15}
                       zoom={zoom}
                     />
                   )}
                 </>
               )}
-              
+
+              {/* Label (e.g. "owns", "uses") */}
+              {relationship.label && zoom >= 0.8 && (
+                <text
+                  x={result.midX}
+                  y={result.midY}
+                  fontSize={Math.max(10, 11 * zoom)}
+                  fill="#4b5563"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="bg-white"
+                  style={{ textShadow: '0px 0px 4px white' }}
+                >
+                  {relationship.label}
+                </text>
+              )}
+
               {/* Role labels using progressive disclosure */}
-              {relationship.roles && (
+              {zoom >= 1.2 && (
                 <>
-                  {relationship.roles.from && (
-                    <ZoomBasedEdgeLabel
-                      text={relationship.roles.from}
-                      zoom={zoom}
-                      minZoom={1.2}
-                      x={fromPos.x + 110}
-                      y={fromPos.y + 25}
-                    />
+                  {relationship.sourceRole && (
+                    <text
+                      x={fromPos.x + (toPos.x - fromPos.x) * 0.25}
+                      y={fromPos.y + (toPos.y - fromPos.y) * 0.25}
+                      className="text-xs fill-gray-500"
+                      textAnchor="middle"
+                    >
+                      {relationship.sourceRole}
+                    </text>
                   )}
-                  {relationship.roles.to && (
-                    <ZoomBasedEdgeLabel
-                      text={relationship.roles.to}
-                      zoom={zoom}
-                      minZoom={1.2}
-                      x={toPos.x + 90}
-                      y={toPos.y + 25}
-                    />
+                  {relationship.targetRole && (
+                    <text
+                      x={toPos.x - (toPos.x - fromPos.x) * 0.25}
+                      y={toPos.y - (toPos.y - fromPos.y) * 0.25}
+                      className="text-xs fill-gray-500"
+                      textAnchor="middle"
+                    >
+                      {relationship.targetRole}
+                    </text>
                   )}
                 </>
               )}

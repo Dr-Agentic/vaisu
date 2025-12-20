@@ -292,6 +292,7 @@ Return as JSON with this structure:
       "targetMultiplicity": "0..*",
       "sourceRole": "optional",
       "targetRole": "optional",
+      "label": "owns",
       "description": "Relationship description",
       "evidence": "Quote showing this relationship"
     }

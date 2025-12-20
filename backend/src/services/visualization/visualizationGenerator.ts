@@ -69,28 +69,28 @@ export class VisualizationGenerator {
     switch (type) {
       case 'structured-view':
         return this.generateStructuredView(document);
-      
+
       case 'mind-map':
         return await this.generateMindMap(document, analysis);
-      
+
       case 'flowchart':
         return this.generateFlowchart(document, analysis);
-      
+
       case 'knowledge-graph':
         return this.generateKnowledgeGraph(analysis, document);
-      
+
       case 'executive-dashboard':
         return this.generateDashboard(analysis);
-      
+
       case 'timeline':
         return this.generateTimeline(document, analysis);
-      
+
       case 'terms-definitions':
         return await this.generateTermsDefinitions(document, analysis);
-      
+
       case 'uml-class-diagram':
         return await this.generateUMLClassDiagram(document, analysis);
-      
+
       default:
         throw new Error(`Visualization type ${type} not yet implemented`);
     }
@@ -109,21 +109,21 @@ export class VisualizationGenerator {
     // Use LLM to generate a meaningful mind map structure
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
-    
+
     try {
       // Prepare document content for LLM (limit size)
       const contentSample = document.content.substring(0, 8000);
       const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}`;
-      
+
       const response = await llmClient.callWithFallback('mindMapGeneration', prompt);
-      
+
       // Parse LLM response
       const parsed = llmClient.parseJSONResponse<{ nodes: any[] }>(response);
-      
+
       if (parsed.nodes && parsed.nodes.length > 0) {
         // Convert LLM nodes to mind map structure
         const root = this.convertLLMNodeToMindMapNode(parsed.nodes[0], 0);
-        
+
         return {
           root,
           layout: 'radial',
@@ -139,7 +139,7 @@ export class VisualizationGenerator {
     } catch (error) {
       console.error('LLM mind map generation failed, falling back to structure-based:', error);
     }
-    
+
     // Fallback to structure-based generation
     return this.generateMindMapFromStructure(document, analysis);
   }
@@ -147,10 +147,10 @@ export class VisualizationGenerator {
   private convertLLMNodeToMindMapNode(node: any, level: number): any {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     const colorIndex = level % colors.length;
-    
+
     // Fallback emojis if LLM doesn't provide one
     const fallbackEmojis = ['📄', '📊', '🔧', '💡', '🌐', '📈', '⚙️'];
-    
+
     return {
       id: node.id || `node-${Math.random().toString(36).substr(2, 9)}`,
       label: node.label || 'Untitled',
@@ -159,7 +159,7 @@ export class VisualizationGenerator {
       summary: node.summary || '',
       detailedExplanation: node.detailedExplanation || node.summary || 'No additional details available.',
       sourceTextExcerpt: node.sourceTextExcerpt,
-      children: (node.children || []).map((child: any) => 
+      children: (node.children || []).map((child: any) =>
         this.convertLLMNodeToMindMapNode(child, level + 1)
       ),
       level: level,
@@ -209,11 +209,11 @@ export class VisualizationGenerator {
   private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     const fallbackEmojis = ['📊', '🔧', '💡', '🌐', '📈', '⚙️', '🏗️'];
-    
+
     return sections.map((section, index) => {
       const colorIndex = level % colors.length;
       const summary = section.summary || section.content.substring(0, 100) + '...';
-      
+
       return {
         id: section.id,
         label: section.title,
@@ -242,9 +242,9 @@ export class VisualizationGenerator {
     // Simple flowchart from sections
     const nodes = document.structure.sections.map((section, index) => ({
       id: section.id,
-      type: index === 0 ? 'start' : 
-            index === document.structure.sections.length - 1 ? 'end' : 
-            'process' as any,
+      type: index === 0 ? 'start' :
+        index === document.structure.sections.length - 1 ? 'end' :
+          'process' as any,
       label: section.title,
       description: section.summary || '',
       position: { x: 100, y: 100 + (index * 150) }
@@ -271,7 +271,7 @@ export class VisualizationGenerator {
     const entitiesCount = analysis.entities?.length || 0;
     const relationshipsCount = analysis.relationships?.length || 0;
     console.log(`🔍 Generating knowledge graph from ${entitiesCount} entities and ${relationshipsCount} relationships`);
-    
+
     // If no entities, return empty graph
     if (entitiesCount === 0) {
       console.warn('⚠️  No entities found in analysis - returning empty knowledge graph');
@@ -281,22 +281,22 @@ export class VisualizationGenerator {
         clusters: []
       };
     }
-    
+
     // Log raw entities for debugging
     console.log('📊 Raw entities from LLM:', JSON.stringify(analysis.entities.slice(0, 5), null, 2));
     console.log('🔗 Raw relationships from LLM:', JSON.stringify(analysis.relationships.slice(0, 5), null, 2));
-    
+
     // Create entity text to ID mapping for fixing relationships
     const entityTextToId = new Map<string, string>();
     const entityIdSet = new Set<string>();
-    
+
     analysis.entities.forEach(entity => {
       entityIdSet.add(entity.id);
       entityTextToId.set(entity.text.toLowerCase(), entity.id);
       // Also map the ID to itself in case it's used correctly
       entityTextToId.set(entity.id.toLowerCase(), entity.id);
     });
-    
+
     // Enhanced entity processing with descriptions and source quotes
     const nodes = analysis.entities.map(entity => ({
       id: entity.id,
@@ -319,7 +319,7 @@ export class VisualizationGenerator {
         // Try to fix source/target if they're using text instead of IDs
         let source = rel.source;
         let target = rel.target;
-        
+
         // Check if source/target are valid IDs
         if (!entityIdSet.has(source)) {
           // Try to find by text
@@ -332,7 +332,7 @@ export class VisualizationGenerator {
             return null; // Invalid edge
           }
         }
-        
+
         if (!entityIdSet.has(target)) {
           // Try to find by text
           const fixedTarget = entityTextToId.get(target.toLowerCase());
@@ -344,7 +344,7 @@ export class VisualizationGenerator {
             return null; // Invalid edge
           }
         }
-        
+
         return {
           id: rel.id || `rel-${index}`,
           source,
@@ -356,11 +356,11 @@ export class VisualizationGenerator {
         };
       })
       .filter(edge => edge !== null) as any[]; // Remove invalid edges
-    
+
     // Validate edges and log issues
     const nodeIds = new Set(nodes.map(n => n.id));
     const invalidEdges = edges.filter(edge => !nodeIds.has(edge.source) || !nodeIds.has(edge.target));
-    
+
     if (invalidEdges.length > 0) {
       console.error('❌ Found invalid edges in knowledge graph after fixing:');
       invalidEdges.forEach(edge => {
@@ -371,10 +371,10 @@ export class VisualizationGenerator {
       });
       console.error(`\n📋 Available node IDs (first 10):`, Array.from(nodeIds).slice(0, 10));
     }
-    
+
     // Filter out any remaining invalid edges
     const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
-    
+
     console.log(`✅ Knowledge graph: ${nodes.length} nodes, ${validEdges.length} valid edges (${edges.length - validEdges.length} filtered out)`);
 
     // Update connection counts
@@ -386,7 +386,7 @@ export class VisualizationGenerator {
     });
 
     // Detect hierarchical relationships for recursive exploration
-    const hierarchicalEdges = validEdges.filter(e => 
+    const hierarchicalEdges = validEdges.filter(e =>
       ['part-of', 'contains', 'implements'].includes(e.type)
     );
 
@@ -403,7 +403,7 @@ export class VisualizationGenerator {
 
   private extractSourceQuote(entity: Entity, document?: Document): string {
     if (!document || entity.mentions.length === 0) return '';
-    
+
     const mention = entity.mentions[0];
     // Extract surrounding context (50 chars before/after)
     const start = Math.max(0, mention.start - 50);
@@ -418,43 +418,43 @@ export class VisualizationGenerator {
     const nodeDepths = new Map<string, number>();
     const parentMap = new Map<string, string>();
     const childrenMap = new Map<string, string[]>();
-    
+
     // Initialize maps
     nodes.forEach(node => {
       nodeDepths.set(node.id, 0);
       childrenMap.set(node.id, []);
     });
-    
+
     // Build parent-child relationships
     hierarchicalEdges.forEach(edge => {
       const parentId = edge.source;
       const childId = edge.target;
-      
+
       parentMap.set(childId, parentId);
       const children = childrenMap.get(parentId) || [];
       children.push(childId);
       childrenMap.set(parentId, children);
     });
-    
+
     // Calculate depths using BFS
     const rootNodes = nodes
       .filter(node => !parentMap.has(node.id))
       .map(node => node.id);
-    
+
     const queue = rootNodes.map(id => ({ id, depth: 0 }));
     let maxDepth = 0;
-    
+
     while (queue.length > 0) {
       const { id, depth } = queue.shift()!;
       nodeDepths.set(id, depth);
       maxDepth = Math.max(maxDepth, depth);
-      
+
       const children = childrenMap.get(id) || [];
       children.forEach(childId => {
         queue.push({ id: childId, depth: depth + 1 });
       });
     }
-    
+
     return {
       rootNodes,
       maxDepth,
@@ -482,7 +482,7 @@ export class VisualizationGenerator {
   private generateTimeline(document: Document, analysis: DocumentAnalysis): TimelineData {
     // Extract dates from entities
     const dateEntities = analysis.entities.filter(e => e.type === 'date');
-    
+
     const events = dateEntities.map((entity, index) => ({
       id: `event-${index}`,
       title: entity.text,
@@ -504,15 +504,15 @@ export class VisualizationGenerator {
   ): Promise<TermsDefinitionsData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
-    
+
     try {
       // Prepare document content (limit to 10000 chars for context)
       const contentSample = document.content.substring(0, 10000);
       const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}\n\nExtract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as JSON array with format: { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }`;
-      
+
       const response = await llmClient.callWithFallback('glossary', prompt);
       const parsed = llmClient.parseJSONResponse<{ terms: any[], domain?: string }>(response);
-      
+
       if (parsed.terms && parsed.terms.length > 0) {
         // Sort terms alphabetically
         const sortedTerms = parsed.terms
@@ -526,7 +526,7 @@ export class VisualizationGenerator {
             context: t.context
           }))
           .sort((a, b) => a.term.localeCompare(b.term));
-        
+
         return {
           terms: sortedTerms,
           metadata: {
@@ -539,7 +539,7 @@ export class VisualizationGenerator {
     } catch (error) {
       console.error('LLM glossary extraction failed, falling back to entity extraction:', error);
     }
-    
+
     // Fallback: extract from existing entities
     return this.generateTermsFromEntities(analysis);
   }
@@ -559,7 +559,7 @@ export class VisualizationGenerator {
         context: entity.context
       }))
       .sort((a, b) => a.term.localeCompare(b.term));
-    
+
     return {
       terms,
       metadata: {
@@ -576,23 +576,23 @@ export class VisualizationGenerator {
   ): Promise<UMLDiagramData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
-    
+
     // Prepare context
     const contentSample = document.content.substring(0, 15000);
     const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
     const prompt = this.buildUMLExtractionPrompt(document, analysis, contentSample);
-    
+
     try {
       const response = await llmClient.callWithFallback('uml-extraction', prompt);
       const parsed = llmClient.parseJSONResponse<UMLExtractionResult>(response);
-      
+
       if (parsed.classes && parsed.classes.length > 0) {
         return this.processUMLExtraction(parsed, document);
       }
     } catch (error) {
       console.error('LLM UML extraction failed:', error);
     }
-    
+
     // Fallback: Generate from entities
     return this.generateUMLFromEntities(analysis, document);
   }
@@ -603,14 +603,23 @@ export class VisualizationGenerator {
     content: string
   ): string {
     const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
-    
+
     return `Document Title: ${document.title}
 TLDR: ${tldrText}
 
 Content:
 ${content}
 
-Extract object-oriented structures from this document. Focus on classes, interfaces, relationships, and architectural patterns mentioned in the text.`;
+You are an expert software architect. Your task is to extract a comprehensive UML Class Diagram from the above document.
+
+CRITICAL INSTRUCTIONS:
+1. Extract ALL classes, interfaces, and enums mentioned or implied in the text. Do not limit yourself to a small number.
+2. If the text describes a system with many components, ensure you capture at least 5-10 classes if possible.
+3. For each class, infer attributes and methods from the context.
+4. Identify relationships (inheritance, dependency, composition, etc.) between these classes.
+5. Be exhaustive. It is better to include a speculative class than to miss a core component.
+
+Output the result as a JSON object matching the defined schema.`;
   }
 
   private processUMLExtraction(
@@ -624,28 +633,34 @@ Extract object-oriented structures from this document. Focus on classes, interfa
       type: cls.type || 'class',
       stereotype: cls.stereotype,
       package: cls.package,
-      attributes: cls.attributes || [],
-      methods: cls.methods || [],
+      attributes: (cls.attributes || []).map((attr, attrIndex) => ({
+        ...attr,
+        id: `attr-${index}-${attrIndex}`
+      })),
+      methods: (cls.methods || []).map((method, methodIndex) => ({
+        ...method,
+        id: `method-${index}-${methodIndex}`
+      })),
       description: cls.description || '',
       sourceQuote: cls.sourceQuote || '',
-      sourceSpan: this.findTextSpan(document.content, cls.sourceQuote),
+      sourceSpan: this.findTextSpan(document.content, cls.sourceQuote || ''),
       documentLink: `#document-${document.id}`
     }));
-    
+
     // Create class name to ID mapping
     const nameToId = new Map(classes.map(c => [c.name, c.id]));
-    
+
     // Process relationships
     const relationships: UMLRelationship[] = parsed.relationships
       .map((rel, index) => {
         const sourceId = nameToId.get(rel.source);
         const targetId = nameToId.get(rel.target);
-        
+
         if (!sourceId || !targetId) {
           console.warn(`Relationship references unknown class: ${rel.source} -> ${rel.target}`);
           return null;
         }
-        
+
         return {
           id: `rel-${index}`,
           source: sourceId,
@@ -661,8 +676,8 @@ Extract object-oriented structures from this document. Focus on classes, interfa
           evidence: [rel.evidence || '']
         };
       })
-      .filter(Boolean) as UMLRelationship[];
-    
+      .filter((rel): rel is UMLRelationship => rel !== null);
+
     // Process packages
     const packages: Package[] = parsed.packages?.map((pkg, index) => ({
       id: `pkg-${index}`,
@@ -670,7 +685,7 @@ Extract object-oriented structures from this document. Focus on classes, interfa
       classes: pkg.classes.map(name => nameToId.get(name)).filter(Boolean) as string[],
       color: this.getPackageColor(index)
     })) || [];
-    
+
     return {
       classes,
       relationships,
@@ -687,10 +702,10 @@ Extract object-oriented structures from this document. Focus on classes, interfa
 
   private findTextSpan(content: string, quote: string): TextSpan | null {
     if (!quote) return null;
-    
+
     const index = content.indexOf(quote);
     if (index === -1) return null;
-    
+
     return {
       start: index,
       end: index + quote.length,
@@ -710,13 +725,13 @@ Extract object-oriented structures from this document. Focus on classes, interfa
       'business': ['service', 'transaction', 'workflow', 'process'],
       'ui': ['component', 'view', 'render', 'template', 'widget']
     };
-    
+
     const lowerContent = content.toLowerCase();
     const scores = Object.entries(keywords).map(([domain, words]) => ({
       domain,
       score: words.filter(word => lowerContent.includes(word)).length
     }));
-    
+
     scores.sort((a, b) => b.score - a.score);
     return scores[0]?.domain || 'general';
   }
@@ -741,7 +756,7 @@ Extract object-oriented structures from this document. Focus on classes, interfa
         sourceSpan: entity.mentions[0] || null,
         documentLink: `#document-${document.id}`
       }));
-    
+
     // Generate simple relationships from existing relationships
     const relationships: UMLRelationship[] = analysis.relationships
       .slice(0, 30)
@@ -754,7 +769,7 @@ Extract object-oriented structures from this document. Focus on classes, interfa
         sourceQuote: rel.evidence?.[0]?.text || '',
         evidence: rel.evidence?.map(e => e.text) || []
       }));
-    
+
     return {
       classes,
       relationships,
@@ -778,7 +793,7 @@ Extract object-oriented structures from this document. Focus on classes, interfa
       'uses': 'dependency',
       'relates-to': 'association'
     };
-    
+
     return mapping[type] || 'association';
   }
 

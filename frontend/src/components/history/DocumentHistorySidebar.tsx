@@ -34,7 +34,7 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
       <aside
         className={`
           fixed lg:static inset-y-0 left-0 z-50
-          w-80 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
+          w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700
           flex flex-col
           transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -57,8 +57,8 @@ export const DocumentHistorySidebar: React.FC<DocumentHistorySidebarProps> = ({
               aria-label="Refresh documents"
               title="Refresh documents"
             >
-              <RefreshCw 
-                size={18} 
+              <RefreshCw
+                size={18}
                 className={`text-gray-600 dark:text-gray-400 ${isLoadingList ? 'animate-spin' : ''}`}
               />
             </button>

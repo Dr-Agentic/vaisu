@@ -30,13 +30,50 @@ export function DiagramCanvas({
   onPanChange,
   onZoomChange
 }: DiagramCanvasProps) {
+  // State for panning
+  const isDragging = React.useRef(false);
+  const lastMousePos = React.useRef({ x: 0, y: 0 });
+
+  // Panning handlers
+  const handlePointerDown = React.useCallback((e: React.PointerEvent) => {
+    if (e.button !== 0) return; // Only left click
+
+    // Don't start drag if clicking on a class box or other interactive element
+    if ((e.target as Element).closest('.class-box')) return;
+
+    e.preventDefault();
+    isDragging.current = true;
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = React.useCallback((e: React.PointerEvent) => {
+    if (!isDragging.current) return;
+
+    e.preventDefault();
+    const splitX = e.clientX - lastMousePos.current.x;
+    const splitY = e.clientY - lastMousePos.current.y;
+
+    onPanChange({
+      x: pan.x + splitX,
+      y: pan.y + splitY
+    });
+
+    lastMousePos.current = { x: e.clientX, y: e.clientY };
+  }, [pan, onPanChange]);
+
+  const handlePointerUp = React.useCallback((e: React.PointerEvent) => {
+    isDragging.current = false;
+    (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+  }, []);
+
   // Calculate package bounds
   const packages = useMemo(() => {
     if (!layoutResult) return [];
 
     const packageMap = new Map<string, { x1: number, y1: number, x2: number, y2: number }>();
 
-    data.classes.forEach(cls => {
+    data.classes.forEach((cls: ClassEntity) => {
       if (!cls.package) return;
 
       const pos = layoutResult.positions.get(cls.id);
@@ -82,19 +119,17 @@ export function DiagramCanvas({
   }
 
   return (
-    <div className="w-full h-full bg-gray-50">
+    <div className="w-full h-full bg-gray-50 overflow-hidden cursor-move">
       <svg
         width="100%"
         height="100%"
         viewBox={`${layoutResult.bounds.x} ${layoutResult.bounds.y} ${layoutResult.bounds.width} ${layoutResult.bounds.height}`}
         className="overflow-visible"
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: '0 0' }}
-        onMouseDown={(e) => {
-          // Simple drag implementation could go here, but for now just prevent default to avoid text selection
-          if (e.target === e.currentTarget) {
-            e.preventDefault();
-          }
-        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerUp}
       >
         {/* Render packages first (background layer) */}
         {packages.map(pkg => (
@@ -108,20 +143,14 @@ export function DiagramCanvas({
 
         {/* Render relationships (middle layer) */}
         <RelationshipLineRenderer
-          relationships={data.relationships.map(rel => ({
-            from: rel.source,
-            to: rel.target,
-            type: rel.type,
-            description: rel.description,
-            multiplicity: rel.multiplicity,
-            roles: rel.roles
-          }))}
+          relationships={data.relationships}
           classPositions={layoutResult.positions}
+          classes={new Map(data.classes.map((c: ClassEntity) => [c.id, c]))}
           zoom={zoom}
         />
 
         {/* Render classes (top layer) */}
-        {data.classes.map(classEntity => {
+        {data.classes.map((classEntity: ClassEntity) => {
           const position = layoutResult.positions.get(classEntity.id);
           if (!position) return null;
 

@@ -135,9 +135,10 @@ export interface SignalAnalysis {
   temporal: number;
 }
 
-export type VisualizationType = 
+export type VisualizationType =
   | 'structured-view'
   | 'mind-map'
+  | 'argument-map'
   | 'flowchart'
   | 'knowledge-graph'
   | 'uml-class-diagram'
@@ -253,7 +254,7 @@ export interface EnhancedGraphNode extends GraphNode {
   eigenvector: number;
   clusterId: string;
   clusterColor: string;
-  
+
   // Hierarchical properties
   isExpandable: boolean;
   isExpanded: boolean;
@@ -332,6 +333,44 @@ export interface GlossaryTerm {
   context?: string;
 }
 
+// Argument Map Types
+export interface ArgumentMapData {
+  nodes: ArgumentNode[];
+  edges: ArgumentEdge[];
+  metadata?: {
+    mainClaimId: string;
+    totalClaims: number;
+    totalEvidence: number;
+  };
+}
+
+export type ArgumentType = 'claim' | 'argument' | 'evidence' | 'counterargument' | 'rebuttal' | 'alternative';
+export type ArgumentPolarity = 'support' | 'attack' | 'neutral';
+
+export interface ArgumentNode {
+  id: string;
+  type: ArgumentType;
+  label: string;
+  summary: string; // 1-2 lines max
+  polarity: ArgumentPolarity;
+  confidence: number; // 0-1
+  impact: 'low' | 'medium' | 'high';
+  source?: string;
+  parentId?: string; // For hierarchy if needed, mostly handled by edges
+  isCollapsed?: boolean;
+}
+
+export type ArgumentEdgeType = 'supports' | 'attacks' | 'rebuts' | 'is-alternative-to' | 'depends-on';
+
+export interface ArgumentEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: ArgumentEdgeType;
+  strength: number; // 0-1
+  rationale?: string;
+}
+
 // UML Class Diagram Types
 
 export interface UMLDiagramData {
@@ -347,15 +386,15 @@ export interface ClassEntity {
   type: 'class' | 'interface' | 'abstract' | 'enum';
   stereotype?: string;
   package?: string;
-  
+
   // Members
   attributes: Attribute[];
   methods: Method[];
-  
+
   // Computed properties
   position?: Position;
   size?: Size;
-  
+
   // Context (for hover tooltips)
   description: string;
   sourceQuote: string;
@@ -393,14 +432,14 @@ export interface UMLRelationship {
   source: string; // Class ID
   target: string; // Class ID
   type: 'inheritance' | 'realization' | 'composition' | 'aggregation' | 'association' | 'dependency';
-  
+
   // Optional properties
   sourceMultiplicity?: string;
   targetMultiplicity?: string;
   sourceRole?: string;
   targetRole?: string;
   label?: string;
-  
+
   // Context (for hover tooltips)
   description: string;
   sourceQuote: string;
@@ -519,7 +558,7 @@ export interface ExportRequest {
 
 // LLM Types
 
-export type TaskType = 
+export type TaskType =
   | 'tldr'
   | 'executiveSummary'
   | 'entityExtraction'
@@ -531,6 +570,7 @@ export type TaskType =
   | 'glossary'
   | 'qa'
   | 'mindMapGeneration'
+  | 'argumentMapGeneration'
   | 'uml-extraction';
 
 export interface LLMCallConfig {
@@ -592,39 +632,39 @@ export interface GraphState {
   nodes: EnhancedGraphNode[];
   edges: GraphEdge[];
   clusters: Cluster[];
-  
+
   // Layout
   layoutAlgorithm: LayoutAlgorithm;
   nodePositions: Map<string, { x: number; y: number }>;
   isLayouting: boolean;
-  
+
   // Viewport
   zoom: number;
   pan: { x: number; y: number };
-  
+
   // Selection
   selectedNodeIds: Set<string>;
   selectedEdgeIds: Set<string>;
   hoveredNodeId: string | null;
-  
+
   // Filters
   visibleEntityTypes: Set<EntityType>;
   importanceThreshold: number;
   searchQuery: string;
   visibleRelationTypes: Set<RelationType>;
-  
+
   // Exploration
   expandedNodeIds: Set<string>;
   explorationDepth: number;
   breadcrumbs: BreadcrumbItem[];
-  
+
   // Snapshots
   snapshots: GraphSnapshot[];
   currentSnapshotIndex: number;
-  
+
   // Performance
   performanceMode: boolean;
-  
+
   // Actions
   setLayout: (algorithm: LayoutAlgorithm) => void;
   selectNode: (id: string, multi: boolean) => void;

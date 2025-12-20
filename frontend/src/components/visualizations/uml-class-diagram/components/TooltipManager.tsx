@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, ExternalLink, Package, Users, Code, Database } from 'lucide-react';
 import type { ClassEntity, UMLRelationship, Position } from '@shared/types';
@@ -17,19 +18,19 @@ interface TooltipState {
   position: Position;
 }
 
-export function TooltipManager({ 
-  visible, 
-  element, 
-  position, 
+export function TooltipManager({
+  visible,
+  element,
+  position,
   relationships = [],
-  hoverDelay = 400 
+  hoverDelay = 400
 }: TooltipManagerProps) {
   const [tooltipState, setTooltipState] = useState<TooltipState>({
     isVisible: false,
     element: null,
     position: { x: 0, y: 0 }
   });
-  
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Handle hover delay
@@ -67,31 +68,33 @@ export function TooltipManager({
 
   // Calculate tooltip position with viewport clamping
   const tooltipWidth = 380;
+  // Use a safer approximate height or dynamic measurement if needed, 
+  // but clamping against window.innerHeight helps preventing overflow.
   const tooltipHeight = 400;
   const padding = 20;
-  
+
   const clampedPosition = {
     x: Math.max(padding, Math.min(tooltipState.position.x + 20, window.innerWidth - tooltipWidth - padding)),
     y: Math.max(padding, Math.min(tooltipState.position.y + 20, window.innerHeight - tooltipHeight - padding))
   };
 
-  return (
+  const tooltipContent = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: 10, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 10, scale: 0.95 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="absolute z-50 bg-white rounded-lg shadow-2xl border border-gray-200 pointer-events-none max-w-sm"
-        style={{ 
+        className="fixed z-[9999] bg-white rounded-lg shadow-2xl border border-gray-200 pointer-events-none max-w-sm"
+        style={{
           left: clampedPosition.x,
           top: clampedPosition.y,
           width: tooltipWidth
         }}
       >
         {isClass ? (
-          <ClassTooltip 
-            classEntity={tooltipState.element as ClassEntity} 
+          <ClassTooltip
+            classEntity={tooltipState.element as ClassEntity}
             relationships={relationships}
           />
         ) : (
@@ -100,12 +103,15 @@ export function TooltipManager({
       </motion.div>
     </AnimatePresence>
   );
+
+  // Render to document.body using Portal
+  return createPortal(tooltipContent, document.body);
 }
 
-function ClassTooltip({ 
-  classEntity, 
-  relationships = [] 
-}: { 
+function ClassTooltip({
+  classEntity,
+  relationships = []
+}: {
   classEntity: ClassEntity;
   relationships?: Array<{ source: string; target: string; type: string }>;
 }) {
@@ -140,14 +146,14 @@ function ClassTooltip({
   // Get context around source quote (50 chars before/after)
   const getSourceContext = (quote: string, fullText?: string) => {
     if (!fullText || !quote) return quote;
-    
+
     const index = fullText.indexOf(quote);
     if (index === -1) return quote;
-    
+
     const start = Math.max(0, index - 50);
     const end = Math.min(fullText.length, index + quote.length + 50);
     const context = fullText.slice(start, end);
-    
+
     return start > 0 ? `...${context}` : context;
   };
 
@@ -174,7 +180,7 @@ function ClassTooltip({
           </div>
         </div>
       </div>
-      
+
       {/* Description section */}
       {classEntity.description && (
         <div className="p-4 border-b border-gray-200">
@@ -186,7 +192,7 @@ function ClassTooltip({
           </p>
         </div>
       )}
-      
+
       {/* Enhanced statistics section */}
       <div className="p-4 border-b border-gray-200 bg-gray-50">
         <h4 className="text-xs font-semibold text-gray-700 mb-3 uppercase tracking-wide">
@@ -218,7 +224,7 @@ function ClassTooltip({
             </p>
           </div>
         </div>
-        
+
         {/* Package/Namespace information */}
         {classEntity.package && (
           <div className="mt-3 pt-3 border-t border-gray-200">
@@ -232,7 +238,7 @@ function ClassTooltip({
           </div>
         )}
       </div>
-      
+
       {/* Source quote with enhanced context */}
       {classEntity.sourceQuote && (
         <div className="p-4 bg-gray-50">
@@ -312,13 +318,13 @@ function RelationshipTooltip({ relationship }: { relationship: UMLRelationship }
           </div>
         </div>
       </div>
-      
+
       {/* Relationship details */}
       <div className="p-4 border-b border-gray-200">
         <h4 className="text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide">
           Relationship Details
         </h4>
-        
+
         {/* Multiplicity information */}
         {relationship.multiplicity && (
           <div className="mb-3">
@@ -331,7 +337,7 @@ function RelationshipTooltip({ relationship }: { relationship: UMLRelationship }
             </p>
           </div>
         )}
-        
+
         {/* Role information */}
         {relationship.roles && (
           <div className="mb-3">
@@ -344,7 +350,7 @@ function RelationshipTooltip({ relationship }: { relationship: UMLRelationship }
             </p>
           </div>
         )}
-        
+
         {/* Description */}
         {relationship.description && (
           <div>
@@ -358,7 +364,7 @@ function RelationshipTooltip({ relationship }: { relationship: UMLRelationship }
           </div>
         )}
       </div>
-      
+
       {/* Evidence from document */}
       {relationship.sourceQuote && (
         <div className="p-4 bg-gray-50">
