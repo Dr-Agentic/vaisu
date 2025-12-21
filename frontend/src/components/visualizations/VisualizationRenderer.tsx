@@ -22,6 +22,18 @@ export function VisualizationRenderer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentVisualization, document, data]);
 
+  // Handle error state (cached error marker)
+  if (data?.error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Failed to generate visualization</p>
+          <p className="text-gray-500 text-sm">{data.message || 'Unknown error'}</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!data) {
     return (
       <div className="flex items-center justify-center h-64">

@@ -33,12 +33,12 @@ interface DocumentStore {
   progressPercent: number;
   progressMessage: string;
   toasts: ToastMessage[];
-  
+
   // Document history
   documentList: DocumentListItem[];
   isLoadingList: boolean;
   searchQuery: string;
-  
+
   uploadDocument: (file: File) => Promise<void>;
   uploadText: (text: string) => Promise<void>;
   analyzeDocument: () => Promise<void>;
@@ -48,7 +48,7 @@ interface DocumentStore {
   clearError: () => void;
   addToast: (toast: Omit<ToastMessage, 'id'>) => void;
   removeToast: (id: string) => void;
-  
+
   // Document history methods
   fetchDocumentList: () => Promise<void>;
   loadDocumentById: (id: string) => Promise<void>;
@@ -68,7 +68,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   progressPercent: 0,
   progressMessage: '',
   toasts: [],
-  
+
   // Document history
   documentList: [],
   isLoadingList: false,
@@ -79,20 +79,20 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     try {
       const response = await apiClient.uploadDocument(file);
       set({ document: response.document });
-      
+
       get().addToast({
         type: 'success',
         title: 'Document uploaded successfully',
         message: 'Starting analysis...',
         duration: 3000
       });
-      
+
       // Refresh document list
       get().fetchDocumentList();
-      
+
       // Load structured view immediately (doesn't need analysis)
       get().loadVisualization('structured-view');
-      
+
       // Then analyze in background
       await get().analyzeDocument();
     } catch (error: any) {
@@ -116,17 +116,17 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         isAnalyzing: false
       });
-      
+
       get().addToast({
         type: 'success',
         title: 'Text analyzed successfully',
         message: 'Visualizations are ready',
         duration: 3000
       });
-      
+
       // Refresh document list
       get().fetchDocumentList();
-      
+
       // Load default visualization
       await get().loadVisualization('structured-view');
     } catch (error: any) {
@@ -145,7 +145,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     if (!document) return;
 
     set({ isAnalyzing: true, error: null, progressStep: 'starting', progressPercent: 0, progressMessage: 'Starting analysis...' });
-    
+
     // Start polling for progress and partial results
     const pollInterval = setInterval(async () => {
       try {
@@ -155,7 +155,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           progressPercent: progress.progress,
           progressMessage: progress.message
         };
-        
+
         // If we have partial analysis results, update them immediately
         if ('partialAnalysis' in progress && progress.partialAnalysis) {
           updates.analysis = {
@@ -163,13 +163,13 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
             ...(progress as any).partialAnalysis
           };
         }
-        
+
         set(updates);
       } catch (err) {
         // Ignore polling errors
       }
     }, 500); // Poll every 500ms
-    
+
     try {
       const response = await apiClient.analyzeDocument(document.id);
       clearInterval(pollInterval);
@@ -182,22 +182,22 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         progressPercent: 100,
         progressMessage: 'Analysis complete!'
       });
-      
+
       get().addToast({
         type: 'success',
         title: 'Analysis complete',
         message: 'All visualizations are ready to explore',
         duration: 5000
       });
-      
+
       // Load structured-view visualization immediately (priority visualization)
       // This shows the document structure which is always available
       get().loadVisualization('structured-view');
     } catch (error: any) {
       clearInterval(pollInterval);
-      set({ 
-        error: error.message || 'Failed to analyze document', 
-        isAnalyzing: false, 
+      set({
+        error: error.message || 'Failed to analyze document',
+        isAnalyzing: false,
         isLoading: false,
         progressStep: 'error',
         progressPercent: 0,
@@ -213,14 +213,17 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   },
 
   loadVisualization: async (type: VisualizationType) => {
-    const { document, visualizationData } = get();
+    const { document, visualizationData, isLoading } = get();
     if (!document) return;
 
-    // Check cache
+    // Check cache - including error markers
     if (visualizationData.has(type)) {
       set({ currentVisualization: type });
       return;
     }
+
+    // Prevent concurrent requests for the same visualization
+    if (isLoading) return;
 
     // Show progress for visualization generation
     set({
@@ -240,20 +243,20 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       }, 300);
 
       const data = await apiClient.generateVisualization(document.id, type);
-      
+
       clearInterval(progressInterval);
-      
+
       // Validate data structure for terms-definitions
       if (type === 'terms-definitions') {
         if (!data || !data.terms || !Array.isArray(data.terms)) {
           throw new Error('Invalid data structure received for terms-definitions');
         }
       }
-      
+
       const newMap = new Map(visualizationData);
       newMap.set(type, data);
-      set({ 
-        visualizationData: newMap, 
+      set({
+        visualizationData: newMap,
         currentVisualization: type,
         isLoading: false,
         progressStep: 'complete',
@@ -270,8 +273,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         });
       }, 1000);
     } catch (error: any) {
-      set({ 
+      // Cache an error marker to prevent infinite retry loops
+      const newMap = new Map(get().visualizationData);
+      newMap.set(type, { error: true, message: error.message || 'Failed to generate visualization' });
+
+      set({
         error: error.message || 'Failed to load visualization',
+        visualizationData: newMap,
+        currentVisualization: type,
         isLoading: false,
         progressStep: 'error',
         progressPercent: 0,
@@ -339,7 +348,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await apiClient.getDocumentFull(id);
-      
+
       // Convert visualizations object to Map
       const vizMap = new Map<VisualizationType, any>();
       if (response.visualizations) {
@@ -347,7 +356,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
           vizMap.set(type as VisualizationType, data);
         });
       }
-      
+
       set({
         document: response.document,
         analysis: response.analysis || null,
@@ -355,7 +364,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         currentVisualization: 'structured-view'
       });
-      
+
       get().addToast({
         type: 'success',
         title: 'Document loaded',
@@ -385,7 +394,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         await get().fetchDocumentList();
         return;
       }
-      
+
       const response = await apiClient.searchDocuments(query);
       set({ documentList: response.documents, isLoadingList: false });
     } catch (error: any) {

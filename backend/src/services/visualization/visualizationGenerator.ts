@@ -14,7 +14,11 @@ import type {
   Package,
   TextSpan,
   Entity,
-  HierarchyInfo
+  HierarchyInfo,
+  ArgumentMapData,
+  ArgumentNode,
+  ArgumentEdge,
+  ArgumentPolarity
 } from '../../../../shared/src/types.js';
 
 // Internal types for LLM extraction
@@ -90,6 +94,9 @@ export class VisualizationGenerator {
 
       case 'uml-class-diagram':
         return await this.generateUMLClassDiagram(document, analysis);
+
+      case 'argument-map':
+        return await this.generateArgumentMap(document, analysis);
 
       default:
         throw new Error(`Visualization type ${type} not yet implemented`);
@@ -652,7 +659,7 @@ Output the result as a JSON object matching the defined schema.`;
 
     // Process relationships
     const relationships: UMLRelationship[] = parsed.relationships
-      .map((rel, index) => {
+      .map((rel, index): UMLRelationship | null => {
         const sourceId = nameToId.get(rel.source);
         const targetId = nameToId.get(rel.target);
 
@@ -795,6 +802,108 @@ Output the result as a JSON object matching the defined schema.`;
     };
 
     return mapping[type] || 'association';
+  }
+
+  private async generateArgumentMap(
+    document: Document,
+    analysis: DocumentAnalysis
+  ): Promise<ArgumentMapData> {
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
+
+    // Prepare context
+    const contentSample = document.content.substring(0, 12000);
+    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
+    const prompt = `Document Title: ${document.title}\nTLDR: ${tldrText}\n\nContent:\n${contentSample}`;
+
+    try {
+      const response = await llmClient.callWithFallback('argumentMapGeneration', prompt);
+      const parsed = llmClient.parseJSONResponse<{
+        nodes: ArgumentNode[];
+        edges: ArgumentEdge[];
+        metadata?: { mainClaimId: string; totalClaims: number; totalEvidence: number };
+      }>(response);
+
+      if (parsed.nodes && parsed.nodes.length > 0) {
+        // Ensure all nodes have required fields
+        const nodes: ArgumentNode[] = parsed.nodes.map((node, index) => ({
+          id: node.id || `node-${index}`,
+          type: node.type || 'claim',
+          label: node.label || 'Untitled',
+          summary: node.summary || '',
+          polarity: node.polarity || 'neutral',
+          confidence: node.confidence ?? 0.8,
+          impact: node.impact || 'medium',
+          source: node.source,
+          parentId: node.parentId,
+          isCollapsed: node.isCollapsed ?? false
+        }));
+
+        // Ensure all edges have required fields
+        const edges: ArgumentEdge[] = (parsed.edges || []).map((edge, index) => ({
+          id: edge.id || `edge-${index}`,
+          source: edge.source,
+          target: edge.target,
+          type: edge.type || 'supports',
+          strength: edge.strength ?? 0.8,
+          rationale: edge.rationale
+        }));
+
+        return {
+          nodes,
+          edges,
+          metadata: parsed.metadata || {
+            mainClaimId: nodes.length > 0 ? nodes[0].id : '',
+            totalClaims: nodes.filter(n => n.type === 'claim').length,
+            totalEvidence: nodes.filter(n => n.type === 'evidence').length
+          }
+        };
+      }
+    } catch (error) {
+      console.error('LLM argument map generation failed:', error);
+    }
+
+    // Fallback: Generate from entities and relationships
+    return this.generateArgumentMapFromEntities(analysis);
+  }
+
+  private generateArgumentMapFromEntities(analysis: DocumentAnalysis): ArgumentMapData {
+    // Fallback implementation using existing entity extraction
+    const conceptEntities = analysis.entities.filter(
+      e => e.type === 'concept' || e.type === 'technical'
+    );
+
+    const nodes: ArgumentNode[] = conceptEntities.slice(0, 15).map((entity, index) => ({
+      id: `node-${index}`,
+      type: (index === 0 ? 'claim' : (index < 4 ? 'argument' : 'evidence')) as ArgumentNode['type'],
+      label: entity.text,
+      summary: entity.context || 'Extracted from document',
+      polarity: 'neutral' as ArgumentPolarity,
+      confidence: entity.importance,
+      impact: (entity.importance > 0.7 ? 'high' : (entity.importance > 0.4 ? 'medium' : 'low')) as 'low' | 'medium' | 'high',
+      isCollapsed: false
+    }));
+
+    // Create edges based on relationships
+    const edges: ArgumentEdge[] = analysis.relationships
+      .slice(0, 20)
+      .map((rel, index) => ({
+        id: `edge-${index}`,
+        source: rel.source,
+        target: rel.target,
+        type: 'supports' as const,
+        strength: rel.strength
+      }));
+
+    return {
+      nodes,
+      edges,
+      metadata: {
+        mainClaimId: nodes.length > 0 ? nodes[0].id : '',
+        totalClaims: nodes.filter(n => n.type === 'claim').length,
+        totalEvidence: nodes.filter(n => n.type === 'evidence').length
+      }
+    };
   }
 
   private getEntityColor(type: string): string {
