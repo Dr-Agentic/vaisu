@@ -235,7 +235,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
           analysisVersion: 'v1.0',
           analysis,
           llmMetadata: {
-            model: 'anthropic/claude-3.7-sonnet', // TODO: Get from actual LLM call
+            model: 'x-ai/grok-4.1-fast', // TODO: Get from actual LLM call
             tokensUsed: 0, // TODO: Track actual tokens
             processingTime,
             timestamp: new Date().toISOString(),

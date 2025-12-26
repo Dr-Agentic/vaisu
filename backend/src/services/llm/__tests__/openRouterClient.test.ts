@@ -24,7 +24,7 @@ describe('OpenRouterClient', () => {
 
     // Mock axios.create to return our mock instance
     mockedAxios.create = vi.fn().mockReturnValue(mockAxiosInstance);
-    
+
     client = new OpenRouterClient('test-api-key');
     vi.clearAllMocks();
   });
@@ -38,7 +38,7 @@ describe('OpenRouterClient', () => {
       const mockResponse = {
         data: {
           id: 'gen-123',
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           choices: [{
             message: {
               role: 'assistant',
@@ -57,7 +57,7 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await client.call({
-        model: 'anthropic/claude-3.7-haiku',
+        model: 'x-ai/grok-4.1-fast',
         messages: [{ role: 'user', content: 'Test prompt' }],
         maxTokens: 500,
         temperature: 0.3
@@ -68,7 +68,7 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         '/chat/completions',
         expect.objectContaining({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test prompt' }],
           max_tokens: 500,
           temperature: 0.3
@@ -82,7 +82,7 @@ describe('OpenRouterClient', () => {
     });
 
     it('should include proper headers', async () => {
-      mockAxiosInstance.post.mockResolvedValue({ 
+      mockAxiosInstance.post.mockResolvedValue({
         data: {
           choices: [{ message: { content: 'Test' } }],
           usage: { total_tokens: 100 }
@@ -90,7 +90,7 @@ describe('OpenRouterClient', () => {
       });
 
       await client.call({
-        model: 'anthropic/claude-3.7-haiku',
+        model: 'x-ai/grok-4.1-fast',
         messages: [{ role: 'user', content: 'Test' }]
       });
 
@@ -104,7 +104,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test' }]
         })
       ).rejects.toThrow('LLM call failed');
@@ -120,7 +120,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test' }]
         })
       ).rejects.toThrow();
@@ -188,7 +188,7 @@ describe('OpenRouterClient', () => {
 
     it('should use correct model for each task type', async () => {
       mockAxiosInstance.post.mockResolvedValue({
-        data: { 
+        data: {
           choices: [{ message: { content: 'Response' } }],
           usage: { total_tokens: 100 }
         }
@@ -226,7 +226,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test' }]
         })
       ).rejects.toThrow();
@@ -244,7 +244,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test' }]
         })
       ).rejects.toThrow();
@@ -269,7 +269,7 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await client.call({
-        model: 'anthropic/claude-3.7-haiku',
+        model: 'x-ai/grok-4.1-fast',
         messages: [{ role: 'user', content: 'Test' }]
       });
 
@@ -280,21 +280,21 @@ describe('OpenRouterClient', () => {
 
   describe('rate limiting', () => {
     it('should limit concurrent requests', async () => {
-      mockAxiosInstance.post.mockImplementation(() => 
-        new Promise(resolve => setTimeout(() => 
-          resolve({ 
-            data: { 
+      mockAxiosInstance.post.mockImplementation(() =>
+        new Promise(resolve => setTimeout(() =>
+          resolve({
+            data: {
               choices: [{ message: { content: 'Response' } }],
               usage: { total_tokens: 100 }
-            } 
-          }), 
+            }
+          }),
           10
         ))
       );
 
       const promises = Array(10).fill(null).map(() =>
         client.call({
-          model: 'anthropic/claude-3.7-haiku',
+          model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test' }]
         })
       );

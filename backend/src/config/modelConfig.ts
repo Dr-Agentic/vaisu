@@ -282,7 +282,7 @@ Return ONLY valid JSON in this exact format:
 }`
   },
   'uml-extraction': {
-    primary: 'anthropic/claude-3-5-sonnet-20241022',
+    primary: 'x-ai/grok-4.1-fast',
     fallback: 'openai/gpt-4o',
     maxTokens: 8000,
     temperature: 0.3,

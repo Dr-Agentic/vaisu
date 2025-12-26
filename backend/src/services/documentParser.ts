@@ -58,6 +58,7 @@ export class DocumentParser {
   async extractText(buffer: Buffer, fileType: string): Promise<string> {
     switch (fileType) {
       case 'md':
+      case 'txt':
         return buffer.toString('utf-8');
 
       case 'pdf':

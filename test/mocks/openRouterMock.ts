@@ -6,7 +6,7 @@ import { vi } from 'vitest';
 export const mockOpenRouterResponses = {
   tldr: {
     id: 'gen-123',
-    model: 'anthropic/claude-3.7-haiku',
+    model: 'x-ai/grok-4.1-fast',
     choices: [{
       message: {
         role: 'assistant',
@@ -20,10 +20,10 @@ export const mockOpenRouterResponses = {
       total_tokens: 550
     }
   },
-  
+
   executiveSummary: {
     id: 'gen-124',
-    model: 'anthropic/claude-3.7-sonnet',
+    model: 'x-ai/grok-4.1-fast',
     choices: [{
       message: {
         role: 'assistant',
@@ -60,7 +60,7 @@ export const mockOpenRouterResponses = {
       total_tokens: 1000
     }
   },
-  
+
   entityExtraction: {
     id: 'gen-125',
     model: 'openai/gpt-4.5-mini',
@@ -84,7 +84,7 @@ export const mockOpenRouterResponses = {
       total_tokens: 700
     }
   },
-  
+
   signalAnalysis: {
     id: 'gen-126',
     model: 'openai/gpt-4.5-mini',
@@ -108,7 +108,7 @@ export const mockOpenRouterResponses = {
       total_tokens: 550
     }
   },
-  
+
   relationshipDetection: {
     id: 'gen-129',
     model: 'openai/gpt-4.5-mini',
@@ -130,10 +130,10 @@ export const mockOpenRouterResponses = {
       total_tokens: 680
     }
   },
-  
+
   sectionSummary: {
     id: 'gen-130',
-    model: 'anthropic/claude-3.7-haiku',
+    model: 'x-ai/grok-4.1-fast',
     choices: [{
       message: {
         role: 'assistant',
@@ -147,10 +147,10 @@ export const mockOpenRouterResponses = {
       total_tokens: 430
     }
   },
-  
+
   visualizationRecommendations: {
     id: 'gen-127',
-    model: 'anthropic/claude-3.7-sonnet',
+    model: 'x-ai/grok-4.1-fast',
     choices: [{
       message: {
         role: 'assistant',
@@ -182,10 +182,10 @@ export const mockOpenRouterResponses = {
       total_tokens: 1150
     }
   },
-  
+
   sectionSummaries: {
     id: 'gen-128',
-    model: 'anthropic/claude-3.7-haiku',
+    model: 'x-ai/grok-4.1-fast',
     choices: [{
       message: {
         role: 'assistant',
@@ -221,7 +221,7 @@ export function createMockOpenRouterClient() {
     call: vi.fn().mockImplementation(async (config: any) => {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       // Return simplified format matching real OpenRouterClient
       const rawResponse = mockOpenRouterResponses.tldr;
       return {
@@ -230,10 +230,10 @@ export function createMockOpenRouterClient() {
         model: rawResponse.model
       };
     }),
-    
+
     callWithFallback: vi.fn().mockImplementation(async (task: string, prompt: string) => {
       await new Promise(resolve => setTimeout(resolve, 10));
-      
+
       let rawResponse;
       switch (task) {
         case 'tldr':
@@ -255,11 +255,11 @@ export function createMockOpenRouterClient() {
             argumentative: 0.4,
             temporal: 0.6
           };
-          
-          if (prompt.toLowerCase().includes('workflow') || 
-              prompt.toLowerCase().includes('process') ||
-              prompt.toLowerCase().includes('step') ||
-              prompt.toLowerCase().includes('procedure')) {
+
+          if (prompt.toLowerCase().includes('workflow') ||
+            prompt.toLowerCase().includes('process') ||
+            prompt.toLowerCase().includes('step') ||
+            prompt.toLowerCase().includes('procedure')) {
             signals = {
               structural: 0.6,
               process: 0.85,
@@ -268,10 +268,10 @@ export function createMockOpenRouterClient() {
               argumentative: 0.2,
               temporal: 0.7
             };
-          } else if (prompt.toLowerCase().includes('api') || 
-                     prompt.toLowerCase().includes('endpoint') ||
-                     prompt.toLowerCase().includes('technical') ||
-                     prompt.toLowerCase().includes('specification')) {
+          } else if (prompt.toLowerCase().includes('api') ||
+            prompt.toLowerCase().includes('endpoint') ||
+            prompt.toLowerCase().includes('technical') ||
+            prompt.toLowerCase().includes('specification')) {
             signals = {
               structural: 0.7,
               process: 0.4,
@@ -281,7 +281,7 @@ export function createMockOpenRouterClient() {
               temporal: 0.3
             };
           }
-          
+
           rawResponse = {
             ...mockOpenRouterResponses.signalAnalysis,
             choices: [{
@@ -323,14 +323,14 @@ export function createMockOpenRouterClient() {
               rationale: 'Good for visualizing relationships between concepts.'
             }
           ];
-          
+
           // Check signals in the prompt
           const signalsMatch = prompt.match(/"quantitative":\s*([\d.]+)/);
           const quantitativeSignal = signalsMatch ? parseFloat(signalsMatch[1]) : 0;
-          
+
           const processMatch = prompt.match(/"process":\s*([\d.]+)/);
           const processSignal = processMatch ? parseFloat(processMatch[1]) : 0;
-          
+
           // Adjust based on signals (prioritize signal values over content keywords)
           if (processSignal > 0.6) {
             recommendations = [
@@ -375,7 +375,7 @@ export function createMockOpenRouterClient() {
               }
             ];
           }
-          
+
           rawResponse = {
             ...mockOpenRouterResponses.visualizationRecommendations,
             choices: [{
@@ -390,7 +390,7 @@ export function createMockOpenRouterClient() {
         default:
           rawResponse = mockOpenRouterResponses.tldr;
       }
-      
+
       // Return simplified format matching real OpenRouterClient
       return {
         content: rawResponse.choices[0].message.content,
@@ -398,7 +398,7 @@ export function createMockOpenRouterClient() {
         model: rawResponse.model
       };
     }),
-    
+
     parseJSONResponse: vi.fn().mockImplementation(async (response: any) => {
       return JSON.parse(response.content);
     })

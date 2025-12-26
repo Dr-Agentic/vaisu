@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TextAnalyzer } from '../textAnalyzer';
 import { createMockOpenRouterClient } from '../../../../../test/mocks/openRouterMock';
-import { 
+import {
   SMALL_BUSINESS_REPORT,
   PROCESS_DOCUMENT,
   TECHNICAL_SPEC,
-  QUANTITATIVE_REPORT 
+  QUANTITATIVE_REPORT
 } from '../../../../../test/fixtures/documents';
 
 describe('TextAnalyzer', () => {
@@ -72,7 +72,7 @@ describe('TextAnalyzer', () => {
       });
     });
 
-    it('should use Claude 3.7 Sonnet', async () => {
+    it('should use Grok Fast', async () => {
       await analyzer.generateExecutiveSummary(SMALL_BUSINESS_REPORT);
 
       expect(mockLLMClient.callWithFallback).toHaveBeenCalledWith(
@@ -126,9 +126,9 @@ describe('TextAnalyzer', () => {
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
         structure: { sections: [{} as any, {} as any], hierarchy: [] }
       } as any;
-      
+
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
-      
+
       const recommendations = await analyzer.recommendVisualizations(
         mockDocument,
         mockSignals,
@@ -148,9 +148,9 @@ describe('TextAnalyzer', () => {
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
         structure: { sections: [{} as any], hierarchy: [] }
       } as any;
-      
+
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
-      
+
       const recommendations = await analyzer.recommendVisualizations(
         mockDocument,
         mockSignals,
@@ -174,9 +174,9 @@ describe('TextAnalyzer', () => {
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
         structure: { sections: [{} as any], hierarchy: [] }
       } as any;
-      
+
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
-      
+
       const recommendations = await analyzer.recommendVisualizations(
         mockDocument,
         mockSignals,
@@ -199,9 +199,9 @@ describe('TextAnalyzer', () => {
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
         structure: { sections: [{} as any], hierarchy: [] }
       } as any;
-      
+
       const mockSignals = { structural: 0.5, process: 0.2, quantitative: 0.9, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
-      
+
       const recommendations = await analyzer.recommendVisualizations(
         mockDocument,
         mockSignals,
@@ -212,12 +212,12 @@ describe('TextAnalyzer', () => {
       const hasExecutiveDashboard = recommendations.some(
         rec => rec.type === 'executive-dashboard'
       );
-      
+
       // Debug: log recommendations if test fails
       if (!hasExecutiveDashboard) {
         console.log('Recommendations received:', recommendations.map(r => r.type));
       }
-      
+
       expect(hasExecutiveDashboard).toBe(true);
     });
 
@@ -229,9 +229,9 @@ describe('TextAnalyzer', () => {
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
         structure: { sections: [{} as any], hierarchy: [] }
       } as any;
-      
+
       const mockSignals = { structural: 0.5, process: 0.9, quantitative: 0.2, technical: 0.3, argumentative: 0.2, temporal: 0.3 };
-      
+
       const recommendations = await analyzer.recommendVisualizations(
         mockDocument,
         mockSignals,
