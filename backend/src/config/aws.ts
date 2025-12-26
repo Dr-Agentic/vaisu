@@ -15,11 +15,7 @@ function getAWSSecretAccessKey() {
   return process.env.AWS_SECRET_ACCESS_KEY;
 }
 
-function isPersistenceEnabledEnv() {
-  return process.env.ENABLE_PERSISTENCE === 'true';
-}
-
-// S3 Configuration
+// DynamoDB Configuration
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || 'vaisu-documents-dev';
 
 // DynamoDB Configuration
@@ -30,13 +26,9 @@ export const DYNAMODB_ANALYSES_TABLE = process.env.DYNAMODB_ANALYSES_TABLE || 'v
  * Check if AWS persistence is enabled and configured
  */
 export function isPersistenceEnabled(): boolean {
-  if (!isPersistenceEnabledEnv()) {
-    return false;
-  }
-
   const hasCredentials = getAWSAccessKeyId() && getAWSSecretAccessKey();
   if (!hasCredentials) {
-    console.warn('AWS persistence enabled but credentials not configured');
+    console.warn('AWS credentials not configured');
     return false;
   }
 
@@ -48,10 +40,6 @@ export function isPersistenceEnabled(): boolean {
  * Throws error if persistence is enabled but configuration is invalid
  */
 export function validateAWSConfig(): void {
-  if (!isPersistenceEnabledEnv()) {
-    console.info('AWS persistence disabled');
-    return;
-  }
 
   const accessKeyId = getAWSAccessKeyId();
   const secretAccessKey = getAWSSecretAccessKey();
@@ -68,7 +56,7 @@ export function validateAWSConfig(): void {
     throw new Error('DynamoDB table names not configured');
   }
 
-  console.info('✅ AWS persistence enabled:', {
+  console.info('✅ AWS configuration:', {
     region: getAWSRegion(),
     s3Bucket: S3_BUCKET_NAME,
     documentsTable: DYNAMODB_DOCUMENTS_TABLE,
@@ -82,14 +70,14 @@ export function validateAWSConfig(): void {
 export function createS3Client(): S3Client {
   const accessKeyId = getAWSAccessKeyId();
   const secretAccessKey = getAWSSecretAccessKey();
-  
+
   return new S3Client({
     region: getAWSRegion(),
     credentials: accessKeyId && secretAccessKey
       ? {
-          accessKeyId,
-          secretAccessKey,
-        }
+        accessKeyId,
+        secretAccessKey,
+      }
       : undefined,
   });
 }
@@ -100,14 +88,14 @@ export function createS3Client(): S3Client {
 export function createDynamoDBClient(): DynamoDBDocumentClient {
   const accessKeyId = getAWSAccessKeyId();
   const secretAccessKey = getAWSSecretAccessKey();
-  
+
   const client = new DynamoDBClient({
     region: getAWSRegion(),
     credentials: accessKeyId && secretAccessKey
       ? {
-          accessKeyId,
-          secretAccessKey,
-        }
+        accessKeyId,
+        secretAccessKey,
+      }
       : undefined,
   });
 

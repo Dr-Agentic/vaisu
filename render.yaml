@@ -5,13 +5,11 @@ services:
     region: oregon
     plan: free
     buildCommand: npm install && npm run build:prod
-    startCommand: node backend/dist/server.js
+    startCommand: npm run start:prod
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: ENABLE_PERSISTENCE
-        value: true
       - key: OPENROUTER_BASE_URL
         value: https://openrouter.ai/api/v1
       - key: AWS_REGION

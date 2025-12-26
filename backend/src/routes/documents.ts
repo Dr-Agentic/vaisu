@@ -140,8 +140,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
 
     const startTime = Date.now();
 
-    // Check cache if persistence is enabled
-    if (isPersistenceEnabled() && buffer) {
+    // Check cache (S3 and DynamoDB)
+    if (buffer) {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
         console.log(`🔍 Checking cache for hash: ${contentHash.substring(0, 8)}... filename: ${filename}`);
@@ -200,8 +200,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
     analyses.set(document.id, analysis);
     document.analysis = analysis;
 
-    // Store in DynamoDB + S3 if persistence is enabled
-    if (isPersistenceEnabled() && buffer) {
+    // Store in DynamoDB + S3
+    if (buffer) {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
         const newDocumentId = uuidv4();
@@ -335,7 +335,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
     let analysis = analyses.get(id);
 
     // If not in memory, try loading from DynamoDB
-    if (!document && isPersistenceEnabled()) {
+    if (!document) {
       console.log(`🔍 Document not in memory, checking DynamoDB...`);
       try {
         const docRecord = await documentRepository.findById(id);
@@ -437,45 +437,43 @@ router.get('/:id/full', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    // Try DynamoDB first if persistence is enabled
-    if (isPersistenceEnabled()) {
-      try {
-        const docRecord = await documentRepository.findById(id);
-        const analysisRecord = await analysisRepository.findByDocumentId(id);
+    // Try DynamoDB first
+    try {
+      const docRecord = await documentRepository.findById(id);
+      const analysisRecord = await analysisRepository.findByDocumentId(id);
 
-        if (docRecord && analysisRecord) {
-          // Update access metadata
-          await documentRepository.updateAccessMetadata(id);
+      if (docRecord && analysisRecord) {
+        // Update access metadata
+        await documentRepository.updateAccessMetadata(id);
 
-          // Reconstruct Document object from DynamoDB record
-          const document: Document = {
-            id: docRecord.documentId,
-            title: docRecord.filename,
-            content: '', // Content is in S3, not loaded here
-            metadata: {
-              fileType: docRecord.contentType,
-              uploadDate: new Date(docRecord.uploadedAt),
-              wordCount: 0, // Not stored in DynamoDB
-              language: 'en', // Default language
-            },
-            structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
-          };
+        // Reconstruct Document object from DynamoDB record
+        const document: Document = {
+          id: docRecord.documentId,
+          title: docRecord.filename,
+          content: '', // Content is in S3, not loaded here
+          metadata: {
+            fileType: docRecord.contentType,
+            uploadDate: new Date(docRecord.uploadedAt),
+            wordCount: 0, // Not stored in DynamoDB
+            language: 'en', // Default language
+          },
+          structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
+        };
 
-          // Extract visualizations from analysis if they exist
-          const docVisualizations: Record<string, any> = {};
-          // Visualizations are stored in the analysis object
-          // For now, return empty visualizations as they're generated on-demand
+        // Extract visualizations from analysis if they exist
+        const docVisualizations: Record<string, any> = {};
+        // Visualizations are stored in the analysis object
+        // For now, return empty visualizations as they're generated on-demand
 
-          return res.json({
-            document,
-            analysis: analysisRecord.analysis,
-            visualizations: docVisualizations
-          });
-        }
-      } catch (dbError) {
-        console.error('DynamoDB fetch error (falling back to memory):', dbError);
-        // Fall through to in-memory storage
+        return res.json({
+          document,
+          analysis: analysisRecord.analysis,
+          visualizations: docVisualizations
+        });
       }
+    } catch (dbError) {
+      console.error('DynamoDB fetch error (falling back to memory):', dbError);
+      // Fall through to in-memory storage
     }
 
     // Fallback to in-memory storage
@@ -512,42 +510,40 @@ router.get('/', async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
 
-    // If persistence is enabled, fetch from DynamoDB
-    if (isPersistenceEnabled()) {
-      try {
-        console.log('📋 Fetching documents from DynamoDB...');
-        const userId = '1'; // Default anonymous user
-        const result = await documentRepository.listByUserId(userId, limit);
+    // Fetch from DynamoDB
+    try {
+      console.log('📋 Fetching documents from DynamoDB...');
+      const userId = '1'; // Default anonymous user
+      const result = await documentRepository.listByUserId(userId, limit);
 
-        // Fetch analyses for each document
-        const documentList = await Promise.all(
-          result.documents.map(async (docRecord) => {
-            const analysisRecord = await analysisRepository.findByDocumentId(docRecord.documentId);
+      // Fetch analyses for each document
+      const documentList = await Promise.all(
+        result.documents.map(async (docRecord) => {
+          const analysisRecord = await analysisRepository.findByDocumentId(docRecord.documentId);
 
-            return {
-              id: docRecord.documentId,
-              title: docRecord.filename,
-              fileType: docRecord.contentType,
-              uploadDate: docRecord.uploadedAt,
-              tldr: analysisRecord?.analysis?.tldr,
-              summaryHeadline: analysisRecord?.analysis?.executiveSummary?.headline,
-              wordCount: 0, // Not stored in DynamoDB record
-            };
-          })
-        );
+          return {
+            id: docRecord.documentId,
+            title: docRecord.filename,
+            fileType: docRecord.contentType,
+            uploadDate: docRecord.uploadedAt,
+            tldr: analysisRecord?.analysis?.tldr,
+            summaryHeadline: analysisRecord?.analysis?.executiveSummary?.headline,
+            wordCount: 0, // Not stored in DynamoDB record
+          };
+        })
+      );
 
-        console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
+      console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
 
-        return res.json({
-          documents: documentList,
-          total: documentList.length,
-          limit,
-          offset: 0,
-        });
-      } catch (dbError) {
-        console.error('DynamoDB fetch error (falling back to memory):', dbError);
-        // Fall through to in-memory storage
-      }
+      return res.json({
+        documents: documentList,
+        total: documentList.length,
+        limit,
+        offset: 0,
+      });
+    } catch (dbError) {
+      console.error('DynamoDB fetch error (falling back to memory):', dbError);
+      // Fall through to in-memory storage
     }
 
     // Fallback to in-memory storage

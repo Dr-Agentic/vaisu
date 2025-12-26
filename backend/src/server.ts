@@ -39,10 +39,13 @@ app.get('/api/health', (req, res) => {
 
 // Serve frontend static files in production
 if (isProduction) {
-  const frontendDistPath = path.join(__dirname, '../../frontend/dist');
-  
+  // In production, we are in backend/dist/backend/src/
+  // Path to frontend/dist should be ../../../../../frontend/dist
+  // But to be safe, we can try multiple locations or use a more relative approach
+  const frontendDistPath = path.join(__dirname, '../../../../frontend/dist');
+
   app.use(express.static(frontendDistPath));
-  
+
   // Handle client-side routing - serve index.html for all non-API routes
   app.get('*', (req, res) => {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
