@@ -20,7 +20,7 @@ A production-ready text-to-visual intelligence application has been fully implem
 **Backend (Node.js + Express)**
 - RESTful API
 - OpenRouter LLM integration
-- Document parsing (.txt, .pdf, .docx)
+- Supported file formats: `.txt`, `.pdf`, `.md` (Markdown)
 - AI-powered text analysis
 - Visualization generation
 - Caching support

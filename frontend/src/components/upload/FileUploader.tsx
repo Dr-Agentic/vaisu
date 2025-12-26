@@ -17,7 +17,7 @@ export function FileUploader() {
     if (fileRejections.length > 0) {
       const rejection = fileRejections[0];
       const errors = rejection.errors;
-      
+
       if (errors.some((e: any) => e.code === 'file-too-large')) {
         const fileSizeMB = (rejection.file.size / (1024 * 1024)).toFixed(2);
         addToast({
@@ -30,7 +30,7 @@ export function FileUploader() {
         addToast({
           type: 'error',
           title: 'Invalid file type',
-          message: `The file "${rejection.file.name}" is not supported. Please upload .txt, .pdf, or .docx files.`,
+          message: `The file "${rejection.file.name}" is not supported. Please upload .txt, .pdf, or .md files.`,
           duration: 0
         });
       } else {
@@ -51,7 +51,7 @@ export function FileUploader() {
     accept: {
       'text/plain': ['.txt'],
       'application/pdf': ['.pdf'],
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+      'text/markdown': ['.md']
     },
     maxFiles: 1,
     maxSize: 1024 * 1024 * 1024, // 1GB
@@ -64,8 +64,8 @@ export function FileUploader() {
       className={`
         border-3 border-dashed rounded-xl text-center cursor-pointer
         transition-all duration-200 ease-out
-        ${isDragActive 
-          ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-glow animate-pulse-slow' 
+        ${isDragActive
+          ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-glow animate-pulse-slow'
           : 'border-gray-300 hover:border-primary-400 hover:bg-gradient-panel hover:shadow-medium hover:scale-[1.01]'
         }
         ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
@@ -76,7 +76,7 @@ export function FileUploader() {
       }}
     >
       <input {...getInputProps()} />
-      
+
       <div className="flex flex-col items-center gap-4">
         {isLoading ? (
           <>
@@ -86,7 +86,7 @@ export function FileUploader() {
               {progressPercent > 0 && (
                 <>
                   <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto">
-                    <div 
+                    <div
                       className="bg-primary-600 h-full rounded-full transition-all duration-500"
                       style={{ width: `${progressPercent}%` }}
                     />
@@ -118,7 +118,7 @@ export function FileUploader() {
               </span>
               <span className="flex items-center gap-1">
                 <FileText className="w-3 h-3" />
-                .docx
+                .md
               </span>
             </div>
             <p className="text-xs text-gray-400">Maximum file size: 1GB</p>

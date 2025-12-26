@@ -34,10 +34,10 @@ export class DocumentParser {
   async parseText(text: string, title: string = 'Untitled'): Promise<Document> {
     // Sanitize input to prevent XSS
     const sanitizedText = this.sanitizeText(text);
-    
+
     // Detect structure
     const structure = await this.detectStructure(sanitizedText);
-    
+
     // Generate document ID
     const documentId = this.generateDocumentId(sanitizedText);
 
@@ -57,17 +57,13 @@ export class DocumentParser {
 
   async extractText(buffer: Buffer, fileType: string): Promise<string> {
     switch (fileType) {
-      case 'txt':
+      case 'md':
         return buffer.toString('utf-8');
-      
+
       case 'pdf':
         const pdfData = await pdfParse(buffer);
         return pdfData.text;
-      
-      case 'docx':
-        const result = await mammoth.extractRawText({ buffer });
-        return result.value;
-      
+
       default:
         throw new Error(`Unsupported file type: ${fileType}`);
     }
@@ -89,14 +85,14 @@ export class DocumentParser {
    */
   private buildSectionHierarchy(flatSections: Section[]): Section[] {
     if (flatSections.length === 0) return [];
-    
+
     const result: Section[] = [];
     const stack: Section[] = [];
 
     for (const section of flatSections) {
       // Clear children array (will be populated)
       section.children = [];
-      
+
       // Find parent by popping stack until we find a section with lower level
       while (stack.length > 0 && stack[stack.length - 1].level >= section.level) {
         stack.pop();
@@ -121,16 +117,16 @@ export class DocumentParser {
    */
   private sanitizeText(text: string): string {
     if (!text) return '';
-    
+
     // Remove script tags and their content
     let sanitized = text.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    
+
     // Remove event handlers (onclick, onerror, etc.)
     sanitized = sanitized.replace(/on\w+\s*=\s*["'][^"']*["']/gi, '');
-    
+
     // Remove javascript: protocol
     sanitized = sanitized.replace(/javascript:/gi, '');
-    
+
     return sanitized;
   }
 
@@ -139,20 +135,20 @@ export class DocumentParser {
     if (!text || text.trim().length === 0) {
       return [];
     }
-    
+
     const sections: Section[] = [];
     const lines = text.split('\n');
-    
+
     let currentSection: Partial<Section> | null = null;
     let currentContent: string[] = [];
     let currentIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Detect headings
       const headingMatch = this.detectHeading(line);
-      
+
       if (headingMatch) {
         // Save previous section
         if (currentSection) {
@@ -267,7 +263,7 @@ export class DocumentParser {
   private extractTitle(text: string, filename: string): string {
     // Try to find title in first few lines
     const lines = text.split('\n').slice(0, 5);
-    
+
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed.length > 10 && trimmed.length < 100) {

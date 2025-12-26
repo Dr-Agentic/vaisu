@@ -96,7 +96,7 @@ npm install
 
 ## What to Try
 
-1. **Upload a Document**: Drag and drop a .txt, .pdf, or .docx file
+1. **Upload a Document**: Drag and drop a .txt, .pdf, or .md file
 2. **Paste Text**: Use the sample document or your own text
 3. **Explore Visualizations**: Try different visualization types
 4. **Check Recommendations**: AI suggests best visualizations

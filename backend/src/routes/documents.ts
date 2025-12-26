@@ -19,11 +19,11 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  
+
   if (req.method === 'OPTIONS') {
     return res.status(204).send();
   }
-  
+
   next();
 });
 
@@ -43,11 +43,11 @@ const upload = multer({
     fileSize: 1024 * 1024 * 1024 // 1GB
   },
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-    if (allowedTypes.includes(file.mimetype) || file.originalname.match(/\.(txt|pdf|docx)$/)) {
+    const allowedTypes = ['text/plain', 'application/pdf', 'text/markdown'];
+    if (allowedTypes.includes(file.mimetype) || file.originalname.match(/\.(txt|pdf|md)$/)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only .txt, .pdf, and .docx files are allowed.'));
+      cb(new Error('Invalid file type. Only .txt, .pdf, and .md files are allowed.'));
     }
   }
 });
@@ -139,31 +139,31 @@ router.post('/analyze', async (req: Request, res: Response) => {
     }
 
     const startTime = Date.now();
-    
+
     // Check cache if persistence is enabled
     if (isPersistenceEnabled() && buffer) {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
         console.log(`🔍 Checking cache for hash: ${contentHash.substring(0, 8)}... filename: ${filename}`);
-        
+
         const cachedDoc = await documentRepository.findByHashAndFilename(contentHash, filename);
-        
+
         if (cachedDoc) {
           console.log(`✅ Cache HIT! Document ID: ${cachedDoc.documentId}`);
-          
+
           // Retrieve cached analysis
           const cachedAnalysis = await analysisRepository.findByDocumentId(cachedDoc.documentId);
-          
+
           if (cachedAnalysis) {
             // Update access metadata
             await documentRepository.updateAccessMetadata(cachedDoc.documentId);
-            
+
             const processingTime = Date.now() - startTime;
-            
+
             // Store in memory for this session
             documents.set(cachedDoc.documentId, document);
             analyses.set(cachedDoc.documentId, cachedAnalysis.analysis);
-            
+
             return res.json({
               documentId: cachedDoc.documentId,
               document,
@@ -180,18 +180,18 @@ router.post('/analyze', async (req: Request, res: Response) => {
         // Continue with analysis if cache fails
       }
     }
-    
+
     // Progress callback to send updates with partial results
     const onProgress = (
-      step: string, 
-      progress: number, 
+      step: string,
+      progress: number,
       message: string,
       partialAnalysis?: Partial<DocumentAnalysis>
     ) => {
       console.log(`[${document.id}] ${progress}% - ${message}`);
       progressStore.set(document.id, { step, progress, message, partialAnalysis });
     };
-    
+
     const analysis = await textAnalyzer.analyzeDocument(document, onProgress);
     const processingTime = Date.now() - startTime;
 
@@ -205,12 +205,12 @@ router.post('/analyze', async (req: Request, res: Response) => {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
         const newDocumentId = uuidv4();
-        
+
         console.log(`💾 Storing document in S3 and DynamoDB...`);
-        
+
         // Upload to S3
         const s3Result = await s3Storage.uploadDocument(contentHash, filename, buffer);
-        
+
         // Store document metadata
         const documentRecord: DocumentRecord = {
           documentId: newDocumentId,
@@ -226,9 +226,9 @@ router.post('/analyze', async (req: Request, res: Response) => {
           lastAccessedAt: new Date().toISOString(),
           accessCount: 1,
         };
-        
+
         await documentRepository.create(documentRecord);
-        
+
         // Store analysis
         const analysisRecord: AnalysisRecord = {
           documentId: newDocumentId,
@@ -242,11 +242,11 @@ router.post('/analyze', async (req: Request, res: Response) => {
           },
           createdAt: new Date().toISOString(),
         };
-        
+
         await analysisRepository.create(analysisRecord);
-        
+
         console.log(`✅ Document stored with ID: ${newDocumentId}`);
-        
+
         return res.json({
           documentId: newDocumentId,
           document,
@@ -277,11 +277,11 @@ router.post('/analyze', async (req: Request, res: Response) => {
 router.get('/search', (req: Request, res: Response) => {
   try {
     const query = (req.query.q as string || '').toLowerCase().trim();
-    
+
     if (!query) {
       return res.json({ documents: [], total: 0, query: '' });
     }
-    
+
     // Search in filename, tldr, and summary
     const matchingDocs = Array.from(documents.values())
       .filter(doc => {
@@ -290,13 +290,13 @@ router.get('/search', (req: Request, res: Response) => {
         // TLDR is now an object with a text field
         const tldrMatch = analysis?.tldr?.text?.toLowerCase().includes(query);
         const summaryMatch = analysis?.executiveSummary?.headline?.toLowerCase().includes(query);
-        
+
         return titleMatch || tldrMatch || summaryMatch;
       })
       .sort((a, b) => new Date(b.metadata.uploadDate).getTime() - new Date(a.metadata.uploadDate).getTime());
-    
+
     const documentList = matchingDocs.map(toDocumentListItem);
-    
+
     res.json({
       documents: documentList,
       total: matchingDocs.length,
@@ -311,7 +311,7 @@ router.get('/search', (req: Request, res: Response) => {
 // GET /api/documents/:id
 router.get('/:id', (req: Request, res: Response) => {
   const document = documents.get(req.params.id);
-  
+
   if (!document) {
     return res.status(404).json({ error: 'Document not found' });
   }
@@ -340,14 +340,14 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       try {
         const docRecord = await documentRepository.findById(id);
         const analysisRecord = await analysisRepository.findByDocumentId(id);
-        
+
         if (docRecord && analysisRecord) {
           console.log(`✅ Found in DynamoDB: ${docRecord.filename}`);
-          
+
           // Load content from S3 if needed
           const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
           const content = contentBuffer.toString('utf-8');
-          
+
           // Reconstruct document
           document = {
             id: docRecord.documentId,
@@ -361,15 +361,15 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
             },
             structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
           };
-          
+
           analysis = analysisRecord.analysis;
-          
+
           // Cache in memory for future requests
           documents.set(id, document);
           if (analysis) {
             analyses.set(id, analysis);
           }
-          
+
           // Update access metadata
           await documentRepository.updateAccessMetadata(id);
         }
@@ -390,7 +390,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
     }
 
     const vizKey = `${id}-${type}`;
-    
+
     // Check cache
     if (visualizations.has(vizKey)) {
       return res.json({
@@ -424,7 +424,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 router.get('/:id/progress', (req: Request, res: Response) => {
   const { id } = req.params;
   const progress = progressStore.get(id);
-  
+
   if (progress) {
     res.json(progress);
   } else {
@@ -436,17 +436,17 @@ router.get('/:id/progress', (req: Request, res: Response) => {
 router.get('/:id/full', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
+
     // Try DynamoDB first if persistence is enabled
     if (isPersistenceEnabled()) {
       try {
         const docRecord = await documentRepository.findById(id);
         const analysisRecord = await analysisRepository.findByDocumentId(id);
-        
+
         if (docRecord && analysisRecord) {
           // Update access metadata
           await documentRepository.updateAccessMetadata(id);
-          
+
           // Reconstruct Document object from DynamoDB record
           const document: Document = {
             id: docRecord.documentId,
@@ -460,12 +460,12 @@ router.get('/:id/full', async (req: Request, res: Response) => {
             },
             structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
           };
-          
+
           // Extract visualizations from analysis if they exist
           const docVisualizations: Record<string, any> = {};
           // Visualizations are stored in the analysis object
           // For now, return empty visualizations as they're generated on-demand
-          
+
           return res.json({
             document,
             analysis: analysisRecord.analysis,
@@ -477,15 +477,15 @@ router.get('/:id/full', async (req: Request, res: Response) => {
         // Fall through to in-memory storage
       }
     }
-    
+
     // Fallback to in-memory storage
     const document = documents.get(id);
     if (!document) {
       return res.status(404).json({ error: 'Document not found' });
     }
-    
+
     const analysis = analyses.get(id);
-    
+
     // Collect all cached visualizations for this document
     const docVisualizations: Record<string, any> = {};
     for (const [key, data] of visualizations.entries()) {
@@ -494,7 +494,7 @@ router.get('/:id/full', async (req: Request, res: Response) => {
         docVisualizations[vizType] = data;
       }
     }
-    
+
     res.json({
       document,
       analysis,
@@ -511,19 +511,19 @@ router.get('/', async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
-    
+
     // If persistence is enabled, fetch from DynamoDB
     if (isPersistenceEnabled()) {
       try {
         console.log('📋 Fetching documents from DynamoDB...');
         const userId = '1'; // Default anonymous user
         const result = await documentRepository.listByUserId(userId, limit);
-        
+
         // Fetch analyses for each document
         const documentList = await Promise.all(
           result.documents.map(async (docRecord) => {
             const analysisRecord = await analysisRepository.findByDocumentId(docRecord.documentId);
-            
+
             return {
               id: docRecord.documentId,
               title: docRecord.filename,
@@ -535,9 +535,9 @@ router.get('/', async (req: Request, res: Response) => {
             };
           })
         );
-        
+
         console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
-        
+
         return res.json({
           documents: documentList,
           total: documentList.length,
@@ -549,15 +549,15 @@ router.get('/', async (req: Request, res: Response) => {
         // Fall through to in-memory storage
       }
     }
-    
+
     // Fallback to in-memory storage
     const allDocs = Array.from(documents.values())
       .sort((a, b) => new Date(b.metadata.uploadDate).getTime() - new Date(a.metadata.uploadDate).getTime());
-    
+
     const total = allDocs.length;
     const paginatedDocs = allDocs.slice(offset, offset + limit);
     const documentList = paginatedDocs.map(toDocumentListItem);
-    
+
     res.json({
       documents: documentList,
       total,

@@ -4,7 +4,7 @@ Transform text documents into interactive visual representations using AI-powere
 
 ## Features
 
-- **Document Upload**: Support for .txt, .pdf, and .docx files
+- **Document Upload**: Support for .txt, .pdf, and .md files
 - **Text Input**: Paste text directly for instant analysis
 - **AI Analysis**: Powered by Claude 3.7 and GPT-4.5 via OpenRouter
 - **Multiple Visualizations**:

@@ -91,6 +91,15 @@ const VISUALIZATION_INFO: Record<VisualizationType, { name: string; icon: any; d
   }
 };
 
+const IMPLEMENTED_VISUALIZATIONS: Set<VisualizationType> = new Set([
+  'structured-view',
+  'mind-map',
+  'terms-definitions',
+  'knowledge-graph',
+  'uml-class-diagram',
+  'argument-map'
+]);
+
 export function VisualizationSelector() {
   const { analysis, currentVisualization, setCurrentVisualization } = useDocumentStore();
 
@@ -108,21 +117,25 @@ export function VisualizationSelector() {
     const recommendation = getRecommendation(type);
     const isRecommended = recommendedTypes.has(type);
     const isActive = currentVisualization === type;
+    const isImplemented = IMPLEMENTED_VISUALIZATIONS.has(type);
     const Icon = info.icon;
 
     return (
       <button
         key={type}
-        onClick={() => setCurrentVisualization(type)}
+        disabled={!isImplemented}
+        onClick={() => isImplemented && setCurrentVisualization(type)}
         className={`
           relative p-4 rounded-xl text-left transition-all duration-200 ease-out
           ${isActive
             ? 'border-3 border-primary-600 bg-gradient-to-br from-primary-50 to-secondary-50 shadow-strong scale-[1.02]'
-            : 'border-2 border-gray-200 hover:border-primary-400 hover:shadow-medium hover:-translate-y-1 hover:scale-[1.02]'
+            : isImplemented
+              ? 'border-2 border-gray-200 hover:border-primary-400 hover:shadow-medium hover:-translate-y-1 hover:scale-[1.02]'
+              : 'border-2 border-gray-100 bg-gray-50/50 cursor-not-allowed grayscale opacity-60'
           }
         `}
       >
-        {isRecommended && (
+        {isRecommended && isImplemented && (
           <div className="absolute -top-2 -right-2 bg-amber-500 text-white rounded-full p-1">
             <Star className="w-4 h-4 fill-current" />
           </div>
@@ -137,14 +150,21 @@ export function VisualizationSelector() {
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3 className={`font-semibold text-sm mb-1 ${isActive ? 'text-primary-900' : 'text-gray-900'}`}>
-              {info.name}
-            </h3>
+            <div className="flex items-center gap-2 mb-1">
+              <h3 className={`font-semibold text-sm ${isActive ? 'text-primary-900' : 'text-gray-900'}`}>
+                {info.name}
+              </h3>
+              {!isImplemented && (
+                <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400 border border-gray-200 rounded px-1.5 py-0.5 whitespace-nowrap">
+                  Soon
+                </span>
+              )}
+            </div>
             <p className="text-xs text-gray-600 mb-2">
               {info.description}
             </p>
 
-            {recommendation && (
+            {isImplemented && recommendation && (
               <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1">
                 {recommendation.rationale}
               </div>
@@ -155,30 +175,52 @@ export function VisualizationSelector() {
     );
   };
 
+  const allTypes = Object.keys(VISUALIZATION_INFO) as VisualizationType[];
+  const recommendedImplemented = recommendations
+    .filter(r => IMPLEMENTED_VISUALIZATIONS.has(r.type))
+    .map(r => r.type);
+  const otherImplemented = allTypes.filter(
+    type => IMPLEMENTED_VISUALIZATIONS.has(type) && !recommendedTypes.has(type)
+  );
+  const unimplemented = allTypes.filter(type => !IMPLEMENTED_VISUALIZATIONS.has(type));
+
   return (
     <div className="bg-white border-b border-gray-200 shadow-soft -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-6 mb-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900 mb-4">Visualizations</h2>
 
-        {recommendations.length > 0 && (
+        {recommendedImplemented.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3">
               <Star className="w-5 h-5 text-amber-500 fill-current" />
               <h3 className="font-semibold text-gray-900">Recommended</h3>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {recommendations.map(rec => renderVisualizationCard(rec.type))}
+              {recommendedImplemented.map(type => renderVisualizationCard(type))}
             </div>
           </div>
         )}
 
-        <div>
-          <h3 className="font-semibold text-gray-900 mb-3">All Visualizations</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {Object.keys(VISUALIZATION_INFO)
-              .filter(type => !recommendedTypes.has(type as VisualizationType))
-              .map(type => renderVisualizationCard(type as VisualizationType))}
-          </div>
+        <div className="space-y-6">
+          {otherImplemented.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3">Implemented</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {otherImplemented.map(type => renderVisualizationCard(type))}
+              </div>
+            </div>
+          )}
+
+          {unimplemented.length > 0 && (
+            <div>
+              <h3 className="font-semibold text-gray-400 mb-3 flex items-center gap-2">
+                Available Soon
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {unimplemented.map(type => renderVisualizationCard(type))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
