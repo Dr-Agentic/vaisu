@@ -11,7 +11,7 @@
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "build:prod": "npm install --prefix backend && npm install --prefix frontend && npm run build:frontend && npm run build:backend",
-    "start:prod": "cd backend && npm start",
+    "start:prod": "cd backend && node dist/src/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

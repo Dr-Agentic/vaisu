@@ -1,4 +1,4 @@
-import type { TaskType, ModelConfig } from '../../../shared/src/types.js';
+import type { TaskType, ModelConfig } from '../../shared/src/types.js';
 
 export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
   tldr: {

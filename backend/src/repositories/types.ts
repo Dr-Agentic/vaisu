@@ -1,4 +1,4 @@
-import type { DocumentAnalysis } from '../../../shared/src/types.js';
+import type { DocumentAnalysis } from '../../shared/src/types.js';
 
 /**
  * Document metadata stored in DynamoDB

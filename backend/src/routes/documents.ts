@@ -9,7 +9,7 @@ import { isPersistenceEnabled } from '../config/aws.js';
 import * as documentRepository from '../repositories/documentRepository.js';
 import * as analysisRepository from '../repositories/analysisRepository.js';
 import * as s3Storage from '../services/storage/s3Storage.js';
-import type { Document, DocumentAnalysis } from '../../../shared/src/types.js';
+import type { Document, DocumentAnalysis } from '../../shared/src/types.js';
 import type { DocumentRecord, AnalysisRecord } from '../repositories/types.js';
 
 const router = Router();

@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 app.use('/api/documents', documentsRouter);
 
 // Health check
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: any, res: any) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
@@ -39,17 +39,40 @@ app.get('/api/health', (req, res) => {
 
 // Serve frontend static files in production
 if (isProduction) {
-  // In production, we are in backend/dist/backend/src/
-  // Path to frontend/dist should be ../../../../../frontend/dist
-  // But to be safe, we can try multiple locations or use a more relative approach
-  const frontendDistPath = path.join(__dirname, '../../../../frontend/dist');
+  // Try multiple possible locations for frontend/dist
+  const possiblePaths = [
+    path.join(__dirname, '../../../../frontend/dist'), // Relative to dist/src/server.js
+    path.join(process.cwd(), '../frontend/dist'),      // Relative to process working directory (backend)
+    path.join(process.cwd(), 'frontend/dist'),         // If running from root
+  ];
 
-  app.use(express.static(frontendDistPath));
+  let frontendDistPath = '';
+  for (const p of possiblePaths) {
+    if (import.meta.url.startsWith('file:')) {
+      const fs = await import('fs');
+      if (fs.existsSync(p)) {
+        frontendDistPath = p;
+        break;
+      }
+    }
+  }
 
-  // Handle client-side routing - serve index.html for all non-API routes
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendDistPath, 'index.html'));
-  });
+  if (frontendDistPath) {
+    console.log(`📡 Serving frontend from: ${frontendDistPath}`);
+    app.use(express.static(frontendDistPath));
+
+    // Handle client-side routing - serve index.html for all non-API routes
+    app.get('*', (req: any, res: any) => {
+      // Don't intercept API routes
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API route not found' });
+      }
+      res.sendFile(path.join(frontendDistPath, 'index.html'));
+    });
+  } else {
+    console.warn('⚠️  Frontend static files not found in any expected location:');
+    possiblePaths.forEach(p => console.warn(`   - ${p}`));
+  }
 }
 
 // Error handling

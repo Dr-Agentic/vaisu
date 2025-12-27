@@ -10,7 +10,7 @@ export class OpenRouterClient {
   constructor(apiKey?: string) {
     this.apiKey = apiKey || process.env.OPENROUTER_API_KEY || '';
     this.appUrl = process.env.APP_URL || 'http://localhost:5173';
-    
+
     if (!this.apiKey || this.apiKey.includes('REPLACE') || this.apiKey.length < 20) {
       console.warn('⚠️  OPENROUTER_API_KEY not configured. Add your key to backend/.env to enable AI features.');
       console.warn('⚠️  Server will start but analysis will fail until key is added.');
@@ -32,7 +32,7 @@ export class OpenRouterClient {
   async call(config: LLMCallConfig): Promise<LLMResponse> {
     try {
       console.log(`Calling OpenRouter with model: ${config.model}`);
-      
+
       const response = await this.client.post('/chat/completions', {
         model: config.model,
         messages: config.messages,
@@ -63,7 +63,7 @@ export class OpenRouterClient {
 
   async callWithFallback(task: TaskType, prompt: string, retries = 2): Promise<LLMResponse> {
     const modelConfig = getModelForTask(task);
-    
+
     try {
       // Try primary model
       return await this.call({
@@ -78,7 +78,7 @@ export class OpenRouterClient {
     } catch (error) {
       if (retries > 0) {
         console.warn(`Primary model failed for ${task}, trying fallback: ${modelConfig.fallback}`);
-        
+
         try {
           // Try fallback model
           return await this.call({
@@ -122,7 +122,7 @@ export class OpenRouterClient {
     try {
       // Try to extract JSON from markdown code blocks if present
       let content = response.content.trim();
-      
+
       // Remove markdown code blocks
       const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\}|\[[\s\S]*\])\s*```/);
       if (jsonMatch) {

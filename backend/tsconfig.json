@@ -2,7 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -10,11 +12,20 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "rootDir": "./",
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/__tests__/**", "**/*.test.ts"]
+  "include": [
+    "src/**/*",
+    "shared/src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/**",
+    "**/*.test.ts"
+  ]
 }
