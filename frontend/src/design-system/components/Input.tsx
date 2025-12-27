@@ -164,11 +164,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               sizeStyles[size].input,
               
               // Padding adjustments for icons
-              leftIcon && 'pl-[var(--spacing-3xl)]',
-              rightIcon && 'pr-[var(--spacing-3xl)]',
+              leftIcon ? 'pl-[var(--spacing-3xl)]' : '',
+              rightIcon ? 'pr-[var(--spacing-3xl)]' : '',
               
               // Border styles
-              hasError
+              ...(hasError
                 ? [
                     'border-[var(--color-border-error)]',
                     'focus-visible:border-[var(--color-border-error)]',
@@ -183,7 +183,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                     'focus-visible:ring-2',
                     'focus-visible:ring-[var(--color-border-focus)]',
                     'focus-visible:ring-offset-2',
-                  ],
+                  ]),
               
               className
             )}

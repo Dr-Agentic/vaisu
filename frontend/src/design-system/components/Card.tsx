@@ -62,8 +62,8 @@ const variantStyles: Record<CardVariant, string> = {
   `,
 };
 
-const paddingStyles: Record<CardPadding, string> = {
-  none: '',
+const paddingStyles: Record<CardPadding, string | false> = {
+  none: false,
   sm: 'p-[var(--spacing-sm)]',
   md: 'p-[var(--spacing-base)]',
   lg: 'p-[var(--spacing-lg)]',
@@ -89,14 +89,16 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           'rounded-[var(--radius-xl)]',
           variantStyles[variant],
           paddingStyles[padding],
-          interactive && [
-            'transition-all',
-            'duration-[var(--motion-duration-base)]',
-            'ease-[var(--motion-easing-ease-out)]',
-            'hover:shadow-[var(--elevation-lg)]',
-            'hover:-translate-y-0.5',
-            'cursor-pointer',
-          ],
+          ...(interactive
+            ? [
+                'transition-all',
+                'duration-[var(--motion-duration-base)]',
+                'ease-[var(--motion-easing-ease-out)]',
+                'hover:shadow-[var(--elevation-lg)]',
+                'hover:-translate-y-0.5',
+                'cursor-pointer',
+              ]
+            : []),
           className
         )}
         {...props}

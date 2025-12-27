@@ -14,7 +14,7 @@
  * ```
  */
 
-import { TextareaHTMLAttributes, forwardRef, ReactNode } from 'react';
+import { TextareaHTMLAttributes, forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 
 export type TextareaSize = 'sm' | 'md' | 'lg';
@@ -143,7 +143,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             sizeStyles[size].textarea,
             
             // Border styles
-            hasError
+            ...(hasError
               ? [
                   'border-[var(--color-border-error)]',
                   'focus-visible:border-[var(--color-border-error)]',
@@ -158,7 +158,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                   'focus-visible:ring-2',
                   'focus-visible:ring-[var(--color-border-focus)]',
                   'focus-visible:ring-offset-2',
-                ],
+                ]),
             
             className
           )}

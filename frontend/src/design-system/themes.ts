@@ -156,25 +156,25 @@ export const darkTheme = {
   semantic: {
     success: {
       base: colorPalette.success[400],
-      background: colorPalette.success[950],
+      background: colorPalette.success[900],
       border: colorPalette.success[800],
       text: colorPalette.success[300],
     },
     error: {
       base: colorPalette.error[400],
-      background: colorPalette.error[950],
+      background: colorPalette.error[900],
       border: colorPalette.error[800],
       text: colorPalette.error[300],
     },
     warning: {
       base: colorPalette.warning[400],
-      background: colorPalette.warning[950],
+      background: colorPalette.warning[900],
       border: colorPalette.warning[800],
       text: colorPalette.warning[300],
     },
     info: {
       base: colorPalette.info[400],
-      background: colorPalette.info[950],
+      background: colorPalette.info[900],
       border: colorPalette.info[800],
       text: colorPalette.info[300],
     },
