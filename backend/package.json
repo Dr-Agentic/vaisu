@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "AWS_REGION=us-east-1 tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/backend/src/server.js",
+    "start": "node dist/src/server.js",
     "test": "vitest"
   },
   "dependencies": {
