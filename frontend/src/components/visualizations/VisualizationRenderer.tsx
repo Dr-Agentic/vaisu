@@ -113,6 +113,16 @@ export function VisualizationRenderer() {
       }
       return <ArgumentMap data={data} height={600} />;
 
+    case 'timeline':
+      return (
+        <div className="bg-gray-50 rounded-lg p-8 text-center">
+          <p className="text-gray-600">Timeline visualization coming soon...</p>
+          <pre className="mt-4 text-left text-xs bg-white p-4 rounded overflow-auto max-h-96">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </div>
+      );
+
     default:
       return (
         <div className="bg-gray-50 rounded-lg p-8 text-center">

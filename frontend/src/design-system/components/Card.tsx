@@ -18,7 +18,7 @@
 import { HTMLAttributes, ReactNode, forwardRef } from 'react';
 import { cn } from '../../lib/utils';
 
-export type CardVariant = 'base' | 'elevated' | 'outlined' | 'filled';
+export type CardVariant = 'base' | 'elevated' | 'outlined' | 'filled' | 'mesh-glow' | 'mesh-glow-strong' | 'gradient-border-animated' | 'gradient-border-static' | 'gradient-border-animated-fast' | 'aurora' | 'nova';
 export type CardPadding = 'none' | 'sm' | 'md' | 'lg' | 'xl';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
@@ -59,6 +59,29 @@ const variantStyles: Record<CardVariant, string> = {
   filled: `
     bg-[var(--color-background-secondary)]
     border border-[var(--color-border-subtle)]
+  `,
+  // SOTA Electron UI variants with mesh glow and gradient borders
+  'mesh-glow': `
+    mesh-glow
+  `,
+  'mesh-glow-strong': `
+    mesh-glow-strong
+  `,
+  'gradient-border-animated': `
+    gradient-border-animated
+  `,
+  'gradient-border-static': `
+    gradient-border-static
+  `,
+  'gradient-border-animated-fast': `
+    gradient-border-animated-fast
+  `,
+  // Aurora and Nova are aliases for gradient-border-animated with specific colors
+  'aurora': `
+    gradient-border-animated
+  `,
+  'nova': `
+    gradient-border-animated nova
   `,
 };
 

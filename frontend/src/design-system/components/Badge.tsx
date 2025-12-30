@@ -13,7 +13,7 @@
 import { HTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-export type BadgeVariant = 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info' | 'neutral';
+export type BadgeVariant = 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'aurora' | 'nova' | 'solar' | 'ember';
 export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
@@ -70,6 +70,23 @@ const variantStyles: Record<BadgeVariant, string> = {
     bg-[var(--color-background-secondary)]
     text-[var(--color-text-secondary)]
     border border-[var(--color-border-base)]
+  `,
+  // SOTA Electron UI variants with gradient colors
+  aurora: `
+    bg-[rgba(99,102,241,0.25)]
+    text-[#a78bfa]
+  `,
+  nova: `
+    bg-[rgba(6,182,212,0.25)]
+    text-[#67e8f9]
+  `,
+  solar: `
+    bg-[rgba(245,158,11,0.2)]
+    text-[#fb923c]
+  `,
+  ember: `
+    bg-[rgba(244,63,94,0.2)]
+    text-[#fb7185]
   `,
 };
 

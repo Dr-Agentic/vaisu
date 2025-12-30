@@ -16,24 +16,612 @@ body {
   color: var(--color-text-primary);
   transition: background-color var(--motion-duration-base) var(--motion-easing-ease-out),
               color var(--motion-duration-base) var(--motion-easing-ease-out);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 code {
   font-family: var(--font-family-mono);
 }
 
-/* Custom Gradient Utilities */
+/* ============================================
+   ELECTRON UI - SOTA GRADIENT SYSTEM
+   ============================================ */
+
+/* CSS @property for animated gradient angles */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ============================================
+   ELECTRON UI - SOTA COLOR SYSTEM
+   ============================================ */
+:root {
+  /* Aurora Gradient (Primary) */
+  --aurora-1: #6366f1;
+  --aurora-2: #a855f7;
+  --aurora-3: #ec4899;
+
+  /* Nova Gradient (Secondary) */
+  --nova-1: #06b6d4;
+  --nova-2: #3b82f6;
+  --nova-3: #8b5cf6;
+
+  /* Solar Gradient (Warning) */
+  --solar-1: #f59e0b;
+  --solar-2: #f97316;
+  --solar-3: #ef4444;
+
+  /* Ember Gradient (Error) */
+  --ember-1: #f43f5e;
+  --ember-2: #ec4899;
+  --ember-3: #db2777;
+
+  /* Void System (Electron UI Background) */
+  --void-deepest: #1a1a1f;
+  --void-dark: #202028;
+  --void-light: #2a2a35;
+  --void-border: rgba(255, 255, 255, 0.15);
+  --void-border-hover: rgba(255, 255, 255, 0.25);
+  --void-border-unselected: #666666;
+
+  /* Text Colors (Void) */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --text-tertiary: rgba(255, 255, 255, 0.65);
+
+  /* Animation durations (SOTA) */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-gradient: 4s;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Spacing tokens (SOTA) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* Gradient Definitions */
+  --gradient-aurora: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+  --gradient-nova: linear-gradient(135deg, var(--nova-1), var(--nova-2), var(--nova-3));
+  --gradient-solar: linear-gradient(135deg, var(--solar-1), var(--solar-2), var(--solar-3));
+  --gradient-ember: linear-gradient(135deg, var(--ember-1), var(--ember-2), var(--ember-3));
+
+  /* Conic Gradients for rotating borders */
+  --gradient-border-aurora: conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1));
+  --gradient-border-nova: conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1));
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes rotate-gradient-angle {
+  to { --gradient-angle: 360deg; }
+}
+
+@keyframes rotate-gradient {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes aurora-shift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(15deg); }
+}
+
+@keyframes success-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============================================
+   GRADIENT BORDER UTILITIES
+   ============================================ */
+
+/* Normal animated - subtle rotation */
+.gradient-border-animated {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+  animation: rotate-gradient-angle 4s linear infinite;
+}
+
+.gradient-border-animated.nova {
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* Fast animated - grabs attention */
+.gradient-border-animated-fast {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+  animation: rotate-gradient-angle 2s linear infinite;
+}
+
+.gradient-border-animated-fast.nova {
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* Static - no animation */
+.gradient-border-static {
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+}
+
+.gradient-border-static.nova {
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from 0deg, var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* ============================================
+   MESH GLOW BACKGROUNDS
+   ============================================ */
+
+.mesh-glow {
+  background:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+    var(--void-dark);
+  border-radius: var(--radius-xl);
+}
+
+.mesh-glow-strong {
+  background:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
+    radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    var(--void-dark);
+  border-radius: var(--radius-xl);
+}
+
+.hero-bg {
+  background:
+    radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+    radial-gradient(at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+    radial-gradient(at 40% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+    transparent;
+  border-radius: var(--radius-xl);
+  animation: aurora-shift 8s ease-in-out infinite alternate;
+}
+
+/* ============================================
+   TEXT GRADIENT UTILITIES
+   ============================================ */
+
+.text-gradient {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient.nova {
+  background: var(--gradient-nova);
+}
+
+.text-gradient-glow {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+}
+
+/* ============================================
+   STAGE TRANSITION UTILITIES
+   ============================================ */
+
+.stage-container {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.stage.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.stage.fade-in {
+  animation: fade-in 0.3s ease forwards;
+}
+
+.stage.slide-in-left {
+  animation: slide-in-left 0.3s ease forwards;
+}
+
+.stage.slide-in-right {
+  animation: slide-in-right 0.3s ease forwards;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--void-light) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    var(--void-light) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--void-border);
+  border-top-color: var(--aurora-1);
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+.progress-ring {
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--void-border);
+  border-top-color: var(--aurora-1);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   ELECTRON UI - SOTA UTILITY CLASSES
+   ============================================ */
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   ELECTRON UI BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Primary Button (Luminous) - Animated */
+.btn-primary {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--text-primary);
+  animation: rotate-gradient-angle 4s linear infinite;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Primary Button - Fast animated - grabs attention */
+.btn-primary-fast {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--text-primary);
+  animation: rotate-gradient-angle 2s linear infinite;
+}
+
+.btn-primary-fast:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary-fast:active {
+  transform: scale(0.98);
+}
+
+/* Primary Static Button */
+.btn-primary-static {
+  position: relative;
+  background:
+    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--text-primary);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--aurora-1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Tertiary Button */
+.btn-tertiary {
+  background: transparent;
+  border: 1px solid var(--void-border);
+  color: var(--text-secondary);
+}
+
+.btn-tertiary:hover {
+  border-color: var(--void-border-hover);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   ELECTRON UI CARDS
+   ============================================ */
+
+.card {
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.card:hover {
+  border-color: var(--void-border-hover);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   ELECTRON UI BADGES
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-aurora {
+  background: rgba(99, 102, 241, 0.25);
+  color: #a78bfa;
+}
+
+.badge-nova {
+  background: rgba(6, 182, 212, 0.25);
+  color: #67e8f9;
+}
+
+.badge-solar {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--solar-2);
+}
+
+.badge-ember {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--ember-2);
+}
+
+/* ============================================
+   ELECTRON UI STAGE INDICATORS
+   ============================================ */
+
+.stage-indicators {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.stage-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--void-border-unselected);
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.stage-dot.completed {
+  background: var(--text-primary);
+}
+
+.stage-dot.active {
+  width: 16px;
+  height: 16px;
+  background: var(--gradient-aurora);
+  box-shadow: 0 0 20px var(--aurora-2), 0 0 40px rgba(168, 85, 247, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================
+   ELECTRON UI VISUALIZATION ITEMS
+   ============================================ */
+
+.viz-item {
+  background: var(--void-light);
+  border: 1px solid var(--void-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.viz-item:hover {
+  border-color: var(--void-border-hover);
+}
+
+.viz-item.active {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--aurora-1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.viz-item-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-2xs);
+}
+
+.viz-item-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   CUSTOM GRADIENT UTILITIES (Legacy)
+   ============================================ */
 @layer utilities {
   .gradient-border {
     border-image: linear-gradient(90deg, #6366F1, #8B5CF6, #22D3EE) 1;
   }
-  
-  .gradient-border-animated {
+
+  .gradient-border-animated-legacy {
     position: relative;
     background: white;
   }
-  
-  .gradient-border-animated::before {
+
+  .gradient-border-animated-legacy::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -44,12 +632,12 @@ code {
     -webkit-mask-composite: xor;
     mask-composite: exclude;
   }
-  
+
   .bg-shimmer {
     background: linear-gradient(90deg, #E0E7FF 0%, #C7D2FE 50%, #E0E7FF 100%);
     background-size: 200% 100%;
   }
-  
+
   .bg-gradient-hero-animated {
     background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
     background-size: 200% 200%;
@@ -355,6 +943,17 @@ code {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Disable Electron UI animations */
+  .gradient-border-animated,
+  .gradient-border-animated-fast,
+  .hero-bg,
+  .loading-spinner,
+  .progress-ring,
+  .floating,
+  .shimmer {
+    animation: none !important;
   }
 }
 

@@ -32,4 +32,26 @@ export { Select, type SelectProps, type SelectOption, type SelectSize } from './
 export { Tooltip, type TooltipProps, type TooltipPosition } from './Tooltip';
 export { Spinner, type SpinnerProps, type SpinnerSize, type SpinnerVariant } from './Spinner';
 export { ThemeProvider, useTheme, type ThemeMode } from '../ThemeProvider';
+export {
+  StageContainer,
+  Stage,
+  type StageContainerProps,
+  type StageProps,
+  type StageName,
+} from './StageContainer';
+export {
+  StageIndicators,
+  type StageIndicatorsProps,
+} from './StageIndicators';
+export { StageWelcome, type StageWelcomeProps } from './StageWelcome';
+export { StageInput, type StageInputProps } from './StageInput';
+export { StageAnalysis, type StageAnalysisProps } from './StageAnalysis';
+export {
+  VisualizationSidebar,
+  type VisualizationSidebarProps,
+  type VisualizationType,
+  type VisualizationOption,
+  type DocumentSummary,
+} from './VisualizationSidebar';
+export { StageVisualization, type StageVisualizationProps } from './StageVisualization';
 

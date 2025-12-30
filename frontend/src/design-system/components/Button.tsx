@@ -15,7 +15,7 @@
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger' | 'aurora' | 'nova' | 'aurora-fast' | 'aurora-static';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -125,6 +125,21 @@ const variantStyles: Record<ButtonVariant, string> = {
     disabled:bg-[var(--color-interactive-primary-disabled)]
     disabled:cursor-not-allowed
     disabled:opacity-60
+  `,
+  // SOTA Electron UI variants with gradient borders
+  // These use inline styles for complex gradient animations
+  aurora: `
+    gradient-border-animated
+  `,
+  nova: `
+    gradient-border-animated
+    nova
+  `,
+  'aurora-fast': `
+    gradient-border-animated-fast
+  `,
+  'aurora-static': `
+    gradient-border-static
   `,
 };
 

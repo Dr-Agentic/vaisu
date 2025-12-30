@@ -10,16 +10,49 @@
 export const designTokens = {
   // Spacing System (4px base grid)
   spacing: {
-    xs: '0.25rem',    // 4px
-    sm: '0.5rem',     // 8px
-    md: '0.75rem',    // 12px
-    base: '1rem',     // 16px
-    lg: '1.5rem',     // 24px
-    xl: '2rem',       // 32px
-    '2xl': '2.5rem',  // 40px
-    '3xl': '3rem',    // 48px
-    '4xl': '4rem',    // 64px
-    '5xl': '6rem',    // 96px
+    '2xs': '0.25rem',  // 4px
+    xs: '0.5rem',      // 8px
+    sm: '0.75rem',     // 12px
+    md: '1rem',        // 16px
+    lg: '1.5rem',      // 24px
+    xl: '2rem',        // 32px
+    '2xl': '3rem',     // 48px
+    '3xl': '4rem',     // 64px
+    '4xl': '6rem',     // 96px
+  },
+
+  // SOTA Gradient Colors (Electron UI)
+  gradients: {
+    aurora: {
+      1: '#6366F1',
+      2: '#A855F7',
+      3: '#EC4899',
+    },
+    nova: {
+      1: '#06B6D4',
+      2: '#3B82F6',
+      3: '#8B5CF6',
+    },
+    solar: {
+      1: '#F59E0B',
+      2: '#F97316',
+      3: '#EF4444',
+    },
+    ember: {
+      1: '#F43F5E',
+      2: '#EC4899',
+      3: '#DB2777',
+    },
+  },
+
+  // Void System (Electron UI Background)
+  void: {
+    deepest: '#1A1A1F',
+    dark: '#202028',
+    light: '#2A2A35',
+    border: 'rgba(255, 255, 255, 0.15)',
+    borderHover: 'rgba(255, 255, 255, 0.25)',
+    borderUnselected: '#666666',
   },
 
   // Typography Scale (Major Third - 1.25)
@@ -45,17 +78,19 @@ export const designTokens = {
       ].join(', '),
     },
     fontSize: {
-      xs: '0.75rem',    // 12px
-      sm: '0.875rem',   // 14px
-      base: '1rem',     // 16px
-      lg: '1.125rem',   // 18px
-      xl: '1.25rem',    // 20px
-      '2xl': '1.5rem', // 24px
-      '3xl': '1.875rem', // 30px
-      '4xl': '2.25rem',  // 36px
-      '5xl': '3rem',     // 48px
-      '6xl': '3.75rem',  // 60px
-      '7xl': '4.5rem',   // 72px
+      xs: '0.75rem',      // 12px
+      sm: '0.875rem',     // 14px
+      base: '1rem',       // 16px
+      lg: '1.125rem',     // 18px
+      xl: '1.25rem',      // 20px
+      '2xl': '1.5rem',    // 24px
+      '3xl': '1.875rem',  // 30px
+      '4xl': '2.25rem',   // 36px
+      '5xl': '3rem',      // 48px
+      '6xl': '3.75rem',   // 60px
+      '7xl': '4.5rem',    // 72px (Display LG)
+      '8xl': '6rem',      // 96px (Display XL)
+      '9xl': '7.5rem',    // 120px (Display 2XL)
     },
     fontWeight: {
       normal: '400',
@@ -84,12 +119,11 @@ export const designTokens = {
   // Border Radius
   radius: {
     none: '0',
-    sm: '0.25rem',   // 4px
-    base: '0.375rem', // 6px
-    md: '0.5rem',    // 8px
-    lg: '0.75rem',   // 12px
-    xl: '1rem',      // 16px
-    '2xl': '1.5rem', // 24px
+    sm: '0.375rem',   // 6px
+    md: '0.5rem',     // 8px
+    lg: '0.75rem',    // 12px
+    xl: '1rem',       // 16px
+    '2xl': '1.5rem',  // 24px
     full: '9999px',
   },
 
@@ -110,14 +144,16 @@ export const designTokens = {
     duration: {
       instant: '0ms',
       fast: '150ms',
-      base: '200ms',
-      slow: '300ms',
+      normal: '250ms',
+      slow: '400ms',
+      gradient: '4s',
+      gradientFast: '2s',
       slower: '500ms',
     },
     easing: {
       linear: 'linear',
+      easeOut: 'cubic-bezier(0.22, 0.61, 0.36, 1)', // SOTA easing
       easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
-      easeOut: 'cubic-bezier(0, 0, 0.2, 1)',
       easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
       bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
     },

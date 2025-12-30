@@ -3,6 +3,8 @@ import type { Document, DocumentAnalysis, VisualizationType } from '../../../sha
 import { apiClient } from '../services/apiClient';
 import type { ToastType } from '../components/feedback/Toast';
 
+export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
+
 export interface ToastMessage {
   id: string;
   type: ToastType;
@@ -33,6 +35,10 @@ interface DocumentStore {
   progressPercent: number;
   progressMessage: string;
   toasts: ToastMessage[];
+
+  // Stage state (Electron UI)
+  currentStage: AppStage;
+  setStage: (stage: AppStage) => void;
 
   // Document history
   documentList: DocumentListItem[];
@@ -68,6 +74,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   progressPercent: 0,
   progressMessage: '',
   toasts: [],
+
+  // Stage state (Electron UI)
+  currentStage: 'welcome',
+  setStage: (stage: AppStage) => set({ currentStage: stage }),
 
   // Document history
   documentList: [],

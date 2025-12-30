@@ -1,0 +1,424 @@
+/**
+ * VisualizationSidebar Component
+ *
+ * Sidebar for switching between visualization types.
+ * Shows available visualizations with active state highlighting.
+ *
+ * @example
+ * ```tsx
+ * <VisualizationSidebar
+ *   currentViz="mind-map"
+ *   onVizChange={(viz) => setCurrentViz(viz)}
+ *   summary={{ tlrd: '...', keyEntities: [...] }}
+ *   summaryVisible={true}
+ *   onToggleSummary={() => setSummaryVisible(!summaryVisible)}
+ * />
+ * ```
+ */
+
+import { forwardRef } from 'react';
+import { ChevronLeft, Info } from 'lucide-react';
+import { Badge } from './Badge';
+import { Card } from './Card';
+import { cn } from '../../lib/utils';
+import type { VisualizationType as SharedVisualizationType } from '@shared/types';
+
+// Re-export the shared type for convenience
+export type VisualizationType = SharedVisualizationType;
+
+export interface VisualizationOption {
+  /**
+   * Visualization type key
+   */
+  id: VisualizationType;
+  /**
+   * Display name
+   */
+  name: string;
+  /**
+   * Description
+   */
+  description: string;
+  /**
+   * Icon or emoji
+   */
+  icon?: string;
+  /**
+   * Optional badge text
+   */
+  badge?: string;
+  /**
+   * Keyboard shortcut number (1-6)
+   */
+  shortcut?: number;
+}
+
+export interface DocumentSummary {
+  /**
+   * TL;DR summary
+   */
+  tlrd?: string;
+  /**
+   * Key entities
+   */
+  keyEntities?: string[];
+  /**
+   * Word count
+   */
+  wordCount?: number;
+  /**
+   * Analysis time
+   */
+  analysisTime?: string;
+}
+
+export interface VisualizationSidebarProps {
+  /**
+   * Currently selected visualization
+   */
+  currentViz: VisualizationType;
+  /**
+   * Callback when visualization changes
+   */
+  onVizChange: (viz: VisualizationType) => void;
+  /**
+   * Document summary data
+   */
+  summary?: DocumentSummary;
+  /**
+   * Whether summary panel is visible
+   */
+  summaryVisible?: boolean;
+  /**
+   * Callback to toggle summary visibility
+   */
+  onToggleSummary?: () => void;
+  /**
+   * Whether sidebar is collapsed
+   */
+  collapsed?: boolean;
+  /**
+   * Callback to toggle sidebar collapse
+   */
+  onToggleCollapse?: () => void;
+  /**
+   * Custom visualization options
+   */
+  visualizations?: VisualizationOption[];
+}
+
+/**
+ * Default visualization options
+ */
+const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
+  {
+    id: 'mind-map',
+    name: 'Mind Map',
+    description: 'Hierarchical structure of key concepts',
+    icon: '🧠',
+    badge: 'Recommended',
+    shortcut: 1,
+  },
+  {
+    id: 'knowledge-graph',
+    name: 'Knowledge Graph',
+    description: 'Entity relationships and connections',
+    icon: '🕸️',
+    shortcut: 2,
+  },
+  {
+    id: 'timeline',
+    name: 'Timeline',
+    description: 'Chronological flow of arguments',
+    icon: '📅',
+    shortcut: 3,
+  },
+  {
+    id: 'argument-map',
+    name: 'Argument Map',
+    description: 'Premise-conclusion structure',
+    icon: '📊',
+    shortcut: 4,
+  },
+  {
+    id: 'uml-class-diagram',
+    name: 'UML Class Diagram',
+    description: 'Class relationships and structure',
+    icon: '📐',
+    shortcut: 5,
+  },
+  {
+    id: 'structured-view',
+    name: 'Structured View',
+    description: 'Formatted document overview',
+    icon: '📋',
+    shortcut: 6,
+  },
+];
+
+/**
+ * VisualizationSidebar
+ *
+ * Collapsible sidebar with visualization list and summary panel.
+ * Uses SOTA void background colors and viz-item pattern.
+ */
+export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSidebarProps>(
+  (
+    {
+      currentViz,
+      onVizChange,
+      summary,
+      summaryVisible = true,
+      onToggleSummary,
+      collapsed = false,
+      onToggleCollapse,
+      visualizations = DEFAULT_VISUALIZATIONS,
+    },
+    ref
+  ) => {
+    return (
+      <aside
+        ref={ref}
+        className={cn(
+          'flex',
+          'flex-col',
+          'transition-all',
+          'duration-[var(--duration-normal)]',
+          'ease-[var(--ease-out)]',
+          collapsed ? 'w-0' : 'w-[280px]',
+          collapsed ? 'overflow-hidden' : 'overflow-y-auto'
+        )}
+        style={{
+          backgroundColor: 'var(--void-dark)',
+          borderRightColor: 'var(--void-border)',
+          borderRightWidth: '1px',
+          borderRightStyle: 'solid',
+        }}
+      >
+        {/* Collapse Button (shown when not collapsed) */}
+        {!collapsed && onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className={cn(
+              'absolute',
+              'top-4',
+              'right-4',
+              'p-1',
+              'rounded-md',
+              'transition-all',
+              'duration-[var(--duration-fast)]'
+            )}
+            style={{
+              backgroundColor: 'var(--void-light)',
+              border: '1px solid var(--void-border)',
+              color: 'var(--text-secondary)',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = 'var(--text-primary)';
+              e.currentTarget.style.borderColor = 'var(--void-border-hover)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--void-border)';
+            }}
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
+        {/* Header */}
+        <div
+          className={cn(
+            'px-4',
+            'py-3',
+            'border-b',
+            'text-xs',
+            'uppercase',
+            'tracking-wider',
+            'font-medium'
+          )}
+          style={{
+            borderColor: 'var(--void-border)',
+            color: 'var(--text-secondary)',
+            fontSize: 'var(--font-size-xs)',
+            fontWeight: 'var(--font-weight-medium)',
+          }}
+        >
+          Visualizations
+        </div>
+
+        {/* Visualization List */}
+        <div className="flex-1 p-2 space-y-1">
+          {visualizations.map((viz) => (
+            <button
+              key={viz.id}
+              type="button"
+              onClick={() => onVizChange(viz.id)}
+              className={cn(
+                'w-full',
+                'text-left',
+                'viz-item',
+                currentViz === viz.id && 'active',
+                'transition-all',
+                'duration-[var(--duration-fast)]',
+                'ease-[var(--ease-out)]'
+              )}
+              aria-label={`Switch to ${viz.name}`}
+              aria-current={currentViz === viz.id ? 'true' : undefined}
+            >
+              {/* Name and Badge */}
+              <div className="viz-item-name">
+                <span>{viz.icon && <span className="mr-1">{viz.icon}</span>}</span>
+                <span>{viz.name}</span>
+                {viz.badge && (
+                  <Badge variant="aurora" size="sm">
+                    {viz.badge}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Description */}
+              <div className="viz-item-desc">
+                {viz.description}
+              </div>
+
+              {/* Keyboard shortcut hint */}
+              {viz.shortcut && (
+                <div
+                  className="mt-2"
+                  style={{
+                    color: 'var(--text-tertiary)',
+                    fontSize: 'var(--font-size-xs)',
+                  }}
+                >
+                  <kbd
+                    className={cn(
+                      'px-1.5',
+                      'py-0.5',
+                      'border',
+                      'rounded',
+                      'font-mono'
+                    )}
+                    style={{
+                      backgroundColor: 'var(--void-light)',
+                      borderColor: 'var(--void-border)',
+                    }}
+                  >
+                    {viz.shortcut}
+                  </kbd>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Summary Panel */}
+        {summary && summaryVisible && (
+          <div
+            className="border-t p-4"
+            style={{
+              borderColor: 'var(--void-border)',
+              backgroundColor: 'var(--void-light)',
+            }}
+          >
+            {/* Summary Toggle */}
+            {onToggleSummary && (
+              <button
+                type="button"
+                onClick={onToggleSummary}
+                className={cn(
+                  'w-full',
+                  'flex',
+                  'items-center',
+                  'justify-between',
+                  'mb-3',
+                  'text-sm',
+                  'transition-colors'
+                )}
+                style={{
+                  color: 'var(--text-secondary)',
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.color = 'var(--text-secondary)';
+                }}
+              >
+                <span>Document Summary</span>
+                <Info className="w-4 h-4" />
+              </button>
+            )}
+
+            {/* Summary Items */}
+            <div className="space-y-2">
+              {summary.tlrd && (
+                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--void-dark)' }}>
+                  <div
+                    className="text-xs mb-1"
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: 'var(--font-size-xs)',
+                    }}
+                  >
+                    TL;DR
+                  </div>
+                  <div
+                    className="text-sm"
+                    style={{
+                      color: 'var(--text-primary)',
+                      fontSize: 'var(--font-size-sm)',
+                    }}
+                  >
+                    {summary.tlrd}
+                  </div>
+                </Card>
+              )}
+
+              {summary.keyEntities && summary.keyEntities.length > 0 && (
+                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--void-dark)' }}>
+                  <div
+                    className="text-xs mb-1"
+                    style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: 'var(--font-size-xs)',
+                    }}
+                  >
+                    Key Entities
+                  </div>
+                  <div
+                    className="text-sm"
+                    style={{
+                      color: 'var(--text-primary)',
+                      fontSize: 'var(--font-size-sm)',
+                    }}
+                  >
+                    {summary.keyEntities.join(', ')}
+                  </div>
+                </Card>
+              )}
+
+              {(summary.wordCount || summary.analysisTime) && (
+                <div
+                  className="text-xs"
+                  style={{
+                    color: 'var(--text-secondary)',
+                    fontSize: 'var(--font-size-xs)',
+                  }}
+                >
+                  {summary.wordCount && <span>{summary.wordCount.toLocaleString()} words</span>}
+                  {summary.wordCount && summary.analysisTime && ' · '}
+                  {summary.analysisTime && <span>Analysis: {summary.analysisTime}</span>}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </aside>
+    );
+  }
+);
+
+VisualizationSidebar.displayName = 'VisualizationSidebar';
