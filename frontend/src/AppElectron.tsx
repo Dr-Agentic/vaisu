@@ -19,7 +19,7 @@ import {
   StageInput,
   StageAnalysis,
   StageVisualization,
-} from './design-system/components';
+} from './electron/components';
 
 /**
  * AppElectron

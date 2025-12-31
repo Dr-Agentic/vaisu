@@ -37,6 +37,10 @@
   },
   "dependencies": {
     "@types/dagre": "^0.7.53",
-    "dagre": "^0.8.5"
+    "@types/dompurify": "^3.0.5",
+    "@types/react-virtualized": "^9.22.3",
+    "dagre": "^0.8.5",
+    "dompurify": "^3.3.1",
+    "react-virtualized": "^9.22.6"
   }
 }

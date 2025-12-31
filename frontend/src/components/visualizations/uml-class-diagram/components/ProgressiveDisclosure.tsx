@@ -1,5 +1,6 @@
 import React from 'react';
 import type { ClassEntity } from '@shared/types';
+import DOMPurify from 'dompurify';
 
 interface ProgressiveDisclosureProps {
   classEntity: ClassEntity;
@@ -199,7 +200,12 @@ export const ProgressiveCompartment: React.FC<CompartmentProps> = ({
           <div
             key={item.id}
             className="text-xs leading-tight mb-1"
-            dangerouslySetInnerHTML={{ __html: item.signature }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(item.signature, {
+                ALLOWED_TAGS: ['i', 'u', 'em', 'strong'],
+                ALLOWED_ATTR: []
+              })
+            }}
           />
         ))}
         {hasMore && (

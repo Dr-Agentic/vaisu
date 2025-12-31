@@ -183,6 +183,65 @@ code {
 }
 
 /* ============================================
+   HARDWARE ACCELERATION UTILITIES
+   ============================================ */
+
+/* Apply hardware acceleration to animated elements */
+.accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Gradient border performance optimizations */
+.gradient-border-animated,
+.gradient-border-animated-fast {
+  will-change: background, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Button performance optimizations */
+.btn {
+  will-change: transform, background;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Floating elements performance optimizations */
+.floating {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Card hover performance optimizations */
+.card:hover {
+  will-change: transform, border-color;
+  transform: translate3d(0, -2px, 0);
+}
+
+/* Stage transition performance optimizations */
+.stage {
+  will-change: opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.stage.active {
+  will-change: opacity;
+}
+
+.stage.fade-in,
+.stage.slide-in-left,
+.stage.slide-in-right {
+  will-change: opacity, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Loading spinner performance optimization */
+.loading-spinner,
+.progress-ring {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ============================================
    GRADIENT BORDER UTILITIES
    ============================================ */
 
