@@ -15,7 +15,7 @@
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger' | 'aurora' | 'nova' | 'aurora-fast' | 'aurora-static';
+export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger' | 'aurora' | 'nova' | 'aurora-fast' | 'aurora-static' | 'gradient-primary';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -65,16 +65,16 @@ const variantStyles: Record<ButtonVariant, string> = {
     disabled:opacity-60
   `,
   secondary: `
-    bg-[var(--color-interactive-secondary-base)]
+    gradient-bg-secondary
     text-white
-    hover:bg-[var(--color-interactive-secondary-hover)]
-    active:bg-[var(--color-interactive-secondary-active)]
+    active:opacity-90
     focus-visible:ring-2
-    focus-visible:ring-[var(--color-interactive-secondary-base)]
+    focus-visible:ring-[#06b6d4]
     focus-visible:ring-offset-2
-    disabled:bg-[var(--color-interactive-secondary-disabled)]
-    disabled:cursor-not-allowed
     disabled:opacity-60
+    disabled:cursor-not-allowed
+    disabled:gradient-bg-secondary
+    disabled:opacity-40
   `,
   accent: `
     bg-[var(--color-interactive-accent-base)]
@@ -105,20 +105,25 @@ const variantStyles: Record<ButtonVariant, string> = {
   `,
   ghost: `
     bg-transparent
+    border border-[var(--color-border-base)]
     text-[var(--color-text-primary)]
     hover:bg-[var(--color-background-secondary)]
+    hover:border-[var(--color-border-strong)]
+    hover:text-[var(--color-text-primary)]
     active:bg-[var(--color-background-tertiary)]
+    active:text-[var(--color-text-primary)]
     focus-visible:ring-2
     focus-visible:ring-[var(--color-border-focus)]
     focus-visible:ring-offset-2
     disabled:text-[var(--color-text-disabled)]
+    disabled:border-[var(--color-border-subtle)]
     disabled:cursor-not-allowed
+    transition-colors duration-200 ease-in-out
   `,
   danger: `
     bg-[var(--color-semantic-error-base)]
     text-white
     hover:bg-[var(--color-semantic-error-text)]
-    active:opacity-90
     focus-visible:ring-2
     focus-visible:ring-[var(--color-semantic-error-base)]
     focus-visible:ring-offset-2
@@ -140,6 +145,18 @@ const variantStyles: Record<ButtonVariant, string> = {
   `,
   'aurora-static': `
     gradient-border-static
+  `,
+  'gradient-primary': `
+    gradient-bg-primary
+    text-white
+    active:opacity-90
+    focus-visible:ring-2
+    focus-visible:ring-[#6366f1]
+    focus-visible:ring-offset-2
+    disabled:opacity-60
+    disabled:cursor-not-allowed
+    disabled:gradient-bg-primary
+    disabled:opacity-40
   `,
 };
 

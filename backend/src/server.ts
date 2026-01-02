@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 app.use('/api/documents', documentsRouter);
 
 // Health check
-app.get('/api/health', (req: any, res: any) => {
+app.all('/api/health', (req: any, res: any) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
