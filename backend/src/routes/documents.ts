@@ -149,10 +149,11 @@ router.post('/analyze', async (req: Request, res: Response) => {
         const cachedDoc = await documentRepository.findByHashAndFilename(contentHash, filename);
 
         if (cachedDoc) {
-          console.log(`✅ Cache HIT! Document ID: ${cachedDoc.documentId}`);
+          console.log(`✅ Cache HIT! Returning existing ID: ${cachedDoc.documentId}`);
 
           // Retrieve cached analysis
           const cachedAnalysis = await analysisRepository.findByDocumentId(cachedDoc.documentId);
+
 
           if (cachedAnalysis) {
             // Update access metadata
@@ -177,6 +178,9 @@ router.post('/analyze', async (req: Request, res: Response) => {
         }
       } catch (cacheError) {
         console.error('Cache lookup error (continuing with analysis):', cacheError);
+        if (cacheError instanceof Error) {
+            console.error('Stack:', cacheError.stack);
+        }
         // Continue with analysis if cache fails
       }
     }
@@ -204,16 +208,15 @@ router.post('/analyze', async (req: Request, res: Response) => {
     if (buffer) {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
-        const newDocumentId = uuidv4();
 
         console.log(`💾 Storing document in S3 and DynamoDB...`);
 
         // Upload to S3
         const s3Result = await s3Storage.uploadDocument(contentHash, filename, buffer);
 
-        // Store document metadata
+        // Store document metadata using the document's own ID
         const documentRecord: DocumentRecord = {
-          documentId: newDocumentId,
+          documentId: document.id,
           userId: '1', // Default anonymous user
           contentHash,
           filename,
@@ -229,9 +232,9 @@ router.post('/analyze', async (req: Request, res: Response) => {
 
         await documentRepository.create(documentRecord);
 
-        // Store analysis
+        // Store analysis using the document's own ID
         const analysisRecord: AnalysisRecord = {
-          documentId: newDocumentId,
+          documentId: document.id,
           analysisVersion: 'v1.0',
           analysis,
           llmMetadata: {
@@ -245,17 +248,20 @@ router.post('/analyze', async (req: Request, res: Response) => {
 
         await analysisRepository.create(analysisRecord);
 
-        console.log(`✅ Document stored with ID: ${newDocumentId}`);
+        console.log(`✅ Document stored with ID: ${document.id}`);
 
         return res.json({
-          documentId: newDocumentId,
+          documentId: document.id,
           document,
           analysis,
           processingTime,
           cached: false
         });
       } catch (storageError) {
-        console.error('Storage error (returning analysis anyway):', storageError);
+        console.error('❌ Storage error:', storageError);
+        if (storageError instanceof Error) {
+            console.error('Stack:', storageError.stack);
+        }
         // Return analysis even if storage fails
       }
     }
@@ -344,23 +350,19 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
         if (docRecord && analysisRecord) {
           console.log(`✅ Found in DynamoDB: ${docRecord.filename}`);
 
-          // Load content from S3 if needed
+          // Load content from S3 and reconstruct document with proper structure, preserving original ID
           const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
           const content = contentBuffer.toString('utf-8');
 
-          // Reconstruct document
-          document = {
-            id: docRecord.documentId,
-            title: docRecord.filename,
-            content,
-            metadata: {
-              fileType: docRecord.contentType,
-              uploadDate: new Date(docRecord.uploadedAt),
-              wordCount: content.split(/\s+/).length,
-              language: 'en',
-            },
-            structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
-          };
+          // Import documentParser to properly reconstruct structure
+          const { documentParser } = await import('../services/documentParser.js');
+
+          // Reconstruct document with proper structure, preserving original ID
+          document = await documentParser.parseDocument(
+            contentBuffer,
+            docRecord.filename,
+            docRecord.documentId  // Pass the original document ID to preserve it
+          );
 
           analysis = analysisRecord.analysis;
 
@@ -372,6 +374,8 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 
           // Update access metadata
           await documentRepository.updateAccessMetadata(id);
+
+          console.log(`🏗️ Document reconstructed with ${document.structure.sections.length} sections`);
         }
       } catch (dbError) {
         console.error('DynamoDB lookup error:', dbError);
@@ -446,19 +450,19 @@ router.get('/:id/full', async (req: Request, res: Response) => {
         // Update access metadata
         await documentRepository.updateAccessMetadata(id);
 
-        // Reconstruct Document object from DynamoDB record
-        const document: Document = {
-          id: docRecord.documentId,
-          title: docRecord.filename,
-          content: '', // Content is in S3, not loaded here
-          metadata: {
-            fileType: docRecord.contentType,
-            uploadDate: new Date(docRecord.uploadedAt),
-            wordCount: 0, // Not stored in DynamoDB
-            language: 'en', // Default language
-          },
-          structure: { sections: [], hierarchy: [] }, // TODO: Store structure separately
-        };
+        // Load content from S3 and reconstruct document with proper structure
+        const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
+        const content = contentBuffer.toString('utf-8');
+
+        // Import documentParser to properly reconstruct structure
+        const { documentParser } = await import('../services/documentParser.js');
+
+        // Reconstruct Document object from DynamoDB record with proper structure, preserving original ID
+        const document = await documentParser.parseDocument(
+          contentBuffer,
+          docRecord.filename,
+          docRecord.documentId  // Pass the original document ID to preserve it
+        );
 
         // Extract visualizations from analysis if they exist
         const docVisualizations: Record<string, any> = {};

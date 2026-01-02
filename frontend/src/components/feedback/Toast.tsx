@@ -1,5 +1,6 @@
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useEffect } from 'react';
+import { cn } from '../../lib/utils';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
@@ -15,27 +16,31 @@ export interface ToastProps {
 const toastConfig = {
   success: {
     icon: CheckCircle,
-    borderColor: 'border-green-500',
-    iconColor: 'text-green-500',
-    bgColor: 'bg-green-50',
+    colorVar: 'var(--color-semantic-success-base)',
+    bgVar: 'var(--color-semantic-success-background)',
+    borderVar: 'var(--color-semantic-success-border)',
+    textVar: 'var(--color-semantic-success-text)',
   },
   error: {
     icon: AlertCircle,
-    borderColor: 'border-red-500',
-    iconColor: 'text-red-500',
-    bgColor: 'bg-red-50',
+    colorVar: 'var(--color-semantic-error-base)',
+    bgVar: 'var(--color-semantic-error-background)',
+    borderVar: 'var(--color-semantic-error-border)',
+    textVar: 'var(--color-semantic-error-text)',
   },
   warning: {
     icon: AlertTriangle,
-    borderColor: 'border-amber-500',
-    iconColor: 'text-amber-500',
-    bgColor: 'bg-amber-50',
+    colorVar: 'var(--color-semantic-warning-base)',
+    bgVar: 'var(--color-semantic-warning-background)',
+    borderVar: 'var(--color-semantic-warning-border)',
+    textVar: 'var(--color-semantic-warning-text)',
   },
   info: {
     icon: Info,
-    borderColor: 'border-blue-500',
-    iconColor: 'text-blue-500',
-    bgColor: 'bg-blue-50',
+    colorVar: 'var(--color-semantic-info-base)',
+    bgVar: 'var(--color-semantic-info-background)',
+    borderVar: 'var(--color-semantic-info-border)',
+    textVar: 'var(--color-semantic-info-text)',
   },
 };
 
@@ -55,21 +60,49 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
 
   return (
     <div
-      className={`${config.bgColor} ${config.borderColor} border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md`}
+      className={cn(
+        "border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md",
+        "transition-all duration-200"
+      )}
+      style={{
+        backgroundColor: config.bgVar,
+        borderColor: config.colorVar,
+        boxShadow: 'var(--elevation-lg)',
+      }}
     >
-      <Icon className={`w-5 h-5 ${config.iconColor} flex-shrink-0 mt-0.5`} />
+      <Icon 
+        className="w-5 h-5 flex-shrink-0 mt-0.5" 
+        style={{ color: config.colorVar }}
+      />
       
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-gray-900 text-sm">{title}</h4>
+        <h4 
+          className="font-semibold text-sm"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          {title}
+        </h4>
         {message && (
-          <p className="text-sm text-gray-600 mt-1">{message}</p>
+          <p 
+            className="text-sm mt-1"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {message}
+          </p>
         )}
       </div>
       
       <button
         onClick={() => onClose(id)}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 hover:scale-110 transition-all duration-200"
+        className="flex-shrink-0 hover:scale-110 transition-all duration-200"
+        style={{ color: 'var(--color-text-tertiary)' }}
         aria-label="Close notification"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-primary)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.color = 'var(--color-text-tertiary)';
+        }}
       >
         <X className="w-5 h-5" />
       </button>

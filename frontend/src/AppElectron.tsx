@@ -20,6 +20,7 @@ import {
   StageAnalysis,
   StageVisualization,
 } from './electron/components';
+import { DevSamplerAccess } from './electron/dev/DevSamplerAccess';
 
 /**
  * AppElectron
@@ -85,6 +86,9 @@ export default function AppElectron() {
       <Stage active={currentStage === 'visualization'}>
         <StageVisualization onBack={handleBackFromVisualization} />
       </Stage>
+
+      {/* Development Access Tools */}
+      <DevSamplerAccess />
     </StageContainer>
   );
 }

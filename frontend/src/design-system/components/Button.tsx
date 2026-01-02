@@ -69,7 +69,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     text-white
     active:opacity-90
     focus-visible:ring-2
-    focus-visible:ring-[#06b6d4]
+    focus-visible:ring-[var(--color-interactive-accent-base)]
     focus-visible:ring-offset-2
     disabled:opacity-60
     disabled:cursor-not-allowed
@@ -151,7 +151,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     text-white
     active:opacity-90
     focus-visible:ring-2
-    focus-visible:ring-[#6366f1]
+    focus-visible:ring-[var(--color-interactive-primary-base)]
     focus-visible:ring-offset-2
     disabled:opacity-60
     disabled:cursor-not-allowed
