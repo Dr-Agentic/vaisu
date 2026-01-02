@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, ExternalLink, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
+import { ChevronDown, ChevronRight, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
 import type { Section } from '../../../../shared/src/types';
 import type cytoscape from 'cytoscape';
-import type { CytoscapeOptions, Collection, LayoutOptions } from '../../types/cytoscape';
+
+// Extended Section type to include parentId which might be missing in shared types
+interface ExtendedSection extends Section {
+  parentId?: string;
+}
 
 interface CytoscapeStructuredViewProps {
   data: {
@@ -10,6 +14,63 @@ interface CytoscapeStructuredViewProps {
     hierarchy: any[];
   };
 }
+
+// Performance tracker class
+class LayoutPerformanceTracker {
+  private startTime: number;
+
+  constructor() {
+    this.startTime = performance.now();
+  }
+
+  end(nodeCount: number) {
+    const duration = performance.now() - this.startTime;
+    const throughput = nodeCount / (duration / 1000);
+
+    console.log(`Layout: ${duration.toFixed(2)}ms for ${nodeCount} nodes (${throughput.toFixed(0)} nodes/sec)`);
+
+    if (duration > 3000) {
+      console.warn(`Slow layout detected: ${duration.toFixed(2)}ms`);
+    }
+
+    return { duration, throughput };
+  }
+}
+
+// Enhanced ELK configuration function
+const getOptimizedElkConfig = (nodeCount: number, containerSize?: { width: number; height: number }) => {
+  const baseSpacing = 60;
+  const interLayerSpacing = 120;
+
+  return {
+    algorithm: 'layered',
+    'org.eclipse.elk.hierarchyHandling': 'INCLUDE_CHILDREN',
+    'org.eclipse.elk.layered.mergeEdges': true, // Reduce visual clutter
+    'org.eclipse.elk.layered.considerModelOrder.strategy': 'NODES_AND_EDGES',
+
+    // Spacing with responsive adjustments
+    'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': containerSize
+      ? Math.max(interLayerSpacing, containerSize.width * 0.06)
+      : interLayerSpacing,
+    'org.eclipse.elk.spacing.nodeNode': containerSize
+      ? Math.max(baseSpacing, containerSize.width * 0.03)
+      : baseSpacing,
+    'org.eclipse.elk.layered.layerSpacing': containerSize
+      ? Math.max(80, containerSize.height * 0.08)
+      : 80,
+
+    // Performance optimization based on graph size
+    ...(nodeCount < 50
+      ? {
+          'org.eclipse.elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
+          'org.eclipse.elk.layered.crossingMinimization.strategy': 'AGD'
+        }
+      : {
+          'org.eclipse.elk.layered.nodePlacement.strategy': 'SIMPLE',
+          'org.eclipse.elk.layered.crossingMinimization.strategy': 'INTERACTIVE'
+        })
+  };
+};
 
 interface CytoscapeElement {
   data: {
@@ -19,11 +80,15 @@ interface CytoscapeElement {
     summary?: string;
     keywords?: string[];
     parent?: string;
+    expanded?: boolean;
+    source?: string;
+    target?: string;
   };
   position?: {
     x: number;
     y: number;
   };
+  group?: 'nodes' | 'edges';
 }
 
 export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) {
@@ -35,26 +100,41 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
   // Initialize Cytoscape when component mounts
   useEffect(() => {
     let cy: cytoscape.Core | null = null;
+    let layout: any = null;
+    let mounted = true;
 
     const initializeCytoscape = async () => {
       try {
+        if (!mounted) return;
+        console.log('CytoscapeStructuredView: Initializing with data:', data);
+
         // Import Cytoscape dynamically to avoid SSR issues
         const cytoscapeModule = await import('cytoscape');
+        if (!mounted) return;
         const cytoscape = cytoscapeModule.default;
         const elk = (await import('cytoscape-elk')).default;
 
+        if (!mounted) return;
+
         // Register ELK extension
-        cytoscapeModule.use(elk);
+        (cytoscape as any).use(elk);
 
         // Convert sections to Cytoscape elements
         const elements = convertSectionsToElements(data.sections);
+        console.log('CytoscapeStructuredView: Generated elements:', elements);
+
+        // Check if we have any elements
+        if (elements.length === 0) {
+          console.warn('CytoscapeStructuredView: No elements generated from sections');
+          if (mounted) setIsLoading(false);
+          return;
+        }
 
         // Create Cytoscape instance
         cy = cytoscape({
           container: containerRef.current,
-          elements: elements,
+          elements: elements as any,
           style: getStyle(),
-          wheelSensitivity: 0.1,
           minZoom: 0.1,
           maxZoom: 2,
           zoomingEnabled: true,
@@ -70,38 +150,55 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
           autounselectify: false
         });
 
+        if (!mounted) {
+          cy.destroy();
+          return;
+        }
+
         cyRef.current = cy;
 
-        // Apply ELK layout
+        // Apply ELK layout with performance tracking
         setIsLoading(true);
-        const layout = cy.layout({
+        const tracker = new LayoutPerformanceTracker();
+        const containerSize = {
+          width: containerRef.current?.clientWidth || 800,
+          height: containerRef.current?.clientHeight || 600
+        };
+
+        layout = cy.layout({
           name: 'elk',
-          elk: {
-            algorithm: 'layered',
-            'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': 100,
-            'org.eclipse.elk.spacing.nodeNode': 50,
-            'org.eclipse.elk.layered.layerSpacing': 50,
-            'org.eclipse.elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX',
-            'org.eclipse.elk.hierarchyHandling': 'INCLUDE_CHILDREN'
-          },
+          elk: getOptimizedElkConfig(elements.length, containerSize),
           ready: () => {
+            if (!mounted || cy?.destroyed()) return;
+            tracker.end(elements.length);
+            console.log('CytoscapeStructuredView: Layout ready');
             setIsReady(true);
             setIsLoading(false);
-            cy?.center();
-            cy?.fit();
+
+            // Smooth centering animation
+            cy?.animate({
+              fit: { eles: cy.elements(), padding: 50 },
+              easing: 'ease-out',
+              duration: 500
+            } as any);
           },
           stop: () => {
+            if (!mounted) return;
+            console.log('CytoscapeStructuredView: Layout stopped');
             setIsLoading(false);
           }
-        });
+        } as any);
 
         layout.run();
 
         // Handle node interactions
         cy.on('click', 'node', (evt: any) => {
+          if (!mounted || cy?.destroyed()) return;
           const node = evt.target;
           const nodeData = node.data();
           const currentExpanded = node.data('expanded');
+
+          console.log('CytoscapeStructuredView: Node clicked:', nodeData);
 
           // Toggle expansion state
           node.data('expanded', !currentExpanded);
@@ -117,15 +214,33 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
             showSubtree(children);
           }
 
-          // Re-run layout
+          // Re-run layout with optimized configuration
+          const dynamicTracker = new LayoutPerformanceTracker();
+          const currentContainerSize = {
+            width: containerRef.current?.clientWidth || 800,
+            height: containerRef.current?.clientHeight || 600
+          };
+
+          layout = cy?.layout({
+            name: 'elk',
+            elk: getOptimizedElkConfig(cy.nodes().length, currentContainerSize),
+            stop: () => {
+              if (mounted) {
+                dynamicTracker.end(cy.nodes().length);
+                setIsLoading(false);
+              }
+            }
+          } as any);
           layout.run();
         });
 
         // Handle edge interactions
         cy.on('click', 'edge', (evt: any) => {
+          if (!mounted || cy?.destroyed()) return;
           const edge = evt.target;
-          const sourceNode = edge.source();
-          const targetNode = edge.target();
+          // Unused variables removed
+          // const sourceNode = edge.source();
+          // const targetNode = edge.target();
 
           // Center on the edge
           cy?.animate({
@@ -134,13 +249,18 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
             },
             easing: 'ease-out',
             duration: 500
-          });
+          } as any);
         });
 
-        // Add tooltips
+        // Add tooltips and hover effects
         cy.on('mouseover', 'node', (evt: any) => {
+          if (!mounted || cy?.destroyed()) return;
           const node = evt.target;
           const nodeData = node.data();
+
+          // Add hover class for styling
+          node.addClass('hover');
+
           const tooltip = document.createElement('div');
           tooltip.className = 'cy-tooltip';
           tooltip.style.cssText = `
@@ -189,17 +309,28 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         });
 
         cy.on('mouseout', 'node', () => {
+          if (!mounted || cy?.destroyed()) return;
+          // Remove hover class
+          cy?.nodes().removeClass('hover');
+
           const tooltip = document.querySelector('.cy-tooltip');
           if (tooltip) {
             tooltip.remove();
           }
         });
 
-        // Handle window resize
+        // Handle window resize with optimized layout
         const handleResize = () => {
-          if (cy) {
+          if (cy && !cy.destroyed()) {
             cy.resize();
-            cy.fit();
+
+            // Re-run layout with updated container size
+            cy.layout({
+              name: 'elk',
+              elk: getOptimizedElkConfig(cy.nodes().length),
+              fit: true,
+              padding: 50
+            } as any).run();
           }
         };
 
@@ -207,39 +338,84 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
 
         return () => {
           window.removeEventListener('resize', handleResize);
-          if (cy) {
-            cy.destroy();
-            cy = null;
-          }
         };
 
       } catch (error) {
-        console.error('Failed to initialize Cytoscape:', error);
-        setIsLoading(false);
+        if (mounted) {
+          console.error('Failed to initialize Cytoscape:', error);
+
+          // Fallback to simple layout if ELK fails
+          try {
+            if (cyRef.current) {
+              cyRef.current.layout({
+                name: 'dagre',
+                rankDir: 'TB',
+                nodeSep: 50,
+                edgeSep: 10,
+                fit: true,
+                padding: 50
+              }).run();
+            }
+          } catch (fallbackError) {
+            console.error('Fallback layout also failed:', fallbackError);
+          }
+
+          setIsLoading(false);
+        }
       }
     };
 
     initializeCytoscape();
 
     return () => {
-      if (cyRef.current) {
-        cyRef.current.destroy();
-        cyRef.current = null;
+      mounted = false;
+
+      // Enhanced cleanup with error handling
+      try {
+        if (layout) {
+          layout.stop();
+        }
+
+        if (cyRef.current) {
+          // Remove all elements before destroying
+          cyRef.current.elements().remove();
+          cyRef.current.destroy();
+        }
+
+        // Clean up tooltips
+        const tooltips = document.querySelectorAll('.cy-tooltip');
+        tooltips.forEach(tooltip => tooltip.remove());
+
+        // Clear ELK cache
+        if (typeof window !== 'undefined' && (window as any).__elk_cache__) {
+          delete (window as any).__elk_cache__;
+        }
+
+      } catch (error) {
+        console.warn('Cleanup error (non-critical):', error);
       }
+
+      // Reset references
+      cyRef.current = null;
+      layout = null;
     };
   }, [data]);
 
   // Convert sections to Cytoscape elements
   const convertSectionsToElements = (sections: Section[]): CytoscapeElement[] => {
+    console.log('CytoscapeStructuredView: Converting sections:', sections);
+
     const elements: CytoscapeElement[] = [];
 
     // Add nodes
-    sections.forEach(section => {
+    sections.forEach(s => {
+      const section = s as ExtendedSection;
       elements.push({
+        group: 'nodes',
         data: {
           id: section.id,
-          label: section.title,
-          level: section.level,
+          label: section.title || 'Untitled Section',
+          level: section.level || 1,
           summary: section.summary,
           keywords: section.keywords,
           parent: section.parentId || undefined,
@@ -249,23 +425,28 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
     });
 
     // Add edges
-    sections.forEach(section => {
+    sections.forEach(s => {
+      const section = s as ExtendedSection;
       if (section.parentId) {
         elements.push({
+          group: 'edges',
           data: {
             id: `edge-${section.parentId}-${section.id}`,
             source: section.parentId,
-            target: section.id
+            target: section.id,
+            label: '',
+            level: 0
           }
         });
       }
     });
 
+    console.log('CytoscapeStructuredView: Final elements array:', elements);
     return elements;
   };
 
   // Hide subtree starting from given nodes
-  const hideSubtree = (nodes: Collection) => {
+  const hideSubtree = (nodes: any) => {
     nodes.forEach((node: any) => {
       node.hide();
       const children = cyRef.current?.nodes().filter((n: any) => n.data('parent') === node.data('id'));
@@ -276,7 +457,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
   };
 
   // Show subtree starting from given nodes
-  const showSubtree = (nodes: Collection) => {
+  const showSubtree = (nodes: any) => {
     nodes.forEach((node: any) => {
       node.show();
       const children = cyRef.current?.nodes().filter((n: any) => n.data('parent') === node.data('id'));
@@ -289,25 +470,24 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
   // Control functions
   const handleExpandAll = () => {
     if (cyRef.current) {
+      const tracker = new LayoutPerformanceTracker();
       cyRef.current.nodes().forEach((node: any) => {
         node.data('expanded', true);
         node.show();
       });
       cyRef.current.layout({
         name: 'elk',
-        elk: {
-          algorithm: 'layered',
-          'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': 100,
-          'org.eclipse.elk.spacing.nodeNode': 50,
-          'org.eclipse.elk.layered.layerSpacing': 50,
-          'org.eclipse.elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX'
+        elk: getOptimizedElkConfig(cyRef.current.nodes().length),
+        stop: () => {
+          tracker.end(cyRef.current.nodes().length);
         }
-      }).run();
+      } as any).run();
     }
   };
 
   const handleCollapseAll = () => {
     if (cyRef.current) {
+      const tracker = new LayoutPerformanceTracker();
       cyRef.current.nodes().forEach((node: any) => {
         if (node.data('level') > 2) {
           node.data('expanded', false);
@@ -319,14 +499,11 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
       });
       cyRef.current.layout({
         name: 'elk',
-        elk: {
-          algorithm: 'layered',
-          'org.eclipse.elk.layered.spacing.nodeNodeBetweenLayers': 100,
-          'org.eclipse.elk.spacing.nodeNode': 50,
-          'org.eclipse.elk.layered.layerSpacing': 50,
-          'org.eclipse.elk.layered.nodePlacement.strategy': 'NETWORK_SIMPLEX'
+        elk: getOptimizedElkConfig(cyRef.current.nodes().length),
+        stop: () => {
+          tracker.end(cyRef.current.nodes().length);
         }
-      }).run();
+      } as any).run();
     }
   };
 
@@ -337,7 +514,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         panBy: { x: 0, y: 0 },
         easing: 'ease-out',
         duration: 200
-      });
+      } as any);
     }
   };
 
@@ -348,17 +525,17 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         panBy: { x: 0, y: 0 },
         easing: 'ease-out',
         duration: 200
-      });
+      } as any);
     }
   };
 
   const handleCenter = () => {
     if (cyRef.current) {
       cyRef.current.animate({
-        fit: { eles: cyRef.current.elements() },
+        fit: { eles: cyRef.current.elements(), padding: 50 },
         easing: 'ease-out',
         duration: 500
-      });
+      } as any);
     }
   };
 
@@ -390,17 +567,12 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         'height': (node: any) => Math.max(40, 60 + (node.data('label').split('\n').length * 10)),
         'border-width': 2,
         'border-color': 'rgba(255, 255, 255, 0.3)',
-        'shadow-blur': 10,
-        'shadow-color': 'rgba(0, 0, 0, 0.3)',
-        'shadow-offset-x': 2,
-        'shadow-offset-y': 2,
         'opacity': (node: any) => node.data('level') <= 2 ? 1 : 0.8,
-        'cursor': 'pointer',
         'z-index': (node: any) => 9999 - node.data('level')
       }
     },
     {
-      selector: 'node[expanded = false]',
+      selector: 'node[expanded="false"]',
       style: {
         'background-color': 'rgba(156, 163, 175, 0.5)',
         'border-color': 'rgba(156, 163, 175, 0.3)',
@@ -430,17 +602,15 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
       }
     },
     {
-      selector: 'node:hover',
+      selector: 'node.hover',
       style: {
         'background-color': '#f59e0b',
         'border-color': '#f59e0b',
         'opacity': 1,
-        'z-index': 10000,
-        'shadow-blur': 20,
-        'shadow-color': 'rgba(245, 158, 11, 0.5)'
+        'z-index': 10000
       }
     }
-  ];
+  ] as any;
 
   return (
     <div className="space-y-4">

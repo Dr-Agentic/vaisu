@@ -2,20 +2,21 @@ import pdfParse from 'pdf-parse';
 import mammoth from 'mammoth';
 import type { Document, DocumentStructure, Section } from '../../../shared/src/types.js';
 import { createHash } from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 
 export class DocumentParser {
   /**
    * Parse a document from a file buffer (for file uploads)
    */
-  async parseDocument(buffer: Buffer, filename: string): Promise<Document> {
+  async parseDocument(buffer: Buffer, filename: string, documentId?: string): Promise<Document> {
     const fileType = this.getFileType(filename);
     const text = await this.extractText(buffer, fileType);
     const structure = await this.detectStructure(text);
 
-    const documentId = this.generateDocumentId(text);
+    const finalDocumentId = documentId || this.generateDocumentId(text);
 
     return {
-      id: documentId,
+      id: finalDocumentId,
       title: this.extractTitle(text, filename),
       content: text,
       metadata: {
@@ -285,14 +286,21 @@ export class DocumentParser {
   }
 
   private getFileType(filename: string): string {
+    // Check if filename contains a dot (has an extension)
+    if (!filename.includes('.') || filename.startsWith('.')) {
+      return 'txt'; // No extension or hidden file, default to txt
+    }
+
     const ext = filename.split('.').pop()?.toLowerCase();
-    return ext || 'txt';
+    // Only treat it as an extension if it looks like a valid file extension
+    if (!ext || !/^[a-z0-9_-]+$/.test(ext)) {
+      return 'txt';
+    }
+    return ext;
   }
 
   private generateDocumentId(text: string): string {
-    const hash = createHash('sha256');
-    hash.update(text);
-    return hash.digest('hex').substring(0, 16);
+    return uuidv4();
   }
 }
 

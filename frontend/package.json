@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^1.6.7",
     "cytoscape": "^3.28.1",
+    "cytoscape-elk": "^2.3.0",
     "d3": "^7.9.0",
     "d3-force": "^3.0.0",
     "dagre": "^0.8.5",
