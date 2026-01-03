@@ -18,8 +18,8 @@
 
 import { forwardRef } from 'react';
 import { ChevronLeft, Info } from 'lucide-react';
-import { Badge } from './Badge';
-import { Card } from './Card';
+import { Badge } from '../../design-system/components/Badge';
+import { Card } from '../../design-system/components/Card';
 import { cn } from '../../lib/utils';
 import type { VisualizationType as SharedVisualizationType } from '@shared/types';
 
@@ -154,6 +154,13 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
     icon: '📋',
     shortcut: 6,
   },
+  {
+    id: 'terms-definitions',
+    name: 'Terms & Definitions',
+    description: 'Extracted terms, acronyms, and technical jargon',
+    icon: '📖',
+    shortcut: 7,
+  },
 ];
 
 /**
@@ -189,8 +196,8 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           collapsed ? 'overflow-hidden' : 'overflow-y-auto'
         )}
         style={{
-          backgroundColor: 'var(--void-dark)',
-          borderRightColor: 'var(--void-border)',
+          backgroundColor: 'var(--color-surface-base)',
+          borderRightColor: 'var(--color-border-subtle)',
           borderRightWidth: '1px',
           borderRightStyle: 'solid',
         }}
@@ -210,17 +217,17 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
               'duration-[var(--duration-fast)]'
             )}
             style={{
-              backgroundColor: 'var(--void-light)',
-              border: '1px solid var(--void-border)',
-              color: 'var(--text-secondary)',
+              backgroundColor: 'var(--color-surface-elevated)',
+              border: '1px solid var(--color-border-subtle)',
+              color: 'var(--color-text-secondary)',
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.color = 'var(--text-primary)';
-              e.currentTarget.style.borderColor = 'var(--void-border-hover)';
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.color = 'var(--text-secondary)';
-              e.currentTarget.style.borderColor = 'var(--void-border)';
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
             }}
             aria-label="Collapse sidebar"
           >
@@ -240,8 +247,8 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
             'font-medium'
           )}
           style={{
-            borderColor: 'var(--void-border)',
-            color: 'var(--text-secondary)',
+            borderColor: 'var(--color-border-subtle)',
+            color: 'var(--color-text-secondary)',
             fontSize: 'var(--font-size-xs)',
             fontWeight: 'var(--font-weight-medium)',
           }}
@@ -289,7 +296,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                 <div
                   className="mt-2"
                   style={{
-                    color: 'var(--text-tertiary)',
+                    color: 'var(--color-text-tertiary)',
                     fontSize: 'var(--font-size-xs)',
                   }}
                 >
@@ -302,8 +309,8 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                       'font-mono'
                     )}
                     style={{
-                      backgroundColor: 'var(--void-light)',
-                      borderColor: 'var(--void-border)',
+                      backgroundColor: 'var(--color-surface-elevated)',
+                      borderColor: 'var(--color-border-subtle)',
                     }}
                   >
                     {viz.shortcut}
@@ -319,8 +326,8 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           <div
             className="border-t p-4"
             style={{
-              borderColor: 'var(--void-border)',
-              backgroundColor: 'var(--void-light)',
+              borderColor: 'var(--color-border-subtle)',
+              backgroundColor: 'var(--color-surface-elevated)',
             }}
           >
             {/* Summary Toggle */}
@@ -338,13 +345,13 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                   'transition-colors'
                 )}
                 style={{
-                  color: 'var(--text-secondary)',
+                  color: 'var(--color-text-secondary)',
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.color = 'var(--text-primary)';
+                  e.currentTarget.style.color = 'var(--color-text-primary)';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.color = 'var(--text-secondary)';
+                  e.currentTarget.style.color = 'var(--color-text-secondary)';
                 }}
               >
                 <span>Document Summary</span>
@@ -355,11 +362,11 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
             {/* Summary Items */}
             <div className="space-y-2">
               {summary.tlrd && (
-                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--void-dark)' }}>
+                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--color-surface-base)' }}>
                   <div
                     className="text-xs mb-1"
                     style={{
-                      color: 'var(--text-secondary)',
+                      color: 'var(--color-text-secondary)',
                       fontSize: 'var(--font-size-xs)',
                     }}
                   >
@@ -368,7 +375,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                   <div
                     className="text-sm"
                     style={{
-                      color: 'var(--text-primary)',
+                      color: 'var(--color-text-primary)',
                       fontSize: 'var(--font-size-sm)',
                     }}
                   >
@@ -378,11 +385,11 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
               )}
 
               {summary.keyEntities && summary.keyEntities.length > 0 && (
-                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--void-dark)' }}>
+                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--color-surface-base)' }}>
                   <div
                     className="text-xs mb-1"
                     style={{
-                      color: 'var(--text-secondary)',
+                      color: 'var(--color-text-secondary)',
                       fontSize: 'var(--font-size-xs)',
                     }}
                   >
@@ -391,7 +398,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                   <div
                     className="text-sm"
                     style={{
-                      color: 'var(--text-primary)',
+                      color: 'var(--color-text-primary)',
                       fontSize: 'var(--font-size-sm)',
                     }}
                   >
@@ -404,7 +411,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                 <div
                   className="text-xs"
                   style={{
-                    color: 'var(--text-secondary)',
+                    color: 'var(--color-text-secondary)',
                     fontSize: 'var(--font-size-xs)',
                   }}
                 >

@@ -50,21 +50,33 @@ const variantStyles: Record<BadgeVariant, string> = {
     bg-[var(--color-semantic-success-background)]
     text-[var(--color-semantic-success-text)]
     border border-[var(--color-semantic-success-border)]
+    hover:bg-[var(--color-semantic-success-border)]
+    hover:border-[var(--color-semantic-success-base)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   error: `
     bg-[var(--color-semantic-error-background)]
     text-[var(--color-semantic-error-text)]
     border border-[var(--color-semantic-error-border)]
+    hover:bg-[var(--color-semantic-error-border)]
+    hover:border-[var(--color-semantic-error-base)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   warning: `
     bg-[var(--color-semantic-warning-background)]
     text-[var(--color-semantic-warning-text)]
     border border-[var(--color-semantic-warning-border)]
+    hover:bg-[var(--color-semantic-warning-border)]
+    hover:border-[var(--color-semantic-warning-base)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   info: `
     bg-[var(--color-semantic-info-background)]
     text-[var(--color-semantic-info-text)]
     border border-[var(--color-semantic-info-border)]
+    hover:bg-[var(--color-semantic-info-border)]
+    hover:border-[var(--color-semantic-info-base)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   neutral: `
     bg-[var(--color-background-secondary)]
@@ -73,20 +85,32 @@ const variantStyles: Record<BadgeVariant, string> = {
   `,
   // SOTA Electron UI variants with gradient colors
   aurora: `
-    bg-[rgba(99,102,241,0.25)]
-    text-[#a78bfa]
+    bg-[color-mix(in_srgb,var(--color-interactive-primary-base)_25%,transparent)]
+    text-[var(--color-interactive-secondary-hover)]
+    hover:bg-[color-mix(in_srgb,var(--color-interactive-primary-base)_35%,transparent)]
+    hover:text-[var(--color-interactive-secondary-active)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   nova: `
-    bg-[rgba(6,182,212,0.25)]
-    text-[#67e8f9]
+    bg-[color-mix(in_srgb,var(--color-interactive-accent-base)_25%,transparent)]
+    text-[var(--color-interactive-accent-hover)]
+    hover:bg-[color-mix(in_srgb,var(--color-interactive-accent-base)_35%,transparent)]
+    hover:text-[var(--color-interactive-accent-active)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   solar: `
-    bg-[rgba(245,158,11,0.2)]
-    text-[#fb923c]
+    bg-[var(--color-semantic-warning-background)]
+    text-[var(--color-semantic-warning-base)]
+    hover:bg-[color-mix(in_srgb,var(--color-semantic-warning-base)_30%,transparent)]
+    hover:text-[var(--color-semantic-warning-text)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
   ember: `
-    bg-[rgba(244,63,94,0.2)]
-    text-[#fb7185]
+    bg-[var(--color-semantic-error-background)]
+    text-[var(--color-semantic-error-base)]
+    hover:bg-[color-mix(in_srgb,var(--color-semantic-error-base)_30%,transparent)]
+    hover:text-[var(--color-semantic-error-text)]
+    transition-colors duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]
   `,
 };
 

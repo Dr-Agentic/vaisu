@@ -132,4 +132,42 @@ describe('DocumentParser', () => {
       expect(duration).toBeLessThan(5000);
     });
   });
+
+  describe('getFileType', () => {
+    it('should handle filenames without extensions', async () => {
+      // Test the scenario that caused the original bug
+      const filename = 'ui component classes and types';
+      const document = await parser.parseDocument(Buffer.from('Test content'), filename);
+
+      expect(document.metadata.fileType).toBe('txt');
+    });
+
+    it('should handle filenames with valid extensions', async () => {
+      const testCases = [
+        { filename: 'document.txt', expected: 'txt', content: Buffer.from('Plain text content') },
+        { filename: 'readme.md', expected: 'md', content: Buffer.from('# Markdown content') },
+        { filename: 'no-extension', expected: 'txt', content: Buffer.from('No extension content') },
+        { filename: 'file.with.dots.txt', expected: 'txt', content: Buffer.from('Dots in filename') }
+      ];
+
+      for (const { filename, expected, content } of testCases) {
+        const document = await parser.parseDocument(content, filename);
+        expect(document.metadata.fileType).toBe(expected);
+      }
+    });
+
+    it('should handle edge cases in filename parsing', async () => {
+      const testCases = [
+        { filename: '', expected: 'txt', content: Buffer.from('Empty filename') },
+        { filename: 'file.', expected: 'txt', content: Buffer.from('File with trailing dot') },
+        { filename: '.hidden', expected: 'txt', content: Buffer.from('Hidden file content') },
+        { filename: 'file with spaces', expected: 'txt', content: Buffer.from('Spaces in filename') }
+      ];
+
+      for (const { filename, expected, content } of testCases) {
+        const document = await parser.parseDocument(content, filename);
+        expect(document.metadata.fileType).toBe(expected);
+      }
+    });
+  });
 });

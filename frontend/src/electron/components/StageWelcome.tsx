@@ -11,7 +11,7 @@
  */
 
 import { forwardRef } from 'react';
-import { Button } from './Button';
+import { Button } from '../../design-system/components/Button';
 import { cn } from '../../lib/utils';
 
 export interface StageWelcomeProps {
@@ -65,7 +65,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
           'hero-bg'
         )}
         style={{
-          backgroundColor: 'var(--void-deepest)',
+          backgroundColor: 'var(--color-background-primary)',
         }}
       >
         <div className="max-w-3xl mx-auto p-8">
@@ -90,7 +90,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
           <p
             className="mb-12 leading-normal"
             style={{
-              color: 'var(--text-secondary)',
+              color: 'var(--color-text-secondary)',
               fontSize: 'var(--font-size-xl)',
               lineHeight: 'var(--line-height-normal)',
             }}

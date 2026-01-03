@@ -59,19 +59,6 @@ code {
   --ember-2: #ec4899;
   --ember-3: #db2777;
 
-  /* Void System (Electron UI Background) */
-  --void-deepest: #1a1a1f;
-  --void-dark: #202028;
-  --void-light: #2a2a35;
-  --void-border: rgba(255, 255, 255, 0.15);
-  --void-border-hover: rgba(255, 255, 255, 0.25);
-  --void-border-unselected: #666666;
-
-  /* Text Colors (Void) */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.75);
-  --text-tertiary: rgba(255, 255, 255, 0.65);
-
   /* Animation durations (SOTA) */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
@@ -298,7 +285,7 @@ code {
 
 .gradient-border-static.nova {
   background:
-    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
     conic-gradient(from 0deg, var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
 }
 
@@ -310,7 +297,7 @@ code {
   background:
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
     radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-    var(--void-dark);
+    var(--color-surface-base);
   border-radius: var(--radius-xl);
 }
 
@@ -319,7 +306,7 @@ code {
     radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
     radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
     radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
-    var(--void-dark);
+    var(--color-surface-base);
   border-radius: var(--radius-xl);
 }
 
@@ -400,9 +387,9 @@ code {
 .shimmer {
   background: linear-gradient(
     90deg,
-    var(--void-light) 0%,
+    var(--color-surface-elevated) 0%,
     rgba(255, 255, 255, 0.05) 50%,
-    var(--void-light) 100%
+    var(--color-surface-elevated) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s infinite;
@@ -411,7 +398,7 @@ code {
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid var(--void-border);
+  border: 3px solid var(--color-border-subtle);
   border-top-color: var(--aurora-1);
   border-radius: 50%;
   animation: spin 2s linear infinite;
@@ -420,7 +407,7 @@ code {
 .progress-ring {
   width: 120px;
   height: 120px;
-  border: 3px solid var(--void-border);
+  border: 3px solid var(--color-border-subtle);
   border-top-color: var(--aurora-1);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -469,12 +456,12 @@ code {
   --gradient-angle: 0deg;
   position: relative;
   background:
-    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
     conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-xl);
   border: 3px solid transparent;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   animation: rotate-gradient-angle 4s linear infinite;
 }
 
@@ -491,12 +478,12 @@ code {
   --gradient-angle: 0deg;
   position: relative;
   background:
-    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
     conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-xl);
   border: 3px solid transparent;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   animation: rotate-gradient-angle 2s linear infinite;
 }
 
@@ -512,19 +499,19 @@ code {
 .btn-primary-static {
   position: relative;
   background:
-    linear-gradient(var(--void-light), var(--void-light)) padding-box,
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
     conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-xl);
   border: 3px solid transparent;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
 /* Secondary Button */
 .btn-secondary {
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
-  color: var(--text-primary);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
 }
 
 .btn-secondary:hover {
@@ -535,13 +522,13 @@ code {
 /* Tertiary Button */
 .btn-tertiary {
   background: transparent;
-  border: 1px solid var(--void-border);
-  color: var(--text-secondary);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
 }
 
 .btn-tertiary:hover {
-  border-color: var(--void-border-hover);
-  color: var(--text-primary);
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
 }
 
 /* ============================================
@@ -549,15 +536,15 @@ code {
    ============================================ */
 
 .card {
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .card:hover {
-  border-color: var(--void-border-hover);
+  border-color: var(--color-border-strong);
   transform: translateY(-2px);
 }
 
@@ -569,7 +556,7 @@ code {
 
 .card-subtitle {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
 }
 
 /* ============================================
@@ -620,12 +607,12 @@ code {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--void-border-unselected);
+  background: var(--color-text-disabled);
   transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .stage-dot.completed {
-  background: var(--text-primary);
+  background: var(--color-text-primary);
 }
 
 .stage-dot.active {
@@ -641,8 +628,8 @@ code {
    ============================================ */
 
 .viz-item {
-  background: var(--void-light);
-  border: 1px solid var(--void-border);
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
   padding: var(--space-md);
   cursor: pointer;
@@ -650,7 +637,7 @@ code {
 }
 
 .viz-item:hover {
-  border-color: var(--void-border-hover);
+  border-color: var(--color-border-strong);
 }
 
 .viz-item.active {
@@ -669,7 +656,7 @@ code {
 
 .viz-item-desc {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
 }
 
 /* ============================================
@@ -1161,5 +1148,28 @@ code {
 .design-system-card-content div {
   color: var(--color-text-primary) !important;
   font-family: var(--font-family-sans) !important;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 

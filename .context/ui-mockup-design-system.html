@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vaisu - SOTA Design System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Aurora Gradient (Primary) */
+      --aurora-1: #6366f1;
+      --aurora-2: #a855f7;
+      --aurora-3: #ec4899;
+
+      /* Nova Gradient (Secondary) */
+      --nova-1: #06b6d4;
+      --nova-2: #3b82f6;
+      --nova-3: #8b5cf6;
+
+      /* Solar Gradient (Warning) */
+      --solar-1: #f59e0b;
+      --solar-2: #f97316;
+      --solar-3: #ef4444;
+
+      /* Ember Gradient (Error) */
+      --ember-1: #f43f5e;
+      --ember-2: #ec4899;
+      --ember-3: #db2777;
+
+      /* Void System */
+      --void-deepest: #1a1a1f;
+      --void-dark: #202028;
+      --void-light: #2a2a35;
+      --void-border: rgba(255,255,255,0.15);
+      --void-border-hover: rgba(255,255,255,0.25);
+      --void-border-unselected: #666666;
+
+      /* Text Colors */
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255,255,255,0.75);
+      --text-tertiary: rgba(255,255,255,0.65);
+
+      /* Gradients */
+      --gradient-aurora: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+      --gradient-nova: linear-gradient(135deg, var(--nova-1), var(--nova-2), var(--nova-3));
+      --gradient-solar: linear-gradient(135deg, var(--solar-1), var(--solar-2), var(--solar-3));
+      --gradient-ember: linear-gradient(135deg, var(--ember-1), var(--ember-2), var(--ember-3));
+      --gradient-border-aurora: conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1));
+      --gradient-border-nova: conic-gradient(from 0deg, var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1));
+
+      /* Animation */
+      --duration-fast: 150ms;
+      --duration-normal: 250ms;
+      --duration-slow: 400ms;
+      --duration-gradient: 4s;
+      --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+      /* Spacing */
+      --space-2xs: 4px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      --space-2xl: 48px;
+      --space-3xl: 64px;
+      --space-4xl: 96px;
+
+      /* Border Radius */
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+      background: var(--void-deepest);
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* ==================== ANIMATIONS ==================== */
+    @property --gradient-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    /* Reduced Motion Support */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+
+      .gradient-border-animated,
+      .gradient-border-animated-fast,
+      .btn-primary,
+      .btn-primary-fast {
+        animation: none !important;
+      }
+    }
+
+    @keyframes rotate-gradient-angle {
+      to { --gradient-angle: 360deg; }
+    }
+
+    /* Fallback animation for browsers without @property support */
+    @keyframes rotate-gradient-fallback {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Fallback class applied via JavaScript for non-@property browsers */
+    .gradient-fallback::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      background: conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1));
+      z-index: -1;
+      animation: rotate-gradient-fallback 4s linear infinite;
+    }
+
+    @keyframes rotate-gradient {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes aurora-shift {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(15deg); }
+    }
+
+    @keyframes success-pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    /* ==================== LAYOUT ==================== */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: var(--space-2xl);
+    }
+
+    .section {
+      margin-bottom: var(--space-4xl);
+    }
+
+    .section-header {
+      margin-bottom: var(--space-xl);
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: var(--space-sm);
+    }
+
+    .section-subtitle {
+      font-size: 16px;
+      color: var(--text-secondary);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--space-lg);
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-6 { grid-template-columns: repeat(6, 1fr); }
+
+    .flex {
+      display: flex;
+      gap: var(--space-md);
+    }
+
+    .flex-wrap { flex-wrap: wrap; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+
+    /* ==================== GRADIENT BORDER ==================== */
+    /* Normal animated - subtle rotation */
+    .gradient-border-animated {
+      --gradient-angle: 0deg;
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      border: 3px solid transparent;
+      animation: rotate-gradient-angle 4s linear infinite;
+    }
+
+    .gradient-border-animated.nova {
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+    }
+
+    /* Fast animated - grabs attention */
+    .gradient-border-animated-fast {
+      --gradient-angle: 0deg;
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      border: 3px solid transparent;
+      animation: rotate-gradient-angle 2s linear infinite;
+    }
+
+    .gradient-border-animated-fast.nova {
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+    }
+
+    /* Static - no animation */
+    .gradient-border-static {
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      border: 3px solid transparent;
+    }
+
+    .gradient-border-static.nova {
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from 0deg, var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+    }
+
+    .gradient-border-content {
+      background: var(--void-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    /* ==================== MESH GLOW ==================== */
+    .mesh-glow {
+      background:
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+        var(--void-dark);
+      border-radius: var(--radius-xl);
+    }
+
+    .mesh-glow-strong {
+      background:
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
+        radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+        var(--void-dark);
+      border-radius: var(--radius-xl);
+    }
+
+    /* ==================== TEXT GRADIENT ==================== */
+    .text-gradient {
+      background: var(--gradient-aurora);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .text-gradient.nova {
+      background: var(--gradient-nova);
+    }
+
+    .text-gradient-glow {
+      background: var(--gradient-aurora);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+    }
+
+    /* ==================== BUTTONS ==================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-xl);
+      border-radius: var(--radius-md);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    /* Primary Button (Luminous) - Animated */
+    .btn-primary {
+      --gradient-angle: 0deg;
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-xl);
+      border: 3px solid transparent;
+      color: var(--text-primary);
+      animation: rotate-gradient-angle 4s linear infinite;
+    }
+
+    /* Primary Button - Fast animated - grabs attention */
+    .btn-primary-fast {
+      --gradient-angle: 0deg;
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-xl);
+      border: 3px solid transparent;
+      color: var(--text-primary);
+      animation: rotate-gradient-angle 2s linear infinite;
+    }
+
+    .btn-primary-static {
+      position: relative;
+      background:
+        linear-gradient(var(--void-light), var(--void-light)) padding-box,
+        conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-xl);
+      border: 3px solid transparent;
+      color: var(--text-primary);
+    }
+
+    .btn-primary:hover,
+    .btn-primary-fast:hover {
+      transform: scale(1.02);
+    }
+
+    .btn-primary:active,
+    .btn-primary-fast:active {
+      transform: scale(0.98);
+    }
+
+    /* Secondary Button */
+    .btn-secondary {
+      background: var(--void-light);
+      border: 1px solid var(--void-border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--aurora-1);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    /* Tertiary Button */
+    .btn-tertiary {
+      background: transparent;
+      border: 1px solid var(--void-border);
+      color: var(--text-secondary);
+    }
+
+    .btn-tertiary:hover {
+      border-color: var(--void-border-hover);
+      color: var(--text-primary);
+    }
+
+    /* ==================== CARDS ==================== */
+    .card {
+      background: var(--void-light);
+      border: 1px solid var(--void-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .card:hover {
+      border-color: var(--void-border-hover);
+      transform: translateY(-2px);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+
+    .card-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== BADGES ==================== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-md) var(--space-lg);
+      min-height: 44px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-aurora {
+      background: rgba(99, 102, 241, 0.25);
+      color: #a78bfa;
+    }
+
+    .badge-nova {
+      background: rgba(6, 182, 212, 0.25);
+      color: #67e8f9;
+    }
+
+    .badge-solar {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--solar-2);
+    }
+
+    .badge-ember {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--ember-2);
+    }
+
+    /* ==================== INPUTS ==================== */
+    .input {
+      width: 100%;
+      background: var(--void-dark);
+      border: 1px solid var(--void-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      font-size: 16px;
+      color: var(--text-primary);
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--aurora-1);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .input::placeholder {
+      color: var(--text-tertiary);
+    }
+
+    /* ==================== STAGE INDICATORS ==================== */
+    .stage-indicators {
+      display: flex;
+      gap: var(--space-md);
+      align-items: center;
+    }
+
+    .stage-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--void-border-unselected);
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .stage-dot.completed {
+      background: var(--text-primary);
+    }
+
+    .stage-dot.active {
+      width: 16px;
+      height: 16px;
+      background: var(--gradient-aurora);
+      box-shadow: 0 0 20px var(--aurora-2), 0 0 40px rgba(168, 85, 247, 0.3);
+      animation: pulse-glow 2s ease-in-out infinite;
+    }
+
+    /* ==================== VISUALIZATION ITEM ==================== */
+    .viz-item {
+      background: var(--void-light);
+      border: 1px solid var(--void-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: all var(--duration-normal) var(--ease-out);
+    }
+
+    .viz-item:hover {
+      border-color: var(--void-border-hover);
+    }
+
+    .viz-item.active {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--aurora-1);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+    }
+
+    .viz-item-name {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      margin-bottom: var(--space-2xs);
+    }
+
+    .viz-item-desc {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== COLOR SWATCHES ==================== */
+    .color-swatch {
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .color-swatch-box {
+      height: 80px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-family: monospace;
+    }
+
+    /* ==================== LOADING STATES ==================== */
+    .shimmer {
+      background: linear-gradient(
+        90deg,
+        var(--void-light) 0%,
+        rgba(255,255,255,0.05) 50%,
+        var(--void-light) 100%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--void-border);
+      border-top-color: var(--aurora-1);
+      border-radius: 50%;
+      animation: rotate-gradient 2s linear infinite;
+    }
+
+    /* ==================== HERO BACKGROUND ==================== */
+    .hero-bg {
+      background:
+        radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+        radial-gradient(at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+        radial-gradient(at 40% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+        transparent;
+      border-radius: var(--radius-xl);
+      padding: var(--space-4xl) var(--space-2xl);
+      text-align: center;
+      animation: aurora-shift 8s ease-in-out infinite alternate;
+    }
+
+    /* ==================== TYPOGRAPHY ==================== */
+    .display-2xl { font-size: 72px; line-height: 56px; font-weight: 700; }
+    .display-xl { font-size: 48px; line-height: 48px; font-weight: 700; }
+    .display-lg { font-size: 36px; line-height: 40px; font-weight: 700; }
+    .heading { font-size: 24px; line-height: 32px; font-weight: 600; }
+    .body-lg { font-size: 18px; line-height: 28px; }
+    .body { font-size: 16px; line-height: 24px; }
+    .body-sm { font-size: 14px; line-height: 20px; }
+    .body-xs { font-size: 12px; line-height: 16px; }
+
+    /* ==================== UTILITIES ==================== */
+    .text-secondary { color: var(--text-secondary); }
+    .text-tertiary { color: var(--text-tertiary); }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .mb-xs { margin-bottom: var(--space-xs); }
+    .mb-sm { margin-bottom: var(--space-sm); }
+    .mb-md { margin-bottom: var(--space-md); }
+    .mb-lg { margin-bottom: var(--space-lg); }
+    .mb-xl { margin-bottom: var(--space-xl); }
+
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    /* ==================== SKIP LINK ==================== */
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: auto;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      z-index: -99;
+    }
+
+    .skip-link:focus {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      padding: 12px 24px;
+      background: var(--aurora-1);
+      color: white;
+      border-radius: var(--radius-md);
+      z-index: 9999;
+      width: auto;
+      height: auto;
+      font-weight: 600;
+    }
+
+    /* ==================== FOCUS VISIBLE ==================== */
+    button:focus-visible,
+    input:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--aurora-1);
+      outline-offset: 2px;
+    }
+
+    .viz-item:focus-visible {
+      outline: 2px solid var(--aurora-1);
+      outline-offset: 2px;
+    }
+
+    .bg-selector-btn:focus-visible {
+      outline: 2px solid var(--aurora-1);
+      outline-offset: 2px;
+    }
+
+    /* ==================== HEADER ==================== */
+    header {
+      background: rgba(3, 3, 5, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--void-border);
+      padding: var(--space-md) var(--space-2xl);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    /* ==================== RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+      .grid-2, .grid-3, .grid-4, .grid-6 {
+        grid-template-columns: 1fr;
+      }
+      .display-2xl { font-size: 48px; }
+      .page { padding: var(--space-lg); }
+    }
+
+    /* ==================== BACKGROUND PRESETS ==================== */
+    .bg-preset-void {
+      --void-deepest: #1a1a1f;
+      --void-dark: #202028;
+      --void-light: #2a2a35;
+    }
+
+    .bg-preset-linear {
+      --void-deepest: #1c1d20;
+      --void-dark: #24262a;
+      --void-light: #2e3136;
+    }
+
+    .bg-preset-vercel {
+      --void-deepest: #18181b;
+      --void-dark: #27272a;
+      --void-light: #3f3f46;
+    }
+
+    .bg-preset-notion {
+      --void-deepest: #2a2a2a;
+      --void-dark: #353535;
+      --void-light: #4a4d50;
+    }
+
+    .bg-preset-github {
+      --void-deepest: #161b22;
+      --void-dark: #1f242c;
+      --void-light: #2d333b;
+    }
+
+    .bg-preset-taupe-warm {
+      --void-deepest: #1e1c19;
+      --void-dark: #2a2721;
+      --void-light: #3a362e;
+    }
+
+    .bg-preset-taupe-cool {
+      --void-deepest: #1c1d20;
+      --void-dark: #24262b;
+      --void-light: #33363d;
+    }
+
+    .bg-preset-taupe-amber {
+      --void-deepest: #1e1a15;
+      --void-dark: #2b261f;
+      --void-light: #3c362b;
+    }
+
+    .bg-preset-indigo {
+      --void-deepest: #161c2a;
+      --void-dark: #1e273a;
+      --void-light: #2a3548;
+    }
+
+    .bg-preset-midnight {
+      --void-deepest: #0f1a2f;
+      --void-dark: #16263d;
+      --void-light: #1f3a52;
+    }
+
+    /* Background Selector */
+    .bg-selector {
+      position: fixed;
+      top: 80px;
+      right: 24px;
+      background: var(--void-deepest);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      z-index: 1000;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      min-width: 160px;
+    }
+
+    .bg-selector-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      color: #fff;
+    }
+
+    .bg-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .bg-selector-btn {
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .bg-selector-btn:hover {
+      border-color: var(--aurora-1);
+      color: #fff;
+    }
+
+    .bg-selector-btn.active {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--aurora-1);
+      color: var(--aurora-2);
+    }
+
+    .bg-selector-btn-swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    /* Preset swatch colors */
+    .swatch-void { background: #1a1a1f; }
+    .swatch-linear { background: #1c1d20; }
+    .swatch-vercel { background: #18181b; }
+    .swatch-notion { background: #2a2a2a; }
+    .swatch-github { background: #161b22; }
+    .swatch-taupe-warm { background: #1e1c19; }
+    .swatch-taupe-cool { background: #1c1d20; }
+    .swatch-taupe-amber { background: #1e1a15; }
+    .swatch-indigo { background: #161c2a; }
+    .swatch-midnight { background: #0f1a2f; }
+
+    /* ==================== FOOTER ==================== */
+    footer {
+      padding: var(--space-2xl);
+      text-align: center;
+      border-top: 1px solid var(--void-border);
+      margin-top: var(--space-4xl);
+    }
+  </style>
+</head>
+<body>
+  <div id="theme-wrapper" class="bg-preset-void">
+  <!-- Skip Navigation Link -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <!-- Background Selector -->
+  <div class="bg-selector" role="radiogroup" aria-label="Background theme selector">
+    <div class="bg-selector-title">Background</div>
+    <div class="bg-selector-grid">
+      <button class="bg-selector-btn" data-preset="void" role="radio" aria-checked="true" aria-label="Void background">
+        <span class="bg-selector-btn-swatch swatch-void" aria-hidden="true"></span>Void
+      </button>
+      <button class="bg-selector-btn" data-preset="linear" role="radio" aria-checked="false" aria-label="Linear background">
+        <span class="bg-selector-btn-swatch swatch-linear" aria-hidden="true"></span>Linear
+      </button>
+      <button class="bg-selector-btn" data-preset="vercel" role="radio" aria-checked="false" aria-label="Vercel background">
+        <span class="bg-selector-btn-swatch swatch-vercel" aria-hidden="true"></span>Vercel
+      </button>
+      <button class="bg-selector-btn" data-preset="notion" role="radio" aria-checked="false" aria-label="Notion background">
+        <span class="bg-selector-btn-swatch swatch-notion" aria-hidden="true"></span>Notion
+      </button>
+      <button class="bg-selector-btn" data-preset="github" role="radio" aria-checked="false" aria-label="GitHub background">
+        <span class="bg-selector-btn-swatch swatch-github" aria-hidden="true"></span>GitHub
+      </button>
+      <button class="bg-selector-btn" data-preset="taupe-warm" role="radio" aria-checked="false" aria-label="Taupe Warm background">
+        <span class="bg-selector-btn-swatch swatch-taupe-warm" aria-hidden="true"></span>Taupe Warm
+      </button>
+      <button class="bg-selector-btn" data-preset="taupe-cool" role="radio" aria-checked="false" aria-label="Taupe Cool background">
+        <span class="bg-selector-btn-swatch swatch-taupe-cool" aria-hidden="true"></span>Taupe Cool
+      </button>
+      <button class="bg-selector-btn" data-preset="taupe-amber" role="radio" aria-checked="false" aria-label="Taupe Amber background">
+        <span class="bg-selector-btn-swatch swatch-taupe-amber" aria-hidden="true"></span>Taupe Amber
+      </button>
+      <button class="bg-selector-btn" data-preset="indigo" role="radio" aria-checked="false" aria-label="Indigo background">
+        <span class="bg-selector-btn-swatch swatch-indigo" aria-hidden="true"></span>Indigo
+      </button>
+      <button class="bg-selector-btn" data-preset="midnight" role="radio" aria-checked="false" aria-label="Midnight background">
+        <span class="bg-selector-btn-swatch swatch-midnight" aria-hidden="true"></span>Midnight
+      </button>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <span class="text-gradient-glow">Vaisu</span> Design System
+      </div>
+      <div class="flex items-center">
+        <span class="body-sm text-secondary">SOTA UI Components</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content" class="page">
+    <!-- Hero Section -->
+    <section class="section hero-bg">
+      <div class="display-2xl text-gradient-glow mb-lg">Luminous Focus</div>
+      <div class="body-lg text-secondary mb-xl" style="max-width: 600px; margin-left: auto; margin-right: auto;">
+        Dark void background with luminous, animated gradient accents. The interface breathes.
+      </div>
+      <div class="flex justify-center flex-wrap">
+        <button class="btn btn-primary" type="button">Get Started</button>
+        <button class="btn btn-secondary" type="button">Learn More</button>
+      </div>
+    </section>
+
+    <!-- Color Palette -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Color Palette</h2>
+        <p class="section-subtitle">Animated gradients and void system</p>
+      </div>
+
+      <h3 class="heading mb-md">Primary Gradients - Animated vs Static</h3>
+      <div class="grid grid-2 mb-xl">
+        <div class="gradient-border-animated">
+          <div class="gradient-border-content">
+            <div class="display-lg text-gradient">Aurora (Animated)</div>
+            <div class="body text-secondary mb-sm">Indigo → Purple → Pink</div>
+            <div class="body-xs text-tertiary">Rotating gradient border for enhanced visibility</div>
+          </div>
+        </div>
+        <div class="gradient-border-static">
+          <div class="gradient-border-content">
+            <div class="display-lg text-gradient">Aurora (Static)</div>
+            <div class="body text-secondary mb-sm">Indigo → Purple → Pink</div>
+            <div class="body-xs text-tertiary">Static gradient border for subtle appearance</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-2 mb-xl">
+        <div class="gradient-border-animated nova">
+          <div class="gradient-border-content">
+            <div class="display-lg text-gradient nova">Nova (Animated)</div>
+            <div class="body text-secondary mb-sm">Cyan → Blue → Violet</div>
+            <div class="body-xs text-tertiary">Rotating gradient border for enhanced visibility</div>
+          </div>
+        </div>
+        <div class="gradient-border-static nova">
+          <div class="gradient-border-content">
+            <div class="display-lg text-gradient nova">Nova (Static)</div>
+            <div class="body text-secondary mb-sm">Cyan → Blue → Violet</div>
+            <div class="body-xs text-tertiary">Static gradient border for subtle appearance</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Secondary Gradients</h3>
+      <div class="grid grid-2 mb-xl">
+        <div class="mesh-glow" style="padding: var(--space-lg);">
+          <div class="display-lg" style="color: var(--solar-1);">Solar</div>
+          <div class="body text-secondary mb-sm">Amber → Orange → Red</div>
+          <div class="body-xs text-tertiary">Warning states, attention</div>
+        </div>
+        <div class="mesh-glow" style="padding: var(--space-lg);">
+          <div class="display-lg" style="color: var(--ember-1);">Ember</div>
+          <div class="body text-secondary mb-sm">Rose → Pink → Magenta</div>
+          <div class="body-xs text-tertiary">Error states, danger</div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Void System</h3>
+      <div class="grid grid-4 mb-xl">
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--void-deepest);">#1a1a1f</div>
+          <div class="body-xs">Void Deepest</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--void-dark);">#202028</div>
+          <div class="body-xs">Void Dark</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--void-light);">#2a2a35</div>
+          <div class="body-xs">Void Light</div>
+        </div>
+        <div class="color-swatch">
+          <div class="color-swatch-box" style="background: var(--void-border); border: 1px solid var(--void-border-hover);">rgba(255,255,255,0.06)</div>
+          <div class="body-xs">Void Border</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Typography</h2>
+        <p class="section-subtitle">Major Third scale with gradient effects</p>
+      </div>
+
+      <div class="mesh-glow" style="padding: var(--space-2xl);">
+        <div class="display-2xl mb-md">Display 2XL - 72px</div>
+        <div class="display-xl mb-md">Display XL - 48px</div>
+        <div class="display-lg mb-md">Display LG - 36px</div>
+        <div class="heading mb-md">Heading - 24px</div>
+        <div class="body-lg mb-md">Body Large - 18px</div>
+        <div class="body mb-md">Body - 16px</div>
+        <div class="body-sm mb-md">Body Small - 14px</div>
+        <div class="body-xs">Body Extra Small - 12px</div>
+      </div>
+
+      <div class="grid grid-2 mt-lg">
+        <div class="card">
+          <div class="card-title">Text Gradient</div>
+          <div class="display-xl text-gradient mb-sm">Luminous Text</div>
+          <div class="body text-secondary">Standard gradient without glow</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Text Gradient + Glow</div>
+          <div class="display-xl text-gradient-glow mb-sm">Luminous Text</div>
+          <div class="body text-secondary">With drop shadow glow effect</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Buttons</h2>
+        <p class="section-subtitle">Priority levels with animated effects</p>
+      </div>
+
+      <div class="grid grid-3 mb-xl">
+        <div>
+          <div class="body-sm text-tertiary mb-xs">PRIORITY 1 - LUMINOUS</div>
+          <button class="btn btn-primary" type="button" style="width: 100%;">Primary Action</button>
+          <div class="body-xs text-tertiary mt-xs">Animated gradient border + glow</div>
+        </div>
+        <div>
+          <div class="body-sm text-tertiary mb-xs">PRIORITY 2 - ELEVATED</div>
+          <button class="btn btn-secondary" type="button" style="width: 100%;">Secondary Action</button>
+          <div class="body-xs text-tertiary mt-xs">Subtle border, hover gradient</div>
+        </div>
+        <div>
+          <div class="body-sm text-tertiary mb-xs">PRIORITY 3 - SUBTLE</div>
+          <button class="btn btn-tertiary" type="button" style="width: 100%;">Tertiary Action</button>
+          <div class="body-xs text-tertiary mt-xs">Minimal styling</div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Button States - Animated vs Static</h3>
+      <div class="flex flex-wrap mb-xl">
+        <button class="btn btn-primary" type="button" style="width: 100%;">Primary Animated</button>
+        <button class="btn btn-primary-static" type="button" style="width: 100%;">Primary Static</button>
+        <button class="btn btn-primary" type="button">
+          With Icon (Animated) <span class="text-gradient">★</span>
+        </button>
+        <button class="btn btn-primary-static" type="button">
+          With Icon (Static) <span class="text-gradient">★</span>
+        </button>
+        <button class="btn btn-secondary" type="button">
+          <span class="text-tertiary">←</span> Back
+        </button>
+        <button class="btn btn-tertiary" type="button">
+          Cancel
+        </button>
+      </div>
+
+      <h3 class="heading mb-md">Fast Animated Buttons (Attention-Grabbing)</h3>
+      <div class="flex flex-wrap">
+        <button class="btn btn-primary-fast" type="button" style="width: 100%;">Primary Fast (2s)</button>
+        <button class="btn btn-primary-fast" type="button">
+          Call to Action <span class="text-gradient">⚡</span>
+        </button>
+        <button class="btn btn-primary-fast" type="button">
+          Get Started Now <span class="text-gradient">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Cards</h2>
+        <p class="section-subtitle">Elevated containers with hover effects</p>
+      </div>
+
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="card-title">Research Paper on AI Safety</div>
+          <div class="card-subtitle mb-md">12,450 words · 2 hours ago</div>
+          <div class="flex flex-wrap">
+            <span class="badge badge-aurora">Mind Map</span>
+            <span class="badge badge-nova">Graph</span>
+            <span class="badge badge-aurora">Timeline</span>
+          </div>
+        </div>
+
+        <div class="card mesh-glow">
+          <div class="card-title text-gradient">Climate Change Report</div>
+          <div class="card-subtitle mb-md">8,200 words · 1 day ago</div>
+          <div class="flex flex-wrap">
+            <span class="badge badge-nova">Mind Map</span>
+            <span class="badge badge-aurora">Arguments</span>
+          </div>
+        </div>
+
+        <div class="gradient-border-animated">
+          <div class="gradient-border-content">
+            <div class="card-title text-gradient">Product Requirements</div>
+            <div class="card-subtitle mb-md">3,100 words · 3 days ago</div>
+            <div class="flex flex-wrap">
+              <span class="badge badge-aurora">Mind Map</span>
+              <span class="badge badge-aurora">Timeline</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Badges -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Badges</h2>
+        <p class="section-subtitle">Status indicators with gradient colors</p>
+      </div>
+
+      <div class="flex flex-wrap items-center">
+        <span class="badge badge-aurora">Aurora Badge ★</span>
+        <span class="badge badge-nova">Nova Badge</span>
+        <span class="badge badge-solar">Solar Badge</span>
+        <span class="badge badge-ember">Ember Badge</span>
+        <span class="badge" style="background: var(--void-light); color: var(--text-secondary);">Neutral</span>
+      </div>
+    </section>
+
+    <!-- Inputs -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Inputs</h2>
+        <p class="section-subtitle">Form controls with focus glow effects</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div>
+          <label for="input-default" class="body-sm text-secondary mb-xs" style="display: block;">Default State</label>
+          <input type="text" id="input-default" class="input" placeholder="Enter your text...">
+        </div>
+        <div>
+          <label for="input-focused" class="body-sm text-secondary mb-xs" style="display: block;">Focused State (click to see)</label>
+          <input type="text" id="input-focused" class="input" placeholder="Focus me for gradient glow...">
+        </div>
+      </div>
+    </section>
+
+    <!-- Stage Indicators -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Stage Indicators</h2>
+        <p class="section-subtitle">Progress tracking with animated states</p>
+      </div>
+
+      <div class="card" style="display: flex; justify-content: center; padding: var(--space-2xl);">
+        <div class="stage-indicators" role="list" aria-label="Progress indicator: 3 of 5 stages completed">
+          <div class="stage-dot completed" role="listitem" aria-label="Stage 1 completed"></div>
+          <div class="stage-dot completed" role="listitem" aria-label="Stage 2 completed"></div>
+          <div class="stage-dot completed" role="listitem" aria-label="Stage 3 completed"></div>
+          <div class="stage-dot active" role="listitem" aria-label="Stage 4 in progress" aria-current="step"></div>
+          <div class="stage-dot" role="listitem" aria-label="Stage 5 not started"></div>
+        </div>
+      </div>
+
+      <div class="grid grid-4 mt-lg">
+        <div class="flex flex-col items-center">
+          <div class="stage-dot mb-sm" role="listitem" aria-label="Future stage"></div>
+          <span class="body-xs text-tertiary">Future</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="stage-dot completed mb-sm" role="listitem" aria-label="Completed stage"></div>
+          <span class="body-xs text-secondary">Completed</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="stage-dot active mb-sm" role="listitem" aria-label="Active stage" aria-current="step"></div>
+          <span class="body-xs text-gradient">Active</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="stage-dot active mb-sm floating" style="width: 20px; height: 20px;" role="listitem" aria-label="Floating stage" aria-current="step"></div>
+          <span class="body-xs text-tertiary">Floating</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visualization Items -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Visualization Switcher</h2>
+        <p class="section-subtitle">Sidebar items with active/hover states</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="viz-item active" role="button" tabindex="0" aria-pressed="true" aria-label="Mind Map visualization - Recommended">
+          <div class="viz-item-name">
+            🧠 Mind Map <span class="badge badge-aurora">Recommended</span>
+          </div>
+          <div class="viz-item-desc">Hierarchical structure of key concepts</div>
+        </div>
+        <div class="viz-item" role="button" tabindex="0" aria-pressed="false" aria-label="Knowledge Graph visualization">
+          <div class="viz-item-name">🕸️ Knowledge Graph</div>
+          <div class="viz-item-desc">Entity relationships and connections</div>
+        </div>
+        <div class="viz-item" role="button" tabindex="0" aria-pressed="false" aria-label="Timeline visualization">
+          <div class="viz-item-name">📅 Timeline</div>
+          <div class="viz-item-desc">Chronological flow of arguments</div>
+        </div>
+        <div class="viz-item" role="button" tabindex="0" aria-pressed="false" aria-label="Argument Map visualization">
+          <div class="viz-item-name">📊 Argument Map</div>
+          <div class="viz-item-desc">Premise-conclusion structure</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading States -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Loading States</h2>
+        <p class="section-subtitle">Shimmer and spinner animations</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="card" aria-live="polite" aria-busy="true">
+          <div class="card-title mb-md">Shimmer Loading</div>
+          <div class="shimmer" style="height: 40px; border-radius: var(--radius-sm); margin-bottom: var(--space-sm);" aria-hidden="true"></div>
+          <div class="shimmer" style="height: 20px; border-radius: var(--radius-sm); width: 70%;" aria-hidden="true"></div>
+        </div>
+        <div class="card flex items-center justify-center" role="status" aria-live="polite" aria-busy="true" aria-label="Loading">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <span class="sr-only">Loading...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mesh Glow Effects -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Mesh Glow Effects</h2>
+        <p class="section-subtitle">Subtle background gradients for depth</p>
+      </div>
+
+      <div class="grid grid-2">
+        <div class="mesh-glow" style="padding: var(--space-2xl);">
+          <div class="display-lg mb-sm">Subtle Glow</div>
+          <div class="body text-secondary">15% opacity gradients</div>
+        </div>
+        <div class="mesh-glow-strong" style="padding: var(--space-2xl);">
+          <div class="display-lg mb-sm">Strong Glow</div>
+          <div class="body text-secondary">25% opacity gradients</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gradient Border Showcase -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Gradient Border Showcase</h2>
+        <p class="section-subtitle">Animated rotating gradients vs static gradients</p>
+      </div>
+
+      <h3 class="heading mb-md">Animated Rotating Gradients</h3>
+      <div class="grid grid-3 mb-xl">
+        <div class="gradient-border-animated">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient">Aurora (Animated)</div>
+            <div class="body-sm text-secondary">Rotating 4s infinite - Enhanced visibility</div>
+          </div>
+        </div>
+        <div class="gradient-border-animated nova">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient nova">Nova (Animated)</div>
+            <div class="body-sm text-secondary">Rotating 4s infinite - Enhanced visibility</div>
+          </div>
+        </div>
+        <div class="gradient-border-animated mesh-glow-strong">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient">Combined Effects</div>
+            <div class="body-sm text-secondary">Rotating + Mesh glow - Maximum visibility</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Fast Animated Gradients (Attention-Grabbing)</h3>
+      <div class="grid grid-3 mb-xl">
+        <div class="gradient-border-animated-fast">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient">Aurora (Fast)</div>
+            <div class="body-sm text-secondary">Rotating 1s infinite - Grabs attention</div>
+          </div>
+        </div>
+        <div class="gradient-border-animated-fast nova">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient nova">Nova (Fast)</div>
+            <div class="body-sm text-secondary">Rotating 1s infinite - Grabs attention</div>
+          </div>
+        </div>
+        <div class="gradient-border-animated-fast mesh-glow-strong">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient">Fast + Glow</div>
+            <div class="body-sm text-secondary">Rotating 1s + Mesh glow - High impact</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Static Gradient Borders</h3>
+      <div class="grid grid-3">
+        <div class="gradient-border-static">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient">Aurora (Static)</div>
+            <div class="body-sm text-secondary">Static gradient - Subtle appearance</div>
+          </div>
+        </div>
+        <div class="gradient-border-static nova">
+          <div class="gradient-border-content">
+            <div class="heading text-gradient nova">Nova (Static)</div>
+            <div class="body-sm text-secondary">Static gradient - Subtle appearance</div>
+          </div>
+        </div>
+        <div class="card mesh-glow-strong">
+          <div class="heading">Static Glow</div>
+          <div class="body-sm text-secondary">Mesh gradient, no rotation - Subtle depth</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visual Hierarchy -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Visual Hierarchy</h2>
+        <p class="section-subtitle">Priority levels with animated vs static options</p>
+      </div>
+
+      <h3 class="heading mb-md">Priority 1 - LUMINOUS (Animated Option)</h3>
+      <div class="grid grid-2 mb-xl">
+        <div class="gradient-border-animated">
+          <div class="gradient-border-content">
+            <div class="body-xs text-tertiary mb-xs">ANIMATED</div>
+            <div class="heading text-gradient">Must See (Animated)</div>
+            <div class="body text-secondary">Animated gradient border, mesh glow, text gradient - Maximum visibility</div>
+          </div>
+        </div>
+        <div class="gradient-border-static">
+          <div class="gradient-border-content">
+            <div class="body-xs text-tertiary mb-xs">STATIC</div>
+            <div class="heading text-gradient">Must See (Static)</div>
+            <div class="body text-secondary">Static gradient border, mesh glow, text gradient - Subtle visibility</div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="heading mb-md">Priority 2 - ELEVATED</h3>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="body-xs text-tertiary mb-xs">ELEVATED</div>
+          <div class="heading">Should See</div>
+          <div class="body text-secondary">Subtle border, elevated background, hover reveals glow</div>
+        </div>
+        <div class="card" style="border-color: var(--void-border); background: var(--void-dark);">
+          <div class="body-xs text-tertiary mb-xs">SUBTLE</div>
+          <div class="heading text-secondary">Can See</div>
+          <div class="body text-secondary">No border, void-dark background, secondary opacity</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="body-sm text-tertiary">Vaisu Design System · State-of-the-Art UI</div>
+  </footer>
+
+  </div>
+
+  <script>
+    // Set active button
+    function setActiveButton(preset) {
+      document.querySelectorAll('.bg-selector-btn').forEach(btn => {
+        const isActive = btn.dataset.preset === preset;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-checked', isActive.toString());
+      });
+    }
+
+    // Apply background preset
+    function applyBackgroundPreset(preset) {
+      const wrapper = document.getElementById('theme-wrapper');
+      if (!wrapper) return;
+
+      // Remove all preset classes
+      wrapper.classList.remove(
+        'bg-preset-void',
+        'bg-preset-linear',
+        'bg-preset-vercel',
+        'bg-preset-notion',
+        'bg-preset-github',
+        'bg-preset-taupe-warm',
+        'bg-preset-taupe-cool',
+        'bg-preset-taupe-amber',
+        'bg-preset-indigo',
+        'bg-preset-midnight'
+      );
+
+      // Add the new preset class
+      wrapper.classList.add(`bg-preset-${preset}`);
+
+      setActiveButton(preset);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Event listeners for background selector buttons
+      document.querySelectorAll('.bg-selector-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          applyBackgroundPreset(btn.dataset.preset);
+        });
+      });
+
+      // Keyboard event handlers for visualization items
+      document.querySelectorAll('.viz-item').forEach(item => {
+        item.addEventListener('keydown', (e) => {
+          // Activate on Enter or Space key
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            // Toggle active state
+            const isActive = item.classList.contains('active');
+            document.querySelectorAll('.viz-item').forEach(i => {
+              i.classList.remove('active');
+              i.setAttribute('aria-pressed', 'false');
+            });
+            if (!isActive) {
+              item.classList.add('active');
+              item.setAttribute('aria-pressed', 'true');
+            }
+          }
+        });
+      });
+
+      // Initialize with void preset as active
+      setActiveButton('void');
+    });
+  </script>
+</body>
+</html>

@@ -381,10 +381,10 @@ AWS_REGION=us-east-1
   - Performance optimization strategies
   - Implementation planning
 - **Usage**: When designing new graphical representations, use the Graphy agent for comprehensive design guidance
-- **Reference**: `/frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md` for complete design system guidelines
+- **Reference**: `.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md` for complete design system guidelines
 
 ### Graphical Representations Design System
-- **Location**: `/frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md`
+- **Location**: `.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md`
 - **Covers**:
   - State-of-the-Art Semantic Argument Map UI/UX
   - Dual-metaphor aesthetic system (Dark Mode "Void" vs Light Mode "Lab")

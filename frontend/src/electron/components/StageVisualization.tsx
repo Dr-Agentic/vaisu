@@ -26,7 +26,7 @@ import {
   Download,
   ArrowLeft,
 } from 'lucide-react';
-import { Button } from './Button';
+import { Button } from '../../design-system/components/Button';
 import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 import { cn } from '../../lib/utils';
 import { VisualizationRenderer } from '../../components/visualizations/VisualizationRenderer';
@@ -61,8 +61,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
 
     // Keyboard shortcuts
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-      // Viz shortcuts: 1-6
-      if (['1', '2', '3', '4', '5', '6'].includes(e.key)) {
+      // Viz shortcuts: 1-7
+      if (['1', '2', '3', '4', '5', '6', '7'].includes(e.key)) {
         const vizTypes: VisualizationType[] = [
           'mind-map',
           'knowledge-graph',
@@ -70,6 +70,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
           'argument-map',
           'uml-class-diagram',
           'structured-view',
+          'terms-definitions',
         ];
         const index = parseInt(e.key) - 1;
         if (vizTypes[index]) {
@@ -137,11 +138,11 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'justify-center'
           )}
           style={{
-            backgroundColor: 'var(--void-deepest)',
-            color: 'var(--text-primary)',
+            backgroundColor: 'var(--color-background-primary)',
+            color: 'var(--color-text-primary)',
           }}
         >
-          <p style={{ color: 'var(--text-secondary)' }}>No document loaded</p>
+          <p style={{ color: 'var(--color-text-secondary)' }}>No document loaded</p>
         </div>
       );
     }
@@ -151,8 +152,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         ref={ref}
         className={cn('flex-1', 'flex', 'flex-col')}
         style={{
-          backgroundColor: 'var(--void-deepest)',
-          color: 'var(--text-primary)',
+          backgroundColor: 'var(--color-background-primary)',
+          color: 'var(--color-text-primary)',
         }}
       >
         {/* Header */}
@@ -166,26 +167,34 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'justify-between'
           )}
           style={{
-            borderColor: 'var(--void-border)',
-            backgroundColor: 'var(--void-dark)',
+            borderColor: 'var(--color-border-subtle)',
+            backgroundColor: 'var(--color-surface-base)',
           }}
         >
           {/* Document Info */}
           <div className="flex items-center gap-4">
-            <h3
-              className={cn('text-base', 'font-semibold')}
-              style={{
-                color: 'var(--text-primary)',
-                fontSize: 'var(--font-size-base)',
-                fontWeight: 'var(--font-weight-semibold)',
-              }}
-            >
-              {document.title || 'Untitled Document'}
-            </h3>
+            <div className="flex flex-col">
+              <h3
+                className={cn('text-base', 'font-semibold')}
+                style={{
+                  color: 'var(--color-text-primary)',
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                }}
+              >
+                {document.title || 'Untitled Document'}
+              </h3>
+              <span 
+                className="font-mono opacity-50"
+                style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}
+              >
+                ID: {document.id}
+              </span>
+            </div>
             <span
               className="text-sm"
               style={{
-                color: 'var(--text-secondary)',
+                color: 'var(--color-text-secondary)',
                 fontSize: 'var(--font-size-sm)',
               }}
             >
@@ -266,7 +275,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               ]
             )}
             style={{
-              backgroundColor: 'var(--void-deepest)',
+              backgroundColor: 'var(--color-background-primary)',
             }}
           >
             {/* Visualization Renderer */}
@@ -289,8 +298,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
                 'border'
               )}
               style={{
-                backgroundColor: 'var(--void-dark)',
-                borderColor: 'var(--void-border)',
+                backgroundColor: 'var(--color-surface-base)',
+                borderColor: 'var(--color-border-subtle)',
                 boxShadow: 'var(--elevation-lg)',
               }}
             >
@@ -310,7 +319,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
                   'font-mono'
                 )}
                 style={{
-                  color: 'var(--text-primary)',
+                  color: 'var(--color-text-primary)',
                   fontSize: 'var(--font-size-sm)',
                 }}
               >
@@ -326,7 +335,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               </Button>
               <div
                 className="w-px h-6"
-                style={{ backgroundColor: 'var(--void-border)' }}
+                style={{ backgroundColor: 'var(--color-border-subtle)' }}
               />
               <Button
                 variant="ghost"
@@ -338,7 +347,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               </Button>
               <div
                 className="w-px h-6"
-                style={{ backgroundColor: 'var(--void-border)' }}
+                style={{ backgroundColor: 'var(--color-border-subtle)' }}
               />
               <Button
                 variant="ghost"
@@ -380,9 +389,9 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'pointer-events-none'
           )}
           style={{
-            backgroundColor: 'var(--void-dark)',
-            borderColor: 'var(--void-border)',
-            color: 'var(--text-secondary)',
+            backgroundColor: 'var(--color-surface-base)',
+            borderColor: 'var(--color-border-subtle)',
+            color: 'var(--color-text-secondary)',
             fontSize: 'var(--font-size-xs)',
           }}
         >
@@ -395,11 +404,11 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               'font-mono'
             )}
             style={{
-              backgroundColor: 'var(--void-light)',
-              borderColor: 'var(--void-border)',
+              backgroundColor: 'var(--color-surface-elevated)',
+              borderColor: 'var(--color-border-subtle)',
             }}
           >
-            1-6
+            1-7
           </kbd>{' '}
           Switch viz ·{' '}
           <kbd
@@ -411,8 +420,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               'font-mono'
             )}
             style={{
-              backgroundColor: 'var(--void-light)',
-              borderColor: 'var(--void-border)',
+              backgroundColor: 'var(--color-surface-elevated)',
+              borderColor: 'var(--color-border-subtle)',
             }}
           >
             F
@@ -427,8 +436,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               'font-mono'
             )}
             style={{
-              backgroundColor: 'var(--void-light)',
-              borderColor: 'var(--void-border)',
+              backgroundColor: 'var(--color-surface-elevated)',
+              borderColor: 'var(--color-border-subtle)',
             }}
           >
             Esc

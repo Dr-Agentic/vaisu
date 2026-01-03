@@ -1,9 +1,9 @@
 /**
  * Card Component
- * 
+ *
  * Flexible container component for grouping related content.
  * Supports multiple variants and elevation levels.
- * 
+ *
  * @example
  * ```tsx
  * <Card variant="elevated" padding="lg">
@@ -110,6 +110,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={cn(
           'rounded-[var(--radius-xl)]',
+          'design-system-card', // Add specific class to avoid Electron UI conflicts
           variantStyles[variant],
           paddingStyles[padding],
           ...(interactive
@@ -222,7 +223,14 @@ export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
     return (
       <div
         ref={ref}
-        className={cn('text-[var(--color-text-primary)]', className)}
+        className={cn(
+          // Use semantic design system text colors for theme compatibility
+          'text-[var(--color-text-primary)]',
+          // Font consistency
+          'font-[var(--font-family-sans)]',
+          'design-system-card-content', // Add specific class to avoid Electron UI conflicts
+          className
+        )}
         {...props}
       >
         {children}
@@ -259,4 +267,3 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
 );
 
 CardFooter.displayName = 'CardFooter';
-

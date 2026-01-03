@@ -44,14 +44,14 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
     },
     ref
   ) => {
-    const { progressMessage, progressPercent } = useDocumentStore();
+    const { progressMessage, progressPercent, document } = useDocumentStore();
 
     return (
       <div
         ref={ref}
         style={{
-          backgroundColor: 'var(--void-deepest)',
-          color: 'var(--text-primary)',
+          backgroundColor: 'var(--color-background-primary)',
+          color: 'var(--color-text-primary)',
         }}
         className={cn(
           'flex-1',
@@ -62,11 +62,19 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
           'text-center'
         )}
       >
+        {document && (
+          <div 
+            className="mb-4 font-mono opacity-50 text-xs"
+            style={{ color: 'var(--color-text-tertiary)' }}
+          >
+            ID: {document.id}
+          </div>
+        )}
         {/* Progress Ring */}
         <div
           className={cn('progress-ring', 'mb-8')}
           style={{
-            border: '3px solid var(--void-border)',
+            border: '3px solid var(--color-border-subtle)',
             borderTopColor: 'var(--aurora-1)',
           }}
           aria-label="Loading"
@@ -76,7 +84,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
         <h2
           className="mb-2 text-xl font-semibold"
           style={{
-            color: 'var(--text-primary)',
+            color: 'var(--color-text-primary)',
             fontSize: 'var(--font-size-xl)',
             fontWeight: 'var(--font-weight-semibold)',
           }}
@@ -88,7 +96,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
         <p
           className="base"
           style={{
-            color: 'var(--text-secondary)',
+            color: 'var(--color-text-secondary)',
           }}
         >
           {subMessage}
@@ -100,7 +108,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
             <div
               className="h-2 rounded-full overflow-hidden"
               style={{
-                backgroundColor: 'var(--void-border)',
+                backgroundColor: 'var(--color-border-subtle)',
               }}
             >
               <div
@@ -114,7 +122,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
             <p
               className="mt-2 text-sm"
               style={{
-                color: 'var(--text-secondary)',
+                color: 'var(--color-text-secondary)',
               }}
             >
               {progressMessage}

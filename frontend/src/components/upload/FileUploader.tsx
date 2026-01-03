@@ -2,6 +2,8 @@ import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
+import { Card } from '../../design-system/components/Card';
+import { cn } from '../../lib/utils';
 
 export function FileUploader() {
   const { uploadDocument, isLoading, progressMessage, progressPercent, addToast } = useDocumentStore();
@@ -59,72 +61,130 @@ export function FileUploader() {
   });
 
   return (
-    <div
+    <Card
       {...getRootProps()}
-      className={`
-        border-3 border-dashed rounded-xl text-center cursor-pointer
-        transition-all duration-200 ease-out
-        ${isDragActive
-          ? 'border-primary-500 bg-primary-100 scale-[1.02] shadow-glow animate-pulse-slow'
-          : 'border-gray-300 hover:border-primary-400 hover:bg-gradient-panel hover:shadow-medium hover:scale-[1.01]'
-        }
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}
-        py-16 px-12
-      `}
+      variant={isDragActive ? 'elevated' : 'base'}
+      padding="xl"
+      interactive={!isLoading}
+      className={cn(
+        'border-2 border-dashed cursor-pointer text-center transition-all duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]',
+        isDragActive && 'scale-[1.01] shadow-[var(--elevation-lg)]',
+        isLoading && 'opacity-50 cursor-not-allowed',
+        'hover:border-[var(--color-border-strong)]'
+      )}
       style={{
-        borderWidth: '3px'
+        borderColor: isDragActive
+          ? 'var(--aurora-1)'
+          : 'var(--color-border-subtle)',
+        backgroundColor: isDragActive
+          ? 'rgba(99, 102, 241, 0.05)'
+          : 'var(--color-surface-base)',
       }}
     >
       <input {...getInputProps()} />
 
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-[var(--spacing-lg)]">
         {isLoading ? (
           <>
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            <div className="text-center space-y-2">
-              <p className="text-lg text-gray-900 font-medium">Processing document...</p>
+            <div
+              className="inline-block animate-spin rounded-full border-4 border-current border-t-transparent"
+              style={{
+                width: '48px',
+                height: '48px',
+                color: 'var(--aurora-1)',
+                borderColor: 'var(--aurora-1) transparent var(--aurora-1) transparent',
+              }}
+              aria-hidden="true"
+            />
+            <div className="text-center space-y-[var(--spacing-sm)]">
+              <p
+                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)]"
+                style={{
+                  color: 'var(--color-text-primary)',
+                }}
+              >
+                Processing document...
+              </p>
               {progressPercent > 0 && (
                 <>
-                  <div className="w-64 bg-gray-200 rounded-full h-2 mx-auto">
+                  <div
+                    className="w-[var(--spacing-5xl)] h-[var(--spacing-xs)] rounded-full mx-auto"
+                    style={{
+                      backgroundColor: 'var(--color-surface-elevated)',
+                      border: '1px solid var(--color-border-subtle)',
+                    }}
+                  >
                     <div
-                      className="bg-primary-600 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${progressPercent}%` }}
+                      className="h-full rounded-full transition-all duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]"
+                      style={{
+                        width: `${progressPercent}%`,
+                        backgroundColor: 'var(--aurora-1)',
+                      }}
                     />
                   </div>
-                  <p className="text-sm text-gray-600">{progressMessage}</p>
+                  <p
+                    className="text-[var(--font-size-sm)]"
+                    style={{
+                      color: 'var(--color-text-secondary)',
+                    }}
+                  >
+                    {progressMessage}
+                  </p>
                 </>
               )}
             </div>
           </>
         ) : (
           <>
-            <Upload className="w-12 h-12 text-primary-600" />
-            <div>
-              <p className="text-lg font-medium text-gray-900">
+            <Upload
+              className="w-12 h-12"
+              style={{
+                color: 'var(--aurora-1)',
+              }}
+            />
+            <div className="text-center">
+              <p
+                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)]"
+                style={{
+                  color: 'var(--color-text-primary)',
+                }}
+              >
                 {isDragActive ? 'Drop your file here' : 'Drag & drop a document'}
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p
+                className="text-[var(--font-size-sm)] mt-[var(--spacing-xs)]"
+                style={{
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
                 or click to browse
               </p>
             </div>
-            <div className="flex gap-2 text-xs text-gray-400">
-              <span className="flex items-center gap-1">
+            <div className="flex gap-[var(--spacing-sm)] text-[var(--font-size-xs)] text-[var(--color-text-tertiary)]">
+              <span className="flex items-center gap-[var(--spacing-xs)]">
                 <FileText className="w-3 h-3" />
                 .txt
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-[var(--spacing-xs)]">
                 <FileText className="w-3 h-3" />
                 .pdf
               </span>
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-[var(--spacing-xs)]">
                 <FileText className="w-3 h-3" />
                 .md
               </span>
             </div>
-            <p className="text-xs text-gray-400">Maximum file size: 1GB</p>
+            <p
+              className="text-[var(--font-size-xs)]"
+              style={{
+                color: 'var(--color-text-tertiary)',
+              }}
+            >
+              Maximum file size: 1GB
+            </p>
           </>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

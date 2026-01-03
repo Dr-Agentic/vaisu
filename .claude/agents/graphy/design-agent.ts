@@ -34,7 +34,7 @@ export class GraphyAgent {
     // Read the design guidelines
     const guidelines = await Task({
       description: 'Read design guidelines',
-      prompt: 'Read and analyze the graphical representation design guidelines at /frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
+      prompt: 'Read and analyze the graphical representation design guidelines at .context/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
       subagent_type: 'general-purpose'
     });
 
@@ -143,7 +143,7 @@ export class GraphyAgent {
   static async validateDesign(designOutput: DesignOutput): Promise<string[]> {
     const guidelines = await Task({
       description: 'Read design guidelines',
-      prompt: 'Read the design guidelines at /frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
+      prompt: 'Read the design guidelines at .context/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
       subagent_type: 'general-purpose'
     });
 

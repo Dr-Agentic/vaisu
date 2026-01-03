@@ -30,8 +30,8 @@ interface DesignOutput {
 }
 
 export class GraphicalRepresentationDesignerSkill {
-  private readonly DESIGN_GUIDE_PATH = '/frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md';
-  private readonly GRAPHY_AGENT_PATH = '/agents/graphy/design-agent.ts';
+  private readonly DESIGN_GUIDE_PATH = '/.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md';
+  private readonly GRAPHY_AGENT_PATH = '/.claude/agents/graphy/design-agent.ts';
 
   /**
    * Main skill execution method

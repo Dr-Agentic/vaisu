@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronRight, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
 import type { Section } from '../../../../shared/src/types';
 import type cytoscape from 'cytoscape';
+import { useTheme } from '../../design-system/ThemeProvider';
 
 // Extended Section type to include parentId which might be missing in shared types
 interface ExtendedSection extends Section {
@@ -36,6 +37,68 @@ class LayoutPerformanceTracker {
     return { duration, throughput };
   }
 }
+
+// Theme-aware color system
+interface ThemeColors {
+  nodeBackground: string;
+  nodeBorder: string;
+  nodeText: string;
+  nodeTextOutline: string;
+  nodeHover: string;
+  edgeColor: string;
+  edgeText: string;
+  edgeArrow: string;
+  background: string;
+}
+
+const getThemeColors = (resolvedTheme: 'light' | 'dark'): ThemeColors => {
+  if (resolvedTheme === 'dark') {
+    return {
+      nodeBackground: 'rgba(255, 255, 255, 0.1)',
+      nodeBorder: 'rgba(255, 255, 255, 0.3)',
+      nodeText: '#FFFFFF',
+      nodeTextOutline: 'rgba(0, 0, 0, 0.6)',
+      nodeHover: '#6366F1',
+      edgeColor: '#6B7280',
+      edgeText: '#9CA3AF',
+      edgeArrow: '#6B7280',
+      background: 'rgba(255, 255, 255, 0.02)'
+    };
+  } else {
+    return {
+      nodeBackground: 'rgba(31, 41, 55, 0.1)',
+      nodeBorder: 'rgba(31, 41, 55, 0.3)',
+      nodeText: '#1F2937',
+      nodeTextOutline: 'rgba(255, 255, 255, 0.6)',
+      nodeHover: '#6366F1',
+      edgeColor: '#9CA3AF',
+      edgeText: '#6B7280',
+      edgeArrow: '#9CA3AF',
+      background: 'rgba(0, 0, 0, 0.02)'
+    };
+  }
+};
+
+// Level-based color palette for nodes
+const getNodeColor = (level: number, resolvedTheme: 'light' | 'dark'): string => {
+  const colors = resolvedTheme === 'dark'
+    ? [
+        '#6366F1', // Level 1 - Blue
+        '#8B5CF6', // Level 2 - Purple
+        '#06B6D4', // Level 3 - Cyan
+        '#F59E0B', // Level 4 - Orange
+        '#EC4899'  // Level 5 - Pink
+      ]
+    : [
+        '#4F46E5', // Level 1 - Blue
+        '#7C3AED', // Level 2 - Purple
+        '#06B6D4', // Level 3 - Cyan
+        '#F59E0B', // Level 4 - Orange
+        '#EC4899'  // Level 5 - Pink
+      ];
+
+  return colors[Math.min(level - 1, colors.length - 1)];
+};
 
 // Enhanced ELK configuration function
 const getOptimizedElkConfig = (nodeCount: number, containerSize?: { width: number; height: number }) => {
@@ -96,6 +159,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { resolvedTheme } = useTheme();
 
   // Initialize Cytoscape when component mounts
   useEffect(() => {
@@ -119,6 +183,10 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         // Register ELK extension
         (cytoscape as any).use(elk);
 
+        // Get theme colors
+        const colors = getThemeColors(resolvedTheme);
+        console.log('CytoscapeStructuredView: Using theme colors for', resolvedTheme, colors);
+
         // Convert sections to Cytoscape elements
         const elements = convertSectionsToElements(data.sections);
         console.log('CytoscapeStructuredView: Generated elements:', elements);
@@ -134,7 +202,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         cy = cytoscape({
           container: containerRef.current,
           elements: elements as any,
-          style: getStyle(),
+          style: getStyle(colors),
           minZoom: 0.1,
           maxZoom: 2,
           zoomingEnabled: true,
@@ -226,7 +294,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
             elk: getOptimizedElkConfig(cy.nodes().length, currentContainerSize),
             stop: () => {
               if (mounted) {
-                dynamicTracker.end(cy.nodes().length);
+                dynamicTracker.end(cy?.nodes().length || 0);
                 setIsLoading(false);
               }
             }
@@ -339,7 +407,6 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         return () => {
           window.removeEventListener('resize', handleResize);
         };
-
       } catch (error) {
         if (mounted) {
           console.error('Failed to initialize Cytoscape:', error);
@@ -354,7 +421,7 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
                 edgeSep: 10,
                 fit: true,
                 padding: 50
-              }).run();
+              } as any).run();
             }
           } catch (fallbackError) {
             console.error('Fallback layout also failed:', fallbackError);
@@ -400,6 +467,23 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
       layout = null;
     };
   }, [data]);
+
+  // Handle theme changes
+  useEffect(() => {
+    if (cyRef.current && !cyRef.current.destroyed()) {
+      const colors = getThemeColors(resolvedTheme);
+      cyRef.current.style(getStyle(colors));
+      console.log('CytoscapeStructuredView: Theme updated to', resolvedTheme);
+
+      // Re-run layout with updated styles
+      cyRef.current.layout({
+        name: 'elk',
+        elk: getOptimizedElkConfig(cyRef.current.nodes().length),
+        fit: true,
+        padding: 50
+      } as any).run();
+    }
+  }, [resolvedTheme]);
 
   // Convert sections to Cytoscape elements
   const convertSectionsToElements = (sections: Section[]): CytoscapeElement[] => {
@@ -475,11 +559,11 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
         node.data('expanded', true);
         node.show();
       });
-      cyRef.current.layout({
+      cyRef.current?.layout({
         name: 'elk',
         elk: getOptimizedElkConfig(cyRef.current.nodes().length),
         stop: () => {
-          tracker.end(cyRef.current.nodes().length);
+          tracker.end(cyRef.current?.nodes().length || 0);
         }
       } as any).run();
     }
@@ -497,11 +581,11 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
           node.show();
         }
       });
-      cyRef.current.layout({
+      cyRef.current?.layout({
         name: 'elk',
         elk: getOptimizedElkConfig(cyRef.current.nodes().length),
         stop: () => {
-          tracker.end(cyRef.current.nodes().length);
+          tracker.end(cyRef.current?.nodes().length || 0);
         }
       } as any).run();
     }
@@ -539,34 +623,26 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
     }
   };
 
-  const getStyle = () => [
+  const getStyle = (colors: ThemeColors) => [
     {
       selector: 'node',
       style: {
-        'background-color': (node: any) => {
-          const level = node.data('level');
-          const colors = [
-            '#3b82f6', // Level 1 - Blue
-            '#8b5cf6', // Level 2 - Purple
-            '#10b981', // Level 3 - Green
-            '#f59e0b', // Level 4 - Orange
-            '#ec4899'  // Level 5 - Pink
-          ];
-          return colors[Math.min(level - 1, colors.length - 1)];
-        },
+        'background-color': (node: any) => getNodeColor(node.data('level'), resolvedTheme),
         'label': 'data(label)',
         'text-valign': 'center',
         'text-halign': 'center',
-        'color': '#ffffff',
+        'color': colors.nodeText,
         'text-wrap': 'wrap',
         'text-max-width': '150px',
         'font-size': (node: any) => Math.max(10, 14 - (node.data('level') * 1)),
         'text-outline-width': 2,
-        'text-outline-color': 'rgba(0, 0, 0, 0.3)',
+        'text-outline-color': colors.nodeTextOutline,
+        // Changed from circle to rounded rectangle
+        'shape': 'roundrectangle',
         'width': (node: any) => Math.max(80, 120 + (node.data('label').length * 4)),
         'height': (node: any) => Math.max(40, 60 + (node.data('label').split('\n').length * 10)),
         'border-width': 2,
-        'border-color': 'rgba(255, 255, 255, 0.3)',
+        'border-color': colors.nodeBorder,
         'opacity': (node: any) => node.data('level') <= 2 ? 1 : 0.8,
         'z-index': (node: any) => 9999 - node.data('level')
       }
@@ -574,40 +650,47 @@ export function CytoscapeStructuredView({ data }: CytoscapeStructuredViewProps) 
     {
       selector: 'node[expanded="false"]',
       style: {
-        'background-color': 'rgba(156, 163, 175, 0.5)',
+        'background-color': 'rgba(156, 163, 175, 0.3)',
         'border-color': 'rgba(156, 163, 175, 0.3)',
-        'opacity': 0.5,
-        'color': '#9ca3af'
+        'opacity': 0.4,
+        'color': 'rgba(156, 163, 175, 0.7)'
       }
     },
     {
       selector: 'edge',
       style: {
         'width': 2,
-        'line-color': '#94a3b8',
-        'target-arrow-color': '#94a3b8',
+        'line-color': colors.edgeColor,
+        'target-arrow-color': colors.edgeArrow,
         'target-arrow-shape': 'triangle',
         'curve-style': 'bezier',
         'opacity': 0.6,
-        'line-style': 'solid'
+        'line-style': 'solid',
+        'font-size': 10,
+        'text-color': colors.edgeText,
+        'text-background-color': 'rgba(255, 255, 255, 0.05)',
+        'text-background-opacity': 0.8,
+        'text-background-padding': '2px',
+        'text-background-shape': 'roundrectangle'
       }
     },
     {
       selector: ':selected',
       style: {
         'border-width': 4,
-        'border-color': '#f59e0b',
-        'background-color': '#f59e0b',
+        'border-color': colors.nodeHover,
+        'background-color': colors.nodeHover,
         'z-index': 10000
       }
     },
     {
       selector: 'node.hover',
       style: {
-        'background-color': '#f59e0b',
-        'border-color': '#f59e0b',
+        'background-color': colors.nodeHover,
+        'border-color': colors.nodeHover,
         'opacity': 1,
-        'z-index': 10000
+        'z-index': 10000,
+        'box-shadow': '0 4px 12px rgba(99, 102, 241, 0.4)'
       }
     }
   ] as any;

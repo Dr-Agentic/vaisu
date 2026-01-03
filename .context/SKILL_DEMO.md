@@ -112,4 +112,4 @@ Scalability is achieved through spatial partitioning that organizes nodes into m
 
 **📁 Generated Files:**
 - Design specification saved to skill output
-- Refer to `/frontend/src/design-system/GRAPHICAL_REPRESENTATIONS_GUIDE.md` for detailed implementation guidelines
+- Refer to `.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md` for detailed implementation guidelines

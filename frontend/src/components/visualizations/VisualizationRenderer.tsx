@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
-import { StructuredView } from './StructuredView';
+import { CytoscapeStructuredView } from './CytoscapeStructuredView';
 import { MindMap } from './MindMap';
 import { TermsDefinitions } from './TermsDefinitions';
 import { KnowledgeGraph } from './knowledge-graph/KnowledgeGraph';
@@ -47,7 +47,7 @@ export function VisualizationRenderer() {
 
   switch (currentVisualization) {
     case 'structured-view':
-      return <StructuredView data={data} />;
+      return <CytoscapeStructuredView data={data} />;
 
     case 'mind-map':
       return <MindMap data={data} />;
