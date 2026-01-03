@@ -135,7 +135,7 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
         </div>
 
         {/* Grid Content */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar smooth-scrollbar">
           {filteredTerms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1920px] mx-auto">
               {filteredTerms.map((term) => (

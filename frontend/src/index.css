@@ -1176,6 +1176,40 @@ code {
   background-clip: content-box;
 }
 
+/* Enhanced scrollbar behavior for terms definitions */
+.smooth-scrollbar {
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+}
+
+.smooth-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.smooth-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.smooth-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.smooth-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+.smooth-scrollbar::-webkit-scrollbar-thumb:active {
+  background: var(--color-text-primary);
+}
+
 /* ============================================
    SCROLLBAR UTILITIES
    ============================================ */
