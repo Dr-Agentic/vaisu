@@ -79,7 +79,7 @@ export function DevSamplerAccess() {
             e.currentTarget.style.transform = 'scale(1)';
             e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.4)';
           }}
-          title="Open Component Sampler"
+          title="Open Theme Sampler"
         >
           🎨
         </button>
@@ -103,8 +103,6 @@ export function DevSamplerAccess() {
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
         }}
       >
-        <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>Component Sampler</div>
-        <div style={{ marginBottom: '4px' }}>Click the 🎨 button to open the component sampler</div>
       </div>
     </>
   );

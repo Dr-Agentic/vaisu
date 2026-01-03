@@ -20,6 +20,9 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
+      "@/*": [
+        "./src/*"
+      ],
       "@shared/*": [
         "../shared/src/*"
       ]
@@ -27,6 +30,9 @@
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "**/*.remove.*"
   ],
   "references": [
     {

@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
-import { CytoscapeStructuredView } from './CytoscapeStructuredView';
+import { StructuredViewRenderer } from './StructuredViewRenderer';
 import { MindMap } from './MindMap';
 import { TermsDefinitions } from './TermsDefinitions';
 import { KnowledgeGraph } from './knowledge-graph/KnowledgeGraph';
 import { UMLClassDiagram } from './uml-class-diagram/UMLClassDiagram';
 import { ArgumentMap } from './argument-map/ArgumentMap';
+import { ExecutiveDashboard } from './executive-dashboard/ExecutiveDashboard';
 import { Loader2 } from 'lucide-react';
 
 export function VisualizationRenderer() {
@@ -47,7 +48,7 @@ export function VisualizationRenderer() {
 
   switch (currentVisualization) {
     case 'structured-view':
-      return <CytoscapeStructuredView data={data} />;
+      return <StructuredViewRenderer data={data} />;
 
     case 'mind-map':
       return <MindMap data={data} />;
@@ -77,14 +78,7 @@ export function VisualizationRenderer() {
       return <KnowledgeGraph data={data} height={600} />;
 
     case 'executive-dashboard':
-      return (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <p className="text-gray-600">Executive Dashboard coming soon...</p>
-          <pre className="mt-4 text-left text-xs bg-white p-4 rounded overflow-auto max-h-96">
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        </div>
-      );
+      return <ExecutiveDashboard data={data} />;
 
     case 'terms-definitions':
       return <TermsDefinitions data={data} />;

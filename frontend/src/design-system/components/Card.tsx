@@ -45,20 +45,20 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const variantStyles: Record<CardVariant, string> = {
   base: `
     bg-[var(--color-surface-base)]
-    border border-[var(--color-border-subtle)]
+    border border-[var(--color-border-base)]
   `,
   elevated: `
     bg-[var(--color-surface-elevated)]
     shadow-[var(--elevation-md)]
-    border border-[var(--color-border-subtle)]
+    border border-[var(--color-border-base)]
   `,
   outlined: `
     bg-[var(--color-surface-base)]
-    border-2 border-[var(--color-border-base)]
+    border-2 border-[var(--color-border-strong)]
   `,
   filled: `
     bg-[var(--color-background-secondary)]
-    border border-[var(--color-border-subtle)]
+    border border-[var(--color-border-base)]
   `,
   // SOTA Electron UI variants with mesh glow and gradient borders
   'mesh-glow': `

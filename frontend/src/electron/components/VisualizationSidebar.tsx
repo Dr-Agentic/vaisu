@@ -112,54 +112,61 @@ export interface VisualizationSidebarProps {
  */
 const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   {
+    id: 'executive-dashboard',
+    name: 'Executive View',
+    description: 'High-level summary, KPIs, and strategic insights',
+    icon: '💼',
+    badge: 'Recommended',
+    shortcut: 1,
+  },
+  {
     id: 'mind-map',
     name: 'Mind Map',
     description: 'Hierarchical structure of key concepts',
     icon: '🧠',
-    badge: 'Recommended',
-    shortcut: 1,
+    shortcut: 2,
   },
   {
     id: 'knowledge-graph',
     name: 'Knowledge Graph',
     description: 'Entity relationships and connections',
     icon: '🕸️',
-    shortcut: 2,
+    shortcut: 3,
   },
   {
     id: 'timeline',
     name: 'Timeline',
     description: 'Chronological flow of arguments',
     icon: '📅',
-    shortcut: 3,
+    shortcut: 4,
   },
   {
     id: 'argument-map',
     name: 'Argument Map',
     description: 'Premise-conclusion structure',
     icon: '📊',
-    shortcut: 4,
+    shortcut: 5,
   },
   {
     id: 'uml-class-diagram',
     name: 'UML Class Diagram',
     description: 'Class relationships and structure',
     icon: '📐',
-    shortcut: 5,
+    shortcut: 6,
   },
   {
     id: 'structured-view',
     name: 'Structured View',
     description: 'Formatted document overview',
     icon: '📋',
-    shortcut: 6,
+    shortcut: 7,
   },
   {
     id: 'terms-definitions',
     name: 'Terms & Definitions',
     description: 'Extracted terms, acronyms, and technical jargon',
     icon: '📖',
-    shortcut: 7,
+    shortcut: 8,
   },
 ];
 
@@ -270,53 +277,57 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                 currentViz === viz.id && 'active',
                 'transition-all',
                 'duration-[var(--duration-fast)]',
-                'ease-[var(--ease-out)]'
+                'ease-[var(--ease-out)]',
+                'p-2'
               )}
               aria-label={`Switch to ${viz.name}`}
               aria-current={currentViz === viz.id ? 'true' : undefined}
             >
-              {/* Name and Badge */}
-              <div className="viz-item-name">
-                <span>{viz.icon && <span className="mr-1">{viz.icon}</span>}</span>
-                <span>{viz.name}</span>
-                {viz.badge && (
-                  <Badge variant="aurora" size="sm">
-                    {viz.badge}
-                  </Badge>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className="viz-item-desc">
-                {viz.description}
-              </div>
-
-              {/* Keyboard shortcut hint */}
-              {viz.shortcut && (
-                <div
-                  className="mt-2"
-                  style={{
-                    color: 'var(--color-text-tertiary)',
-                    fontSize: 'var(--font-size-xs)',
-                  }}
-                >
-                  <kbd
-                    className={cn(
-                      'px-1.5',
-                      'py-0.5',
-                      'border',
-                      'rounded',
-                      'font-mono'
+              {/* Compact one-line layout */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{viz.icon}</span>
+                    <span className="font-medium text-sm truncate">{viz.name}</span>
+                    {viz.badge && (
+                      <Badge variant="aurora" size="sm">
+                        {viz.badge}
+                      </Badge>
                     )}
+                  </div>
+                  <div className="text-xs text-gray-600 truncate mt-1">
+                    {viz.description}
+                  </div>
+                </div>
+
+                {/* Keyboard shortcut hint - inline */}
+                {viz.shortcut && (
+                  <div
+                    className="flex-shrink-0"
                     style={{
-                      backgroundColor: 'var(--color-surface-elevated)',
-                      borderColor: 'var(--color-border-subtle)',
+                      color: 'var(--color-text-tertiary)',
+                      fontSize: 'var(--font-size-xs)',
                     }}
                   >
-                    {viz.shortcut}
-                  </kbd>
-                </div>
-              )}
+                    <kbd
+                      className={cn(
+                        'px-1',
+                        'py-0.5',
+                        'border',
+                        'rounded',
+                        'font-mono',
+                        'text-xs'
+                      )}
+                      style={{
+                        backgroundColor: 'var(--color-surface-elevated)',
+                        borderColor: 'var(--color-border-subtle)',
+                      }}
+                    >
+                      {viz.shortcut}
+                    </kbd>
+                  </div>
+                )}
+              </div>
             </button>
           ))}
         </div>

@@ -17,8 +17,8 @@ import { forwardRef, useState, useCallback } from 'react';
 import { ArrowLeft, Upload, FileText, FolderOpen } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { cn } from '../../lib/utils';
-import { FileUploader } from '../../components/upload/FileUploader';
-import { TextInputArea } from '../../components/upload/TextInputArea';
+import { FileUploader } from './upload/FileUploader';
+import { TextInputArea } from './upload/TextInputArea';
 import { DocumentBrowserPanel } from './DocumentBrowserPanel';
 
 export interface StageInputProps {

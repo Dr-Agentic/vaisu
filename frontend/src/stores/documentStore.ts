@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
 import { apiClient } from '../services/apiClient';
-import type { ToastType } from '../components/feedback/Toast';
+import type { ToastType } from '../electron/components/feedback/Toast';
 
 export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
 

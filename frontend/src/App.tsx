@@ -18,7 +18,7 @@ import {
   StageVisualization,
 } from './electron/components';
 import { DevSamplerAccess } from './electron/dev/DevSamplerAccess';
-import { ToastContainer } from './components/feedback/ToastContainer';
+import { ToastContainer } from './electron/components/feedback/ToastContainer';
 import { ThemeToggle } from './design-system/components/ThemeToggle';
 
 /**

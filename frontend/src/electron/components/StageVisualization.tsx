@@ -29,7 +29,7 @@ import {
 import { Button } from '../../design-system/components/Button';
 import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 import { cn } from '../../lib/utils';
-import { VisualizationRenderer } from '../../components/visualizations/VisualizationRenderer';
+import { VisualizationRenderer } from './VisualizationRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
 
 export interface StageVisualizationProps {
@@ -61,9 +61,10 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
 
     // Keyboard shortcuts
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-      // Viz shortcuts: 1-7
-      if (['1', '2', '3', '4', '5', '6', '7'].includes(e.key)) {
+      // Viz shortcuts: 1-8
+      if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(e.key)) {
         const vizTypes: VisualizationType[] = [
+          'executive-dashboard',
           'mind-map',
           'knowledge-graph',
           'timeline',
@@ -408,7 +409,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               borderColor: 'var(--color-border-subtle)',
             }}
           >
-            1-7
+            1-8
           </kbd>{' '}
           Switch viz ·{' '}
           <kbd

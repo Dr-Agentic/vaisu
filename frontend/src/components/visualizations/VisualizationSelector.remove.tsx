@@ -126,32 +126,30 @@ export function VisualizationSelector() {
         disabled={!isImplemented}
         onClick={() => isImplemented && setCurrentVisualization(type)}
         className={`
-          relative p-4 rounded-xl text-left transition-all duration-200 ease-out
+          relative flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ease-out
           ${isActive
-            ? 'border-3 border-primary-600 bg-gradient-to-br from-primary-50 to-secondary-50 shadow-strong scale-[1.02]'
+            ? 'border-2 border-primary-600 bg-gradient-to-r from-primary-50 to-secondary-50 shadow-md'
             : isImplemented
-              ? 'border-2 border-gray-200 hover:border-primary-400 hover:shadow-medium hover:-translate-y-1 hover:scale-[1.02]'
-              : 'border-2 border-gray-100 bg-gray-50/50 cursor-not-allowed grayscale opacity-60'
+              ? 'border border-gray-200 hover:border-primary-400 hover:bg-gray-50 hover:shadow-sm'
+              : 'border border-gray-100 bg-gray-50/50 cursor-not-allowed grayscale opacity-60'
           }
         `}
       >
         {isRecommended && isImplemented && (
-          <div className="absolute -top-2 -right-2 bg-amber-500 text-white rounded-full p-1">
-            <Star className="w-4 h-4 fill-current" />
-          </div>
+          <Star className="w-4 h-4 text-amber-500 fill-current flex-shrink-0" />
         )}
 
-        <div className="flex items-start gap-3">
-          <div className={`
-            p-2 rounded-lg
-            ${isActive ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'}
-          `}>
-            <Icon className="w-5 h-5" />
-          </div>
+        <div className={`
+          p-2 rounded-lg flex-shrink-0
+          ${isActive ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-600'}
+        `}>
+          <Icon className="w-4 h-4" />
+        </div>
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h3 className={`font-semibold text-sm ${isActive ? 'text-primary-900' : 'text-gray-900'}`}>
+        <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className={`font-medium text-sm truncate ${isActive ? 'text-primary-900' : 'text-gray-900'}`}>
                 {info.name}
               </h3>
               {!isImplemented && (
@@ -160,16 +158,18 @@ export function VisualizationSelector() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-gray-600 mb-2">
+            <p className="text-xs text-gray-600 truncate">
               {info.description}
             </p>
+          </div>
 
-            {isImplemented && recommendation && (
-              <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1">
+          {isImplemented && recommendation && (
+            <div className="ml-2 flex-shrink-0">
+              <div className="text-xs text-amber-700 bg-amber-50 rounded px-2 py-1 truncate max-w-[120px]">
                 {recommendation.rationale}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </button>
     );
@@ -185,13 +185,13 @@ export function VisualizationSelector() {
   const unimplemented = allTypes.filter(type => !IMPLEMENTED_VISUALIZATIONS.has(type));
 
   return (
-    <div className="bg-white border-b border-gray-200 shadow-soft -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-6 mb-6">
+    <div className="bg-white border-b border-gray-200 shadow-soft -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-4">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Visualizations</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-3">Visualizations</h2>
 
         {recommendedImplemented.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="mb-4">
+            <div className="flex items-center gap-2 mb-2">
               <Star className="w-5 h-5 text-amber-500 fill-current" />
               <h3 className="font-semibold text-gray-900">Recommended</h3>
             </div>
@@ -201,10 +201,10 @@ export function VisualizationSelector() {
           </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {otherImplemented.length > 0 && (
             <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Implemented</h3>
+              <h3 className="font-semibold text-gray-900 mb-2">Implemented</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {otherImplemented.map(type => renderVisualizationCard(type))}
               </div>
@@ -213,7 +213,7 @@ export function VisualizationSelector() {
 
           {unimplemented.length > 0 && (
             <div>
-              <h3 className="font-semibold text-gray-400 mb-3 flex items-center gap-2">
+              <h3 className="font-semibold text-gray-400 mb-2 flex items-center gap-2">
                 Available Soon
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

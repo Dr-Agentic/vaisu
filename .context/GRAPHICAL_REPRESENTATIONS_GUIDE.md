@@ -1,92 +1,120 @@
 # Graphical Representations Design Guide
 
-## Philosophy: Clarity & Simplicity
+## Philosophy: The "Visualization Toolkit" Approach
 
-### Core Principles
-1.  **Content First**: Data visualization should enhance content, not distract from it.
-2.  **Standard Technologies**: Use standard DOM elements (HTML/CSS) and SVG for rendering. Avoid heavy WebGL libraries unless strictly necessary.
-3.  **Performance**: Prioritize lightweight components that render instantly.
-4.  **Accessibility**: Adhere to WCAG 2.2 AA and implement the **APCA (Accessible Perceptual Contrast Algorithm)** for text contrast.
+### Core Strategy
+Instead of a single monolithic renderer that tries to handle every possible graph type, we provide a **Standardized Component Library** and **Utility Toolkit**. 
 
----
-
-## 1. Visual Text Readability (2025 Standards)
-
-### 1.1 Contrast and Polarity
--   **APCA Standard**: Use APCA (Lc) for evaluating contrast based on human perception.
--   **Weight Adjustment**: Higher contrast is required for thin fonts. In **Dark Mode**, increase font-weight slightly to mitigate "halation" (glow).
--   **User Control**: Mandatory toggle between Light Mode (positive polarity) and Dark Mode (negative polarity).
-
-### 1.2 Typography Selection
--   **UI/System Fonts**: Use modern sans-serif typefaces (e.g., Inter, Roboto, San Francisco) for general interfaces.
--   **Legibility Features**: Prioritize fonts with a **tall x-height** and disambiguated characters (e.g., distinguishing 'l', 'I', and '1').
--   **Accessibility Typefaces**: Implement **Atkinson Hyperlegible** for scenarios requiring maximum character distinction.
--   **Fluency**: Avoid "Bionic Reading" or other algorithmic bolding that disrupts natural word shape recognition.
-
-### 1.3 Layout and Fluid Scaling
--   **Line Length (CPL)**:
-    -   **Desktop**: 50–75 characters per line.
-    -   **Mobile**: 30–50 characters per line.
--   **Vertical Rhythm**: Set line height (leading) between **1.3 and 1.5 times** the font size.
--   **Fluid Typography**: Use CSS `clamp()` to scale text smoothly across viewports while maintaining a mathematical **Modular Scale**.
--   **OS Integration**: Respect system-wide font size preferences (e.g., iOS Dynamic Type) and adjust tracking/leading dynamically.
-
-### 1.4 Cognitive Load Management
--   **Centralization**: Cluster critical information centrally to minimize orbital eye movement (Motor Conservation Hypothesis).
--   **Front-Loading**: Assume an **F-Pattern** for text-heavy layouts; place critical keywords at the start of sentences and paragraphs.
--   **Dual Coding**: Use complementary visuals for instructions (Mayer’s Principles) but **avoid redundancy** between text and audio.
+-   **Freedom**: Each visualization type (Mind Map, UML, Flowchart) maintains its own data structure and layout logic.
+-   **Consistency**: All visualizations *must* use the shared UI components to ensure a unified look and feel (typography, spacing, colors, interactions).
+-   **Composability**: Developers pick and choose the components they need (e.g., a Mind Map needs `GraphEntityCard` and `BezierEdge`, while a Gantt chart might need `GraphEntityCard` and `StraightEdge`).
 
 ---
 
-## 2. Core Components
+## 1. The Shared Component Library
+These components are the building blocks for any graphical representation.
 
-### 2.1 Information Cards (The "Node")
-The fundamental unit of information is the **Card**. 
+### A. Layout Containers
+**1. `GraphViewerLayout`**
+A full-screen wrapper that manages the global visualization environment.
+-   **Props**: `title`, `description`, `children`.
+-   **Behavior**: Sets background color (theme-aware), handles global fonts, and acts as the boundary for full-screen mode.
 
+**2. `GraphCanvas`**
+The interactive surface where the graph lives.
 -   **Structure**:
-    -   **Header**: Title/Label + Icon (via `getTypeIcon`).
-    -   **Body**: Summary or key metrics.
-    -   **Footer**: Actions or metadata.
--   **Styling**:
-    -   Use standard borders and shadows defined in `tokens.ts`.
-    -   **Theme**: Apply color accents based on type (via `getTypeColor`).
+    -   **Unified Scroll Container**: `overflow-x-auto` to ensure nodes and edges scroll together.
+    -   **Relative Anchor**: A `div` with `position: relative` that acts as the coordinate reference frame for SVG lines.
+-   **Usage**: Wraps the Grid/Swimlanes and the Edge Overlay.
 
-### 2.2 SVG Connections (The "Edge")
--   **Implementation**: An `<svg>` overlay connects Card edges or centers.
--   **Visuals**: Use **Bezier curves** (`C` command) for organic flows and **Straight lines** for rigid hierarchies.
+**3. `GraphFilterToolbar`**
+A dynamic row of toggle buttons.
+-   **Props**: `types[]` (list of entity types present), `onToggle(type)`.
+-   **Behavior**: Allows users to show/hide specific layers or entity categories.
 
----
+**4. `SwimlaneStack` (Optional Layout)**
+A helper container for stratified layouts.
+-   **Behavior**: Vertical flex container that groups entities into distinct rows or "swimlanes" based on their type.
 
-## 3. Standard Layouts
+### B. The Node System: `GraphEntityCard`
+The standard unit of information. All graphs must use this component for nodes.
 
-### A. Mind Map (Horizontal Hierarchy)
--   **Flow**: Left (Root) -> Right (Leaves).
--   **Nodes**: Rounded Cards.
--   **Edges**: Curved Bezier lines.
+-   **Props**:
+    -   `data`: The node object.
+    -   `type`: Entity type (for styling).
+    -   `isFocused`: Boolean to handle dimming/highlighting.
+    -   `onHover`: Callback for progressive disclosure.
+-   **Visual Anatomy**:
+    1.  **Header**: Type Pill (Icon + Text) + Importance Pulse (if high value).
+    2.  **Title**: The entity name.
+    3.  **Context (Hover)**: Description text that slides open.
+    4.  **Metadata (Hover)**: List of connections or properties.
+-   **Styling**: Automatically applies `getTypeColor` for borders/backgrounds.
 
-### B. Concept Grid
--   **Layout**: CSS Grid or Masonry.
--   **Interaction**: Filter and Sort.
+### C. The Edge System: `GraphEdgeLayer`
+An SVG layer absolutely positioned on top of the `GraphCanvas`.
 
-### C. Flow (Process)
--   **Nodes**: Cards with status indicators and directional SVG markers.
-
----
-
-## 4. Utility Helpers
-
-### 1. `getTypeIcon`
-Maps entity types to Lucide React icons (e.g., `Layers` for Concepts, `Globe` for Organizations, `Cpu` for Tech).
-
-### 2. `getTypeColor`
-Maps entity types to Tailwind color themes (e.g., Purple for Concept, Blue for Organization, Green for Person).
-
-### 3. `unwrapDynamo`
-Recursively transforms raw DynamoDB JSON into standard JavaScript objects.
+-   **Components**:
+    -   **`DynamicBezierPath`**: Draws a smooth curve between two DOM elements.
+        -   *Logic*: Standard Bezier for hierarchies, S-Curve for swimlane crossings.
+    -   **`StraightLinePath`**: Simple linear connection for rigid diagrams (UML).
+    -   **`RelationshipBadge`**: A `<foreignObject>` label floating on the path (e.g., "extends", "has-a").
+-   **Markers**: Includes standard `<defs>` for arrowheads (start/end/none).
 
 ---
 
-## 5. Dynamic Content & Video
--   **Kinetic Captions**: For short-form video, use synchronized, moving captions.
--   **Chunking**: Display text in visual chunks of **3–7 words**.
--   **Safety Zones**: Place captions outside platform UI occlusion zones.
+## 2. The Utility Toolkit
+Helper functions to maintain consistency across different renderers.
+
+### A. Visual Mappers
+**`getTypeIcon(type: string)`**
+Returns the specific Lucide React icon.
+-   *Concept* -> `Layers`
+-   *Organization* -> `Globe`
+-   *Person* -> `User`
+-   *Technology* -> `Cpu`
+
+**`getTypeColor(type: string)`**
+Returns the Tailwind color style object.
+-   *Returns*: `{ background: 'bg-blue-100', text: 'text-blue-700', border: 'border-blue-200' }`
+
+### B. Data Helpers
+**`unwrapDynamo(json)`**
+Standardizes raw AWS DynamoDB JSON into clean JavaScript objects, useful if the LLM output passes through raw storage.
+
+---
+
+## 3. Implementation Pattern: How to Build a New Graph
+
+To implement a new visualization (e.g., **"Process Flow"**):
+
+1.  **Define Data Structure**: Create `ProcessFlowData` interface (specific to this view).
+2.  **Create Renderer**: `ProcessFlowRenderer.tsx`.
+3.  **Compose**:
+    ```tsx
+    return (
+      <GraphViewerLayout title="Process Flow">
+        <GraphFilterToolbar types={['Step', 'Decision']} />
+        
+        <GraphCanvas>
+           {/* 1. Render Edges Layer first (so lines are behind cards) */}
+           <GraphEdgeLayer>
+              {edges.map(e => <DynamicBezierPath from={e.src} to={e.dest} />)}
+           </GraphEdgeLayer>
+
+           {/* 2. Render Layout & Nodes */}
+           <div className="flex flex-row gap-8">
+              {steps.map(step => (
+                 <GraphEntityCard 
+                    key={step.id} 
+                    type="Step" 
+                    data={step} 
+                 />
+              ))}
+           </div>
+        </GraphCanvas>
+      </GraphViewerLayout>
+    );
+    ```
+
+This approach avoids the complexity of a "Universal Graph Model" while ensuring that **Mind Maps**, **Flowcharts**, and **UML Diagrams** all look like they belong to the same application family.

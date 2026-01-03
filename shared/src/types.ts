@@ -294,7 +294,7 @@ export interface DashboardData {
 }
 
 export interface ChartData {
-  type: 'waterfall' | 'sankey' | 'heatmap' | 'bar' | 'line';
+  type: 'waterfall' | 'sankey' | 'heatmap' | 'bar' | 'line' | 'radar';
   title: string;
   data: any;
 }

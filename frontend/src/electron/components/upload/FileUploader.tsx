@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, FileText } from 'lucide-react';
-import { useDocumentStore } from '../../stores/documentStore';
-import { Card } from '../../design-system/components/Card';
-import { cn } from '../../lib/utils';
+import { useDocumentStore } from '../../../stores/documentStore';
+import { Card } from '../../../design-system/components/Card';
+import { cn } from '../../../lib/utils';
 
 export function FileUploader() {
   const { uploadDocument, isLoading, progressMessage, progressPercent, addToast } = useDocumentStore();
@@ -75,7 +75,7 @@ export function FileUploader() {
       style={{
         borderColor: isDragActive
           ? 'var(--aurora-1)'
-          : 'var(--color-border-subtle)',
+          : 'var(--color-border-base)',
         backgroundColor: isDragActive
           ? 'rgba(99, 102, 241, 0.05)'
           : 'var(--color-surface-base)',

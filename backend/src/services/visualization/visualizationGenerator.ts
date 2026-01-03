@@ -470,19 +470,34 @@ export class VisualizationGenerator {
   }
 
   private generateDashboard(analysis: DocumentAnalysis): DashboardData {
+    const charts: any[] = [
+      {
+        type: 'bar',
+        title: 'Key Metrics',
+        data: analysis.executiveSummary.kpis.map(kpi => ({
+          name: kpi.label,
+          value: kpi.value
+        }))
+      }
+    ];
+
+    // Add Signals Chart if available
+    if (analysis.signals) {
+      charts.push({
+        type: 'radar',
+        title: 'Document DNA',
+        data: Object.entries(analysis.signals).map(([key, value]) => ({
+          subject: key.charAt(0).toUpperCase() + key.slice(1),
+          A: value,
+          fullMark: 1
+        }))
+      });
+    }
+
     return {
       executiveCard: analysis.executiveSummary,
       kpiTiles: analysis.executiveSummary.kpis,
-      charts: [
-        {
-          type: 'bar',
-          title: 'Key Metrics',
-          data: analysis.executiveSummary.kpis.map(kpi => ({
-            name: kpi.label,
-            value: kpi.value
-          }))
-        }
-      ]
+      charts
     };
   }
 

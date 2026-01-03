@@ -172,7 +172,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
               )}
               style={{
                 color: 'var(--color-text-secondary)',
-                border: '1px solid var(--color-border-subtle)',
+                border: '1px solid var(--color-border-base)',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = 'var(--color-border-strong)';
@@ -227,7 +227,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     )}
                     style={{
                       backgroundColor: deviceMode === mode ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                      border: '1px solid var(--color-border-subtle)',
+                      border: '1px solid var(--color-border-base)',
                       color: deviceMode === mode ? 'var(--aurora-1)' : 'var(--color-text-secondary)',
                       padding: '6px 12px',
                       borderRadius: '6px',
@@ -252,7 +252,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 )}
                 style={{
                   backgroundColor: isLabelsVisible ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                  border: '1px solid var(--color-border-subtle)',
+                  border: '1px solid var(--color-border-base)',
                   color: isLabelsVisible ? 'var(--aurora-1)' : 'var(--color-text-secondary)',
                   padding: '6px 12px',
                   borderRadius: '6px',
@@ -271,7 +271,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 )}
                 style={{
                   backgroundColor: isClassIdsVisible ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
-                  border: '1px solid var(--color-border-subtle)',
+                  border: '1px solid var(--color-border-base)',
                   color: isClassIdsVisible ? 'var(--aurora-1)' : 'var(--color-text-secondary)',
                   padding: '6px 12px',
                   borderRadius: '6px',
@@ -1102,7 +1102,7 @@ const samplerStyles = `
 
   .component-sample {
     background: var(--color-surface-elevated);
-    border: 1px solid var(--color-border-subtle);
+    border: 1px solid var(--color-border-base);
     border-radius: var(--radius-lg);
     padding: var(--spacing-lg);
     transition: all var(--motion-duration-base) var(--motion-easing-ease-out);
@@ -1291,7 +1291,7 @@ const samplerStyles = `
   .contrast-box {
     padding: var(--spacing-md);
     border-radius: var(--radius-md);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-border-base);
   }
 
   .focus-test-sample {
