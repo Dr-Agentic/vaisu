@@ -1,6 +1,5 @@
 import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
-import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE, isPersistenceEnabled } from '../config/aws.js';
-import { localStore } from '../services/storage/localStore.js';
+import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from '../config/aws.js';
 import type { DocumentRecord } from './types.js';
 
 /**
@@ -10,10 +9,6 @@ export async function findByHashAndFilename(
   hash: string,
   filename: string
 ): Promise<DocumentRecord | null> {
-  if (!isPersistenceEnabled()) {
-    return localStore.findByHashAndFilename(hash, filename);
-  }
-
   const command = new QueryCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     IndexName: 'GSI1',
@@ -38,11 +33,6 @@ export async function findByHashAndFilename(
  * Create new document record
  */
 export async function create(document: DocumentRecord): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    localStore.saveDocument(document);
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Item: {
@@ -58,10 +48,6 @@ export async function create(document: DocumentRecord): Promise<void> {
  * Find document by ID
  */
 export async function findById(documentId: string): Promise<DocumentRecord | null> {
-  if (!isPersistenceEnabled()) {
-    return localStore.getDocument(documentId);
-  }
-
   const command = new GetCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
@@ -125,16 +111,6 @@ export async function listByUserId(
   limit: number = 50,
   lastEvaluatedKey?: Record<string, any>
 ): Promise<{ documents: DocumentRecord[]; lastEvaluatedKey?: Record<string, any> }> {
-  if (!isPersistenceEnabled()) {
-    const docs = localStore.listDocuments(userId);
-    // Simple in-memory pagination
-    // Note: lastEvaluatedKey logic would need more work for full parity, but this is a dev fallback
-    return {
-      documents: docs.slice(0, limit),
-      lastEvaluatedKey: undefined,
-    };
-  }
-
   const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
   
   const command = new ScanCommand({
