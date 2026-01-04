@@ -14,11 +14,9 @@ export async function createNode(node: KnowledgeGraphRecord): Promise<void> {
   const command = new PutCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Item: {
-      PK: `GRAPH#${node.documentId}`,
-      SK: `NODE#${node.id}`,
-      id: node.id,
       documentId: node.documentId,
       type: 'NODE',
+      id: node.id,
       label: node.label,
       entityType: node.entityType,
       confidence: node.confidence,
@@ -38,11 +36,9 @@ export async function createEdge(edge: KnowledgeGraphRecord): Promise<void> {
   const command = new PutCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Item: {
-      PK: `GRAPH#${edge.documentId}`,
-      SK: `EDGE#${edge.sourceId}#${edge.targetId}`,
-      id: edge.id,
       documentId: edge.documentId,
       type: 'EDGE',
+      id: edge.id,
       sourceId: edge.sourceId,
       targetId: edge.targetId,
       relation: edge.relation,
@@ -66,9 +62,9 @@ export async function findByDocumentId(documentId: string): Promise<{
 }> {
   const command = new QueryCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
-    KeyConditionExpression: 'PK = :pk',
+    KeyConditionExpression: 'documentId = :documentId',
     ExpressionAttributeValues: {
-      ':pk': `GRAPH#${documentId}`,
+      ':documentId': documentId,
     },
   });
 
@@ -113,8 +109,8 @@ export async function updateNode(documentId: string, nodeId: string, updates: Pa
   const command = new UpdateCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Key: {
-      PK: `GRAPH#${documentId}`,
-      SK: `NODE#${nodeId}`
+      documentId: documentId,
+      type: 'NODE'
     },
     UpdateExpression: 'SET #updatedAt = :updatedAt, #label = :label, #entityType = :entityType, #confidence = :confidence, #metadata = :metadata',
     ExpressionAttributeNames: {
@@ -143,8 +139,8 @@ export async function updateEdge(documentId: string, sourceId: string, targetId:
   const command = new UpdateCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Key: {
-      PK: `GRAPH#${documentId}`,
-      SK: `EDGE#${sourceId}#${targetId}`
+      documentId: documentId,
+      type: 'EDGE'
     },
     UpdateExpression: 'SET #updatedAt = :updatedAt, #relation = :relation, #weight = :weight, #evidence = :evidence, #relationshipType = :relationshipType',
     ExpressionAttributeNames: {
@@ -177,8 +173,8 @@ export async function deleteKnowledgeGraph(documentId: string): Promise<void> {
     const command = new DeleteCommand({
       TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
       Key: {
-        PK: `GRAPH#${documentId}`,
-        SK: `NODE#${node.id}`
+        documentId: documentId,
+        type: 'NODE'
       },
     });
     await dynamoDBClient.send(command);
@@ -189,8 +185,8 @@ export async function deleteKnowledgeGraph(documentId: string): Promise<void> {
     const command = new DeleteCommand({
       TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
       Key: {
-        PK: `GRAPH#${documentId}`,
-        SK: `EDGE#${edge.sourceId}#${edge.targetId}`
+        documentId: documentId,
+        type: 'EDGE'
       },
     });
     await dynamoDBClient.send(command);
@@ -204,8 +200,8 @@ export async function deleteNode(documentId: string, nodeId: string): Promise<vo
   const command = new DeleteCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Key: {
-      PK: `GRAPH#${documentId}`,
-      SK: `NODE#${nodeId}`
+      documentId: documentId,
+      type: 'NODE'
     },
   });
 
@@ -219,8 +215,8 @@ export async function deleteEdge(documentId: string, sourceId: string, targetId:
   const command = new DeleteCommand({
     TableName: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     Key: {
-      PK: `GRAPH#${documentId}`,
-      SK: `EDGE#${sourceId}#${targetId}`
+      documentId: documentId,
+      type: 'EDGE'
     },
   });
 

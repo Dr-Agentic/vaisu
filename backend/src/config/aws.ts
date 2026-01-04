@@ -3,15 +3,15 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 // Environment variables (evaluated lazily to ensure dotenv has loaded)
-function getAWSRegion() {
+export function getAWSRegion() {
   return process.env.AWS_REGION || 'us-east-1';
 }
 
-function getAWSAccessKeyId() {
+export function getAWSAccessKeyId() {
   return process.env.AWS_ACCESS_KEY_ID;
 }
 
-function getAWSSecretAccessKey() {
+export function getAWSSecretAccessKey() {
   return process.env.AWS_SECRET_ACCESS_KEY;
 }
 
@@ -51,6 +51,23 @@ export function validateAWSConfig(): void {
 
   if (!DYNAMODB_DOCUMENTS_TABLE || !DYNAMODB_ANALYSES_TABLE) {
     throw new Error('DynamoDB table names not configured');
+  }
+
+  // Validate all visualization table names exist
+  const allVisualizationTables = [
+    DYNAMODB_ARGUMENT_MAP_TABLE,
+    DYNAMODB_DEPTH_GRAPH_TABLE,
+    DYNAMODB_UML_CLASS_TABLE,
+    DYNAMODB_MIND_MAP_TABLE,
+    DYNAMODB_FLOWCHART_TABLE,
+    DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
+    DYNAMODB_TIMELINE_TABLE,
+    DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
+  ];
+
+  const invalidTables = allVisualizationTables.filter(table => !table);
+  if (invalidTables.length > 0) {
+    throw new Error(`Visualization table names not configured: ${invalidTables.join(', ')}`);
   }
 
   console.info('✅ AWS configuration:', {
