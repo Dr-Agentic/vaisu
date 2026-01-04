@@ -139,6 +139,7 @@ export type VisualizationType =
   | 'structured-view'
   | 'mind-map'
   | 'argument-map'
+  | 'depth-graph'
   | 'flowchart'
   | 'knowledge-graph'
   | 'uml-class-diagram'
@@ -331,6 +332,7 @@ export interface GlossaryTerm {
   confidence: number;
   mentions: number;
   context?: string;
+  qualifiers?: string[];
 }
 
 // Argument Map Types
@@ -355,6 +357,19 @@ export interface ArgumentNode {
   polarity: ArgumentPolarity;
   confidence: number; // 0-1
   impact: 'low' | 'medium' | 'high';
+  depthMetrics?: {
+    cohesion: number;
+    nuance: number;
+    grounding: number;
+    tension: number;
+    confidence: {
+      cohesion: number;
+      nuance: number;
+      grounding: number;
+      tension: number;
+      composite: number;
+    };
+  };
   source?: string;
   parentId?: string; // For hierarchy if needed, mostly handled by edges
   isCollapsed?: boolean;

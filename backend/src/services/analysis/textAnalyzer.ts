@@ -194,12 +194,6 @@ export class TextAnalyzer {
       const relationships = parsed.relationships || [];
       console.log(`✅ Detected ${relationships.length} relationships`);
 
-      // Log first 5 relationships for debugging
-      console.log('🔗 Sample relationships:', JSON.stringify(relationships.slice(0, 5).map((r: Relationship) => ({
-        source: r.source,
-        target: r.target,
-        type: r.type
-      })), null, 2));
 
       // Check for mismatches between relationship IDs and entity IDs
       const entityIds = new Set(entities.map((e: Entity) => e.id));

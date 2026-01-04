@@ -55,7 +55,6 @@ const upload = multer({
 // In-memory storage (replace with database in production)
 const documents = new Map<string, Document>();
 const analyses = new Map<string, DocumentAnalysis>();
-const visualizations = new Map<string, any>();
 
 // Helper to create document list item
 function toDocumentListItem(doc: Document): any {
@@ -393,16 +392,9 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       return res.status(404).json({ error: 'Document not analyzed yet. Analysis required for this visualization.' });
     }
 
-    const vizKey = `${id}-${type}`;
-
-    // Check cache
-    if (visualizations.has(vizKey)) {
-      return res.json({
-        type,
-        data: visualizations.get(vizKey),
-        cached: true
-      });
-    }
+    console.log(`🚀 Starting visualization generation: ${type} for document ${id}`);
+    console.log(`📖 Document structure available: ${!!document.structure}`);
+    console.log(`📊 Sections count: ${document.structure?.sections?.length || 0}`);
 
     // Generate visualization (analysis may be undefined for structured-view)
     const data = await visualizationGenerator.generateVisualization(
@@ -411,7 +403,9 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       analysis as any
     );
 
-    visualizations.set(vizKey, data);
+    console.log(`✅ Visualization generation completed for ${type}`);
+    console.log(`📤 Response data type: ${typeof data}`);
+    console.log(`📊 Data keys:`, Object.keys(data || {}));
 
     res.json({
       type,
@@ -421,6 +415,58 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
   } catch (error: any) {
     console.error('Visualization error:', error);
     res.status(500).json({ error: error.message || 'Failed to generate visualization' });
+  }
+});
+
+// GET /api/documents/:id/visualizations/:type - Get existing visualization
+router.get('/:id/visualizations/:type', async (req: Request, res: Response) => {
+  try {
+    const { id, type } = req.params;
+
+    // Try to get from DynamoDB using new service
+    const existingVisualization = await visualizationService.findByDocumentIdAndType(id, type);
+
+    if (existingVisualization) {
+      res.json({
+        type,
+        data: existingVisualization.visualizationData,
+        cached: true,
+        metadata: existingVisualization.llmMetadata
+      });
+    } else {
+      res.status(404).json({ error: 'Visualization not found. Generate it first by POSTing to this endpoint.' });
+    }
+  } catch (error: any) {
+    console.error('Get visualization error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get visualization' });
+  }
+});
+
+// GET /api/documents/:id/visualizations - Get all visualizations for a document
+router.get('/:id/visualizations', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Get all visualizations for the document
+    const visualizations = await visualizationService.findByDocumentId(id);
+
+    const result = visualizations.reduce((acc, viz) => {
+      acc[viz.visualizationType] = {
+        data: viz.visualizationData,
+        metadata: viz.llmMetadata,
+        cached: true
+      };
+      return acc;
+    }, {} as Record<string, any>);
+
+    res.json({
+      documentId: id,
+      visualizations: result,
+      count: visualizations.length
+    });
+  } catch (error: any) {
+    console.error('Get all visualizations error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get visualizations' });
   }
 });
 
@@ -488,14 +534,10 @@ router.get('/:id/full', async (req: Request, res: Response) => {
 
     const analysis = analyses.get(id);
 
-    // Collect all cached visualizations for this document
+    // Collect all visualizations for this document from DynamoDB
     const docVisualizations: Record<string, any> = {};
-    for (const [key, data] of visualizations.entries()) {
-      if (key.startsWith(`${id}-`)) {
-        const vizType = key.substring(id.length + 1);
-        docVisualizations[vizType] = data;
-      }
-    }
+    // Note: Visualizations are now stored in DynamoDB and generated on-demand
+    // This route now returns empty visualizations as they're fetched when requested
 
     res.json({
       document,

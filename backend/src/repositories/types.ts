@@ -36,6 +36,23 @@ export interface AnalysisRecord {
 }
 
 /**
+ * Visualization data stored in DynamoDB
+ */
+export interface VisualizationRecord {
+  documentId: string;
+  visualizationType: string;
+  visualizationData: any;
+  llmMetadata: {
+    model: string;
+    tokensUsed: number;
+    processingTime: number;
+    timestamp: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
  * S3 upload result
  */
 export interface S3UploadResult {

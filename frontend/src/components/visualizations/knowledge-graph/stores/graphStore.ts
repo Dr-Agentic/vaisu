@@ -50,6 +50,7 @@ interface GraphState {
 
   // Performance
   performanceMode: boolean;
+  currentMode: '2d';
 
   // Actions
   setNodes: (nodes: EnhancedGraphNode[]) => void;
@@ -79,6 +80,7 @@ interface GraphState {
   deleteSnapshot: (index: number) => void;
   clearSnapshots: () => void;
   setPerformanceMode: (enabled: boolean) => void;
+  setMode: (mode: '2d') => void;
 }
 
 export const useGraphStore = create<GraphState>((set, get) => ({
@@ -114,6 +116,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   currentSnapshotIndex: -1,
 
   performanceMode: false,
+  currentMode: '2d',
 
   // Actions
   setNodes: (nodes) => set({ nodes, originalNodes: nodes }),
@@ -433,5 +436,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     });
   },
 
-  setPerformanceMode: (enabled) => set({ performanceMode: enabled })
+  setPerformanceMode: (enabled) => set({ performanceMode: enabled }),
+
+  setMode: (mode) => set({ currentMode: mode })
 }));

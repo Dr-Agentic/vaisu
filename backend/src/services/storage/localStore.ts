@@ -20,10 +20,12 @@ if (!fs.existsSync(FILES_DIR)) {
 export class LocalFileStore {
   private documentsFile = path.join(DATA_DIR, 'documents.json');
   private analysesFile = path.join(DATA_DIR, 'analyses.json');
+  private visualizationsFile = path.join(DATA_DIR, 'visualizations.json');
 
   constructor() {
     this.initJsonFile(this.documentsFile);
     this.initJsonFile(this.analysesFile);
+    this.initJsonFile(this.visualizationsFile);
   }
 
   private initJsonFile(filePath: string) {
@@ -86,6 +88,28 @@ export class LocalFileStore {
     const analyses = this.readJson<any>(this.analysesFile);
     analyses[analysis.documentId] = analysis;
     this.writeJson(this.analysesFile, analyses);
+  }
+
+  // Visualization Operations
+  getVisualization(documentId: string, visualizationType: string): any | null {
+    const visualizations = this.readJson<any>(this.visualizationsFile);
+    const docVisualizations = visualizations[documentId] || {};
+    return docVisualizations[visualizationType] || null;
+  }
+
+  getVisualizationsByDocument(documentId: string): any[] {
+    const visualizations = this.readJson<any>(this.visualizationsFile);
+    const docVisualizations = visualizations[documentId] || {};
+    return Object.values(docVisualizations);
+  }
+
+  saveVisualization(visualization: any): void {
+    const visualizations = this.readJson<any>(this.visualizationsFile);
+    if (!visualizations[visualization.documentId]) {
+      visualizations[visualization.documentId] = {};
+    }
+    visualizations[visualization.documentId][visualization.visualizationType] = visualization;
+    this.writeJson(this.visualizationsFile, visualizations);
   }
 
   // File Operations (Simulating S3)

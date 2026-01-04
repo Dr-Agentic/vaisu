@@ -85,26 +85,7 @@ export function DevSamplerAccess() {
         </button>
       </div>
 
-      {/* Instructions overlay */}
-      <div
-        className="dev-sampler-instructions"
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 9999,
-          display: 'block',
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          fontSize: '12px',
-          maxWidth: '250px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-        }}
-      >
-      </div>
-    </>
+      </>
   );
 }
 
@@ -122,12 +103,6 @@ const devStyles = `
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 768px) {
-    .dev-sampler-instructions {
-      display: none !important;
-    }
   }
 `;
 

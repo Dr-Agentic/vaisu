@@ -256,6 +256,15 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
 
       clearInterval(progressInterval);
 
+      console.log(`🎯 loadVisualization received data for ${type}:`, {
+        type: typeof data,
+        hasType: data?.type,
+        hasSections: Array.isArray(data?.sections),
+        sectionsCount: data?.sections?.length,
+        hasHierarchy: data?.hierarchy,
+        hierarchyType: typeof data?.hierarchy
+      });
+
       // Validate data structure for terms-definitions
       if (type === 'terms-definitions') {
         if (!data || !data.terms || !Array.isArray(data.terms)) {

@@ -34,7 +34,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ data }) 
       title="Executive Dashboard"
       description="High-level summary and strategic insights."
     >
-      <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900 p-8">
+      <div className="h-full bg-gray-50 dark:bg-gray-900 p-8">
         <div className="max-w-7xl mx-auto space-y-8">
           
           {/* Headline Section */}

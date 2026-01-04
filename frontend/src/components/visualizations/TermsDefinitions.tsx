@@ -23,22 +23,33 @@ const getTypeBadgeVariant = (type: string): BadgeVariant => {
 
 const TermCard: React.FC<{ term: GlossaryTerm }> = ({ term }) => (
   <Card variant="outlined" interactive padding="md" className="h-full flex flex-col">
-    <CardHeader>
+    <CardHeader className="space-y-3">
+      {/* Title Section - Top of Card */}
       <div className="flex justify-between items-start gap-2">
-        <CardTitle as="h3" className="text-lg">
+        <CardTitle as="h3" className="text-lg font-semibold">
           {term.term}
         </CardTitle>
         <Badge variant={getTypeBadgeVariant(term.type)} size="sm">
           {term.type}
         </Badge>
       </div>
+
+      {/* Qualifiers Section - Below Title */}
+      <div className="space-y-2">
+        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+          {term.definition}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {term.qualifiers && term.qualifiers.map((qualifier, index) => (
+            <Badge key={index} variant="secondary" size="sm">
+              {qualifier}
+            </Badge>
+          ))}
+        </div>
+      </div>
     </CardHeader>
-    
+
     <CardContent className="flex-1 space-y-4">
-      <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-        {term.definition}
-      </p>
-      
       {term.context && (
         <div className="p-3 bg-[var(--color-background-secondary)] rounded-md border border-[var(--color-border-subtle)]">
           <p className="text-xs italic text-[var(--color-text-tertiary)]">
@@ -46,7 +57,7 @@ const TermCard: React.FC<{ term: GlossaryTerm }> = ({ term }) => (
           </p>
         </div>
       )}
-      
+
       <div className="pt-2 flex items-center justify-between border-t border-[var(--color-border-subtle)]">
         <div className="flex items-center gap-1.5 text-xs text-[var(--color-text-tertiary)]" title="Confidence Score">
           <Tag className="w-3 h-3" />
@@ -92,15 +103,16 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
   }
 
   return (
-    <GraphViewerLayout 
-      title="Terms & Definitions" 
+    <GraphViewerLayout
+      title="Terms & Definitions"
       description={`Glossary of ${data.metadata?.totalTerms || 0} key terms extracted from the document.`}
     >
-      <div className="h-full flex flex-col bg-[var(--color-background-primary)]">
+      <div className="h-full flex flex-col overflow-auto bg-[var(--color-background-primary)]">
         {/* Toolbar */}
         <div className="p-4 border-b border-[var(--color-border-subtle)] bg-[var(--color-surface-base)] space-y-4">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
+          {/* Search Bar */}
+          <div className="flex flex-col gap-4">
+            <div className="relative">
               <Input
                 placeholder="Search terms..."
                 value={searchQuery}
@@ -109,8 +121,9 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
                 fullWidth
               />
             </div>
-            
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0 no-scrollbar">
+
+            {/* Type Selector - Moved below search bar for better space management */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
               <Filter className="w-4 h-4 text-[var(--color-text-tertiary)] flex-shrink-0" />
               <Button
                 variant={selectedType === 'all' ? 'primary' : 'ghost'}
@@ -135,7 +148,7 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
         </div>
 
         {/* Grid Content */}
-        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar smooth-scrollbar">
+        <div className="flex-1 p-6">
           {filteredTerms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1920px] mx-auto">
               {filteredTerms.map((term) => (

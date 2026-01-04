@@ -388,7 +388,7 @@ AWS_REGION=us-east-1
 - **Covers**:
   - State-of-the-Art Semantic Argument Map UI/UX
   - Dual-metaphor aesthetic system (Dark Mode "Void" vs Light Mode "Lab")
-  - Technical implementation with Three.js and react-force-graph-3d
+  - Technical implementation with SVG, CSS-in-JS, and basic React components
   - Level of Detail (Semantic Zoom) strategies
   - Performance optimization for high-density data visualization
   - Motion dynamics and interaction patterns

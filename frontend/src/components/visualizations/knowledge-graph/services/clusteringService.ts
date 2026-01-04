@@ -91,8 +91,9 @@ export class ClusteringService {
   /**
    * Build a graphology graph from nodes and edges
    */
-  private buildGraphologyGraph(nodes: GraphNode[], edges: GraphEdge[]): Graph {
-    const graph = new Graph({ type: 'undirected' });
+  private buildGraphologyGraph(nodes: GraphNode[], edges: GraphEdge[]): any {
+    // @ts-ignore
+    const graph = new Graph({ type: 'undirected' }) as any;
 
     // Add nodes
     nodes.forEach(node => {

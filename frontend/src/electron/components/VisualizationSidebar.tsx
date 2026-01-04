@@ -17,9 +17,8 @@
  */
 
 import { forwardRef } from 'react';
-import { ChevronLeft, Info } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { Badge } from '../../design-system/components/Badge';
-import { Card } from '../../design-system/components/Card';
 import { cn } from '../../lib/utils';
 import type { VisualizationType as SharedVisualizationType } from '@shared/types';
 
@@ -143,8 +142,7 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   {
     id: 'argument-map',
     name: 'Argument Map',
-    description: 'Premise-conclusion structure',
-    icon: '📊',
+          description: 'Depth Graph of argument structure',    icon: '🏔️',
     shortcut: 5,
   },
   {
@@ -168,6 +166,13 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
     icon: '📖',
     shortcut: 8,
   },
+  {
+    id: 'depth-graph',
+    name: 'Depth Graph',
+    description: 'Visualization of argument depth and complexity',
+    icon: '🧊',
+    shortcut: 9,
+  },
 ];
 
 /**
@@ -181,9 +186,6 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
     {
       currentViz,
       onVizChange,
-      summary,
-      summaryVisible = true,
-      onToggleSummary,
       collapsed = false,
       onToggleCollapse,
       visualizations = DEFAULT_VISUALIZATIONS,
@@ -332,108 +334,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           ))}
         </div>
 
-        {/* Summary Panel */}
-        {summary && summaryVisible && (
-          <div
-            className="border-t p-4"
-            style={{
-              borderColor: 'var(--color-border-subtle)',
-              backgroundColor: 'var(--color-surface-elevated)',
-            }}
-          >
-            {/* Summary Toggle */}
-            {onToggleSummary && (
-              <button
-                type="button"
-                onClick={onToggleSummary}
-                className={cn(
-                  'w-full',
-                  'flex',
-                  'items-center',
-                  'justify-between',
-                  'mb-3',
-                  'text-sm',
-                  'transition-colors'
-                )}
-                style={{
-                  color: 'var(--color-text-secondary)',
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.color = 'var(--color-text-primary)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.color = 'var(--color-text-secondary)';
-                }}
-              >
-                <span>Document Summary</span>
-                <Info className="w-4 h-4" />
-              </button>
-            )}
-
-            {/* Summary Items */}
-            <div className="space-y-2">
-              {summary.tlrd && (
-                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--color-surface-base)' }}>
-                  <div
-                    className="text-xs mb-1"
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      fontSize: 'var(--font-size-xs)',
-                    }}
-                  >
-                    TL;DR
-                  </div>
-                  <div
-                    className="text-sm"
-                    style={{
-                      color: 'var(--color-text-primary)',
-                      fontSize: 'var(--font-size-sm)',
-                    }}
-                  >
-                    {summary.tlrd}
-                  </div>
-                </Card>
-              )}
-
-              {summary.keyEntities && summary.keyEntities.length > 0 && (
-                <Card variant="elevated" padding="sm" style={{ backgroundColor: 'var(--color-surface-base)' }}>
-                  <div
-                    className="text-xs mb-1"
-                    style={{
-                      color: 'var(--color-text-secondary)',
-                      fontSize: 'var(--font-size-xs)',
-                    }}
-                  >
-                    Key Entities
-                  </div>
-                  <div
-                    className="text-sm"
-                    style={{
-                      color: 'var(--color-text-primary)',
-                      fontSize: 'var(--font-size-sm)',
-                    }}
-                  >
-                    {summary.keyEntities.join(', ')}
-                  </div>
-                </Card>
-              )}
-
-              {(summary.wordCount || summary.analysisTime) && (
-                <div
-                  className="text-xs"
-                  style={{
-                    color: 'var(--color-text-secondary)',
-                    fontSize: 'var(--font-size-xs)',
-                  }}
-                >
-                  {summary.wordCount && <span>{summary.wordCount.toLocaleString()} words</span>}
-                  {summary.wordCount && summary.analysisTime && ' · '}
-                  {summary.analysisTime && <span>Analysis: {summary.analysisTime}</span>}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Summary Panel - Removed as requested */}
       </aside>
     );
   }

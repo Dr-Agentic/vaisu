@@ -15,16 +15,12 @@
 
 import { useEffect, useState, forwardRef, useCallback } from 'react';
 import {
+  ArrowLeft,
+  X,
   Menu,
   Info,
   Maximize,
-  Minimize,
-  X,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  Download,
-  ArrowLeft,
+  Minimize
 } from 'lucide-react';
 import { Button } from '../../design-system/components/Button';
 import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
@@ -79,8 +75,11 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         }
       }
 
-      // Fullscreen: F or f
-      if (e.key === 'f' || e.key === 'F') {
+      // Fullscreen: F or f (only when not in input fields)
+      if ((e.key === 'f' || e.key === 'F') &&
+          !(e.target instanceof HTMLInputElement ||
+            e.target instanceof HTMLTextAreaElement ||
+            e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
         toggleCanvasFullscreen();
       }
@@ -92,8 +91,11 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         }
       }
 
-      // Sidebar toggle: S or s
-      if (e.key === 's' || e.key === 'S') {
+      // Sidebar toggle: S or s (only when not in input fields)
+      if ((e.key === 's' || e.key === 'S') &&
+          !(e.target instanceof HTMLInputElement ||
+            e.target instanceof HTMLTextAreaElement ||
+            e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
         setSidebarCollapsed(!sidebarCollapsed);
       }
@@ -247,7 +249,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         </header>
 
         {/* Main Workspace */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex">
           {/* Visualization Sidebar */}
           <VisualizationSidebar
             currentViz={currentVisualization}
@@ -264,10 +266,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             className={cn(
               'flex-1',
               'relative',
-              'flex',
-              'items-center',
-              'justify-center',
-              'overflow-hidden',
+              'overflow-auto',
               'mesh-glow',
               canvasFullscreen && [
                 'fixed',
@@ -282,82 +281,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             {/* Visualization Renderer */}
             <div className="w-full h-full">
               <VisualizationRenderer />
-            </div>
-
-            {/* Canvas Toolbar (bottom center) */}
-            <div
-              className={cn(
-                'absolute',
-                'bottom-6',
-                'left-1/2',
-                '-translate-x-1/2',
-                'rounded-xl',
-                'p-1',
-                'flex',
-                'items-center',
-                'gap-1',
-                'border'
-              )}
-              style={{
-                backgroundColor: 'var(--color-surface-base)',
-                borderColor: 'var(--color-border-subtle)',
-                boxShadow: 'var(--elevation-lg)',
-              }}
-            >
-              {/* Zoom controls could go here */}
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={<ZoomIn className="w-4 h-4" />}
-                title="Zoom In"
-              >
-                <span />
-              </Button>
-              <span
-                className={cn(
-                  'px-3',
-                  'text-sm',
-                  'font-mono'
-                )}
-                style={{
-                  color: 'var(--color-text-primary)',
-                  fontSize: 'var(--font-size-sm)',
-                }}
-              >
-                100%
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={<ZoomOut className="w-4 h-4" />}
-                title="Zoom Out"
-              >
-                <span />
-              </Button>
-              <div
-                className="w-px h-6"
-                style={{ backgroundColor: 'var(--color-border-subtle)' }}
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={<Maximize2 className="w-4 h-4" />}
-                title="Fit to Screen"
-              >
-                <span />
-              </Button>
-              <div
-                className="w-px h-6"
-                style={{ backgroundColor: 'var(--color-border-subtle)' }}
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                leftIcon={<Download className="w-4 h-4" />}
-                title="Export"
-              >
-                <span />
-              </Button>
             </div>
 
             {/* Close fullscreen button */}
@@ -376,75 +299,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
           </div>
         </div>
 
-        {/* Keyboard Shortcuts Hint */}
-        <div
-          className={cn(
-            'fixed',
-            'bottom-24',
-            'right-6',
-            'rounded-lg',
-            'px-3',
-            'py-2',
-            'text-xs',
-            'border',
-            'pointer-events-none'
-          )}
-          style={{
-            backgroundColor: 'var(--color-surface-base)',
-            borderColor: 'var(--color-border-subtle)',
-            color: 'var(--color-text-secondary)',
-            fontSize: 'var(--font-size-xs)',
-          }}
-        >
-          <kbd
-            className={cn(
-              'px-1.5',
-              'py-0.5',
-              'border',
-              'rounded',
-              'font-mono'
-            )}
-            style={{
-              backgroundColor: 'var(--color-surface-elevated)',
-              borderColor: 'var(--color-border-subtle)',
-            }}
-          >
-            1-8
-          </kbd>{' '}
-          Switch viz ·{' '}
-          <kbd
-            className={cn(
-              'px-1.5',
-              'py-0.5',
-              'border',
-              'rounded',
-              'font-mono'
-            )}
-            style={{
-              backgroundColor: 'var(--color-surface-elevated)',
-              borderColor: 'var(--color-border-subtle)',
-            }}
-          >
-            F
-          </kbd>{' '}
-          Fullscreen ·{' '}
-          <kbd
-            className={cn(
-              'px-1.5',
-              'py-0.5',
-              'border',
-              'rounded',
-              'font-mono'
-            )}
-            style={{
-              backgroundColor: 'var(--color-surface-elevated)',
-              borderColor: 'var(--color-border-subtle)',
-            }}
-          >
-            Esc
-          </kbd>{' '}
-          Exit
-        </div>
+        {/* Keyboard Shortcuts Hint - Removed as requested */}
       </div>
     );
   }

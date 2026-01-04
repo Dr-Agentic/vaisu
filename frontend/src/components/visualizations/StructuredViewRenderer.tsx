@@ -75,8 +75,20 @@ const calculateLayout = (nodes: TreeNode[], depth: number, startY: number): numb
 export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) => {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
+  console.log('🏗️ StructuredViewRenderer received data:', {
+    type: data?.type,
+    sectionsCount: data?.sections?.length,
+    hierarchyType: typeof data?.hierarchy,
+    hierarchyLength: Array.isArray(data?.hierarchy) ? data.hierarchy.length : 'not-array',
+    hasSections: !!data?.sections,
+    sectionsData: data?.sections?.slice(0, 2).map(s => ({ id: s.id, title: s.title, level: s.level }))
+  });
+
   const { nodes, edges } = useMemo(() => {
-    if (!data || !data.sections) return { nodes: [], edges: [] };
+    if (!data || !data.sections) {
+      console.log('❌ StructuredViewRenderer: No data or sections available');
+      return { nodes: [], edges: [] };
+    }
 
     // 1. Build Tree
     const roots = convertSectionsToTree(data.sections);

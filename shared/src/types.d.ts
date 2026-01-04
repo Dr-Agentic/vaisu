@@ -299,6 +299,19 @@ export interface ArgumentNode {
     polarity: ArgumentPolarity;
     confidence: number;
     impact: 'low' | 'medium' | 'high';
+    depthMetrics?: {
+        cohesion: number;
+        nuance: number;
+        grounding: number;
+        tension: number;
+        confidence: {
+            cohesion: number;
+            nuance: number;
+            grounding: number;
+            tension: number;
+            composite: number;
+        };
+    };
     source?: string;
     parentId?: string;
     isCollapsed?: boolean;

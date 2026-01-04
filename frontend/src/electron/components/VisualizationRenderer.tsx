@@ -5,6 +5,7 @@ import { MindMap } from '../../components/visualizations/MindMap';
 import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
 import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
 import { UMLClassDiagram } from '../../components/visualizations/uml-class-diagram/UMLClassDiagram';
+import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
 import { ArgumentMap } from '../../components/visualizations/argument-map/ArgumentMap';
 import { ExecutiveDashboard } from '../../components/visualizations/executive-dashboard/ExecutiveDashboard';
 import { Loader2 } from 'lucide-react';
@@ -48,19 +49,23 @@ export function VisualizationRenderer() {
 
   switch (currentVisualization) {
     case 'structured-view':
-      return <StructuredViewRenderer data={data} />;
+      return <StructuredViewRenderer data={data.data} />;
     case 'mind-map':
-      return <MindMap data={data} />;
+      return <MindMap data={data.data} />;
+    case 'flowchart':
+      return <Flowchart data={data.data} />;
     case 'knowledge-graph':
-      return <KnowledgeGraph data={data} />;
+      return <KnowledgeGraph data={data.data} />;
     case 'terms-definitions':
-      return <TermsDefinitions data={data} />;
+      return <TermsDefinitions data={data.data} />;
     case 'uml-class-diagram':
-      return <UMLClassDiagram data={data} />;
+      return <UMLClassDiagram data={data.data} />;
     case 'argument-map':
-      return <ArgumentMap data={data} />;
+      return <ArgumentMap documentId="" />;
+    case 'depth-graph':
+      return <ArgumentMap documentId="" />;
     case 'executive-dashboard':
-      return <ExecutiveDashboard data={data} />;
+      return <ExecutiveDashboard data={data.data} />;
     default:
       return (
         <div className="flex items-center justify-center h-64">

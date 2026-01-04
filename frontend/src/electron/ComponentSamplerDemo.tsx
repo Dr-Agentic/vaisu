@@ -6,7 +6,6 @@
  */
 
 import { useEffect } from 'react';
-import { ComponentSampler } from './components/ComponentSampler';
 
 /**
  * ComponentSamplerDemo
@@ -22,7 +21,10 @@ export function ComponentSamplerDemo() {
 
   return (
     <div className="component-sampler-demo">
-      <ComponentSampler />
+      <div className="p-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Component Sampler Demo</h1>
+        <p className="text-gray-600">ComponentSampler has been removed from the application.</p>
+      </div>
     </div>
   );
 }

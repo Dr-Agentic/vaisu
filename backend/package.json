@@ -6,7 +6,10 @@
     "dev": "AWS_REGION=us-east-1 tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/src/server.js",
-    "test": "vitest"
+    "test": "vitest",
+    "setup:db": "tsx scripts/setup-dynamodb.ts",
+    "setup:s3": "aws s3 mb s3://vaisu-documents-dev --region us-east-1",
+    "setup:all": "npm run setup:db && npm run setup:s3"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.946.0",

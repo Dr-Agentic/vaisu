@@ -28,4 +28,3 @@ export {
   type DocumentSummary,
 } from './VisualizationSidebar';
 export { StageVisualization, type StageVisualizationProps } from './StageVisualization';
-export { ComponentSampler, type ComponentSamplerProps } from './ComponentSampler';

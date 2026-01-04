@@ -20,6 +20,7 @@ import type {
   ArgumentEdge,
   ArgumentPolarity
 } from '../../../../shared/src/types.js';
+import { visualizationService } from '../../repositories/visualizationService.js';
 
 // Internal types for LLM extraction
 interface UMLExtractionResult {
@@ -70,46 +71,145 @@ export class VisualizationGenerator {
     document: Document,
     analysis: DocumentAnalysis
   ): Promise<any> {
-    switch (type) {
-      case 'structured-view':
-        return this.generateStructuredView(document);
+    try {
+      // First, check if visualization already exists in DynamoDB (skip for structured-view as it's stored in analyses table)
+      let existingVisualization = null;
+      if (type !== 'structured-view') {
+        existingVisualization = await visualizationService.findByDocumentIdAndType(
+          document.id,
+          type
+        );
+      }
 
-      case 'mind-map':
-        return await this.generateMindMap(document, analysis);
+      if (existingVisualization) {
+        console.log(`✅ Found existing ${type} visualization for document ${document.id}`);
+        return existingVisualization.visualizationData;
+      }
 
-      case 'flowchart':
-        return this.generateFlowchart(document, analysis);
+      console.log(`🔄 Generating new ${type} visualization for document ${document.id}`);
+      console.log(`📊 Document content length: ${document.content.length} characters`);
+      console.log(`📊 Document sections count: ${document.structure.sections.length}`);
+      console.log(`📊 Document hierarchy type: ${typeof document.structure.hierarchy}`);
 
-      case 'knowledge-graph':
-        return this.generateKnowledgeGraph(analysis, document);
+      // Generate visualization based on type
+      let visualizationData: any;
+      let llmMetadata = {
+        model: 'unknown',
+        tokensUsed: 0,
+        processingTime: 0,
+        timestamp: new Date().toISOString()
+      };
 
-      case 'executive-dashboard':
-        return this.generateDashboard(analysis);
+      const startTime = Date.now();
 
-      case 'timeline':
-        return this.generateTimeline(document, analysis);
+      switch (type) {
+        case 'structured-view':
+          console.log(`🎯 Generating structured-view visualization for document ${document.id}`);
+          visualizationData = this.generateStructuredView(document);
+          console.log(`✅ Structured-view generation completed`);
+          break;
 
-      case 'terms-definitions':
-        return await this.generateTermsDefinitions(document, analysis);
+        case 'mind-map':
+          visualizationData = await this.generateMindMap(document, analysis);
+          llmMetadata.model = 'mind-map-generation';
+          break;
 
-      case 'uml-class-diagram':
-        return await this.generateUMLClassDiagram(document, analysis);
+        case 'flowchart':
+          visualizationData = this.generateFlowchart(document, analysis);
+          break;
 
-      case 'argument-map':
-        return await this.generateArgumentMap(document, analysis);
+        case 'knowledge-graph':
+          visualizationData = this.generateKnowledgeGraph(analysis, document);
+          break;
 
-      default:
-        throw new Error(`Visualization type ${type} not yet implemented`);
+        case 'executive-dashboard':
+          visualizationData = this.generateDashboard(analysis);
+          break;
+
+        case 'timeline':
+          visualizationData = this.generateTimeline(document, analysis);
+          break;
+
+        case 'terms-definitions':
+          visualizationData = await this.generateTermsDefinitions(document, analysis);
+          llmMetadata.model = 'glossary-generation';
+          break;
+
+        case 'uml-class-diagram':
+          visualizationData = await this.generateUMLClassDiagram(document, analysis);
+          llmMetadata.model = 'uml-extraction';
+          break;
+
+        case 'argument-map':
+          visualizationData = await this.generateArgumentMap(document, analysis);
+          llmMetadata.model = 'argument-map-generation';
+          break;
+
+        case 'depth-graph':
+          visualizationData = await this.generateArgumentMap(document, analysis);
+          llmMetadata.model = 'argument-map-generation';
+          break;
+
+        default:
+          throw new Error(`Visualization type ${type} not yet implemented`);
+      }
+
+      // Calculate processing time
+      llmMetadata.processingTime = Date.now() - startTime;
+
+      // Store the generated visualization in DynamoDB (skip for structured-view as it's stored in analyses table)
+      if (type !== 'structured-view') {
+        const visualizationRecord = {
+          documentId: document.id,
+          visualizationType: type,
+          visualizationData,
+          llmMetadata,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await visualizationService.create(visualizationRecord);
+        console.log(`✅ Stored ${type} visualization in DynamoDB for document ${document.id}`);
+      }
+
+      return visualizationData;
+
+    } catch (error) {
+      console.error(`❌ Failed to generate ${type} visualization for document ${document.id}:`, error);
+      throw new Error(`Failed to generate ${type} visualization: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   private generateStructuredView(document: Document) {
+    console.log(`🏗️ generateStructuredView called for document: ${document.title}`);
+    console.log(`📊 Document structure:`, {
+      sectionsCount: document.structure.sections.length,
+      hierarchyType: document.structure.hierarchy.type,
+      totalLines: document.content.split('\\n').length
+    });
+
+    // Debug document structure content
+    console.log(`📋 First 3 sections:`, document.structure.sections.slice(0, 3).map(s => ({
+      id: s.id,
+      title: s.title,
+      childrenCount: s.children?.length || 0,
+      contentLength: s.content.length
+    })));
+
     // Return the document structure with sections
-    return {
+    const result = {
       type: 'structured-view',
       sections: document.structure.sections,
       hierarchy: document.structure.hierarchy
     };
+
+    console.log(`✅ generateStructuredView returning:`, {
+      type: result.type,
+      sectionsCount: result.sections.length,
+      hierarchyType: result.hierarchy.type
+    });
+
+    return result;
   }
 
   private async generateMindMap(document: Document, analysis: DocumentAnalysis): Promise<MindMapData> {
@@ -144,11 +244,12 @@ export class VisualizationGenerator {
         };
       }
     } catch (error) {
-      console.error('LLM mind map generation failed, falling back to structure-based:', error);
+      console.error('LLM mind map generation failed:', error);
+      throw error; // Fail fast - no fallback
     }
 
-    // Fallback to structure-based generation
-    return this.generateMindMapFromStructure(document, analysis);
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate mind map visualization. Please check your document content and try again. If the issue persists, the document may not contain sufficient structure for visualization.');
   }
 
   private convertLLMNodeToMindMapNode(node: any, level: number): any {
@@ -179,40 +280,7 @@ export class VisualizationGenerator {
     };
   }
 
-  private generateMindMapFromStructure(document: Document, analysis: DocumentAnalysis): MindMapData {
-    // Fallback: Build mind map from document structure
-    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
-    const root = {
-      id: 'root',
-      label: document.title,
-      subtitle: tldrText.substring(0, 40),
-      icon: '📄',
-      summary: tldrText,
-      detailedExplanation: tldrText,
-      sourceTextExcerpt: document.content.substring(0, 200),
-      children: this.convertSectionsToMindMapNodes(document.structure.sections, 1),
-      level: 0,
-      color: '#4F46E5',
-      sourceRef: { start: 0, end: 0, text: '' },
-      metadata: {
-        importance: 1.0,
-        confidence: 1.0
-      }
-    };
-
-    return {
-      root,
-      layout: 'radial',
-      theme: {
-        primary: '#4F46E5',
-        secondary: '#7C3AED',
-        accent: '#10B981',
-        background: '#FFFFFF',
-        text: '#1F2937'
-      }
-    };
-  }
-
+  
   private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     const fallbackEmojis = ['📊', '🔧', '💡', '🌐', '📈', '⚙️', '🏗️'];
@@ -559,39 +627,15 @@ export class VisualizationGenerator {
         };
       }
     } catch (error) {
-      console.error('LLM glossary extraction failed, falling back to entity extraction:', error);
+      console.error('LLM glossary extraction failed:', error);
+      throw error; // Fail fast - no fallback
     }
 
-    // Fallback: extract from existing entities
-    return this.generateTermsFromEntities(analysis);
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate terms and definitions visualization. Please check your document content and try again. The document may not contain enough technical terms for extraction.');
   }
 
-  private generateTermsFromEntities(analysis: DocumentAnalysis): TermsDefinitionsData {
-    // Fallback implementation using existing entity extraction
-    const terms = analysis.entities
-      .filter(e => e.type === 'technical' || e.type === 'concept')
-      .slice(0, 30)
-      .map((entity, index) => ({
-        id: `term-${index}`,
-        term: entity.text,
-        definition: entity.context || 'Technical term from document',
-        type: (entity.type === 'technical' ? 'technical' : 'concept') as 'technical' | 'concept',
-        confidence: entity.importance,
-        mentions: entity.mentions.length,
-        context: entity.context
-      }))
-      .sort((a, b) => a.term.localeCompare(b.term));
-
-    return {
-      terms,
-      metadata: {
-        totalTerms: terms.length,
-        extractionConfidence: 0.7,
-        documentDomain: 'general'
-      }
-    };
-  }
-
+  
   private async generateUMLClassDiagram(
     document: Document,
     analysis: DocumentAnalysis
@@ -613,10 +657,11 @@ export class VisualizationGenerator {
       }
     } catch (error) {
       console.error('LLM UML extraction failed:', error);
+      throw error; // Fail fast - no fallback
     }
 
-    // Fallback: Generate from entities
-    return this.generateUMLFromEntities(analysis, document);
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate UML class diagram visualization. Please check your document content and try again. The document may not contain sufficient software architecture information for UML extraction.');
   }
 
   private buildUMLExtractionPrompt(
@@ -758,54 +803,7 @@ Output the result as a JSON object matching the defined schema.`;
     return scores[0]?.domain || 'general';
   }
 
-  private generateUMLFromEntities(
-    analysis: DocumentAnalysis,
-    document: Document
-  ): UMLDiagramData {
-    // Fallback implementation using existing entity extraction
-    const classes: ClassEntity[] = analysis.entities
-      .filter(e => e.type === 'technical' || e.type === 'concept')
-      .slice(0, 20)
-      .map((entity, index) => ({
-        id: `class-${index}`,
-        name: entity.text,
-        type: 'class' as const,
-        package: undefined,
-        attributes: [],
-        methods: [],
-        description: entity.context || 'Extracted from document entities',
-        sourceQuote: entity.mentions[0]?.text || '',
-        sourceSpan: entity.mentions[0] || null,
-        documentLink: `#document-${document.id}`
-      }));
-
-    // Generate simple relationships from existing relationships
-    const relationships: UMLRelationship[] = analysis.relationships
-      .slice(0, 30)
-      .map((rel, index) => ({
-        id: `rel-${index}`,
-        source: rel.source,
-        target: rel.target,
-        type: this.mapRelationshipType(rel.type),
-        description: rel.type,
-        sourceQuote: rel.evidence?.[0]?.text || '',
-        evidence: rel.evidence?.map(e => e.text) || []
-      }));
-
-    return {
-      classes,
-      relationships,
-      packages: [],
-      metadata: {
-        totalClasses: classes.length,
-        totalRelationships: relationships.length,
-        extractionConfidence: 0.6,
-        documentDomain: 'general',
-        generatedAt: new Date().toISOString()
-      }
-    };
-  }
-
+  
   private mapRelationshipType(type: string): UMLRelationship['type'] {
     const mapping: Record<string, UMLRelationship['type']> = {
       'extends': 'inheritance',
@@ -829,7 +827,49 @@ Output the result as a JSON object matching the defined schema.`;
     // Prepare context
     const contentSample = document.content.substring(0, 12000);
     const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
-    const prompt = `Document Title: ${document.title}\nTLDR: ${tldrText}\n\nContent:\n${contentSample}`;
+
+    const prompt = `Document Title: ${document.title}
+TLDR: ${tldrText}
+
+Content:
+${contentSample}
+
+You are an expert in argument analysis. Generate a comprehensive Argument Map from the text.
+
+CRITICAL INSTRUCTIONS:
+1. Identify the Main Claim and all supporting/attacking arguments and evidence.
+2. For EACH node, you MUST calculate "Depth Metrics" (0.0 - 1.0):
+   - Cohesion: Structural integrity and logical consistency.
+   - Nuance: Perspective diversity and complexity.
+   - Grounding: Quality of evidence and factual support.
+   - Tension: Degree of argumentative conflict or debate.
+   - Confidence: Your confidence in EACH of the above scores.
+3. Return a JSON object with "nodes" and "edges".
+
+Node Schema:
+{
+  "id": "string",
+  "type": "claim" | "argument" | "evidence" | "counterargument" | "rebuttal",
+  "label": "string (short title)",
+  "summary": "string (1-2 sentences)",
+  "polarity": "support" | "attack" | "neutral",
+  "confidence": number (0-1),
+  "impact": "low" | "medium" | "high",
+  "depthMetrics": {
+    "cohesion": number,
+    "nuance": number,
+    "grounding": number,
+    "tension": number,
+    "confidence": {
+      "cohesion": number,
+      "nuance": number,
+      "grounding": number,
+      "tension": number,
+      "composite": number
+    }
+  }
+}
+`;
 
     try {
       const response = await llmClient.callWithFallback('argumentMapGeneration', prompt);
@@ -849,6 +889,7 @@ Output the result as a JSON object matching the defined schema.`;
           polarity: node.polarity || 'neutral',
           confidence: node.confidence ?? 0.8,
           impact: node.impact || 'medium',
+          depthMetrics: node.depthMetrics,
           source: node.source,
           parentId: node.parentId,
           isCollapsed: node.isCollapsed ?? false
@@ -876,51 +917,14 @@ Output the result as a JSON object matching the defined schema.`;
       }
     } catch (error) {
       console.error('LLM argument map generation failed:', error);
+      throw error; // Fail fast - no fallback
     }
 
-    // Fallback: Generate from entities and relationships
-    return this.generateArgumentMapFromEntities(analysis);
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate argument map visualization. Please check your document content and try again. The document may not contain sufficient argumentative structure for analysis.');
   }
 
-  private generateArgumentMapFromEntities(analysis: DocumentAnalysis): ArgumentMapData {
-    // Fallback implementation using existing entity extraction
-    const conceptEntities = analysis.entities.filter(
-      e => e.type === 'concept' || e.type === 'technical'
-    );
-
-    const nodes: ArgumentNode[] = conceptEntities.slice(0, 15).map((entity, index) => ({
-      id: `node-${index}`,
-      type: (index === 0 ? 'claim' : (index < 4 ? 'argument' : 'evidence')) as ArgumentNode['type'],
-      label: entity.text,
-      summary: entity.context || 'Extracted from document',
-      polarity: 'neutral' as ArgumentPolarity,
-      confidence: entity.importance,
-      impact: (entity.importance > 0.7 ? 'high' : (entity.importance > 0.4 ? 'medium' : 'low')) as 'low' | 'medium' | 'high',
-      isCollapsed: false
-    }));
-
-    // Create edges based on relationships
-    const edges: ArgumentEdge[] = analysis.relationships
-      .slice(0, 20)
-      .map((rel, index) => ({
-        id: `edge-${index}`,
-        source: rel.source,
-        target: rel.target,
-        type: 'supports' as const,
-        strength: rel.strength
-      }));
-
-    return {
-      nodes,
-      edges,
-      metadata: {
-        mainClaimId: nodes.length > 0 ? nodes[0].id : '',
-        totalClaims: nodes.filter(n => n.type === 'claim').length,
-        totalEvidence: nodes.filter(n => n.type === 'evidence').length
-      }
-    };
-  }
-
+  
   private getEntityColor(type: string): string {
     const colors: Record<string, string> = {
       person: '#3B82F6',

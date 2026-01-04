@@ -41,7 +41,7 @@ export const GraphViewerLayout: React.FC<GraphViewerLayoutProps> = ({
       </header>
 
       {/* Main Visualization Area */}
-      <main className="flex-1 overflow-hidden relative">
+      <main className="flex-1 relative">
         {children}
       </main>
     </div>

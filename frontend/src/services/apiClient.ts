@@ -69,6 +69,6 @@ export const apiClient = {
 
   async generateVisualization(documentId: string, type: VisualizationType): Promise<any> {
     const response = await client.post(`/documents/${documentId}/visualizations/${type}`);
-    return response.data.data;
+    return response.data;
   }
 };

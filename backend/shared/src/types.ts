@@ -139,6 +139,7 @@ export type VisualizationType =
   | 'structured-view'
   | 'mind-map'
   | 'argument-map'
+  | 'depth-graph'
   | 'flowchart'
   | 'knowledge-graph'
   | 'uml-class-diagram'

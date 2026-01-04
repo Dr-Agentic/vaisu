@@ -22,6 +22,15 @@ export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || 'vaisu-documents-dev
 export const DYNAMODB_DOCUMENTS_TABLE = process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents';
 export const DYNAMODB_ANALYSES_TABLE = process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses';
 
+// Visualization tables (one per representation model)
+export const DYNAMODB_ARGUMENT_MAP_TABLE = process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map';
+export const DYNAMODB_DEPTH_GRAPH_TABLE = process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph';
+export const DYNAMODB_UML_CLASS_TABLE = process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class';
+export const DYNAMODB_MIND_MAP_TABLE = process.env.DYNAMODB_MIND_MAP_TABLE || 'vaisu-mind-map';
+export const DYNAMODB_FLOWCHART_TABLE = process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart';
+export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard';
+export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
+
 /**
  * Check if AWS persistence is enabled and configured
  */
@@ -61,6 +70,15 @@ export function validateAWSConfig(): void {
     s3Bucket: S3_BUCKET_NAME,
     documentsTable: DYNAMODB_DOCUMENTS_TABLE,
     analysesTable: DYNAMODB_ANALYSES_TABLE,
+    visualizationTables: {
+      argumentMap: DYNAMODB_ARGUMENT_MAP_TABLE,
+      depthGraph: DYNAMODB_DEPTH_GRAPH_TABLE,
+      umlClass: DYNAMODB_UML_CLASS_TABLE,
+      mindMap: DYNAMODB_MIND_MAP_TABLE,
+      flowchart: DYNAMODB_FLOWCHART_TABLE,
+      executiveDashboard: DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
+      timeline: DYNAMODB_TIMELINE_TABLE,
+    },
   });
 }
 
