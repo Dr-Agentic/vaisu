@@ -184,7 +184,7 @@ export class VisualizationGenerator {
     console.log(`🏗️ generateStructuredView called for document: ${document.title}`);
     console.log(`📊 Document structure:`, {
       sectionsCount: document.structure.sections.length,
-      hierarchyType: document.structure.hierarchy.type,
+      hierarchyLength: document.structure.hierarchy.length,
       totalLines: document.content.split('\\n').length
     });
 
@@ -206,7 +206,7 @@ export class VisualizationGenerator {
     console.log(`✅ generateStructuredView returning:`, {
       type: result.type,
       sectionsCount: result.sections.length,
-      hierarchyType: result.hierarchy.type
+      hierarchyLength: result.hierarchy.length
     });
 
     return result;

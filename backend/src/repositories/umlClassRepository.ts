@@ -1,17 +1,11 @@
 import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
-import { dynamoDBClient, DYNAMODB_UML_CLASS_TABLE, isPersistenceEnabled } from '../config/aws.js';
-import { localStore } from '../services/storage/localStore.js';
+import { dynamoDBClient, DYNAMODB_UML_CLASS_TABLE } from '../config/aws.js';
 import type { VisualizationRecord } from './types.js';
 
 /**
  * Create new UML class diagram visualization record
  */
 export async function create(umlClass: VisualizationRecord): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    localStore.saveVisualization(umlClass);
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_UML_CLASS_TABLE,
     Item: {
@@ -27,10 +21,6 @@ export async function create(umlClass: VisualizationRecord): Promise<void> {
  * Find UML class diagram by document ID
  */
 export async function findByDocumentId(documentId: string): Promise<VisualizationRecord | null> {
-  if (!isPersistenceEnabled()) {
-    return localStore.getVisualization(documentId, 'uml-class');
-  }
-
   const command = new GetCommand({
     TableName: DYNAMODB_UML_CLASS_TABLE,
     Key: {
@@ -55,14 +45,6 @@ export async function update(
   documentId: string,
   updates: Partial<VisualizationRecord>
 ): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    const existing = localStore.getVisualization(documentId, 'uml-class');
-    if (existing) {
-      localStore.saveVisualization({ ...existing, ...updates });
-    }
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_UML_CLASS_TABLE,
     Item: {

@@ -1,17 +1,11 @@
 import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
-import { dynamoDBClient, DYNAMODB_FLOWCHART_TABLE, isPersistenceEnabled } from '../config/aws.js';
-import { localStore } from '../services/storage/localStore.js';
+import { dynamoDBClient, DYNAMODB_FLOWCHART_TABLE } from '../config/aws.js';
 import type { VisualizationRecord } from './types.js';
 
 /**
  * Create new flowchart visualization record
  */
 export async function create(flowchart: VisualizationRecord): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    localStore.saveVisualization(flowchart);
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_FLOWCHART_TABLE,
     Item: {
@@ -27,10 +21,6 @@ export async function create(flowchart: VisualizationRecord): Promise<void> {
  * Find flowchart by document ID
  */
 export async function findByDocumentId(documentId: string): Promise<VisualizationRecord | null> {
-  if (!isPersistenceEnabled()) {
-    return localStore.getVisualization(documentId, 'flowchart');
-  }
-
   const command = new GetCommand({
     TableName: DYNAMODB_FLOWCHART_TABLE,
     Key: {
@@ -55,14 +45,6 @@ export async function update(
   documentId: string,
   updates: Partial<VisualizationRecord>
 ): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    const existing = localStore.getVisualization(documentId, 'flowchart');
-    if (existing) {
-      localStore.saveVisualization({ ...existing, ...updates });
-    }
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_FLOWCHART_TABLE,
     Item: {
@@ -80,14 +62,6 @@ export async function update(
  * Delete flowchart record
  */
 export async function deleteFlowchart(documentId: string): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    const existing = localStore.getVisualization(documentId, 'flowchart');
-    if (existing) {
-      localStore.deleteVisualization(documentId, 'flowchart');
-    }
-    return;
-  }
-
   const command = new DeleteCommand({
     TableName: DYNAMODB_FLOWCHART_TABLE,
     Key: {

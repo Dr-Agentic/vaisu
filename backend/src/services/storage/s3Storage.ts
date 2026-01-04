@@ -1,7 +1,6 @@
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { s3Client, S3_BUCKET_NAME, isPersistenceEnabled } from '../../config/aws.js';
-import { localStore } from './localStore.js';
+import { s3Client, S3_BUCKET_NAME } from '../../config/aws.js';
 import type { S3UploadResult } from '../../repositories/types.js';
 
 /**
@@ -21,15 +20,6 @@ export async function uploadDocument(
   content: Buffer
 ): Promise<S3UploadResult> {
   const key = buildS3Key(hash, filename);
-
-  if (!isPersistenceEnabled()) {
-    const filePath = await localStore.saveFile(key, content);
-    return {
-      bucket: 'local',
-      key,
-      path: `file://${filePath}`,
-    };
-  }
 
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET_NAME,
@@ -51,10 +41,6 @@ export async function uploadDocument(
  * Download document from S3
  */
 export async function downloadDocument(s3Key: string): Promise<Buffer> {
-  if (!isPersistenceEnabled()) {
-    return localStore.getFile(s3Key);
-  }
-
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: s3Key,
@@ -93,10 +79,6 @@ export async function deleteDocument(s3Key: string): Promise<void> {
  * @param expiresIn - URL expiration in seconds (default: 900 = 15 minutes)
  */
 export async function generatePresignedUrl(s3Key: string, expiresIn: number = 900): Promise<string> {
-  if (!isPersistenceEnabled()) {
-    return `http://localhost:3001/api/documents/files/${s3Key}`; // Dummy local URL
-  }
-
   const command = new GetObjectCommand({
     Bucket: S3_BUCKET_NAME,
     Key: s3Key,

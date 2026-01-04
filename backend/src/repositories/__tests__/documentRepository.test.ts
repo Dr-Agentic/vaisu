@@ -4,12 +4,11 @@ import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCom
 import * as documentRepository from '../documentRepository.js';
 import type { DocumentRecord } from '../types.js';
 
-// Mock AWS config to enable persistence
+// Mock AWS config
 vi.mock('../config/aws.js', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../config/aws.js')>();
   return {
     ...actual,
-    isPersistenceEnabled: () => true,
     DYNAMODB_DOCUMENTS_TABLE: 'test-documents-table',
   };
 });

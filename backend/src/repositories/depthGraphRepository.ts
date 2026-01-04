@@ -1,17 +1,11 @@
 import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
-import { dynamoDBClient, DYNAMODB_DEPTH_GRAPH_TABLE, isPersistenceEnabled } from '../config/aws.js';
-import { localStore } from '../services/storage/localStore.js';
+import { dynamoDBClient, DYNAMODB_DEPTH_GRAPH_TABLE } from '../config/aws.js';
 import type { VisualizationRecord } from './types.js';
 
 /**
  * Create new depth graph visualization record
  */
 export async function create(depthGraph: VisualizationRecord): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    localStore.saveVisualization(depthGraph);
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_DEPTH_GRAPH_TABLE,
     Item: {
@@ -27,10 +21,6 @@ export async function create(depthGraph: VisualizationRecord): Promise<void> {
  * Find depth graph by document ID
  */
 export async function findByDocumentId(documentId: string): Promise<VisualizationRecord | null> {
-  if (!isPersistenceEnabled()) {
-    return localStore.getVisualization(documentId, 'depth-graph');
-  }
-
   const command = new GetCommand({
     TableName: DYNAMODB_DEPTH_GRAPH_TABLE,
     Key: {
@@ -55,14 +45,6 @@ export async function update(
   documentId: string,
   updates: Partial<VisualizationRecord>
 ): Promise<void> {
-  if (!isPersistenceEnabled()) {
-    const existing = localStore.getVisualization(documentId, 'depth-graph');
-    if (existing) {
-      localStore.saveVisualization({ ...existing, ...updates });
-    }
-    return;
-  }
-
   const command = new PutCommand({
     TableName: DYNAMODB_DEPTH_GRAPH_TABLE,
     Item: {

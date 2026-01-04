@@ -52,11 +52,6 @@ vi.mock('../timelineRepository.js', () => ({
   deleteTimeline: vi.fn(),
 }));
 
-// Mock AWS config to enable persistence
-vi.mock('../config/aws.js', () => ({
-  isPersistenceEnabled: () => true,
-}));
-
 describe('visualizationService', () => {
   beforeEach(() => {
     // Reset all mocked functions

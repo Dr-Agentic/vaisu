@@ -61,6 +61,17 @@ vi.mock('../../llm/openRouterClient', () => ({
   })
 }));
 
+// Mock visualizationService to prevent DynamoDB access
+vi.mock('../../../repositories/visualizationService', () => ({
+  visualizationService: {
+    create: vi.fn().mockResolvedValue(undefined),
+    findByDocumentIdAndType: vi.fn().mockResolvedValue(null),
+    findByDocumentId: vi.fn().mockResolvedValue([]),
+    update: vi.fn().mockResolvedValue(undefined),
+    deleteVisualization: vi.fn().mockResolvedValue(undefined)
+  }
+}));
+
 describe('VisualizationGenerator', () => {
   let generator: VisualizationGenerator;
   let mockDocument: Document;
@@ -323,11 +334,8 @@ describe('VisualizationGenerator', () => {
       expect(result.root.children[0].sourceTextExcerpt).toBeDefined();
     });
 
-    it('should fallback to structure-based generation on LLM failure', async () => {
-      // Create a new generator instance to test fallback
-      const testGenerator = new VisualizationGenerator();
-      
-      // Mock the import to return a failing client
+    it('should throw error on LLM failure', async () => {
+      // Mock LLM failure
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
           callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
@@ -335,17 +343,16 @@ describe('VisualizationGenerator', () => {
         })
       }));
 
-      const result = (await testGenerator.generateVisualization(
-        'mind-map',
-        mockDocument,
-        mockAnalysis
-      )) as MindMapData;
+      const testGenerator = new VisualizationGenerator();
 
-      // Should still return valid mind map from document structure
-      expect(result).toBeDefined();
-      expect(result.root).toBeDefined();
-      expect(result.root.label).toBe('Test Document');
-      
+      await expect(
+        testGenerator.generateVisualization(
+          'mind-map',
+          mockDocument,
+          mockAnalysis
+        )
+      ).rejects.toThrow('LLM failed');
+
       vi.doUnmock('../../llm/openRouterClient');
     });
   });
@@ -593,7 +600,29 @@ describe('VisualizationGenerator', () => {
       expect(result.metadata.extractionConfidence).toBeGreaterThan(0);
     });
 
-    it('should handle malformed LLM responses', async () => {
+    it('should throw error on LLM failure', async () => {
+      // Mock LLM failure
+      vi.doMock('../../llm/openRouterClient', () => ({
+        getOpenRouterClient: () => ({
+          callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
+          parseJSONResponse: vi.fn()
+        })
+      }));
+
+      const testGenerator = new VisualizationGenerator();
+
+      await expect(
+        testGenerator.generateVisualization(
+          'terms-definitions',
+          mockDocument,
+          mockAnalysis
+        )
+      ).rejects.toThrow('LLM failed');
+
+      vi.doUnmock('../../llm/openRouterClient');
+    });
+
+    it('should throw error on malformed LLM responses', async () => {
       // Mock malformed response
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
@@ -607,150 +636,15 @@ describe('VisualizationGenerator', () => {
       }));
 
       const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'terms-definitions',
-        mockDocument,
-        mockAnalysis
-      );
 
-      // Should fallback to entity extraction
-      expect(result).toBeDefined();
-      expect(result.terms).toBeDefined();
-      
-      vi.doUnmock('../../llm/openRouterClient');
-    });
+      await expect(
+        testGenerator.generateVisualization(
+          'terms-definitions',
+          mockDocument,
+          mockAnalysis
+        )
+      ).rejects.toThrow();
 
-    it('should fallback to entity extraction on LLM failure', async () => {
-      mockAnalysis.entities = [
-        {
-          id: 'entity-1',
-          text: 'Technical Term',
-          type: 'technical',
-          mentions: [{ start: 0, end: 10, text: 'Technical Term' }],
-          importance: 0.8,
-          context: 'A technical term used in the document'
-        },
-        {
-          id: 'entity-2',
-          text: 'Concept',
-          type: 'concept',
-          mentions: [{ start: 20, end: 30, text: 'Concept' }],
-          importance: 0.7,
-          context: 'An important concept'
-        }
-      ];
-
-      // Mock LLM failure
-      vi.doMock('../../llm/openRouterClient', () => ({
-        getOpenRouterClient: () => ({
-          callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
-      }));
-
-      const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'terms-definitions',
-        mockDocument,
-        mockAnalysis
-      );
-
-      expect(result).toBeDefined();
-      expect(result.terms).toBeDefined();
-      expect(result.terms.length).toBeGreaterThan(0);
-      expect(result.metadata.extractionConfidence).toBe(0.7);
-      
-      vi.doUnmock('../../llm/openRouterClient');
-    });
-
-    it('should filter only technical and concept entities in fallback', async () => {
-      mockAnalysis.entities = [
-        {
-          id: 'entity-1',
-          text: 'Technical Term',
-          type: 'technical',
-          mentions: [{ start: 0, end: 10, text: 'Technical Term' }],
-          importance: 0.8,
-          context: 'Technical context'
-        },
-        {
-          id: 'entity-2',
-          text: 'John Doe',
-          type: 'person',
-          mentions: [{ start: 20, end: 30, text: 'John Doe' }],
-          importance: 0.9,
-          context: 'A person'
-        },
-        {
-          id: 'entity-3',
-          text: 'Concept',
-          type: 'concept',
-          mentions: [{ start: 40, end: 50, text: 'Concept' }],
-          importance: 0.7,
-          context: 'Concept context'
-        }
-      ];
-
-      // Mock LLM failure
-      vi.doMock('../../llm/openRouterClient', () => ({
-        getOpenRouterClient: () => ({
-          callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
-      }));
-
-      const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'terms-definitions',
-        mockDocument,
-        mockAnalysis
-      );
-
-      // Should only include technical and concept entities
-      expect(result.terms.length).toBe(2);
-      expect(result.terms.every((t: any) => t.type === 'technical' || t.type === 'concept')).toBe(true);
-      
-      vi.doUnmock('../../llm/openRouterClient');
-    });
-
-    it('should sort fallback terms alphabetically', async () => {
-      mockAnalysis.entities = [
-        {
-          id: 'entity-1',
-          text: 'Zebra',
-          type: 'technical',
-          mentions: [{ start: 0, end: 5, text: 'Zebra' }],
-          importance: 0.8,
-          context: 'Z term'
-        },
-        {
-          id: 'entity-2',
-          text: 'Apple',
-          type: 'concept',
-          mentions: [{ start: 10, end: 15, text: 'Apple' }],
-          importance: 0.7,
-          context: 'A term'
-        }
-      ];
-
-      // Mock LLM failure
-      vi.doMock('../../llm/openRouterClient', () => ({
-        getOpenRouterClient: () => ({
-          callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
-      }));
-
-      const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'terms-definitions',
-        mockDocument,
-        mockAnalysis
-      );
-
-      expect(result.terms[0].term).toBe('Apple');
-      expect(result.terms[1].term).toBe('Zebra');
-      
       vi.doUnmock('../../llm/openRouterClient');
     });
   });
@@ -1053,36 +947,7 @@ describe('VisualizationGenerator', () => {
       vi.doUnmock('../../llm/openRouterClient');
     });
 
-    it('should fallback to entity extraction on LLM failure', async () => {
-      mockAnalysis.entities = [
-        {
-          id: 'entity-1',
-          text: 'UserService',
-          type: 'technical',
-          mentions: [{ start: 0, end: 11, text: 'UserService' }],
-          importance: 0.9,
-          context: 'Service class for user operations'
-        },
-        {
-          id: 'entity-2',
-          text: 'DatabaseRepository',
-          type: 'concept',
-          mentions: [{ start: 20, end: 38, text: 'DatabaseRepository' }],
-          importance: 0.8,
-          context: 'Repository for database access'
-        }
-      ];
-      mockAnalysis.relationships = [
-        {
-          id: 'rel-1',
-          source: 'entity-1',
-          target: 'entity-2',
-          type: 'uses',
-          strength: 0.8,
-          evidence: [{ start: 0, end: 50, text: 'UserService uses DatabaseRepository' }]
-        }
-      ];
-
+    it('should throw error on LLM failure', async () => {
       // Mock LLM failure
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
@@ -1092,52 +957,15 @@ describe('VisualizationGenerator', () => {
       }));
 
       const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'uml-class-diagram',
-        mockDocument,
-        mockAnalysis
-      ) as UMLDiagramData;
 
-      expect(result).toBeDefined();
-      expect(result.classes.length).toBeGreaterThan(0);
-      expect(result.metadata.extractionConfidence).toBe(0.6); // Lower confidence for fallback
-      
-      vi.doUnmock('../../llm/openRouterClient');
-    });
+      await expect(
+        testGenerator.generateVisualization(
+          'uml-class-diagram',
+          mockDocument,
+          mockAnalysis
+        )
+      ).rejects.toThrow('LLM failed');
 
-    it('should map relationship types correctly in fallback', async () => {
-      mockAnalysis.entities = [
-        { id: 'e1', text: 'ClassA', type: 'technical', mentions: [], importance: 0.8 },
-        { id: 'e2', text: 'ClassB', type: 'technical', mentions: [], importance: 0.7 }
-      ];
-      mockAnalysis.relationships = [
-        { id: 'r1', source: 'e1', target: 'e2', type: 'extends', strength: 0.9, evidence: [] },
-        { id: 'r2', source: 'e1', target: 'e2', type: 'implements', strength: 0.8, evidence: [] },
-        { id: 'r3', source: 'e1', target: 'e2', type: 'contains', strength: 0.7, evidence: [] },
-        { id: 'r4', source: 'e1', target: 'e2', type: 'uses', strength: 0.6, evidence: [] }
-      ];
-
-      // Mock LLM failure
-      vi.doMock('../../llm/openRouterClient', () => ({
-        getOpenRouterClient: () => ({
-          callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
-      }));
-
-      const testGenerator = new VisualizationGenerator();
-      const result = await testGenerator.generateVisualization(
-        'uml-class-diagram',
-        mockDocument,
-        mockAnalysis
-      ) as UMLDiagramData;
-
-      expect(result.relationships).toHaveLength(4);
-      expect(result.relationships[0].type).toBe('inheritance'); // extends -> inheritance
-      expect(result.relationships[1].type).toBe('realization'); // implements -> realization
-      expect(result.relationships[2].type).toBe('composition'); // contains -> composition
-      expect(result.relationships[3].type).toBe('dependency'); // uses -> dependency
-      
       vi.doUnmock('../../llm/openRouterClient');
     });
 

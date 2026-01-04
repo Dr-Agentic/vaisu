@@ -63,11 +63,6 @@ vi.mock('../../services/visualization/visualizationGenerator.js', () => ({
   },
 }));
 
-vi.mock('../../config/aws.js', () => ({
-  isPersistenceEnabled: vi.fn().mockReturnValue(false),
-  validateAWSConfig: vi.fn(),
-}));
-
 describe('Documents API - Search and List', () => {
   let app: express.Application;
 
