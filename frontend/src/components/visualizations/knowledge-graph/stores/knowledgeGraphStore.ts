@@ -79,7 +79,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
       documentId: null,
       layout: 'grid',
       columnWidth: 350,
-      rowHeight: 120,
+      rowHeight: 300,
       spacing: 50,
       selectedNodeId: null,
       hoveredNodeId: null,
@@ -266,7 +266,8 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
             return (typeOrder[a.type] || 999) - (typeOrder[b.type] || 999);
           });
 
-          const columnX = columnIndex * (columnWidth + spacing);
+          const columnX = columnIndex * (columnWidth + spacing) + 100; // Add left padding
+          const startY = 200; // Top padding for headers
 
           sortedNodes.forEach((node, rowIndex) => {
             const nodeIndex = updatedNodes.findIndex(n => n.id === node.id);
@@ -274,7 +275,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
               updatedNodes[nodeIndex] = {
                 ...node,
                 x: columnX,
-                y: rowIndex * (rowHeight + spacing),
+                y: startY + rowIndex * (rowHeight + spacing),
                 column: columnIndex,
                 row: rowIndex,
               };

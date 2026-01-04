@@ -11,7 +11,7 @@ import {
   GraphEdge
 } from '../../visualizations/toolkit';
 import { useArgumentMapStore } from './stores/argumentMapStore';
-import { ArgumentMapProps, ArgumentMapData, ArgumentNode, ArgumentEdge } from './types';
+import { ArgumentMapProps, ArgumentMapData, ArgumentNode, ArgumentEdge, BackendArgumentMapData, transformBackendDataToArgumentMap } from './types';
 
 // Layout Constants
 const COL_WIDTH = 320; // w-80
@@ -42,53 +42,19 @@ const mapEdgeToGraphEdge = (edge: ArgumentEdge): GraphEdge => ({
   rationale: edge.metadata?.description
 });
 
-export const ArgumentMap: React.FC<ArgumentMapProps> = () => {
+export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
   const store = useArgumentMapStore();
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeEdgeId, setActiveEdgeId] = useState<string | null>(null);
 
-  // Initialize Data
+  // Initialize Data from props
   useEffect(() => {
-    const sampleData: ArgumentMapData = {
-      nodes: [
-        {
-          id: 'claim-1',
-          type: 'CLAIM',
-          text: 'Renewable energy is essential for combating climate change',
-          confidence: 0.9,
-          metadata: { source: 'IPCC Report 2023', strength: 'STRONG', category: 'Environmental Policy' }
-        },
-        {
-          id: 'evidence-1',
-          type: 'EVIDENCE',
-          text: 'Fossil fuel emissions are the primary driver of global warming',
-          confidence: 0.95,
-          metadata: { source: 'NASA Climate Data', category: 'Scientific Evidence' }
-        },
-        {
-          id: 'evidence-2',
-          type: 'EVIDENCE',
-          text: 'Renewable energy costs have decreased by 80% in the last decade',
-          confidence: 0.85,
-          metadata: { source: 'IRENA Report', category: 'Economic Analysis' }
-        },
-        {
-          id: 'conclusion-1',
-          type: 'CONCLUSION',
-          text: 'Governments should invest heavily in renewable energy infrastructure',
-          confidence: 0.88,
-          metadata: { source: 'Policy Analysis', category: 'Policy Recommendation' }
-        }
-      ],
-      edges: [
-        { id: 'edge-1', source: 'claim-1', target: 'evidence-1', type: 'SUPPORTS', strength: 0.9, metadata: { description: 'Evidence supports the claim about renewable energy necessity' } },
-        { id: 'edge-2', source: 'claim-1', target: 'evidence-2', type: 'SUPPORTS', strength: 0.8, metadata: { description: 'Economic viability strengthens the argument' } },
-        { id: 'edge-3', source: 'evidence-1', target: 'conclusion-1', type: 'ELABORATES', strength: 0.85, metadata: { description: 'Policy conclusion elaborates on the evidence' } },
-        { id: 'edge-4', source: 'evidence-2', target: 'conclusion-1', type: 'DEPENDS_ON', strength: 0.75, metadata: { description: 'Conclusion depends on economic feasibility' } }
-      ]
-    };
-    store.loadVisualization(sampleData);
-  }, [store.loadVisualization]);
+    if (data) {
+      // Transform backend data to frontend format
+      const transformedData = transformBackendDataToArgumentMap(data as BackendArgumentMapData);
+      store.loadVisualization(transformedData);
+    }
+  }, [data, store.loadVisualization]);
 
   // Deterministic Grid Layout
   const graphNodes = useMemo(() => {

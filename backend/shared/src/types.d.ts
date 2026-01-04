@@ -115,7 +115,7 @@ export interface SignalAnalysis {
     argumentative: number;
     temporal: number;
 }
-export type VisualizationType = 'structured-view' | 'mind-map' | 'argument-map' | 'flowchart' | 'knowledge-graph' | 'uml-class-diagram' | 'uml-sequence' | 'uml-activity' | 'executive-dashboard' | 'timeline' | 'gantt' | 'comparison-matrix' | 'priority-matrix' | 'raci-matrix' | 'terms-definitions';
+export type VisualizationType = 'structured-view' | 'mind-map' | 'argument-map' | 'depth-graph' | 'flowchart' | 'knowledge-graph' | 'uml-class-diagram' | 'uml-sequence' | 'uml-activity' | 'executive-dashboard' | 'timeline' | 'gantt' | 'comparison-matrix' | 'priority-matrix' | 'raci-matrix' | 'terms-definitions';
 export interface VisualizationRecommendation {
     type: VisualizationType;
     score: number;

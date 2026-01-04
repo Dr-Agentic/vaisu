@@ -6,7 +6,7 @@ import type { KnowledgeNode, KnowledgeEdge } from '../types';
  * Demonstrates a hierarchical knowledge graph showing the causal chain:
  * Sources/Concepts → Regulations → Impacts → Risks/Opportunities
  *
- * This data showcases the "Elite" grid layout with deterministic column placement
+ * This data showcases the "Hierarchical" grid layout with deterministic column placement
  * based on in-degree analysis and sector headers.
  */
 

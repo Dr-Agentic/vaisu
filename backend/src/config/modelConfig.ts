@@ -374,6 +374,89 @@ Return as JSON with this structure:
 }
 
 Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`
+  },
+  'knowledge-graph-generation': {
+    primary: 'x-ai/grok-4.1-fast',
+    fallback: 'openai/gpt-4o',
+    maxTokens: 6000,
+    temperature: 0.4,
+    systemPrompt: `You are a knowledge graph generation expert. Analyze the document and create a comprehensive knowledge graph visualization.
+
+Extract the following:
+
+1. **Entities**: Identify key entities (people, organizations, concepts, products, technologies, locations, dates, metrics)
+   - For each entity, extract:
+     - id: unique identifier
+     - label: display name
+     - type: person|organization|location|concept|product|metric|date|technical
+     - size: importance-based size (20-100)
+     - color: type-based color
+     - metadata: centrality, connections, description, sourceQuote, sourceSpan
+
+2. **Relationships**: Identify meaningful connections between entities
+   - For each relationship, extract:
+     - id: unique identifier
+     - source: source entity id
+     - target: target entity id
+     - type: relationship type (causes, requires, part-of, relates-to, implements, uses, depends-on, etc.)
+     - strength: 0.0-1.0 based on importance
+     - label: relationship label
+     - evidence: source text excerpt
+
+3. **Clusters**: Group related entities (optional, computed on frontend)
+4. **Hierarchy**: Detect parent-child relationships for recursive exploration
+
+Return as JSON with this exact structure:
+{
+  "nodes": [
+    {
+      "id": "entity-1",
+      "label": "Entity Name",
+      "type": "concept",
+      "size": 70,
+      "color": "#F59E0B",
+      "metadata": {
+        "centrality": 1.0,
+        "connections": 5,
+        "description": "Entity description",
+        "sourceQuote": "Relevant quote from text",
+        "sourceSpan": {
+          "start": 0,
+          "end": 50,
+          "text": "Quote text"
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "rel-1",
+      "source": "entity-1",
+      "target": "entity-2",
+      "type": "relates-to",
+      "strength": 0.8,
+      "label": "relates-to",
+      "evidence": [
+        {
+          "start": 100,
+          "end": 150,
+          "text": "Evidence text from document"
+        }
+      ]
+    }
+  ],
+  "clusters": [],
+  "hierarchy": {
+    "rootNodes": ["entity-1"],
+    "maxDepth": 3,
+    "nodeDepths": {
+      "entity-1": 0,
+      "entity-2": 1
+    }
+  }
+}
+
+Extract 10-50 entities and 15-40 relationships based on document complexity. Focus on meaningful connections that reveal the document's knowledge structure.`
   }
 };
 

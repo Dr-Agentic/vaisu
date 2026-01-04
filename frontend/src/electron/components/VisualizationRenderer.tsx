@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
+import { useKnowledgeGraphStore } from '../../components/visualizations/knowledge-graph/stores/knowledgeGraphStore';
 import { StructuredViewRenderer } from '../../components/visualizations/StructuredViewRenderer';
 import { MindMap } from '../../components/visualizations/MindMap';
 import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
@@ -14,6 +15,15 @@ export function VisualizationRenderer() {
   const { currentVisualization, visualizationData, document, loadVisualization } = useDocumentStore();
 
   const data = visualizationData.get(currentVisualization);
+
+  // Initialize KnowledgeGraph store when data loads
+  const initializeKnowledgeGraphStore = useKnowledgeGraphStore(state => state.initializeGraph);
+  useEffect(() => {
+    if (currentVisualization === 'knowledge-graph' && data?.data) {
+      const { nodes = [], edges = [] } = data.data || {};
+      initializeKnowledgeGraphStore(nodes, edges);
+    }
+  }, [currentVisualization, data, initializeKnowledgeGraphStore]);
 
   // Auto-load visualization if not in cache
   // Note: loadVisualization is a stable Zustand action and doesn't need to be in deps
@@ -61,9 +71,9 @@ export function VisualizationRenderer() {
     case 'uml-class-diagram':
       return <UMLClassDiagram data={data.data} />;
     case 'argument-map':
-      return <ArgumentMap documentId="" />;
+      return <ArgumentMap data={data.data} />;
     case 'depth-graph':
-      return <ArgumentMap documentId="" />;
+      return <ArgumentMap data={data.data} />;
     case 'executive-dashboard':
       return <ExecutiveDashboard data={data.data} />;
     default:

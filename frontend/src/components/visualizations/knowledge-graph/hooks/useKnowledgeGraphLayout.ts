@@ -7,8 +7,6 @@ import type { KnowledgeNode } from '../types';
  */
 export const useKnowledgeGraphLayout = () => {
   const {
-    nodes,
-    edges,
     layout,
     calculateGridLayout,
     calculateForceLayout,
@@ -35,13 +33,11 @@ export const useKnowledgeGraphLayout = () => {
   }, [layout, calculateGridLayout, calculateForceLayout, calculateHierarchicalLayout]);
 
   /**
-   * Calculate layout when nodes or edges change
+   * Calculate layout when layout type changes
    */
   useEffect(() => {
-    if (nodes.length > 0) {
-      calculateLayout();
-    }
-  }, [nodes, edges, calculateLayout]);
+    calculateLayout();
+  }, [layout, calculateLayout]);
 
   return {
     calculateLayout

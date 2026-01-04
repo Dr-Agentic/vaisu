@@ -119,7 +119,8 @@ export class VisualizationGenerator {
           break;
 
         case 'knowledge-graph':
-          visualizationData = this.generateKnowledgeGraph(analysis, document);
+          visualizationData = await this.generateKnowledgeGraph(document, analysis);
+          llmMetadata.model = 'knowledge-graph-generation';
           break;
 
         case 'executive-dashboard':
@@ -342,138 +343,97 @@ export class VisualizationGenerator {
     };
   }
 
-  private generateKnowledgeGraph(analysis: DocumentAnalysis, document?: Document): KnowledgeGraphData {
-    const entitiesCount = analysis.entities?.length || 0;
-    const relationshipsCount = analysis.relationships?.length || 0;
-    console.log(`🔍 Generating knowledge graph from ${entitiesCount} entities and ${relationshipsCount} relationships`);
+  private async generateKnowledgeGraph(document: Document, analysis: DocumentAnalysis): Promise<KnowledgeGraphData> {
+    // Use LLM to generate a comprehensive knowledge graph
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
 
-    // If no entities, return empty graph
-    if (entitiesCount === 0) {
-      console.warn('⚠️  No entities found in analysis - returning empty knowledge graph');
-      return {
-        nodes: [],
-        edges: [],
-        clusters: []
-      };
-    }
+    try {
+      // Prepare document content for LLM (limit size)
+      const contentSample = document.content.substring(0, 10000);
+      const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
-    // Log raw entities for debugging
-    console.log('📊 Raw entities from LLM:', JSON.stringify(analysis.entities.slice(0, 5), null, 2));
-    console.log('🔗 Raw relationships from LLM:', JSON.stringify(analysis.relationships.slice(0, 5), null, 2));
+      const prompt = `Document Title: ${document.title}\n\nTLDR: ${tldrText}\n\nContent:\n${contentSample}`;
 
-    // Create entity text to ID mapping for fixing relationships
-    const entityTextToId = new Map<string, string>();
-    const entityIdSet = new Set<string>();
+      const response = await llmClient.callWithFallback('knowledge-graph-generation', prompt);
 
-    analysis.entities.forEach(entity => {
-      entityIdSet.add(entity.id);
-      entityTextToId.set(entity.text.toLowerCase(), entity.id);
-      // Also map the ID to itself in case it's used correctly
-      entityTextToId.set(entity.id.toLowerCase(), entity.id);
-    });
+      // Parse LLM response
+      const parsed = llmClient.parseJSONResponse<{
+        nodes: any[];
+        edges: any[];
+        clusters: any[];
+        hierarchy: any;
+      }>(response);
 
-    // Enhanced entity processing with descriptions and source quotes
-    const nodes = analysis.entities.map(entity => ({
-      id: entity.id,
-      label: entity.text,
-      type: entity.type,
-      size: entity.importance * 50 + 20,
-      color: this.getEntityColor(entity.type),
-      metadata: {
-        centrality: entity.importance,
-        connections: 0,
-        description: entity.context || '',
-        sourceQuote: this.extractSourceQuote(entity, document),
-        sourceSpan: entity.mentions[0] || undefined
-      }
-    }));
-
-    // Enhanced relationship processing with evidence and ID fixing
-    const edges = analysis.relationships
-      .map((rel, index) => {
-        // Try to fix source/target if they're using text instead of IDs
-        let source = rel.source;
-        let target = rel.target;
-
-        // Check if source/target are valid IDs
-        if (!entityIdSet.has(source)) {
-          // Try to find by text
-          const fixedSource = entityTextToId.get(source.toLowerCase());
-          if (fixedSource) {
-            console.warn(`🔧 Fixed relationship source: "${source}" -> "${fixedSource}"`);
-            source = fixedSource;
-          } else {
-            console.error(`❌ Cannot find entity for source: "${source}"`);
-            return null; // Invalid edge
+      if (parsed.nodes && parsed.nodes.length > 0) {
+        // Convert LLM nodes to knowledge graph structure
+        const nodes = parsed.nodes.map((node: any, index: number) => ({
+          id: node.id || `node-${index}`,
+          label: node.label || 'Untitled',
+          type: node.type || 'concept',
+          size: node.size || Math.max(20, node.importance * 50 + 20) || 70,
+          color: node.color || this.getEntityColor(node.type),
+          metadata: {
+            centrality: node.importance || 0.5,
+            connections: 0,
+            description: node.description || '',
+            sourceQuote: node.sourceQuote || '',
+            sourceSpan: node.sourceSpan || undefined
           }
+        }));
+
+        // Convert LLM edges to knowledge graph structure
+        const edges = parsed.edges
+          .map((rel: any, index: number) => ({
+            id: rel.id || `rel-${index}`,
+            source: rel.source,
+            target: rel.target,
+            type: rel.type || 'relates-to',
+            strength: rel.strength || 0.5,
+            label: rel.label || rel.type || 'relates-to',
+            evidence: rel.evidence || []
+          }))
+          .filter((edge: any) => edge.source && edge.target);
+
+        // Validate and fix edge connections
+        const nodeIds = new Set(nodes.map(n => n.id));
+        const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+
+        if (validEdges.length !== edges.length) {
+          console.warn(`🔧 Fixed ${edges.length - validEdges.length} invalid edges in knowledge graph`);
         }
 
-        if (!entityIdSet.has(target)) {
-          // Try to find by text
-          const fixedTarget = entityTextToId.get(target.toLowerCase());
-          if (fixedTarget) {
-            console.warn(`🔧 Fixed relationship target: "${target}" -> "${fixedTarget}"`);
-            target = fixedTarget;
-          } else {
-            console.error(`❌ Cannot find entity for target: "${target}"`);
-            return null; // Invalid edge
-          }
-        }
+        // Update connection counts
+        validEdges.forEach(edge => {
+          const sourceNode = nodes.find(n => n.id === edge.source);
+          const targetNode = nodes.find(n => n.id === edge.target);
+          if (sourceNode) sourceNode.metadata.connections++;
+          if (targetNode) targetNode.metadata.connections++;
+        });
+
+        // Extract hierarchy info
+        const hierarchy = parsed.hierarchy || {
+          rootNodes: nodes.filter(n => !validEdges.some(e => e.target === n.id)).map(n => n.id),
+          maxDepth: 0,
+          nodeDepths: nodes.reduce((acc, node) => ({ ...acc, [node.id]: 0 }), {})
+        };
+
+        console.log(`✅ Knowledge graph generated: ${nodes.length} nodes, ${validEdges.length} edges`);
 
         return {
-          id: rel.id || `rel-${index}`,
-          source,
-          target,
-          type: rel.type,
-          strength: rel.strength,
-          label: rel.type,
-          evidence: rel.evidence
+          nodes,
+          edges: validEdges,
+          clusters: parsed.clusters || [], // Computed on frontend if not provided
+          hierarchy
         };
-      })
-      .filter(edge => edge !== null) as any[]; // Remove invalid edges
-
-    // Validate edges and log issues
-    const nodeIds = new Set(nodes.map(n => n.id));
-    const invalidEdges = edges.filter(edge => !nodeIds.has(edge.source) || !nodeIds.has(edge.target));
-
-    if (invalidEdges.length > 0) {
-      console.error('❌ Found invalid edges in knowledge graph after fixing:');
-      invalidEdges.forEach(edge => {
-        const sourceExists = nodeIds.has(edge.source);
-        const targetExists = nodeIds.has(edge.target);
-        console.error(`  - Edge ${edge.id}: ${edge.source} -> ${edge.target}`);
-        console.error(`    Source exists: ${sourceExists}, Target exists: ${targetExists}`);
-      });
-      console.error(`\n📋 Available node IDs (first 10):`, Array.from(nodeIds).slice(0, 10));
+      }
+    } catch (error) {
+      console.error('LLM knowledge graph generation failed:', error);
+      throw error; // Fail fast - no fallback
     }
 
-    // Filter out any remaining invalid edges
-    const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
-
-    console.log(`✅ Knowledge graph: ${nodes.length} nodes, ${validEdges.length} valid edges (${edges.length - validEdges.length} filtered out)`);
-
-    // Update connection counts
-    validEdges.forEach(edge => {
-      const sourceNode = nodes.find(n => n.id === edge.source);
-      const targetNode = nodes.find(n => n.id === edge.target);
-      if (sourceNode) sourceNode.metadata.connections++;
-      if (targetNode) targetNode.metadata.connections++;
-    });
-
-    // Detect hierarchical relationships for recursive exploration
-    const hierarchicalEdges = validEdges.filter(e =>
-      ['part-of', 'contains', 'implements'].includes(e.type)
-    );
-
-    // Build parent-child relationships
-    const hierarchy = this.buildHierarchy(nodes, hierarchicalEdges);
-
-    return {
-      nodes,
-      edges: validEdges,
-      clusters: [], // Computed on frontend
-      hierarchy
-    };
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate knowledge graph visualization. Please check your document content and try again. The document may not contain sufficient structure for knowledge graph generation.');
   }
 
   private extractSourceQuote(entity: Entity, document?: Document): string {

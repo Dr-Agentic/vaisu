@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "rootDir": "../",
+    "rootDir": ".",
     "outDir": "./dist",
     "declaration": true,
     "declarationMap": true,
@@ -26,6 +26,7 @@
     "node_modules",
     "dist",
     "**/__tests__/**",
-    "**/*.test.ts"
+    "**/*.test.ts",
+    "../node_modules"
   ]
 }

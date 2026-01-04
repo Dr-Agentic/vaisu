@@ -105,7 +105,7 @@ export interface NodeDetailPanelProps {
 }
 
 export interface ArgumentMapProps {
-  documentId: string;
+  data?: ArgumentMapData;
   configuration?: VisualizationConfig;
 }
 
@@ -176,3 +176,97 @@ export interface ArgumentMapStoreActions {
 }
 
 export type ArgumentMapStore = ArgumentMapStoreState & ArgumentMapStoreActions;
+
+// Backend data transformation utilities
+
+export interface BackendArgumentNode {
+  id: string;
+  label: string;
+  summary: string;
+  type: 'claim' | 'argument' | 'evidence' | 'conclusion';
+  confidence: number;
+  impact?: string;
+  polarity?: string;
+  isCollapsed?: boolean;
+  depthMetrics?: any;
+  metadata?: ArgumentNodeMetadata;
+}
+
+export interface BackendArgumentEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: 'supports' | 'contradicts' | 'elaborates' | 'depends_on';
+  strength: number;
+  rationale?: string;
+  metadata?: ArgumentEdgeMetadata;
+}
+
+export interface BackendArgumentMapData {
+  nodes: BackendArgumentNode[];
+  edges: BackendArgumentEdge[];
+  metadata?: {
+    totalClaims?: number;
+    totalArguments?: number;
+    totalEvidence?: number;
+    mainClaimId?: string;
+  };
+}
+
+/**
+ * Transform backend data format to frontend format
+ */
+export const transformBackendDataToArgumentMap = (
+  backendData: BackendArgumentMapData
+): ArgumentMapData => {
+  // Map lowercase types to uppercase
+  const typeMap: Record<string, ArgumentNodeType> = {
+    'claim': 'CLAIM',
+    'argument': 'EVIDENCE', // Arguments support claims, treat as evidence
+    'evidence': 'EVIDENCE',
+    'conclusion': 'CONCLUSION'
+  };
+
+  const relationshipMap: Record<string, RelationshipType> = {
+    'supports': 'SUPPORTS',
+    'contradicts': 'CONTRADICTS',
+    'elaborates': 'ELABORATES',
+    'depends_on': 'DEPENDS_ON'
+  };
+
+  const nodes: ArgumentNode[] = backendData.nodes.map(node => ({
+    id: node.id,
+    type: typeMap[node.type] || 'EVIDENCE',
+    text: node.summary || node.label || '',
+    confidence: node.confidence,
+    metadata: {
+      ...node.metadata,
+      source: node.metadata?.source || node.label,
+      category: node.impact,
+      description: node.summary
+    },
+    position: node.position
+  }));
+
+  const edges: ArgumentEdge[] = backendData.edges.map(edge => ({
+    id: edge.id,
+    source: edge.source,
+    target: edge.target,
+    type: relationshipMap[edge.type] || 'SUPPORTS',
+    strength: edge.strength,
+    metadata: {
+      ...edge.metadata,
+      description: edge.rationale
+    }
+  }));
+
+  return {
+    nodes,
+    edges,
+    config: {
+      layout: 'HIERARCHICAL',
+      clustering: false,
+      semanticGrouping: false
+    }
+  };
+};

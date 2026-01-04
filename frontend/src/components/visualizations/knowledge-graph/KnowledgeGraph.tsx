@@ -1,18 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useKnowledgeGraphStore } from './stores/knowledgeGraphStore';
 import { useKnowledgeGraphLayout, useKnowledgeGraphInteractions, useSectorTitles } from './hooks/useKnowledgeGraphLayout';
 import { GraphEntityCard } from '../toolkit/GraphEntityCard';
 import { DynamicBezierPath } from '../toolkit/DynamicBezierPath';
 import { GraphBackground } from '../toolkit/GraphBackground';
 import { GraphConnectionModal } from '../toolkit/GraphConnectionModal';
+import { GraphCanvas } from '../toolkit/GraphCanvas';
+import { GraphEdgeLayer } from '../toolkit/GraphEdgeLayer';
 import { GraphNode } from '../toolkit/types';
 import { KnowledgeNode } from './types';
-import './KnowledgeGraph.css';
-
-/**
- * Knowledge Graph Visualization Component
- * Displays nodes and edges in a hierarchical grid layout with sector headers
- */
 
 /**
  * Convert KnowledgeNode to GraphNode for toolkit compatibility
@@ -23,37 +19,26 @@ const convertToGraphNode = (node: KnowledgeNode): GraphNode => ({
   label: node.label,
   description: node.metadata.description,
   importance: node.confidence,
-  context: node.metadata.description,
+  context: node.metadata.category, // Use category as context
   mentions: node.metadata.sources,
   metadata: {
     ...node.metadata,
     confidence: node.confidence
   },
   x: node.x,
-  y: node.y,
-  width: 320,
-  height: 200
+  y: node.y
 });
 
 export const KnowledgeGraph: React.FC = () => {
   const {
     nodes,
-    layout,
     initializeGraph,
     isInitialized,
     error,
-    edges
+    edges,
+    columnWidth,
+    spacing
   } = useKnowledgeGraphStore();
-
-  // Layout management
-  const { calculateLayout } = useKnowledgeGraphLayout();
-
-  // Calculate layout when needed
-  useEffect(() => {
-    if (nodes.length > 0) {
-      calculateLayout();
-    }
-  }, [nodes, calculateLayout]);
 
   // Interaction management
   const {
@@ -67,23 +52,29 @@ export const KnowledgeGraph: React.FC = () => {
 
   // Sector title management
   const { getColumnData } = useSectorTitles();
-
-  // Get column data
   const columnData = getColumnData();
 
-  // Initialize graph if needed
+  // Initialize graph if needed (only once)
   useEffect(() => {
     if (!isInitialized && nodes.length > 0) {
+      // If data is already in store but not flagged initialized (e.g. hydration), init
       initializeGraph(nodes, edges);
     }
-  }, [nodes, isInitialized, initializeGraph]);
+  }, [nodes.length, isInitialized, initializeGraph, edges]);
 
-  // Calculate layout when layout type changes
-  useEffect(() => {
-    if (isInitialized) {
-      calculateLayout();
-    }
-  }, [layout, calculateLayout, isInitialized]);
+  // Handle active edge details
+  const activeEdge = useMemo(() => 
+    hoveredEdgeId ? edges.find(e => e.id === hoveredEdgeId) || null : null,
+  [hoveredEdgeId, edges]);
+
+  const activeSourceNode = useMemo(() => 
+    activeEdge ? nodes.find(n => n.id === activeEdge.source) : undefined,
+  [activeEdge, nodes]);
+
+  const activeTargetNode = useMemo(() => 
+    activeEdge ? nodes.find(n => n.id === activeEdge.target) : undefined,
+  [activeEdge, nodes]);
+
 
   if (error) {
     return (
@@ -92,9 +83,7 @@ export const KnowledgeGraph: React.FC = () => {
           <div className="error-icon">⚠️</div>
           <h3>Knowledge Graph Error</h3>
           <p>{error}</p>
-          <button onClick={() => window.location.reload()}>
-            Reload Graph
-          </button>
+          <button onClick={() => window.location.reload()}>Reload Graph</button>
         </div>
       </div>
     );
@@ -113,83 +102,105 @@ export const KnowledgeGraph: React.FC = () => {
   }
 
   return (
-    <div className="knowledge-graph-container">
+    <div className="knowledge-graph-container relative w-full h-full overflow-hidden bg-slate-50">
       <GraphBackground />
 
-      <div className="knowledge-graph-content">
-        {columnData.map((column) => (
-          <div key={column.id} className="knowledge-graph-column">
-            {/* Column Header with Sector Title */}
-            <div className="column-header">
-              <h3 className="sector-title">
-                <span className="title-text">{column.title}</span>
-                <span className="node-count">({column.nodes.length} nodes)</span>
-              </h3>
-            </div>
+      <GraphCanvas>
+        {/* Render Column Headers (Absolute) */}
+        <div className="absolute top-12 left-0 w-full pointer-events-none z-10">
+           {columnData.map((column, i) => (
+             <div 
+                key={column.id} 
+                style={{ 
+                    position: 'absolute',
+                    left: column.id * (columnWidth + spacing) + 100, // Match store layout padding
+                    width: columnWidth,
+                    paddingLeft: '24px'
+                }} 
+                className="flex flex-col gap-4"
+             >
+                <div className="flex items-center gap-3">
+                   <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-blue-600' : i === 1 ? 'bg-purple-600' : 'bg-pink-600 shadow-[0_0_10px_rgba(236,72,153,0.5)]'}`} />
+                   <span className={`text-[11px] font-black uppercase tracking-[0.5em] text-gradient ${i === 1 ? 'nova' : ''}`}>
+                     {column.title}
+                   </span>
+                </div>
+                <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
+             </div>
+           ))}
+        </div>
 
-            {/* Render nodes in this column */}
-            <div className="column-nodes">
-              {column.nodes.map((node) => {
-  const graphNode = convertToGraphNode(node);
-  return (
-    <GraphEntityCard
-      key={node.id}
-      node={graphNode}
-      isSelected={selectedNodeId === node.id}
-      isHovered={hoveredNodeId === node.id}
-      onClick={() => handleNodeClick(node.id)}
-      onMouseEnter={() => handleNodeHover(node.id)}
-      onMouseLeave={() => handleNodeHover(null)}
-    />
-  );
-})}
-            </div>
+        {/* Edges Layer */}
+        <GraphEdgeLayer>
+          {edges.map((edge) => {
+            const sourceNode = nodes.find(n => n.id === edge.source);
+            const targetNode = nodes.find(n => n.id === edge.target);
 
-            {/* Render edges for this column */}
-            <div className="column-edges">
-              {edges.filter(edge => {
-                const sourceNode = nodes.find(n => n.id === edge.source);
-                const targetNode = nodes.find(n => n.id === edge.target);
-                return sourceNode?.column === column.id || targetNode?.column === column.id;
-              }).map((edge) => {
-                const sourceNode = nodes.find(n => n.id === edge.source);
-                const targetNode = nodes.find(n => n.id === edge.target);
+            if (!sourceNode || !targetNode) return null;
+            if (sourceNode.x === undefined || sourceNode.y === undefined) return null;
+            if (targetNode.x === undefined || targetNode.y === undefined) return null;
 
-                if (!sourceNode || !targetNode) {
-                  return null;
-                }
-
-                return (
-                  <DynamicBezierPath
-                    key={edge.id}
-                    x1={sourceNode.x || 0}
-                    y1={sourceNode.y || 0}
-                    x2={targetNode.x || 0}
-                    y2={targetNode.y || 0}
-                    label={edge.relation}
-                    isActive={hoveredEdgeId === edge.id}
+            return (
+              <g 
+                key={edge.id} 
+                onMouseEnter={() => handleEdgeHover(edge.id)}
+                onMouseLeave={() => handleEdgeHover(null)}
+                className="cursor-pointer"
+              >
+                <DynamicBezierPath
+                  x1={sourceNode.x}
+                  y1={sourceNode.y}
+                  x2={targetNode.x}
+                  y2={targetNode.y}
+                  label={edge.relation}
+                  isActive={hoveredEdgeId === edge.id}
+                />
+                 {/* Invisible hit area */}
+                  <path 
+                     d={`M ${sourceNode.x} ${sourceNode.y} L ${targetNode.x} ${targetNode.y}`} 
+                     stroke="transparent" 
+                     strokeWidth="15" 
+                     fill="none" 
+                     className="pointer-events-auto"
                   />
-                );
-              })}
-            </div>
-          </div>
-        ))}
+              </g>
+            );
+          })}
+        </GraphEdgeLayer>
 
-        {/* Graph Connection Modal for edge inspection */}
-        <GraphConnectionModal
-          edge={edges.find(e => e.id === hoveredEdgeId) || null}
-          sourceNode={(() => {
-            const node = nodes.find(n => n.id === hoveredEdgeId?.split('_')[1]);
-            return node ? convertToGraphNode(node) : undefined;
-          })()}
-          targetNode={(() => {
-            const node = nodes.find(n => n.id === hoveredEdgeId?.split('_')[2]);
-            return node ? convertToGraphNode(node) : undefined;
-          })()}
-          isOpen={!!hoveredEdgeId}
-          onClose={() => handleEdgeHover(null)}
-        />
-      </div>
+        {/* Nodes Layer */}
+        <div className="absolute inset-0 pointer-events-none">
+          {nodes.map((node) => {
+             if (node.x === undefined || node.y === undefined) return null;
+             const graphNode = convertToGraphNode(node);
+             
+             return (
+              <div
+                key={node.id}
+                className="absolute transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+                style={{ left: node.x, top: node.y }}
+              >
+                <GraphEntityCard
+                  node={graphNode}
+                  isSelected={selectedNodeId === node.id}
+                  isHovered={hoveredNodeId === node.id}
+                  onClick={() => handleNodeClick(node.id)}
+                  onMouseEnter={() => handleNodeHover(node.id)}
+                  onMouseLeave={() => handleNodeHover(null)}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </GraphCanvas>
+
+      {/* Graph Connection Modal */}
+      <GraphConnectionModal
+        edge={activeEdge ? { ...activeEdge, source: activeEdge.source, target: activeEdge.target, type: activeEdge.relation, strength: activeEdge.weight, rationale: activeEdge.evidence?.join('; ') } : null}
+        sourceNode={activeSourceNode ? convertToGraphNode(activeSourceNode) : undefined}
+        targetNode={activeTargetNode ? convertToGraphNode(activeTargetNode) : undefined}
+        onClose={() => handleEdgeHover(null)}
+      />
     </div>
   );
 };
