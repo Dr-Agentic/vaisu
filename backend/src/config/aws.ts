@@ -30,6 +30,7 @@ export const DYNAMODB_MIND_MAP_TABLE = process.env.DYNAMODB_MIND_MAP_TABLE || 'v
 export const DYNAMODB_FLOWCHART_TABLE = process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart';
 export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard';
 export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
+export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
 
 /**
  * Validate AWS configuration
@@ -65,6 +66,7 @@ export function validateAWSConfig(): void {
       flowchart: DYNAMODB_FLOWCHART_TABLE,
       executiveDashboard: DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
       timeline: DYNAMODB_TIMELINE_TABLE,
+      knowledgeGraph: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     },
   });
 }

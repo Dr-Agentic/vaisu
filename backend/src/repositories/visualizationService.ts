@@ -7,6 +7,7 @@ import * as mindMapRepository from './mindMapRepository.js';
 import * as flowchartRepository from './flowchartRepository.js';
 import * as executiveDashboardRepository from './executiveDashboardRepository.js';
 import * as timelineRepository from './timelineRepository.js';
+import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
 
 /**
  * Visualization service that coordinates between individual repository types

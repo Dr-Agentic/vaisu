@@ -60,3 +60,42 @@ export interface S3UploadResult {
   key: string;
   path: string;
 }
+
+/**
+ * Knowledge Graph Node
+ */
+export interface KnowledgeGraphNode {
+  id: string;
+  documentId: string;
+  label: string;
+  entityType: string;
+  confidence: number;
+  metadata: {
+    sources: string[];
+    description?: string;
+    category?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Knowledge Graph Edge
+ */
+export interface KnowledgeGraphEdge {
+  id: string;
+  documentId: string;
+  sourceId: string;
+  targetId: string;
+  relation: string;
+  weight: number;
+  evidence: string[];
+  relationshipType: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Unified Knowledge Graph Record (Node or Edge)
+ */
+export type KnowledgeGraphRecord = KnowledgeGraphNode | KnowledgeGraphEdge;

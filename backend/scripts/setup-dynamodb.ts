@@ -160,6 +160,21 @@ const TABLES = [
       ReadCapacityUnits: 5,
       WriteCapacityUnits: 5
     }
+  },
+  {
+    name: process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph',
+    keySchema: [
+      { AttributeName: 'PK', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' }
+    ],
+    attributeDefinitions: [
+      { AttributeName: 'PK', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' }
+    ],
+    provisionedThroughput: {
+      ReadCapacityUnits: 5,
+      WriteCapacityUnits: 5
+    }
   }
 ];
 
@@ -183,6 +198,12 @@ async function main() {
 
   console.log(`📍 Region: ${AWS_REGION}`);
   console.log(`📊 Creating ${TABLES.length} tables...\n`);
+
+  console.log('📋 Table Schema:');
+  console.log('   • vaisu-knowledge-graph: PK=GRAPH#{DocumentID}, SK=NODE#{NodeID}|EDGE#{SourceID}#{TargetID}');
+  console.log('     - Stores KnowledgeNode and KnowledgeEdge entities');
+  console.log('     - Attributes: confidence, entityType, metadata (sources), relationshipType');
+  console.log('');
 
   for (const tableConfig of TABLES) {
     try {
