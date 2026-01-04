@@ -55,7 +55,7 @@ export function VisualizationRenderer() {
     case 'flowchart':
       return <Flowchart data={data.data} />;
     case 'knowledge-graph':
-      return <KnowledgeGraph data={data.data} />;
+      return <KnowledgeGraph />;
     case 'terms-definitions':
       return <TermsDefinitions data={data.data} />;
     case 'uml-class-diagram':

@@ -6,9 +6,12 @@ import { getTypeColor } from './utils';
 interface GraphEntityCardProps {
   node: GraphNode;
   isSelected?: boolean;
+  isHovered?: boolean;
   isRelated?: boolean;
   isDimmed?: boolean;
   onClick?: (id: string) => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -16,13 +19,16 @@ interface GraphEntityCardProps {
 export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
   node,
   isSelected = false,
+  isHovered = false,
   isRelated = false,
   isDimmed = false,
   onClick,
   className = '',
   style
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
+  // Use prop value for isHovered, only manage internal state if not controlled
+  const [internalIsHovered, setInternalIsHovered] = useState(false);
+  const controlledIsHovered = isHovered !== undefined ? isHovered : internalIsHovered;
   const theme = getTypeColor(node.type);
   
   // Calculate importance (0-5 scale)
@@ -41,13 +47,26 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
     }
   };
 
+  // Only manage internal hover state if not controlled
+  const handleMouseEnter = () => {
+    if (isHovered === undefined) {
+      setInternalIsHovered(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (isHovered === undefined) {
+      setInternalIsHovered(false);
+    }
+  };
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: isDimmed ? 0.65 : 1, scale: 1 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       onClick={handleClick}
       className={`
         relative z-20 w-80 rounded-[32px] border-2 cursor-pointer overflow-hidden
@@ -89,7 +108,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
         </div>
 
         <AnimatePresence>
-          {(isHovered || isSelected) && (
+          {(controlledIsHovered || isSelected) && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -127,7 +146,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
           )}
         </AnimatePresence>
         
-        {!isHovered && !isSelected && (
+        {!controlledIsHovered && !isSelected && (
           <div className="flex justify-center gap-1 opacity-20">
             <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />
             <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />

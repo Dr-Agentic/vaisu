@@ -172,7 +172,7 @@ export class VisualizationService {
       case 'flowchart':
         return flowchartRepository;
       case 'knowledge-graph':
-        return analysisRepository; // Use analysis repository for knowledge-graph
+        return knowledgeGraphRepository; // Use knowledge graph repository for knowledge-graph
       case 'executive-dashboard':
         return executiveDashboardRepository;
       case 'timeline':

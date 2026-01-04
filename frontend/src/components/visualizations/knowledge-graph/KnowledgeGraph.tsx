@@ -1,239 +1,195 @@
-import { useEffect, useState, useCallback } from 'react';
-import ReactFlow, {
-  Background,
-  Controls,
-  MiniMap,
-  Node,
-  Edge,
-  NodeTypes,
-  EdgeTypes
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import type { KnowledgeGraphData, EnhancedGraphNode } from '../../../../../shared/src/types';
-import { useGraphStore } from './stores/graphStore';
-import { centralityService } from './services/centralityService';
-import { clusteringService } from './services/clusteringService';
-import { ForceDirectedLayout } from './services/layouts/forceDirectedLayout';
-import { EntityNode } from './nodes/EntityNode';
-import { ExpandableNode } from './nodes/ExpandableNode';
-import { RelationshipEdge } from './edges/RelationshipEdge';
+import React, { useEffect } from 'react';
+import { useKnowledgeGraphStore } from './stores/knowledgeGraphStore';
+import { useKnowledgeGraphLayout, useKnowledgeGraphInteractions, useSectorTitles } from './hooks/useKnowledgeGraphLayout';
+import { GraphEntityCard } from '../toolkit/GraphEntityCard';
+import { DynamicBezierPath } from '../toolkit/DynamicBezierPath';
+import { GraphBackground } from '../toolkit/GraphBackground';
+import { GraphConnectionModal } from '../toolkit/GraphConnectionModal';
+import { GraphNode } from '../toolkit/types';
+import { KnowledgeNode } from './types';
+import './KnowledgeGraph.css';
 
-interface KnowledgeGraphProps {
-  data: KnowledgeGraphData;
-  height?: number;
-}
+/**
+ * Knowledge Graph Visualization Component
+ * Displays nodes and edges in a hierarchical grid layout with sector headers
+ */
 
-const nodeTypes: NodeTypes = {
-  entity: EntityNode,
-  expandable: ExpandableNode
-};
+/**
+ * Convert KnowledgeNode to GraphNode for toolkit compatibility
+ */
+const convertToGraphNode = (node: KnowledgeNode): GraphNode => ({
+  id: node.id,
+  type: node.type,
+  label: node.label,
+  description: node.metadata.description,
+  importance: node.confidence,
+  context: node.metadata.description,
+  mentions: node.metadata.sources,
+  metadata: {
+    ...node.metadata,
+    confidence: node.confidence
+  },
+  x: node.x,
+  y: node.y,
+  width: 320,
+  height: 200
+});
 
-const edgeTypes: EdgeTypes = {
-  relationship: RelationshipEdge
-};
-
-export function KnowledgeGraph({ data, height = 600 }: KnowledgeGraphProps) {
-  console.log('KnowledgeGraph component mounted with data:', {
-    hasData: !!data,
-    nodesCount: data?.nodes?.length,
-    edgesCount: data?.edges?.length
-  });
-
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [reactFlowNodes, setReactFlowNodes] = useState<Node[]>([]);
-  const [reactFlowEdges, setReactFlowEdges] = useState<Edge[]>([]);
-
+export const KnowledgeGraph: React.FC = () => {
   const {
     nodes,
-    edges,
-    setNodes,
-    setEdges,
-    setClusters,
-    setNodePositions,
-    setIsLayouting,
-    nodePositions,
-    selectedNodeIds,
-    selectNode,
-    zoom,
-    setZoom,
-    expandNode,
-    collapseNode,
-    expandedNodeIds
-  } = useGraphStore();
+    layout,
+    initializeGraph,
+    isInitialized,
+    error,
+    edges
+  } = useKnowledgeGraphStore();
 
-  // Initialize graph data
+  // Layout management
+  const { calculateLayout } = useKnowledgeGraphLayout();
+
+  // Calculate layout when needed
   useEffect(() => {
-    if (!data || isInitialized) return;
+    if (nodes.length > 0) {
+      calculateLayout();
+    }
+  }, [nodes, calculateLayout]);
 
-    const initializeGraph = async () => {
-      setIsLayouting(true);
+  // Interaction management
+  const {
+    handleNodeClick,
+    handleNodeHover,
+    handleEdgeHover,
+    selectedNodeId,
+    hoveredNodeId,
+    hoveredEdgeId
+  } = useKnowledgeGraphInteractions();
 
-      // Calculate centrality scores
-      const centralityScores = centralityService.calculateCentrality(
-        data.nodes,
-        data.edges
-      );
+  // Sector title management
+  const { getColumnData } = useSectorTitles();
 
-      // Enhance nodes with centrality data
-      const enhancedNodes: EnhancedGraphNode[] = data.nodes.map(node => {
-        const scores = centralityScores.get(node.id);
-        return {
-          ...node,
-          degree: scores?.degree || 0,
-          betweenness: scores?.betweenness || 0,
-          eigenvector: scores?.eigenvector || 0,
-          clusterId: '',
-          clusterColor: '',
-          isExpandable: false,
-          isExpanded: false,
-          children: [],
-          parent: null,
-          depth: 0,
-          metadata: {
-            ...node.metadata,
-            centrality: scores?.combined || node.metadata.centrality
-          }
-        };
-      });
+  // Get column data
+  const columnData = getColumnData();
 
-      // Detect clusters
-      const clusters = clusteringService.detectClusters(enhancedNodes, data.edges);
-      const clusterAssignments = clusteringService.assignClusterColors(clusters);
-
-      // Assign cluster info to nodes
-      enhancedNodes.forEach(node => {
-        const assignment = clusterAssignments.get(node.id);
-        if (assignment) {
-          node.clusterId = assignment.clusterId;
-          node.clusterColor = assignment.clusterColor;
-        }
-      });
-
-      // Filter out edges with invalid node references
-      const nodeIds = new Set(enhancedNodes.map(n => n.id));
-      const validEdges = data.edges.filter(edge => {
-        const isValid = nodeIds.has(edge.source) && nodeIds.has(edge.target);
-        if (!isValid) {
-          console.warn(`Filtering out invalid edge: ${edge.source} -> ${edge.target}`);
-        }
-        return isValid;
-      });
-
-      // Compute initial layout
-      const layoutEngine = new ForceDirectedLayout();
-      const positions = await layoutEngine.compute(enhancedNodes, validEdges, {
-        width: 1200,
-        height: 800
-      });
-
-      setNodes(enhancedNodes);
-      setEdges(validEdges);
-      setClusters(clusters);
-      setNodePositions(positions);
-      setIsLayouting(false);
-      setIsInitialized(true);
-    };
-
-    initializeGraph();
-  }, [data, isInitialized, setNodes, setEdges, setClusters, setNodePositions, setIsLayouting]);
-
-  // Convert to React Flow format
+  // Initialize graph if needed
   useEffect(() => {
-    if (nodes.length === 0) return;
+    if (!isInitialized && nodes.length > 0) {
+      initializeGraph(nodes, edges);
+    }
+  }, [nodes, isInitialized, initializeGraph]);
 
-    const rfNodes: Node[] = nodes.map(node => {
-      const position = nodePositions.get(node.id) || { x: 0, y: 0 };
-      const isSelected = selectedNodeIds.has(node.id);
-      const isExpanded = expandedNodeIds.has(node.id);
+  // Calculate layout when layout type changes
+  useEffect(() => {
+    if (isInitialized) {
+      calculateLayout();
+    }
+  }, [layout, calculateLayout, isInitialized]);
 
-      return {
-        id: node.id,
-        type: node.isExpandable ? 'expandable' : 'entity',
-        position,
-        data: {
-          node,
-          isSelected,
-          isHighlighted: false,
-          isDimmed: false,
-          isExpanded,
-          onExpand: expandNode,
-          onCollapse: collapseNode
-        }
-      };
-    });
-
-    const rfEdges: Edge[] = edges.map((edge, index) => ({
-      id: edge.id || `edge-${index}`,
-      source: edge.source,
-      target: edge.target,
-      type: 'relationship',
-      data: {
-        relationship: edge,
-        isSelected: false,
-        isHighlighted: false,
-        showLabel: true,
-        zoom
-      }
-    }));
-
-    setReactFlowNodes(rfNodes);
-    setReactFlowEdges(rfEdges);
-  }, [nodes, edges, nodePositions, selectedNodeIds, expandedNodeIds, zoom, expandNode, collapseNode]);
-
-  const handleNodeClick = useCallback(
-    (_event: React.MouseEvent, node: Node) => {
-      selectNode(node.id, false);
-    },
-    [selectNode]
-  );
-
-  const handleZoomChange = useCallback(
-    (newZoom: number) => {
-      setZoom(newZoom);
-    },
-    [setZoom]
-  );
-
-  if (!isInitialized) {
+  if (error) {
     return (
-      <div
-        className="flex items-center justify-center bg-gray-50 rounded-lg"
-        style={{ height: `${height}px` }}
-      >
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing knowledge graph...</p>
+      <div className="knowledge-graph-error">
+        <div className="error-content">
+          <div className="error-icon">⚠️</div>
+          <h3>Knowledge Graph Error</h3>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()}>
+            Reload Graph
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isInitialized && nodes.length === 0) {
+    return (
+      <div className="knowledge-graph-empty">
+        <div className="empty-content">
+          <div className="empty-icon">🕸️</div>
+          <h3>No Knowledge Graph Data</h3>
+          <p>Select a document with a knowledge graph visualization to view it here.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100%', height: `${height}px` }} className="bg-gray-50 rounded-lg">
-      <ReactFlow
-        nodes={reactFlowNodes}
-        edges={reactFlowEdges}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        onNodeClick={handleNodeClick}
-        onMove={(_event, viewport) => handleZoomChange(viewport.zoom)}
-        fitView
-        minZoom={0.5}
-        maxZoom={3}
-        defaultEdgeOptions={{
-          animated: false
-        }}
-      >
-        <Background />
-        <Controls />
-        <MiniMap
-          nodeColor={(node) => {
-            const nodeData = node.data as any;
-            return nodeData?.node?.color || '#6B7280';
-          }}
-          maskColor="rgba(0, 0, 0, 0.1)"
+    <div className="knowledge-graph-container">
+      <GraphBackground />
+
+      <div className="knowledge-graph-content">
+        {columnData.map((column) => (
+          <div key={column.id} className="knowledge-graph-column">
+            {/* Column Header with Sector Title */}
+            <div className="column-header">
+              <h3 className="sector-title">
+                <span className="title-text">{column.title}</span>
+                <span className="node-count">({column.nodes.length} nodes)</span>
+              </h3>
+            </div>
+
+            {/* Render nodes in this column */}
+            <div className="column-nodes">
+              {column.nodes.map((node) => {
+  const graphNode = convertToGraphNode(node);
+  return (
+    <GraphEntityCard
+      key={node.id}
+      node={graphNode}
+      isSelected={selectedNodeId === node.id}
+      isHovered={hoveredNodeId === node.id}
+      onClick={() => handleNodeClick(node.id)}
+      onMouseEnter={() => handleNodeHover(node.id)}
+      onMouseLeave={() => handleNodeHover(null)}
+    />
+  );
+})}
+            </div>
+
+            {/* Render edges for this column */}
+            <div className="column-edges">
+              {edges.filter(edge => {
+                const sourceNode = nodes.find(n => n.id === edge.source);
+                const targetNode = nodes.find(n => n.id === edge.target);
+                return sourceNode?.column === column.id || targetNode?.column === column.id;
+              }).map((edge) => {
+                const sourceNode = nodes.find(n => n.id === edge.source);
+                const targetNode = nodes.find(n => n.id === edge.target);
+
+                if (!sourceNode || !targetNode) {
+                  return null;
+                }
+
+                return (
+                  <DynamicBezierPath
+                    key={edge.id}
+                    x1={sourceNode.x || 0}
+                    y1={sourceNode.y || 0}
+                    x2={targetNode.x || 0}
+                    y2={targetNode.y || 0}
+                    label={edge.relation}
+                    isActive={hoveredEdgeId === edge.id}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        ))}
+
+        {/* Graph Connection Modal for edge inspection */}
+        <GraphConnectionModal
+          edge={edges.find(e => e.id === hoveredEdgeId) || null}
+          sourceNode={(() => {
+            const node = nodes.find(n => n.id === hoveredEdgeId?.split('_')[1]);
+            return node ? convertToGraphNode(node) : undefined;
+          })()}
+          targetNode={(() => {
+            const node = nodes.find(n => n.id === hoveredEdgeId?.split('_')[2]);
+            return node ? convertToGraphNode(node) : undefined;
+          })()}
+          isOpen={!!hoveredEdgeId}
+          onClose={() => handleEdgeHover(null)}
         />
-      </ReactFlow>
+      </div>
     </div>
   );
-}
+};

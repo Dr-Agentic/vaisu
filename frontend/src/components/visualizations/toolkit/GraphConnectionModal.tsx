@@ -7,16 +7,18 @@ interface GraphConnectionModalProps {
   edge: GraphEdge | null;
   sourceNode?: GraphNode;
   targetNode?: GraphNode;
+  isOpen?: boolean;
   onClose: () => void;
 }
 
-export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({ 
-  edge, 
-  sourceNode, 
-  targetNode, 
-  onClose 
+export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({
+  edge,
+  sourceNode,
+  targetNode,
+  isOpen,
+  onClose
 }) => {
-  if (!edge || !sourceNode || !targetNode) return null;
+  if (!isOpen || !edge || !sourceNode || !targetNode) return null;
 
   const strength = edge.strength ?? 0.5;
   const rationale = edge.rationale || "No rationale provided for this relationship.";
