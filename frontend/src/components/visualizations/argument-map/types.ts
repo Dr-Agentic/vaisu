@@ -245,7 +245,7 @@ export const transformBackendDataToArgumentMap = (
       category: node.impact,
       description: node.summary
     },
-    position: node.position
+    // position is calculated dynamically during rendering; not copying from backend data
   }));
 
   const edges: ArgumentEdge[] = backendData.edges.map(edge => ({

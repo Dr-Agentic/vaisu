@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { 
-  GraphViewerLayout, 
-  GraphCanvas, 
+import {
+  GraphViewerLayout,
+  GraphCanvas,
   GraphBackground,
-  GraphEdgeLayer, 
-  DynamicBezierPath, 
-  GraphEntityCard, 
+  GraphEdgeLayer,
+  DynamicBezierPath,
+  GraphEntityCard,
   GraphConnectionModal,
   GraphNode,
   GraphEdge
 } from '../../visualizations/toolkit';
 import { useArgumentMapStore } from './stores/argumentMapStore';
-import { ArgumentMapProps, ArgumentMapData, ArgumentNode, ArgumentEdge, BackendArgumentMapData, transformBackendDataToArgumentMap } from './types';
+import { ArgumentMapProps, ArgumentNode, ArgumentEdge, transformBackendDataToArgumentMap } from './types';
+
 
 // Layout Constants
 const COL_WIDTH = 320; // w-80
@@ -51,7 +52,7 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
   useEffect(() => {
     if (data) {
       // Transform backend data to frontend format
-      const transformedData = transformBackendDataToArgumentMap(data as BackendArgumentMapData);
+      const transformedData = transformBackendDataToArgumentMap(data as any);
       store.loadVisualization(transformedData);
     }
   }, [data, store.loadVisualization]);
