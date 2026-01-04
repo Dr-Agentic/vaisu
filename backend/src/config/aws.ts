@@ -32,19 +32,6 @@ export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE
 export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
 
 /**
- * Check if AWS persistence is enabled and configured
- */
-export function isPersistenceEnabled(): boolean {
-  const hasCredentials = getAWSAccessKeyId() && getAWSSecretAccessKey();
-  if (!hasCredentials) {
-    console.warn('AWS credentials not configured');
-    return false;
-  }
-
-  return true;
-}
-
-/**
  * Validate AWS configuration
  * Throws error if persistence is enabled but configuration is invalid
  */
