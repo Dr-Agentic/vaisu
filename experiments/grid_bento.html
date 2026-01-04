@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaisu - Bento Portfolio</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #000; color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-auto-rows: 160px;
+            gap: 16px;
+        }
+        .importance-high { grid-column: span 2; grid-row: span 2; }
+        .importance-mid { grid-column: span 2; grid-row: span 1; }
+        .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(10px); }
+        .card-active { border-color: #6366f1; background: rgba(99,102,241,0.1); box-shadow: 0 0 30px rgba(99,102,241,0.2); }
+        .card-related { border-color: #ec4899; background: rgba(236,72,153,0.05); }
+        .dimmed { opacity: 0.2; filter: blur(2px); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useMemo } = React;
+
+        const DATA = {
+            entities: [
+                { id: "e1", text: "Strategic Cloud Services", type: "concept", importance: 1, context: "Core business service maximizing cloud vendor relationships." },
+                { id: "e2", text: "AWS", type: "organization", importance: 0.9, context: "Primary cloud infrastructure partner." },
+                { id: "e4", text: "Webflow", type: "product", importance: 0.95, context: "Recommended hybrid platform for transformation." },
+                { id: "e9", text: "Framer", type: "product", importance: 1, context: "Top DIY pick for design speed." },
+                { id: "e11", text: "WordPress", type: "product", importance: 0.7, context: "Flexible DIY with Elementor." },
+                { id: "e7", text: "SEO", type: "concept", importance: 0.7, context: "Built-in search optimization." },
+                { id: "e23", text: "$14-29/month", type: "metric", importance: 0.4, context: "Webflow monthly cost." },
+                { id: "e25", text: "$5-15/month", type: "metric", importance: 0.5, context: "Framer entry cost." }
+            ],
+            relationships: [
+                { source: "e1", target: "e2", type: "relates-to" },
+                { source: "e1", target: "e9", type: "uses" },
+                { source: "e4", target: "e7", type: "uses" },
+                { source: "e4", target: "e23", type: "requires" },
+                { source: "e9", target: "e25", type: "requires" }
+            ]
+        };
+
+        const App = () => {
+            const [selected, setSelected] = useState(null);
+            const relatedIds = useMemo(() => {
+                if (!selected) return new Set();
+                const ids = new Set();
+                DATA.relationships.forEach(r => {
+                    if (r.source === selected) ids.add(r.target);
+                    if (r.target === selected) ids.add(r.source);
+                });
+                return ids;
+            }, [selected]);
+
+            return (
+                <div className="p-10 max-w-7xl mx-auto">
+                    <header className="mb-12">
+                        <h1 className="text-5xl font-black tracking-tighter mb-2 italic">BENTO_MAP</h1>
+                        <p className="text-zinc-500 font-mono text-xs uppercase tracking-widest">Architectural Intelligence Mosaic</p>
+                    </header>
+
+                    <div className="bento-grid">
+                        {DATA.entities.map(e => {
+                            const isSelected = selected === e.id;
+                            const isRelated = relatedIds.has(e.id);
+                            const isDimmed = selected && !isSelected && !isRelated;
+                            const sizeClass = e.importance > 0.9 ? 'importance-high' : e.importance > 0.6 ? 'importance-mid' : '';
+
+                            return (
+                                <div 
+                                    key={e.id}
+                                    onClick={() => setSelected(isSelected ? null : e.id)}
+                                    className={`glass rounded-3xl p-6 flex flex-col transition-all duration-500 cursor-pointer group ${sizeClass} ${isSelected ? 'card-active' : ''} ${isRelated ? 'card-related' : ''} ${isDimmed ? 'dimmed scale-95' : ''}`}
+                                >
+                                    <div className="flex justify-between items-start mb-4">
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">{e.type}</span>
+                                        <div className={`w-2 h-2 rounded-full ${isSelected ? 'bg-indigo-500' : isRelated ? 'bg-pink-500' : 'bg-zinc-800'}`} />
+                                    </div>
+                                    <h3 className={`font-bold leading-tight ${e.importance > 0.9 ? 'text-3xl' : 'text-lg'}`}>{e.text}</h3>
+                                    
+                                    {(isSelected || e.importance > 0.9) && (
+                                        <p className="mt-4 text-zinc-400 text-sm leading-relaxed line-clamp-3 italic">
+                                            {e.context}
+                                        </p>
+                                    )}
+
+                                    {isSelected && (
+                                        <div className="mt-auto pt-4 border-t border-white/5 flex gap-2">
+                                            <span className="text-[9px] font-mono text-indigo-400">ID: {e.id}</span>
+                                            <span className="text-[9px] font-mono text-indigo-400">IMP: {e.importance}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

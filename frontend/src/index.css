@@ -174,6 +174,11 @@ code {
   }
 }
 
+@keyframes flow {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
+}
+
 /* ============================================
    HARDWARE ACCELERATION UTILITIES
    ============================================ */
@@ -325,14 +330,16 @@ code {
    ============================================ */
 
 .text-gradient {
-  background: var(--gradient-aurora);
+  display: inline-block;
+  background-image: var(--gradient-aurora);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
 .text-gradient.nova {
-  background: var(--gradient-nova);
+  background-image: var(--gradient-nova);
 }
 
 .text-gradient-glow {

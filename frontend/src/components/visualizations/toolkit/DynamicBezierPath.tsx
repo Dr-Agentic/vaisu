@@ -57,6 +57,11 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
   const labelX = (x1 + x2) / 2;
   const labelY = (y1 + y2) / 2;
 
+  const activeStyle: React.CSSProperties = isActive ? {
+    strokeDasharray: '10 10',
+    animation: 'flow 1s linear infinite'
+  } : {};
+
   return (
     <g className="group">
       <path
@@ -66,6 +71,7 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
         strokeWidth={strokeWidth}
         markerEnd={markerEnd}
         className="transition-colors duration-300"
+        style={activeStyle}
       />
       
       {/* Invisible wider path for easier hovering */}

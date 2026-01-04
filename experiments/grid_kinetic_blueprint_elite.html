@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaisu - Kinetic Blueprint Elite</title>
+    
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/framer-motion@10.16.4/dist/framer-motion.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --primary: #2563eb;
+            --secondary: #a855f7;
+            --accent: #db2777;
+            --border: #e2e8f0;
+        }
+        
+        body { 
+            background-color: var(--bg); 
+            color: #0f172a; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin: 0;
+        }
+
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .connection-path {
+            fill: none;
+            stroke: #cbd5e1;
+            stroke-width: 2;
+            opacity: 0.25;
+            transition: all 0.4s ease;
+        }
+
+        .connection-path.active {
+            stroke: var(--primary);
+            stroke-width: 4;
+            opacity: 0.9;
+            stroke-dasharray: 10 10;
+            animation: flow 1s linear infinite;
+        }
+
+        @keyframes flow {
+            from { stroke-dashoffset: 20; }
+            to { stroke-dashoffset: 0; }
+        }
+
+        .blueprint-grid {
+            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+            background-size: 40px 40px;
+        }
+
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useMemo, useCallback } = React;
+        const { motion, AnimatePresence } = window.Motion;
+
+        // --- Rich Data Set ---
+        const RAW_DATA = {
+            "entities": [
+                { "id": "entity-1", "text": "Strategic Cloud Partnership Services", "type": "concept", "importance": 1, "context": "Core business service offered, helping maximize cloud vendor relationships.", "mentions": ["Strategic Cloud Partnership Services"] },
+                { "id": "entity-2", "text": "AWS Ecosystem", "type": "organization", "importance": 0.9, "context": "Example cloud vendor in business relationships.", "mentions": ["AWS Infrastructure"] },
+                { "id": "entity-3", "text": "B2B Consulting", "type": "concept", "importance": 0.8, "context": "Description of the service type provided.", "mentions": ["B2B consulting service"] },
+                { "id": "entity-4", "text": "Webflow Engine", "type": "product", "importance": 0.95, "context": "Hybrid platform recommended as best overall for website transformation.", "mentions": ["Webflow Platform"] },
+                { "id": "entity-9", "text": "Framer Design", "type": "product", "importance": 1, "context": "Recommended DIY platform for most modern design and speed to market.", "mentions": ["Framer Canvas"] },
+                { "id": "entity-11", "text": "WordPress Core", "type": "product", "importance": 0.7, "context": "Flexible DIY platform with Elementor for customization.", "mentions": ["WordPress CMS"] },
+                { "id": "entity-7", "text": "SEO Optimizer", "type": "concept", "importance": 0.7, "context": "Search engine optimization capabilities highlighted across options.", "mentions": ["SEO Visibility"] },
+                { "id": "entity-23", "text": "Tier: $29/month", "type": "metric", "importance": 0.4, "context": "Cost estimate for Webflow option.", "mentions": ["$14-29/month pricing"] },
+                { "id": "entity-25", "text": "Tier: $15/month", "type": "metric", "importance": 0.5, "context": "Low cost for recommended Framer option.", "mentions": ["$5-15/month pricing"] }
+            ],
+            "relationships": [
+                { "id": "rel-1", "source": "entity-1", "target": "entity-2", "type": "relates-to", "strength": 0.9, "rationale": "Strategic partnerships are built upon existing cloud infrastructure like AWS." },
+                { "id": "rel-2", "source": "entity-1", "target": "entity-3", "type": "part-of", "strength": 1, "rationale": "This specific service is a subset of broader B2B consulting strategies." },
+                { "id": "rel-16", "source": "entity-1", "target": "entity-9", "type": "uses", "strength": 0.9, "rationale": "Framer is the primary tool used to showcase these services to clients." },
+                { "id": "rel-4", "source": "entity-4", "target": "entity-7", "type": "uses", "strength": 0.8, "rationale": "Webflow's built-in SEO tools are a critical component of its value proposition." },
+                { "id": "rel-7", "source": "entity-4", "target": "entity-23", "type": "requires", "strength": 0.9, "rationale": "Access to the CMS and custom code features requires this specific billing tier." },
+                { "id": "rel-6", "source": "entity-9", "target": "entity-25", "type": "requires", "strength": 0.9, "rationale": "Custom domain publishing in Framer is linked to the $15 tier." }
+            ]
+        };
+
+        const CONFIG = {
+            concept: { color: '#a855f7', bg: 'bg-purple-50', border: 'border-purple-200' },
+            organization: { color: '#3b82f6', bg: 'bg-blue-50', border: 'border-blue-200' },
+            product: { color: '#f97316', bg: 'bg-orange-50', border: 'border-orange-200' },
+            metric: { color: '#10b981', bg: 'bg-emerald-50', border: 'border-emerald-200' }
+        };
+
+        // --- Sub-Components ---
+
+        const ConnectionModal = ({ rel, sourceNode, targetNode, onClose }) => {
+            if (!rel) return null;
+            return (
+                <motion.div 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm"
+                    onClick={onClose}
+                >
+                    <motion.div 
+                        initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }}
+                        className="glass-modal w-full max-w-2xl rounded-[40px] shadow-3xl overflow-hidden border border-white"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="p-10">
+                            <div className="flex justify-between items-start mb-10">
+                                <div>
+                                    <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Connection Analysis</span>
+                                    <h2 className="text-3xl font-black tracking-tighter">Relational Logic</h2>
+                                </div>
+                                <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">✕</button>
+                            </div>
+
+                            <div className="flex items-center gap-6 mb-12">
+                                <div className="flex-1 p-6 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase mb-2 block">Source</span>
+                                    <div className="font-bold text-slate-900">{sourceNode.text}</div>
+                                </div>
+                                <div className="flex flex-col items-center">
+                                    <div className="w-12 h-[2px] bg-blue-200 relative">
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-600 shadow-[0_0_10px_rgba(37,99,235,0.5)]" />
+                                    </div>
+                                    <span className="text-[10px] font-mono font-bold text-blue-600 mt-2">{rel.type}</span>
+                                </div>
+                                <div className="flex-1 p-6 rounded-3xl bg-white border border-slate-100 shadow-sm">
+                                    <span className="text-[9px] font-bold text-slate-400 uppercase mb-2 block">Target</span>
+                                    <div className="font-bold text-slate-900">{targetNode.text}</div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-8">
+                                <div>
+                                    <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-3">Rationale</h3>
+                                    <p className="text-lg text-slate-700 leading-relaxed font-light italic">"{rel.rationale}"</p>
+                                </div>
+                                <div className="flex gap-12">
+                                    <div>
+                                        <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-2">Signal Strength</h3>
+                                        <div className="flex items-end gap-1 h-6">
+                                            {[...Array(10)].map((_, i) => (
+                                                <div key={i} className={`w-1.5 rounded-full ${i < rel.strength * 10 ? 'bg-blue-500' : 'bg-slate-100'}`} style={{ height: `${(i+1)*10}%` }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-2">Integrity</h3>
+                                        <div className="text-2xl font-black text-slate-900">{(rel.strength * 100).toFixed(0)}%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-slate-50/50 p-6 border-t border-slate-100 flex justify-center">
+                            <span className="text-[10px] font-mono text-slate-400 tracking-widest uppercase">End of Pathway Data Segment</span>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            );
+        };
+
+        const CardNode = ({ node, isSelected, isRelated, isDimmed, onClick, innerRef }) => {
+            const [isHovered, setIsHovered] = useState(false);
+            const cfg = CONFIG[node.type] || CONFIG.concept;
+
+            return (
+                <motion.div
+                    ref={innerRef}
+                    layout
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                    onClick={() => onClick(node.id)}
+                    className={`
+                        relative z-20 w-80 rounded-[32px] border-2 cursor-pointer overflow-hidden
+                        transition-all duration-500 bg-white
+                        ${isSelected ? 'border-blue-600 shadow-3xl ring-8 ring-blue-50' : isRelated ? 'border-pink-400 shadow-xl' : 'border-slate-200'}
+                        ${isDimmed ? 'opacity-65' : 'opacity-100'}
+                    `}
+                >
+                    {/* Header */}
+                    <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/30 flex justify-between items-center">
+                        <span className="font-mono text-[10px] font-bold text-slate-400 tracking-widest uppercase">
+                            Node_{node.id.split('-')[1]}
+                        </span>
+                        <div className="flex gap-1">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className={`w-1 h-3 rounded-full ${i < Math.round(node.importance * 5) ? 'bg-blue-500' : 'bg-slate-200'}`} />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${cfg.bg} border ${cfg.border}`} style={{ color: cfg.color }}>
+                                {node.type}
+                            </span>
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 leading-tight mb-6">{node.text}</h3>
+                        
+                        <div className="relative h-px bg-slate-100 mb-6 overflow-visible">
+                            <div className="absolute left-0 -top-1 w-2 h-2 rounded-full border border-slate-200 bg-white" />
+                            <div className="absolute right-0 -top-1 w-2 h-2 rounded-full border border-slate-200 bg-white" />
+                        </div>
+
+                        <AnimatePresence>
+                            {(isHovered || isSelected) && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="space-y-6 pb-2">
+                                        <div>
+                                            <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">Context</label>
+                                            <p className="text-sm text-slate-600 leading-relaxed font-medium italic">
+                                                {node.context}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">Mentions</label>
+                                            <div className="flex flex-wrap gap-2">
+                                                {node.mentions.map((m, i) => (
+                                                    <span key={i} className="text-[10px] font-bold font-mono bg-slate-50 text-slate-400 px-3 py-1 rounded-lg border border-slate-100">
+                                                        "{m}"
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        
+                        {!isHovered && !isSelected && (
+                            <div className="flex justify-center gap-1 opacity-20">
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            );
+        };
+
+        const App = () => {
+            const [selectedId, setSelectedId] = useState('entity-1');
+            const [activeRelId, setActiveRelId] = useState(null);
+            const [coords, setCoords] = useState({});
+            const cardRefs = useRef({});
+            const containerRef = useRef(null);
+
+            const updateCoords = useCallback(() => {
+                const newCoords = {};
+                const containerRect = containerRef.current?.getBoundingClientRect();
+                if (!containerRect) return;
+
+                RAW_DATA.entities.forEach(e => {
+                    const el = cardRefs.current[e.id];
+                    if (el) {
+                        const rect = el.getBoundingClientRect();
+                        newCoords[e.id] = {
+                            x: rect.left - containerRect.left + rect.width / 2,
+                            y: rect.top - containerRect.top + rect.height / 2
+                        };
+                    }
+                });
+                setCoords(newCoords);
+            }, []);
+
+            useEffect(() => {
+                updateCoords();
+                window.addEventListener('resize', updateCoords);
+                
+                // Track scrolling if needed, though absolute positioning handles most cases
+                window.addEventListener('scroll', updateCoords, true);
+
+                const observers = RAW_DATA.entities.map(e => {
+                    const el = cardRefs.current[e.id];
+                    if (el) {
+                        const observer = new ResizeObserver(() => updateCoords());
+                        observer.observe(el);
+                        return observer;
+                    }
+                    return null;
+                });
+                
+                return () => {
+                    observers.forEach(o => o?.disconnect());
+                    window.removeEventListener('resize', updateCoords);
+                    window.removeEventListener('scroll', updateCoords, true);
+                };
+            }, [updateCoords]);
+
+            const neighbors = useMemo(() => {
+                if (!selectedId) return new Set();
+                const n = new Set();
+                RAW_DATA.relationships.forEach(r => {
+                    if (r.source === selectedId) n.add(r.target);
+                    if (r.target === selectedId) n.add(r.source);
+                });
+                return n;
+            }, [selectedId]);
+
+            const gridLayout = useMemo(() => {
+                const cols = [[], [], [], []];
+                RAW_DATA.entities.forEach(e => {
+                    if (e.id === 'entity-1') cols[1].push(e);
+                    else if (e.type === 'product') cols[2].push(e);
+                    else if (e.type === 'metric') cols[3].push(e);
+                    else cols[0].push(e);
+                });
+                return cols;
+            }, []);
+
+            const activeRel = useMemo(() => RAW_DATA.relationships.find(r => r.id === activeRelId), [activeRelId]);
+
+            return (
+                <div ref={containerRef} className="min-h-screen p-24 blueprint-grid relative flex flex-col">
+                    <header className="mb-24 flex justify-between items-end relative z-30">
+                        <div>
+                            <div className="flex items-center gap-5 mb-2">
+                                <div className="w-14 h-14 rounded-[20px] bg-blue-600 flex items-center justify-center text-white shadow-3xl shadow-blue-200 border-[3px] border-white">
+                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                </div>
+                                <h1 className="text-6xl font-black tracking-tighter text-slate-900 uppercase italic">Elite_Map</h1>
+                            </div>
+                            <p className="text-slate-400 font-mono text-xs tracking-[0.5em] uppercase ml-1">Kinetic High-Fidelity Knowledge Topology</p>
+                        </div>
+                        
+                        <div className="flex items-center gap-12 bg-white/90 backdrop-blur px-10 py-5 rounded-[32px] border border-slate-200 shadow-2xl">
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Active Signal</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
+                                    <span className="text-sm font-extrabold text-slate-800">Source Focus</span>
+                                </div>
+                            </div>
+                            <div className="w-px h-10 bg-slate-100" />
+                            <div className="flex flex-col gap-1.5">
+                                <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Linked Node</span>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-pink-500" />
+                                    <span className="text-sm font-extrabold text-slate-800">Relational Hit</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Connection Layer - NOW ABSOLUTE AND INTERNAL */}
+                    <svg className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible">
+                        {RAW_DATA.relationships.map(r => {
+                            const s = coords[r.source];
+                            const t = coords[r.target];
+                            if (!s || !t) return null;
+
+                            const isSelected = selectedId === r.source || selectedId === r.target;
+                            const dx = t.x - s.x, dy = t.y - s.y;
+                            const d = `M ${s.x} ${s.y} C ${s.x + dx*0.5} ${s.y}, ${s.x + dx*0.5} ${t.y}, ${t.x} ${t.y}`;
+
+                            return (
+                                <g key={r.id}>
+                                    <path d={d} className={`connection-path ${isSelected ? 'active' : ''}`} />
+                                    {isSelected && (
+                                        <g transform={`translate(${(s.x + t.x)/2}, ${(s.y + t.y)/2})`} className="pointer-events-auto cursor-pointer" onClick={() => setActiveRelId(r.id)}>
+                                            <rect x="-60" y="-14" width="120" height="28" rx="14" fill="white" stroke="#e2e8f0" strokeWidth="2" className="shadow-lg hover:stroke-blue-400 transition-colors" />
+                                            <text textAnchor="middle" dy="5" className="text-[11px] font-black fill-blue-600 font-mono uppercase tracking-widest">
+                                                {r.type}
+                                            </text>
+                                        </g>
+                                    )}
+                                </g>
+                            );
+                        })}
+                    </svg>
+
+                    <div className="grid grid-cols-4 gap-16 relative z-20">
+                        {gridLayout.map((column, colIdx) => (
+                            <div key={colIdx} className="flex flex-col gap-12">
+                                <div className="text-[11px] font-black text-slate-300 uppercase tracking-[0.6em] mb-4 border-b-2 border-slate-100 pb-3">Sector_0{colIdx}</div>
+                                {column.map(node => (
+                                    <CardNode 
+                                        key={node.id}
+                                        node={node}
+                                        innerRef={el => cardRefs.current[node.id] = el}
+                                        isSelected={selectedId === node.id}
+                                        isRelated={neighbors.has(node.id)}
+                                        isDimmed={selectedId && selectedId !== node.id && !neighbors.has(node.id)}
+                                        onClick={setSelectedId}
+                                    />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+
+                    <AnimatePresence>
+                        {activeRelId && (
+                            <ConnectionModal 
+                                rel={activeRel} 
+                                sourceNode={RAW_DATA.entities.find(e => e.id === activeRel.source)}
+                                targetNode={RAW_DATA.entities.find(e => e.id === activeRel.target)}
+                                onClose={() => setActiveRelId(null)} 
+                            />
+                        )}
+                    </AnimatePresence>
+
+                    <div className="fixed bottom-12 right-12 text-[10px] font-mono text-slate-300 bg-white shadow-xl px-6 py-3 rounded-full border border-slate-100 pointer-events-none font-bold uppercase tracking-widest">
+                        Blueprint_Elite // Build_4.0
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

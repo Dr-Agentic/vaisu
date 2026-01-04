@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argument Map: The Great Decoupling</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #f59e0b;
+            --info: #0ea5e9;
+            --claim-color: #f59e0b;
+            --argument-color: #06b6d4;
+            --evidence-color: #8b5cf6;
+            --bg-card: #ffffff;
+            --bg-grid: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-grid);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--claim-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+
+        .connection-container {
+            position: relative;
+            background: white;
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            min-height: 600px;
+        }
+
+        svg.connections {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .connection-line {
+            stroke: #cbd5e1;
+            stroke-width: 2;
+            stroke-dasharray: 5 5;
+            opacity: 0.6;
+            transition: stroke 0.3s, stroke-width 0.3s, opacity 0.3s;
+        }
+
+        .connection-line.active {
+            stroke: var(--support-color);
+            stroke-width: 3;
+            stroke-dasharray: none;
+            opacity: 1;
+            filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.5));
+        }
+
+        .connection-line.refutes.active {
+            stroke: var(--refute-color);
+            filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+        }
+
+        .connection-label {
+            font-size: 0.8rem;
+            fill: var(--text-secondary);
+            font-weight: 600;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+
+        .grid-system {
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .connection-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .group-title {
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .connected-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .connected-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+            z-index: 10;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .card-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .connection-indicator {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+            border: 2px solid transparent;
+        }
+
+        .connected-card:hover .connection-indicator {
+            background: var(--primary);
+            border-color: white;
+            box-shadow: 0 0 10px rgba(37, 99, 235, 0.5);
+        }
+
+        .legend {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .legend-line {
+            width: 40px;
+            height: 2px;
+            background: #cbd5e1;
+            margin: 0 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            .grid-system {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .grid-system {
+                grid-template-columns: 1fr;
+            }
+            body {
+                padding: 1rem;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>🏗️ Argument Map: The Great Decoupling</h1>
+        <p class="subtitle">Interactive visualization of argument structure and evidence</p>
+
+        <div class="connection-container">
+            <svg class="connections" id="connection-svg" viewBox="0 0 1200 600">
+                <g id="connections-layer">
+                    <line class="connection-line supports" id="edge-1" x1="150" y1="150" x2="350" y2="150"></line>
+                    <line class="connection-line supports" id="edge-2" x1="150" y1="150" x2="550" y2="150"></line>
+                    <line class="connection-line supports" id="edge-3" x1="150" y1="150" x2="750" y2="150"></line>
+                    <line class="connection-line supports" id="edge-4" x1="150" y1="150" x2="150" y2="350"></line>
+                    <line class="connection-line supports" id="edge-5" x1="150" y1="150" x2="350" y2="350"></line>
+                    <line class="connection-line supports" id="edge-6" x1="150" y1="150" x2="550" y2="350"></line>
+                    <line class="connection-line supports" id="edge-7" x1="150" y1="150" x2="750" y2="350"></line>
+                    <line class="connection-line supports" id="edge-8" x1="150" y1="150" x2="350" y2="550"></line>
+                    <line class="connection-line supports" id="edge-9" x1="150" y1="150" x2="550" y2="550"></line>
+                    <line class="connection-line supports" id="edge-10" x1="150" y1="150" x2="750" y2="550"></line>
+                    <line class="connection-line supports" id="edge-11" x1="150" y1="150" x2="150" y2="750"></line>
+                    <line class="connection-line supports" id="edge-12" x1="150" y1="150" x2="550" y2="750"></line>
+                </g>
+
+                <g id="labels-layer">
+                    <text class="connection-label" x="250" y="130">GDP Growth</text>
+                    <text class="connection-label" x="350" y="130">K-Shaped</text>
+                    <text class="connection-label" x="450" y="130">Productivity Gap</text>
+                    <text class="connection-label" x="450" y="250">Tech Displacement</text>
+                    <text class="connection-label" x="450" y="450">Silent Firing</text>
+                    <text class="connection-label" x="450" y="650">Flattening</text>
+                    <text class="connection-label" x="250" y="450">Agentic AI</text>
+                    <text class="connection-label" x="650" y="450">High-Skill Risk</text>
+                </g>
+            </svg>
+
+            <div class="grid-system" id="card-grid">
+                <div class="connection-group">
+                    <div class="group-title">🎯 Core Argument</div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-1')" id="card-node-1">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--claim-color)">⚠️</div>
+                            <div class="card-title">The Great Decoupling Thesis</div>
+                        </div>
+                        <div class="card-desc">AI initiates the Great Decoupling, severing historical link between productivity gains and wage growth/job creation, with benefits captured by capital owners.</div>
+                    </div>
+                </div>
+
+                <div class="connection-group">
+                    <div class="group-title">💡 Supporting Arguments</div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-2')" id="card-node-2">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">📈</div>
+                            <div class="card-title">GDP Growth Without Labor</div>
+                        </div>
+                        <div class="card-desc">GDP will grow via AI-driven Total Factor Productivity (TFP) without needing more labor, leading to jobless recoveries.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-4')" id="card-node-4">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">📊</div>
+                            <div class="card-title">K-Shaped Economy</div>
+                        </div>
+                        <div class="card-desc">Economy bifurcates into AI Haves (tech owners, elites) benefiting from AI and Have-Nots (displaced workers) facing stagnation.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-7')" id="card-node-7">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">💰</div>
+                            <div class="card-title">Productivity-Wage Disconnect</div>
+                        </div>
+                        <div class="card-desc">Rising productivity from AI does not translate to wage increases; gains captured by capital, suppressing worker bargaining power.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-9')" id="card-node-9">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">🤫</div>
+                            <div class="card-title">Silent Firing and Attrition</div>
+                        </div>
+                        <div class="card-desc">Companies use silent firing (RTO mandates, sidelining) and unreplaced attrition to reduce headcount without mass layoffs.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-10')" id="card-node-10">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">🔽</div>
+                            <div class="card-title">Flattening and Unbossing</div>
+                        </div>
+                        <div class="card-desc">AI eliminates middle management; Gartner predicts 20% of orgs flatten by 2026, increasing span of control.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-12')" id="card-node-12">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">🤖</div>
+                            <div class="card-title">Agentic AI Displacement</div>
+                        </div>
+                        <div class="card-desc">AI agents execute complex workflows autonomously, enabling superagency where one human replaces many, creating micro-multinationals.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-13')" id="card-node-13">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--argument-color)">🎓</div>
+                            <div class="card-title">High-Skill Job Risks</div>
+                        </div>
+                        <div class="card-desc">Non-routine cognitive jobs (scientists, engineers) now face higher displacement risk than manual labor.</div>
+                    </div>
+                </div>
+
+                <div class="connection-group">
+                    <div class="group-title">📋 Evidence & Data</div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-3')" id="card-node-3">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--evidence-color)">📊</div>
+                            <div class="card-title">Penn Wharton Projection</div>
+                        </div>
+                        <div class="card-desc">Penn Wharton Budget Model projects AI boosts GDP by nearly 3% by 2055 via TFP, not labor growth; US GDP >2% annually late decade.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-5')" id="card-node-5">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--evidence-color)">🏗️</div>
+                            <div class="card-title">Data Center Investment Surge</div>
+                        </div>
+                        <div class="card-desc">Investment in data centers surged >50% annually, redirecting capital from human resources to AI infrastructure.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-6')" id="card-node-6">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--evidence-color)">💰</div>
+                            <div class="card-title">Wage Growth Reversal</div>
+                        </div>
+                        <div class="card-desc">Wage growth for lowest income quartile dipped below top quartile for first time since 2014, reversing inequality reduction.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-8')" id="card-node-8">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--evidence-color)">📈</div>
+                            <div class="card-title">PwC AI Jobs Barometer</div>
+                        </div>
+                        <div class="card-desc">PwC reports 4.8x higher productivity growth in AI-exposed sectors, but no broad wage increases; premium only for AI experts.</div>
+                    </div>
+
+                    <div class="connected-card" onclick="highlightConnections('node-11')" id="card-node-11">
+                        <div class="connection-indicator"></div>
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--evidence-color)">🔮</div>
+                            <div class="card-title">Gartner Prediction</div>
+                        </div>
+                        <div class="card-desc">Gartner: By 2026, 20% of organizations use AI to flatten structures, eliminating >50% middle management.</div>
+                    </div>
+                </div>
+
+                <div class="connection-group">
+                    <div class="group-title">📊 Statistics</div>
+
+                    <div class="connected-card" style="cursor: default; opacity: 0.8;">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--primary)">📊</div>
+                            <div class="card-title">Argument Map Stats</div>
+                        </div>
+                        <div class="card-desc">
+                            • 1 Main Claim<br>
+                            • 7 Supporting Arguments<br>
+                            • 5 Evidence Points<br>
+                            • 12 Supporting Connections<br>
+                            • 0 Refuting Connections
+                        </div>
+                    </div>
+
+                    <div class="connected-card" style="cursor: default; opacity: 0.8;">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--success)">✅</div>
+                            <div class="card-title">Evidence Quality</div>
+                        </div>
+                        <div class="card-desc">
+                            • High Confidence: Penn Wharton, PwC<br>
+                            • Medium Confidence: Gartner, Wage Data<br>
+                            • All sources: Academic, Corporate, Government
+                        </div>
+                    </div>
+
+                    <div class="connected-card" style="cursor: default; opacity: 0.8;">
+                        <div class="card-header">
+                            <div class="card-icon" style="background: var(--warning)">⚡</div>
+                            <div class="card-title">Impact Assessment</div>
+                        </div>
+                        <div class="card-desc">
+                            • High Impact: K-Shaped Economy<br>
+                            • High Impact: Productivity-Wage Gap<br>
+                            • Medium Impact: Silent Firing, Flattening
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Argument Map Legend</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--claim-color)"></div>
+                    <span>Main Claim / Thesis</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--argument-color)"></div>
+                    <span>Supporting Arguments</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--evidence-color)"></div>
+                    <span>Evidence & Data</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: var(--support-color)"></div>
+                    <span>Supports (Positive Evidence)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-line" style="background: var(--refute-color)"></div>
+                    <span>Refutes (Counter-arguments)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background: var(--primary)"></div>
+                    <span>High Impact / Strong Evidence</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend" style="margin-top: 2rem; display: none;" id="connection-details">
+            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Connection Details</h3>
+            <div id="connection-text"></div>
+            <button onclick="resetConnections()" style="margin-top: 1rem; background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer;">Reset View</button>
+        </div>
+    </div>
+
+    <script>
+        const argumentMapConnections = {
+            'node-1': {
+                lines: ['edge-1', 'edge-2', 'edge-3', 'edge-4', 'edge-5', 'edge-6', 'edge-7', 'edge-8', 'edge-9', 'edge-10', 'edge-11', 'edge-12'],
+                targets: ['card-node-2', 'card-node-4', 'card-node-7', 'card-node-9', 'card-node-10', 'card-node-12', 'card-node-13', 'card-node-3', 'card-node-5', 'card-node-6', 'card-node-8', 'card-node-11'],
+                description: '🏗️ The Great Decoupling Thesis → All Supporting Evidence: Central claim that AI breaks historic link between productivity and wages, supported by 7 arguments and 5 evidence points across economic, technological, and social domains.'
+            },
+            'node-2': {
+                lines: ['edge-1'],
+                targets: ['card-node-1'],
+                description: '📈 GDP Growth Without Labor → Great Decoupling Thesis: Provides economic foundation - AI enables GDP growth through TFP without requiring labor, establishing the decoupling mechanism.'
+            },
+            'node-3': {
+                lines: ['edge-2'],
+                targets: ['card-node-1'],
+                description: '📊 Penn Wharton Projection → Great Decoupling Thesis: Academic evidence showing AI-driven GDP growth (3% by 2055) without labor growth, validating the TFP mechanism.'
+            },
+            'node-4': {
+                lines: ['edge-3'],
+                targets: ['card-node-1'],
+                description: '📊 K-Shaped Economy → Great Decoupling Thesis: Social consequence - demonstrates how decoupling creates permanent economic bifurcation between AI haves and have-nots.'
+            },
+            'node-5': {
+                lines: ['edge-4'],
+                targets: ['card-node-1'],
+                description: '🏗️ Data Center Investment Surge → Great Decoupling Thesis: Capital reallocation evidence - shows physical infrastructure investment shifting from human to AI resources.'
+            },
+            'node-6': {
+                lines: ['edge-5'],
+                targets: ['card-node-1'],
+                description: '💰 Wage Growth Reversal → Great Decoupling Thesis: Labor market evidence - demonstrates breaking of historic wage-productivity link, first reversal since 2014.'
+            },
+            'node-7': {
+                lines: ['edge-6'],
+                targets: ['card-node-1'],
+                description: '💰 Productivity-Wage Disconnect → Great Decoupling Thesis: Core mechanism - explains how rising AI productivity fails to translate to wage growth, captured by capital.'
+            },
+            'node-8': {
+                lines: ['edge-7'],
+                targets: ['card-node-1'],
+                description: '📈 PwC AI Jobs Barometer → Great Decoupling Thesis: Corporate evidence - 4.8x productivity growth in AI sectors without broad wage increases, premium only for AI experts.'
+            },
+            'node-9': {
+                lines: ['edge-8'],
+                targets: ['card-node-1'],
+                description: '🤫 Silent Firing and Attrition → Great Decoupling Thesis: Corporate displacement mechanism - shows how companies reduce headcount without traditional layoffs.'
+            },
+            'node-10': {
+                lines: ['edge-9'],
+                targets: ['card-node-1'],
+                description: '🔽 Flattening and Unbossing → Great Decoupling Thesis: Organizational impact - AI eliminates middle management, increasing spans of control and reducing labor needs.'
+            },
+            'node-11': {
+                lines: ['edge-10'],
+                targets: ['card-node-1'],
+                description: '🔮 Gartner Prediction → Great Decoupling Thesis: Future projection - predicts 20% of organizations will use AI to flatten structures by 2026.'
+            },
+            'node-12': {
+                lines: ['edge-11'],
+                targets: ['card-node-1'],
+                description: '🤖 Agentic AI Displacement → Great Decoupling Thesis: Technological mechanism - AI agents enable superagency, one human replacing many workers.'
+            },
+            'node-13': {
+                lines: ['edge-12'],
+                targets: ['card-node-1'],
+                description: '🎓 High-Skill Job Risks → Great Decoupling Thesis: Labor market shift - cognitive jobs now face higher displacement risk than manual labor.'
+            }
+        };
+
+        function highlightConnections(nodeId) {
+            document.querySelectorAll('.connection-line').forEach(line => {
+                line.classList.remove('active');
+            });
+            document.querySelectorAll('.connected-card').forEach(card => {
+                card.style.borderColor = 'var(--border)';
+                card.style.transform = 'none';
+            });
+
+            const connectionData = argumentMapConnections[nodeId];
+            if (connectionData) {
+                connectionData.lines.forEach(lineId => {
+                    const line = document.getElementById(lineId);
+                    if (line) {
+                        line.classList.add('active');
+                    }
+                });
+
+                connectionData.targets.forEach(targetId => {
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.style.borderColor = 'var(--support-color)';
+                        target.style.transform = 'translateY(-4px)';
+                        target.style.boxShadow = '0 8px 25px rgba(16, 185, 129, 0.3)';
+                    }
+                });
+
+                const detailsPanel = document.getElementById('connection-details');
+                const detailsText = document.getElementById('connection-text');
+                detailsPanel.style.display = 'block';
+                detailsText.textContent = connectionData.description;
+            }
+        }
+
+        function resetConnections() {
+            document.querySelectorAll('.connection-line').forEach(line => {
+                line.classList.remove('active');
+            });
+            document.querySelectorAll('.connected-card').forEach(card => {
+                card.style.borderColor = 'var(--border)';
+                card.style.transform = 'none';
+                card.style.boxShadow = 'var(--shadow)';
+            });
+            document.getElementById('connection-details').style.display = 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            ['edge-1', 'edge-2', 'edge-3', 'edge-4', 'edge-5', 'edge-6'].forEach(id => {
+                document.getElementById(id).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

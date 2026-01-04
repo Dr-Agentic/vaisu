@@ -163,13 +163,6 @@ export class TextAnalyzer {
       const entities = parsed.entities || [];
       console.log(`✅ Extracted ${entities.length} entities`);
 
-      // Log first 5 entities for debugging
-      console.log('📊 Sample entities:', JSON.stringify(entities.slice(0, 5).map((e: Entity) => ({
-        id: e.id,
-        text: e.text,
-        type: e.type
-      })), null, 2));
-
       return entities;
     } catch (error) {
       console.error('Failed to parse entities:', error);

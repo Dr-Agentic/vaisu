@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Argument Map: The Great Decoupling</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --support-color: #10b981;
+            --refute-color: #ef4444;
+            --claim-color: #f59e0b;
+            --evidence-color: #8b5cf6;
+            --bg-card: #ffffff;
+            --bg-grid: #f8fafc;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-grid);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--claim-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .app-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .legend {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-line {
+            width: 40px;
+            height: 2px;
+            background: var(--border);
+            margin: 0 0.5rem;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .stats {
+            margin-left: auto;
+            display: flex;
+            gap: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-item {
+            font-weight: 600;
+        }
+
+        .viz-container {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            min-height: 600px;
+            position: relative;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .node:hover {
+            transform: scale(1.05);
+            z-index: 10;
+        }
+
+        .node.selected {
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 10px rgba(37, 99, 235, 0.5));
+        }
+
+        .node-circle {
+            stroke: var(--border);
+            stroke-width: 2px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .node-claim {
+            fill: var(--claim-color);
+            opacity: 0.9;
+        }
+
+        .node-argument {
+            fill: var(--argument-color);
+            opacity: 0.9;
+        }
+
+        .node-evidence {
+            fill: var(--evidence-color);
+            opacity: 0.9;
+        }
+
+        .link {
+            stroke: var(--border);
+            stroke-width: 2px;
+            opacity: 0.6;
+            transition: var(--transition);
+        }
+
+        .link.supports {
+            stroke: var(--support-color);
+            stroke-width: 3px;
+            opacity: 0.8;
+        }
+
+        .link.refutes {
+            stroke: var(--refute-color);
+            stroke-width: 3px;
+            opacity: 0.8;
+            stroke-dasharray: 5 5;
+        }
+
+        .link.highlighted {
+            stroke-width: 4px;
+            opacity: 1;
+            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.5));
+        }
+
+        .link.selected {
+            stroke-width: 5px;
+            filter: drop-shadow(0 0 8px rgba(37, 99, 235, 0.8));
+        }
+
+        .node-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-anchor: middle;
+            fill: white;
+            pointer-events: none;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .node-title {
+            font-size: 10px;
+            fill: var(--text-secondary);
+            text-shadow: none;
+            font-weight: 400;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 100;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .tooltip.active {
+            opacity: 1;
+        }
+
+        .tooltip-title {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .tooltip-content {
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .tooltip-meta {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: #94a3b8;
+            display: flex;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .legend {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .stats {
+                margin-left: 0;
+                justify-content: center;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>🏗️ Argument Map: The Great Decoupling</h1>
+            <p class="app-subtitle">Interactive visualization of the AI workforce displacement thesis</p>
+        </header>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--claim-color)"></div>
+                <span>Claims (Core Arguments)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--argument-color)"></div>
+                <span>Arguments (Supporting Points)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--evidence-color)"></div>
+                <span>Evidence (Data/Research)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line"></div>
+                <span style="color: var(--support-color)">Supports (Positive Evidence)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-line" style="background: var(--refute-color)"></div>
+                <span style="color: var(--refute-color)">Refutes (Counter-arguments)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background: var(--primary)"></div>
+                <span>Main Claim (Central Thesis)</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-group">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Filter by type:</span>
+                <button class="filter-btn active" onclick="filterNodes('all')">All</button>
+                <button class="filter-btn" onclick="filterNodes('claim')">Claims</button>
+                <button class="filter-btn" onclick="filterNodes('argument')">Arguments</button>
+                <button class="filter-btn" onclick="filterNodes('evidence')">Evidence</button>
+            </div>
+            <div class="control-group">
+                <span style="color: var(--text-secondary); font-size: 0.9rem;">Connection type:</span>
+                <button class="filter-btn active" onclick="filterLinks('all')">All Links</button>
+                <button class="filter-btn" onclick="filterLinks('supports')">Supports</button>
+                <button class="filter-btn" onclick="filterLinks('refutes')">Refutes</button>
+            </div>
+            <div class="stats">
+                <span class="stat-item">Total Arguments: 9</span>
+                <span class="stat-item">Total Claims: 2</span>
+                <span class="stat-item">Evidence Points: 6</span>
+            </div>
+        </div>
+
+        <div class="viz-container">
+            <div id="tooltip" class="tooltip"></div>
+            <div id="argument-map"></div>
+        </div>
+
+        <div style="text-align: center; color: var(--text-secondary); font-size: 0.9rem; margin-top: 2rem;">
+            Interactive argument map generated from structured argument data. Click nodes to explore connections and evidence.
+        </div>
+    </div>
+
+    <script>
+        const argumentMapData = {
+            edges: [
+                { id: 'edge-1', rationale: 'Core mechanism of decoupling GDP from labor.', source: 'node-2', strength: 0.9, target: 'node-1', type: 'supports' },
+                { id: 'edge-2', rationale: 'Provides specific forecasts backing TFP-driven growth.', source: 'node-3', strength: 0.95, target: 'node-2', type: 'supports' },
+                { id: 'edge-3', rationale: 'Describes socioeconomic outcome of decoupling.', source: 'node-4', strength: 0.85, target: 'node-1', type: 'supports' },
+                { id: 'edge-4', rationale: 'Evidence of capital shift to AI haves.', source: 'node-5', strength: 0.9, target: 'node-4', type: 'supports' },
+                { id: 'edge-5', rationale: 'Shows wage divergence for have-nots.', source: 'node-6', strength: 0.85, target: 'node-4', type: 'supports' },
+                { id: 'edge-6', rationale: 'Directly explains wage stagnation despite productivity.', source: 'node-7', strength: 0.9, target: 'node-1', type: 'supports' },
+                { id: 'edge-7', rationale: 'Empirical data on productivity-wage gap.', source: 'node-8', strength: 0.95, target: 'node-7', type: 'supports' },
+                { id: 'edge-8', rationale: 'Illustrates displacement mechanics.', source: 'node-9', strength: 0.8, target: 'node-1', type: 'supports' },
+                { id: 'edge-9', rationale: 'Structural org changes from AI.', source: 'node-10', strength: 0.85, target: 'node-1', type: 'supports' },
+                { id: 'edge-10', rationale: 'Forecast from Gartner on flattening.', source: 'node-11', strength: 0.95, target: 'node-10', type: 'supports' },
+                { id: 'edge-11', rationale: 'AI agents as key displacement driver.', source: 'node-12', strength: 0.85, target: 'node-1', type: 'supports' },
+                { id: 'edge-12', rationale: 'Extends displacement to high-skill jobs.', source: 'node-13', strength: 0.8, target: 'node-1', type: 'supports' }
+            ],
+            nodes: [
+                { confidence: 0.9, id: 'node-1', impact: 'high', label: 'Great Decoupling Thesis', polarity: 'neutral', summary: 'AI initiates the Great Decoupling, severing historical link between productivity gains and wage growth/job creation, with benefits captured by capital owners, leading to structural labor displacement and K-shaped economy from 2025-2030.', type: 'claim' },
+                { confidence: 0.85, id: 'node-2', impact: 'high', label: 'GDP Growth Without Labor', polarity: 'support', summary: 'GDP will grow via AI-driven Total Factor Productivity (TFP) without needing more labor, leading to jobless recoveries.', type: 'argument' },
+                { confidence: 0.9, id: 'node-3', impact: 'medium', label: 'Penn Wharton Projection', polarity: 'support', summary: 'Penn Wharton Budget Model projects AI boosts GDP by nearly 3% by 2055 via TFP, not labor growth; US GDP >2% annually late decade.', type: 'evidence' },
+                { confidence: 0.8, id: 'node-4', impact: 'high', label: 'K-Shaped Economy', polarity: 'support', summary: 'Economy bifurcates into AI Haves (tech owners, elites) benefiting from AI and Have-Nots (displaced workers) facing stagnation.', type: 'argument' },
+                { confidence: 0.85, id: 'node-5', impact: 'medium', label: 'Data Center Investment Surge', polarity: 'support', summary: 'Investment in data centers surged >50% annually, redirecting capital from human resources to AI infrastructure.', type: 'evidence' },
+                { confidence: 0.8, id: 'node-6', impact: 'medium', label: 'Wage Growth Reversal', polarity: 'support', summary: 'Wage growth for lowest income quartile dipped below top quartile for first time since 2014, reversing inequality reduction.', type: 'evidence' },
+                { confidence: 0.85, id: 'node-7', impact: 'high', label: 'Productivity-Wage Disconnect', polarity: 'support', summary: 'Rising productivity from AI does not translate to wage increases; gains captured by capital, suppressing worker bargaining power.', type: 'argument' },
+                { confidence: 0.9, id: 'node-8', impact: 'medium', label: 'PwC AI Jobs Barometer', polarity: 'support', summary: 'PwC reports 4.8x higher productivity growth in AI-exposed sectors, but no broad wage increases; premium only for AI experts.', type: 'evidence' },
+                { confidence: 0.8, id: 'node-9', impact: 'medium', label: 'Silent Firing and Attrition', polarity: 'support', summary: 'Companies use silent firing (RTO mandates, sidelining) and unreplaced attrition to reduce headcount without mass layoffs.', type: 'argument' },
+                { confidence: 0.85, id: 'node-10', impact: 'medium', label: 'Flattening and Unbossing', polarity: 'support', summary: 'AI eliminates middle management; Gartner predicts 20% of orgs flatten by 2026, increasing span of control.', type: 'argument' },
+                { confidence: 0.9, id: 'node-11', impact: 'medium', label: 'Gartner Prediction', polarity: 'support', summary: 'Gartner: By 2026, 20% of organizations use AI to flatten structures, eliminating >50% middle management.', type: 'evidence' },
+                { confidence: 0.8, id: 'node-12', impact: 'high', label: 'Agentic AI Displacement', polarity: 'support', summary: 'AI agents execute complex workflows autonomously, enabling superagency where one human replaces many, creating micro-multinationals.', type: 'argument' },
+                { confidence: 0.75, id: 'node-13', impact: 'medium', label: 'High-Skill Job Risks', polarity: 'support', summary: 'Non-routine cognitive jobs (scientists, engineers) now face higher displacement risk than manual labor.', type: 'argument' }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof d3 !== 'undefined') {
+                createArgumentMap(argumentMapData);
+            } else {
+                loadD3AndCreate();
+            }
+        });
+
+        function loadD3AndCreate() {
+            const script = document.createElement('script');
+            script.src = 'https://d3js.org/d3.v7.min.js';
+            script.onload = () => createArgumentMap(argumentMapData);
+            document.head.appendChild(script);
+        }
+
+        function createArgumentMap(data) {
+            const container = document.getElementById('argument-map');
+            const tooltip = document.getElementById('tooltip');
+            const width = container.clientWidth;
+            const height = 600;
+
+            container.innerHTML = '';
+
+            const svg = d3.select('#argument-map')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height)
+                .attr('viewBox', `0 0 ${width} ${height}`)
+                .attr('preserveAspectRatio', 'xMidYMid meet');
+
+            const defs = svg.append('defs');
+
+            const claimGradient = defs.append('linearGradient')
+                .attr('id', 'claim-gradient')
+                .attr('x1', '0%').attr('y1', '0%')
+                .attr('x2', '100%').attr('y2', '100%');
+            claimGradient.append('stop').attr('offset', '0%').attr('stop-color', '#f59e0b');
+            claimGradient.append('stop').attr('offset', '100%').attr('stop-color', '#d97706');
+
+            const argumentGradient = defs.append('linearGradient')
+                .attr('id', 'argument-gradient')
+                .attr('x1', '0%').attr('y1', '0%')
+                .attr('x2', '100%').attr('y2', '100%');
+            argumentGradient.append('stop').attr('offset', '0%').attr('stop-color', '#06b6d4');
+            argumentGradient.append('stop').attr('offset', '100%').attr('stop-color', '#0891b2');
+
+            const evidenceGradient = defs.append('linearGradient')
+                .attr('id', 'evidence-gradient')
+                .attr('x1', '0%').attr('y1', '0%')
+                .attr('x2', '100%').attr('y2', '100%');
+            evidenceGradient.append('stop').attr('offset', '0%').attr('stop-color', '#8b5cf6');
+            evidenceGradient.append('stop').attr('offset', '100%').attr('stop-color', '#7c3aed');
+
+            const simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(data.edges).id(d => d.id).distance(80))
+                .force('charge', d3.forceManyBody().strength(-300))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide().radius(40));
+
+            const link = svg.append('g')
+                .selectAll('line')
+                .data(data.edges)
+                .enter().append('line')
+                .attr('class', d => `link ${d.type}`)
+                .attr('stroke-width', d => d.strength * 3);
+
+            const node = svg.append('g')
+                .selectAll('g')
+                .data(data.nodes)
+                .enter().append('g')
+                .attr('class', 'node')
+                .call(d3.drag()
+                    .on('start', dragstarted)
+                    .on('drag', dragged)
+                    .on('end', dragended));
+
+            node.append('circle')
+                .attr('class', d => `node-circle node-${d.type}`)
+                .attr('r', d => {
+                    if (d.id === 'node-1') return 25;
+                    if (d.type === 'claim') return 20;
+                    if (d.type === 'argument') return 18;
+                    return 16;
+                })
+                .style('fill', d => {
+                    if (d.id === 'node-1') return 'url(#claim-gradient)';
+                    if (d.type === 'claim') return 'url(#claim-gradient)';
+                    if (d.type === 'argument') return 'url(#argument-gradient)';
+                    return 'url(#evidence-gradient)';
+                });
+
+            node.append('text')
+                .attr('class', 'node-label')
+                .attr('dy', -35)
+                .text(d => d.label);
+
+            node.append('text')
+                .attr('class', 'node-title')
+                .attr('dy', 35)
+                .text(d => `${d.type.toUpperCase()} | ${d.impact.toUpperCase()}`);
+
+            node.append('circle')
+                .attr('r', d => d.confidence * 5)
+                .attr('fill', 'none')
+                .attr('stroke', d => d.type === 'claim' ? '#f59e0b' : '#06b6d4')
+                .attr('stroke-width', 2)
+                .attr('opacity', 0.5);
+
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node
+                    .attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+
+            node.on('mouseover', function(event, d) {
+                showTooltip(event, d);
+                highlightConnections(d, true);
+            })
+            .on('mouseout', function(event, d) {
+                hideTooltip();
+                highlightConnections(d, false);
+            })
+            .on('click', function(event, d) {
+                toggleNodeSelection(d);
+            });
+
+            link.on('mouseover', function(event, d) {
+                showLinkTooltip(event, d);
+                highlightLink(d, true);
+            })
+            .on('mouseout', function(event, d) {
+                hideTooltip();
+                highlightLink(d, false);
+            });
+
+            function showTooltip(event, d) {
+                tooltip.classList.add('active');
+                tooltip.innerHTML = '<div class="tooltip-title">' + d.label + '</div><div class="tooltip-content">' + d.summary + '</div><div class="tooltip-meta"><span>Confidence: ' + (d.confidence * 100).toFixed(0) + '%</span><span>Impact: ' + d.impact + '</span><span>Type: ' + d.type + '</span></div>';
+                positionTooltip(event);
+            }
+
+            function showLinkTooltip(event, d) {
+                tooltip.classList.add('active');
+                tooltip.innerHTML = '<div class="tooltip-title">' + d.type.toUpperCase() + ' Connection</div><div class="tooltip-content">' + d.rationale + '</div><div class="tooltip-meta"><span>Strength: ' + (d.strength * 100).toFixed(0) + '%</span><span>' + d.source.label + ' → ' + d.target.label + '</span></div>';
+                positionTooltip(event);
+            }
+
+            function hideTooltip() {
+                tooltip.classList.remove('active');
+            }
+
+            function positionTooltip(event) {
+                const rect = container.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+
+                tooltip.style.left = (x + 15) + 'px';
+                tooltip.style.top = (y + 15) + 'px';
+            }
+
+            function highlightConnections(node, highlight) {
+                link.style('opacity', d => {
+                    if (highlight) {
+                        return (d.source.id === node.id || d.target.id === node.id) ? 1 : 0.2;
+                    }
+                    return 0.6;
+                }).style('stroke-width', d => {
+                    if (highlight) {
+                        return (d.source.id === node.id || d.target.id === node.id) ? 4 : 1;
+                    }
+                    return d.strength * 3;
+                });
+            }
+
+            function highlightLink(linkData, highlight) {
+                d3.selectAll('.link').style('stroke-width', d => {
+                    if (highlight && d.id === linkData.id) {
+                        return 6;
+                    }
+                    return d.strength * 3;
+                }).style('opacity', d => {
+                    if (highlight && d.id === linkData.id) {
+                        return 1;
+                    }
+                    return 0.6;
+                });
+            }
+
+            function toggleNodeSelection(node) {
+                d3.selectAll('.node').classed('selected', false);
+                d3.selectAll('.link').classed('selected', false);
+
+                d3.select(this).classed('selected', true);
+
+                link.filter(d => d.source.id === node.id || d.target.id === node.id)
+                    .classed('selected', true);
+            }
+
+            function dragstarted(event, d) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+
+            function dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+
+            function dragended(event, d) {
+                if (!event.active) simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+        }
+
+        function filterNodes(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent !== 'Supports' && btn.textContent !== 'Refutes') {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+
+            const nodes = document.querySelectorAll('.node');
+
+            if (type === 'all') {
+                nodes.forEach(node => node.style.display = 'block');
+            } else {
+                nodes.forEach(node => {
+                    const nodeType = node.querySelector('circle').className.baseVal.includes('claim') ? 'claim' :
+                                   node.querySelector('circle').className.baseVal.includes('argument') ? 'argument' : 'evidence';
+                    node.style.display = (nodeType === type) ? 'block' : 'none';
+                });
+            }
+        }
+
+        function filterLinks(type) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent === 'Supports' || btn.textContent === 'Refutes') {
+                    btn.classList.remove('active');
+                }
+            });
+            event.target.classList.add('active');
+
+            const links = document.querySelectorAll('.link');
+
+            if (type === 'all') {
+                links.forEach(link => link.style.display = 'block');
+            } else {
+                links.forEach(link => {
+                    link.style.display = (link.className.baseVal.includes(type)) ? 'block' : 'none';
+                });
+            }
+        }
+    </script>
+</body>
+</html>

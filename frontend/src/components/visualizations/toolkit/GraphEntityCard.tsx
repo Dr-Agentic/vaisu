@@ -1,113 +1,141 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GraphNode } from './types';
-import { getTypeIcon, getTypeColor } from './utils';
-import { Info } from 'lucide-react';
+import { getTypeColor } from './utils';
 
 interface GraphEntityCardProps {
   node: GraphNode;
-  isFocused?: boolean;
-  onHover?: (isHovering: boolean) => void;
-  onClick?: () => void;
+  isSelected?: boolean;
+  isRelated?: boolean;
+  isDimmed?: boolean;
+  onClick?: (id: string) => void;
   className?: string;
   style?: React.CSSProperties;
 }
 
 export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
   node,
-  isFocused = false,
-  onHover,
+  isSelected = false,
+  isRelated = false,
+  isDimmed = false,
   onClick,
   className = '',
   style
 }) => {
-  const [isHovering, setIsHovering] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const theme = getTypeColor(node.type);
-  const Icon = getTypeIcon(node.type);
+  
+  // Calculate importance (0-5 scale)
+  let importanceValue = 1;
+  if (typeof node.importance === 'number') {
+    importanceValue = Math.round(node.importance * 5);
+  } else if (node.importance === 'high') {
+    importanceValue = 5;
+  } else if (node.importance === 'medium') {
+    importanceValue = 3;
+  }
 
-  const handleMouseEnter = () => {
-    setIsHovering(true);
-    onHover?.(true);
+  const handleClick = () => {
+    if (onClick) {
+      onClick(node.id);
+    }
   };
-
-  const handleMouseLeave = () => {
-    setIsHovering(false);
-    onHover?.(false);
-  };
-
-  const opacityClass = isFocused ? 'opacity-100 scale-[1.02] shadow-lg ring-2 ring-[var(--color-primary)]' : 'opacity-100';
 
   return (
-    <div
-      id={`node-${node.id}`}
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: isDimmed ? 0.65 : 1, scale: 1 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
       className={`
-        relative flex flex-col w-64 rounded-lg border transition-all duration-200 ease-out cursor-pointer
-        ${theme.background} ${theme.border}
-        ${opacityClass}
+        relative z-20 w-80 rounded-[32px] border-2 cursor-pointer overflow-hidden
+        transition-all duration-500 bg-white dark:bg-slate-900
+        ${isSelected ? 'border-blue-600 shadow-2xl ring-4 ring-blue-50 dark:ring-blue-900/30' : isRelated ? 'border-pink-400 shadow-xl' : 'border-slate-200 dark:border-slate-800'}
         ${className}
       `}
       style={style}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
     >
-      {/* Header Row */}
-      <div className="flex items-center gap-3 p-3 border-b border-inherit">
-        <div className={`p-1.5 rounded-md bg-white/50 dark:bg-black/20 ${theme.icon}`}>
-          <Icon size={18} strokeWidth={2} />
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex justify-between items-center">
+        <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[120px]">
+          {node.id}
+        </span>
+        <div className="flex gap-1">
+          {[...Array(5)].map((_, i) => (
+            <div 
+              key={i} 
+              className={`w-1 h-3 rounded-full ${i < importanceValue ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`} 
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${theme.background} ${theme.border} ${theme.text}`}>
+            {node.type}
+          </span>
         </div>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className={`text-xs font-medium uppercase tracking-wider opacity-75 ${theme.text}`}>
-              {node.type}
-            </span>
-            {node.importance === 'high' && (
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-              </span>
-            )}
-          </div>
-          <h3 className={`font-semibold leading-tight ${theme.text}`}>
-            {node.label}
-          </h3>
+        <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 leading-tight mb-6">
+          {node.label}
+        </h3>
+        
+        <div className="relative h-px bg-slate-100 dark:bg-slate-800 mb-6 overflow-visible">
+          <div className="absolute left-0 -top-1 w-2 h-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
+          <div className="absolute right-0 -top-1 w-2 h-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
         </div>
-      </div>
 
-      {/* Body: Summary / Metrics */}
-      {node.description && (
-        <div className="p-3 text-sm text-[var(--color-text-secondary)]">
-          <p className="leading-relaxed">
-            {node.description}
-          </p>
-        </div>
-      )}
-
-      {/* Progressive Disclosure Section (Expands on Hover) */}
-      <div 
-        className={`
-          overflow-hidden transition-all duration-300 ease-in-out
-          ${isHovering ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}
-        `}
-      >
-        <div className="px-3 pb-3 pt-0 text-xs border-t border-inherit bg-black/5 dark:bg-white/5">
-          {node.metadata && Object.keys(node.metadata).length > 0 && (
-            <div className="mt-2 space-y-1">
-               {Object.entries(node.metadata).slice(0, 3).map(([key, value]) => (
-                 <div key={key} className="flex justify-between">
-                   <span className="opacity-60 capitalize">{key}:</span>
-                   <span className="font-medium truncate max-w-[120px]">{String(value)}</span>
-                 </div>
-               ))}
-            </div>
+        <AnimatePresence>
+          {(isHovered || isSelected) && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-6 pb-2">
+                {(node.context || node.description) && (
+                  <div>
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">
+                      Context
+                    </label>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">
+                      {node.context || node.description}
+                    </p>
+                  </div>
+                )}
+                
+                {node.mentions && node.mentions.length > 0 && (
+                  <div>
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">
+                      Mentions
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {node.mentions.slice(0, 4).map((m, i) => (
+                        <span key={i} className="text-[10px] font-bold font-mono bg-slate-50 dark:bg-slate-800 text-slate-400 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                          "{m}"
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
-          
-          <div className="mt-2 flex items-center justify-end gap-1 text-[var(--color-primary)] opacity-80">
-            <Info size={12} />
-            <span>Click for details</span>
+        </AnimatePresence>
+        
+        {!isHovered && !isSelected && (
+          <div className="flex justify-center gap-1 opacity-20">
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />
+            <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />
           </div>
-        </div>
+        )}
       </div>
-    </div>
+    </motion.div>
   );
 };
+

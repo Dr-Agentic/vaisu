@@ -3,7 +3,9 @@ export interface GraphNode {
   type: string;
   label: string;
   description?: string;
-  importance?: 'low' | 'medium' | 'high';
+  importance?: 'low' | 'medium' | 'high' | number;
+  context?: string;
+  mentions?: string[];
   metadata?: Record<string, any>;
   // For layout positioning
   x?: number;
@@ -18,6 +20,8 @@ export interface GraphEdge {
   target: string;
   label?: string;
   type?: string;
+  strength?: number;
+  rationale?: string;
 }
 
 export interface GraphData {

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaisu - Command Center</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { background: #000; color: #fff; font-family: 'Space Grotesk', sans-serif; overflow: hidden; }
+        .grid-container { height: 100vh; display: grid; grid-template-columns: 1fr 450px; }
+        .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; padding: 40px; overflow-y: auto; }
+        .module { background: #0a0a0a; border: 1px solid #1a1a1a; transition: all 0.2s; position: relative; }
+        .module:hover { border-color: #3b82f6; background: #0f172a; }
+        .module-active { border-color: #3b82f6; border-left: 4px solid #3b82f6; background: #0f172a; }
+        .inspector { background: #050505; border-left: 1px solid #1a1a1a; padding: 40px; overflow-y: auto; }
+        .connection-tag { background: rgba(59, 130, 246, 0.1); color: #3b82f6; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState } = React;
+        const DATA = [
+            { id: "e1", text: "Cloud Strategy", type: "ROOT", context: "Master architecture for multi-cloud deployments." },
+            { id: "e2", text: "AWS", type: "INFRA", context: "Elastic computing resources." },
+            { id: "e4", text: "Webflow", type: "PROD", context: "Content delivery and design." },
+            { id: "e9", text: "Framer", type: "PROD", context: "Rapid prototyping interface." },
+            { id: "e23", text: "Pricing", type: "METRIC", context: "Cost analysis per compute unit." }
+        ];
+        const LINKS = { "e1": ["e2", "e4", "e9"], "e4": ["e23"] };
+
+        const App = () => {
+            const [active, setActive] = useState(DATA[0]);
+            const rels = LINKS[active.id] || [];
+
+            return (
+                <div className="grid-container">
+                    <div className="module-grid">
+                        <div className="col-span-full mb-8">
+                            <h1 className="text-2xl font-bold tracking-tight text-zinc-500">SYSTEM_OPERATIONS / <span className="text-white">OVERVIEW</span></h1>
+                        </div>
+                        {DATA.map(m => (
+                            <div 
+                                key={m.id}
+                                onClick={() => setActive(m)}
+                                className={`module p-6 rounded-lg cursor-pointer ${active.id === m.id ? 'module-active' : ''}`}
+                            >
+                                <div className="text-[10px] font-bold text-zinc-600 mb-2">{m.type}</div>
+                                <div className="font-bold">{m.text}</div>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="inspector">
+                        <div className="mb-12">
+                            <span className="text-blue-500 font-bold text-xs uppercase tracking-widest">Selected_Entity</span>
+                            <h2 className="text-5xl font-bold mt-4 tracking-tighter">{active.text}</h2>
+                        </div>
+                        <div className="space-y-10">
+                            <div>
+                                <h3 className="text-zinc-600 text-xs font-bold uppercase mb-4 tracking-widest">Telemetry_Context</h3>
+                                <p className="text-xl text-zinc-300 leading-relaxed font-light">{active.context}</p>
+                            </div>
+                            <div>
+                                <h3 className="text-zinc-600 text-xs font-bold uppercase mb-4 tracking-widest">Active_Pathways</h3>
+                                <div className="flex flex-wrap gap-3">
+                                    {rels.map(r => <span key={r} className="connection-tag">LINKED_TO_{r}</span>)}
+                                    {rels.length === 0 && <span className="text-zinc-700 italic">No downstream nodes.</span>}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -76,7 +76,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) 
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
   console.log('🏗️ StructuredViewRenderer received data:', {
-    type: data?.type,
+    type: (data as any)?.type,
     sectionsCount: data?.sections?.length,
     hierarchyType: typeof data?.hierarchy,
     hierarchyLength: Array.isArray(data?.hierarchy) ? data.hierarchy.length : 'not-array',

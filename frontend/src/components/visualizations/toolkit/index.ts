@@ -7,3 +7,6 @@ export * from './GraphEdgeLayer';
 export * from './DynamicBezierPath';
 export * from './GraphFilterToolbar';
 export * from './SwimlaneStack';
+export * from './GraphBackground';
+export * from './GraphConnectionModal';
+
