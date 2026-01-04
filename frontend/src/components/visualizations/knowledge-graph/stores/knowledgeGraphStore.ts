@@ -199,7 +199,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
       calculateGridLayout: () => {
         const { nodes, edges, columnWidth, rowHeight, spacing } = get();
 
-        // Step 1: Calculate In-Degree for each node
+        // Step 1: Calculate In-Degree
         const inDegree = new Map<string, number>();
         nodes.forEach(node => inDegree.set(node.id, 0));
         edges.forEach(edge => {
@@ -207,32 +207,33 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
           inDegree.set(edge.target, current + 1);
         });
 
-        // Step 2: Group nodes by column based on connectivity
+        // Step 2: Tiered Column Assignment
         const columns: KnowledgeNode[][] = [];
-
-        // Column 0: Nodes with in-degree = 0 (Roots/Sources)
+        let processedNodes = new Set<string>();
+        
+        // Column 0: Roots
         const roots = nodes.filter(node => (inDegree.get(node.id) || 0) === 0);
         if (roots.length > 0) {
           columns.push(roots);
+          roots.forEach(n => processedNodes.add(n.id));
         }
 
-        // Column 1+: Nodes connected to previous columns
-        let processedNodes = new Set(roots.map(n => n.id));
         let remainingNodes = nodes.filter(node => !processedNodes.has(node.id));
 
         while (remainingNodes.length > 0) {
           const currentColumn: KnowledgeNode[] = [];
           const nextRemaining: KnowledgeNode[] = [];
+          const newlyProcessed = new Set<string>();
 
           for (const node of remainingNodes) {
-            // Check if node is connected to any processed node
-            const hasConnectionToProcessed = edges.some(edge =>
+            // Node belongs to this tier if any of its parents are already processed
+            const hasParentInProcessed = edges.some(edge =>
               edge.target === node.id && processedNodes.has(edge.source)
             );
 
-            if (hasConnectionToProcessed) {
+            if (hasParentInProcessed) {
               currentColumn.push(node);
-              processedNodes.add(node.id);
+              newlyProcessed.add(node.id);
             } else {
               nextRemaining.push(node);
             }
@@ -240,34 +241,30 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
 
           if (currentColumn.length > 0) {
             columns.push(currentColumn);
+            newlyProcessed.forEach(id => processedNodes.add(id));
           } else {
-            // No more connections found, put remaining nodes in last column
-            columns.push(remainingNodes);
+            // Circular dependencies or isolated clusters - dump remaining into final column
+            if (remainingNodes.length > 0) {
+              columns.push(remainingNodes);
+            }
             break;
           }
 
           remainingNodes = nextRemaining;
         }
 
-        // Step 3: Calculate positions
+        // Step 3: Calculate absolute positions
         const updatedNodes = [...nodes];
+        const startY = 300; // Deep clearance for headers
+        const startX = 100;
 
         columns.forEach((columnNodes, columnIndex) => {
-          // Sort nodes within column by type priority
           const sortedNodes = columnNodes.sort((a, b) => {
-            const typeOrder = {
-              'SOURCE': 0,
-              'CONCEPT': 1,
-              'REGULATION': 2,
-              'IMPACT': 3,
-              'RISK': 4,
-              'OPPORTUNITY': 5,
-            };
-            return (typeOrder[a.type] || 999) - (typeOrder[b.type] || 999);
+            const typeOrder = { 'SOURCE': 0, 'CONCEPT': 1, 'REGULATION': 2, 'IMPACT': 3, 'RISK': 4, 'OPPORTUNITY': 5 };
+            return (typeOrder[a.type as keyof typeof typeOrder] || 999) - (typeOrder[b.type as keyof typeof typeOrder] || 999);
           });
 
-          const columnX = columnIndex * (columnWidth + spacing) + 100; // Add left padding
-          const startY = 200; // Top padding for headers
+          const columnX = startX + columnIndex * (columnWidth + spacing);
 
           sortedNodes.forEach((node, rowIndex) => {
             const nodeIndex = updatedNodes.findIndex(n => n.id === node.id);
@@ -283,9 +280,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
           });
         });
 
-        set({
-          nodes: updatedNodes,
-        }, false, 'knowledgeGraph/calculateGridLayout');
+        set({ nodes: updatedNodes }, false, 'knowledgeGraph/calculateGridLayout');
       },
 
       calculateForceLayout: () => {
