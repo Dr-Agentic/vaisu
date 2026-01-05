@@ -81,21 +81,19 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
     return (
       <div
         ref={ref}
-        style={{
-          backgroundColor: 'var(--color-background-primary)',
-          color: 'var(--color-text-primary)',
-        }}
         className={cn(
           'flex-1',
           'flex',
-          'flex-col'
+          'flex-col',
+          'bg-[var(--color-background-primary)]',
+          'text-[var(--color-text-primary)]'
         )}
       >
         {/* Header */}
         <header
           className={cn(
-            'px-8',
-            'py-6',
+            'px-[var(--spacing-lg)]',
+            'py-[var(--spacing-lg)]',
             'border-b',
             'flex',
             'items-center',
@@ -106,12 +104,12 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
           }}
         >
           <h2
-            className="text-2xl font-semibold"
-            style={{
-              color: 'var(--color-text-primary)',
-              fontSize: 'var(--font-size-2xl)',
-              fontWeight: 'var(--font-weight-semibold)',
-            }}
+            className={cn(
+              'text-[var(--font-size-2xl)]',
+              'font-[var(--font-weight-semibold)]',
+              'text-[var(--color-text-primary)]',
+              'leading-[var(--line-height-tight)]'
+            )}
           >
             Upload Document
           </h2>
@@ -120,19 +118,19 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             className={cn(
               'flex',
               'items-center',
-              'gap-2',
-              'px-4',
-              'py-2',
-              'rounded-md',
+              'gap-[var(--spacing-sm)]',
+              'px-[var(--spacing-base)]',
+              'py-[var(--spacing-sm)]',
+              'rounded-[var(--radius-md)]',
               'transition-all',
-              'duration-[var(--duration-fast)]',
+              'duration-[var(--motion-duration-base)]',
+              'ease-[var(--motion-easing-ease-out)]',
               'outline-none',
-              'hover:bg-white/5'
+              'hover:bg-[var(--color-surface-base)]',
+              'border',
+              'border-[var(--color-border-subtle)]',
+              'text-[var(--color-text-secondary)]'
             )}
-            style={{
-              color: 'var(--color-text-secondary)',
-              border: '1px solid var(--color-border-subtle)',
-            }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'var(--color-border-strong)';
               e.currentTarget.style.color = 'var(--color-text-primary)';
@@ -150,10 +148,10 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
         {/* Tab Navigation */}
         <nav
           className={cn(
-            'px-8',
-            'pt-6',
+            'px-[var(--spacing-lg)]',
+            'pt-[var(--spacing-lg)]',
             'flex',
-            'gap-3',
+            'gap-[var(--spacing-md)]',
             'items-center',
             'bg-gradient-to-b',
             'from-transparent',
@@ -161,9 +159,9 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             'backdrop-blur-sm',
             'relative',
             'overflow-hidden',
-            'rounded-xl',
+            'rounded-[var(--radius-xl)]',
             'border',
-            'border-[rgba(99,102,241,0.1)]'
+            'border-[var(--color-border-subtle)]'
           )}
           role="tablist"
           aria-label="Input options"
@@ -194,23 +192,24 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 className={cn(
                   'flex',
                   'items-center',
-                  'gap-3',
-                  'px-6',
-                  'py-3.5',
-                  'rounded-xl',
+                  'gap-[var(--spacing-sm)]',
+                  'px-[var(--spacing-lg)]',
+                  'py-[var(--spacing-base)]',
+                  'rounded-[var(--radius-xl)]',
                   'transition-all',
-                  'duration-[var(--duration-fast)]',
+                  'duration-[var(--motion-duration-base)]',
+                  'ease-[var(--motion-easing-ease-out)]',
                   'outline-none',
                   'relative',
                   'group',
                   'hover:scale-105',
-                  'hover:shadow-xl',
+                  'hover:shadow-[var(--elevation-lg)]',
                   isActive ? 'gradient-border-animated' : '',
-                  isActive ? 'bg-[rgba(99,102,241,0.25)]' : 'bg-transparent',
-                  isActive ? 'border-[rgba(99,102,241,0.8)]' : 'border-[rgba(255,255,255,0.08)]',
-                  isActive ? 'text-[var(--aurora-1)]' : 'text-[var(--color-text-secondary)]',
+                  isActive ? 'bg-[var(--color-surface-base)]' : 'bg-transparent',
+                  isActive ? 'border-[var(--color-border-focus)]' : 'border-[var(--color-border-subtle)]',
+                  isActive ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]',
                   'backdrop-blur-sm',
-                  'hover:bg-[rgba(255,255,255,0.06)]'
+                  'hover:bg-[var(--color-surface-base)]'
                 )}
               >
                 {/* Icon container with enhanced styling */}
@@ -219,16 +218,18 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                     'flex',
                     'items-center',
                     'justify-center',
-                    'w-10',
-                    'h-10',
-                    'rounded-lg',
+                    'w-[var(--spacing-3xl)]',
+                    'h-[var(--spacing-3xl)]',
+                    'rounded-[var(--radius-lg)]',
                     'transition-all',
-                    'duration-[var(--duration-fast)]',
+                    'duration-[var(--motion-duration-base)]',
+                    'ease-[var(--motion-easing-ease-out)]',
                     'group-hover:scale-110',
-                    'bg-[rgba(99,102,241,0.35)]',
-                    'border-[rgba(99,102,241,0.6)]',
-                    'hover:bg-[rgba(99,102,241,0.45)]',
-                    'hover:border-[rgba(99,102,241,0.8)]'
+                    'bg-[var(--color-surface-base)]',
+                    'border',
+                    'border-[var(--color-border-subtle)]',
+                    'hover:bg-[var(--color-surface-elevated)]',
+                    'hover:border-[var(--color-border-strong)]'
                   )}
                 >
                   {tab.icon}
@@ -238,23 +239,26 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 <div className="flex flex-col items-start">
                   <span
                     className={cn(
-                      'font-medium',
+                      'font-[var(--font-weight-medium)]',
                       'transition-colors',
-                      'duration-[var(--duration-fast)]',
-                      'text-[var(--aurora-1)]'
+                      'duration-[var(--motion-duration-base)]',
+                      'ease-[var(--motion-easing-ease-out)]',
+                      'text-[var(--color-text-primary)]',
+                      'leading-[var(--line-height-tight)]'
                     )}
                   >
                     {tab.label}
                   </span>
                   <span
                     className={cn(
-                      'text-xs',
+                      'text-[var(--font-size-sm)]',
                       'opacity-0',
                       'group-hover:opacity-100',
                       'transition-all',
-                      'duration-[var(--duration-fast)]',
-                      'mt-0.5',
-                      'text-[rgba(99,102,241,0.8)]'
+                      'duration-[var(--motion-duration-base)]',
+                      'ease-[var(--motion-easing-ease-out)]',
+                      'mt-[var(--spacing-xs)]',
+                      'text-[var(--color-text-tertiary)]'
                     )}
                   >
                     {tab.id === 'upload' && 'Drag & drop supported'}
@@ -271,14 +275,14 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                       className={cn(
                         'absolute',
                         'inset-0',
-                        'rounded-xl',
+                        'rounded-[var(--radius-xl)]',
                         'opacity-60',
                         'blur-xl',
                         'pointer-events-none',
                         'bg-gradient-to-r',
-                        'from-[#6366f1]',
-                        'via-[#a855f7]',
-                        'to-[#ec4899]'
+                        'from-[var(--aurora-1)]',
+                        'via-[var(--aurora-2)]',
+                        'to-[var(--aurora-3)]'
                       )}
                     />
                     {/* Inner highlight */}
@@ -288,13 +292,13 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                         'top-0',
                         'left-0',
                         'right-0',
-                        'h-1',
-                        'rounded-t-xl',
+                        'h-[var(--spacing-xs)]',
+                        'rounded-t-[var(--radius-xl)]',
                         'opacity-80',
                         'bg-gradient-to-r',
-                        'from-[#6366f1]',
-                        'via-[#a855f7]',
-                        'to-[#6366f1]'
+                        'from-[var(--aurora-1)]',
+                        'via-[var(--aurora-2)]',
+                        'to-[var(--aurora-1)]'
                       )}
                     />
                   </>
@@ -354,7 +358,8 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
               aria-labelledby="tab-text"
               className={cn(
                 'transition-all',
-                'duration-[var(--duration-normal)]',
+                'duration-[var(--motion-duration-normal)]',
+                'ease-[var(--motion-easing-ease-out)]',
                 'h-full',
                 'flex',
                 'flex-col'
@@ -367,15 +372,15 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
               <div
                 className={cn(
                   'h-full',
-                  'p-4',
-                  'rounded-lg',
+                  'p-[var(--spacing-lg)]',
+                  'rounded-[var(--radius-lg)]',
                   'transition-all',
-                  'duration-[var(--duration-fast)]'
+                  'duration-[var(--motion-duration-base)]',
+                  'ease-[var(--motion-easing-ease-out)]',
+                  'bg-[var(--color-surface-base)]',
+                  'border',
+                  'border-[var(--color-border-subtle)]'
                 )}
-                style={{
-                  backgroundColor: 'var(--color-surface-base)',
-                  border: '1px solid var(--color-border-subtle)',
-                }}
               >
                 <TextInputArea />
               </div>
@@ -406,8 +411,8 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
         {/* Bottom hint */}
         <div
           className={cn(
-            'px-8',
-            'pb-6',
+            'px-[var(--spacing-lg)]',
+            'pb-[var(--spacing-lg)]',
             'text-center'
           )}
           style={{
