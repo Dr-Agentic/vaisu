@@ -266,7 +266,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             className={cn(
               'flex-1',
               'relative',
-              'overflow-auto',
+              'overflow-hidden',
               'mesh-glow',
               canvasFullscreen && [
                 'fixed',
@@ -279,7 +279,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             }}
           >
             {/* Visualization Renderer */}
-            <div className="w-full h-full">
+            <div className="w-full h-full flex flex-col">
               <VisualizationRenderer />
             </div>
 
