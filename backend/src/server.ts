@@ -81,6 +81,16 @@ if (isProduction) {
   }
 }
 
+// Global 404 handler for unmatched routes
+app.use('*', (req: any, res: any) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.originalUrl,
+    environment: process.env.NODE_ENV || 'development',
+    message: 'The requested resource was not found on this server.'
+  });
+});
+
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
