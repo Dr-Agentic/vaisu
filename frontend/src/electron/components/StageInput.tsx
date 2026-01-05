@@ -153,11 +153,34 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             'px-8',
             'pt-6',
             'flex',
-            'gap-2'
+            'gap-3',
+            'items-center',
+            'bg-gradient-to-b',
+            'from-transparent',
+            'to-[rgba(99,102,241,0.05)]',
+            'backdrop-blur-sm',
+            'relative',
+            'overflow-hidden',
+            'rounded-xl',
+            'border',
+            'border-[rgba(99,102,241,0.1)]'
           )}
           role="tablist"
           aria-label="Input options"
         >
+          {/* Background gradient overlay */}
+          <div
+            className={cn(
+              'absolute',
+              'inset-0',
+              'bg-gradient-to-r',
+              'from-transparent',
+              'via-[rgba(99,102,241,0.1)]',
+              'to-transparent',
+              'pointer-events-none'
+            )}
+          />
+
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
 
@@ -171,66 +194,159 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 className={cn(
                   'flex',
                   'items-center',
-                  'gap-2',
-                  'px-4',
-                  'py-2.5',
-                  'rounded-md',
+                  'gap-3',
+                  'px-6',
+                  'py-3.5',
+                  'rounded-xl',
                   'transition-all',
                   'duration-[var(--duration-fast)]',
                   'outline-none',
-                  'relative'
+                  'relative',
+                  'group',
+                  'hover:scale-105',
+                  'hover:shadow-xl'
                 )}
                 style={{
                   backgroundColor: isActive
-                    ? 'rgba(99, 102, 241, 0.15)'
-                    : 'transparent',
+                    ? 'rgba(99, 102, 241, 0.25)'
+                    : 'rgba(255, 255, 255, 0.02)',
                   border: '1px solid',
                   borderColor: isActive
-                    ? 'var(--aurora-1)'
-                    : 'var(--color-border-subtle)',
+                    ? 'rgba(99, 102, 241, 0.8)'
+                    : 'rgba(255, 255, 255, 0.08)',
                   color: isActive
                     ? 'var(--color-text-primary)'
                     : 'var(--color-text-secondary)',
                   fontSize: 'var(--font-size-sm)',
                   fontWeight: isActive
-                    ? 'var(--font-weight-medium)'
-                    : 'var(--font-weight-normal)',
+                    ? 'var(--font-weight-semibold)'
+                    : 'var(--font-weight-medium)',
                   boxShadow: isActive
-                    ? '0 0 15px rgba(99, 102, 241, 0.2)'
-                    : 'none',
+                    ? '0 0 25px rgba(99, 102, 241, 0.35), inset 0 0 20px rgba(99, 102, 241, 0.1)'
+                    : '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = 'var(--color-border-strong)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                     e.currentTarget.style.color = 'var(--color-text-primary)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
+                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
                     e.currentTarget.style.color = 'var(--color-text-secondary)';
-                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
                   }
                 }}
               >
-                {tab.icon}
-                <span>{tab.label}</span>
-                {/* Active indicator glow */}
-                {isActive && (
-                  <div
+                {/* Icon container with enhanced styling */}
+                <div
+                  className={cn(
+                    'flex',
+                    'items-center',
+                    'justify-center',
+                    'w-10',
+                    'h-10',
+                    'rounded-lg',
+                    'transition-all',
+                    'duration-[var(--duration-fast)]',
+                    'group-hover:scale-110'
+                  )}
+                  style={{
+                    backgroundColor: isActive
+                      ? 'rgba(99, 102, 241, 0.35)'
+                      : 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid',
+                    borderColor: isActive
+                      ? 'rgba(99, 102, 241, 0.6)'
+                      : 'rgba(255, 255, 255, 0.1)',
+                    boxShadow: isActive
+                      ? '0 0 15px rgba(99, 102, 241, 0.4)'
+                      : '0 2px 10px rgba(0, 0, 0, 0.2)',
+                  }}
+                >
+                  {tab.icon}
+                </div>
+
+                {/* Label with enhanced typography */}
+                <div className="flex flex-col items-start">
+                  <span
                     className={cn(
-                      'absolute',
-                      'inset-0',
-                      '-z-10',
-                      'rounded-md',
-                      'opacity-50',
-                      'blur-sm'
+                      'font-medium',
+                      'transition-colors',
+                      'duration-[var(--duration-fast)]'
                     )}
                     style={{
-                      background: 'var(--gradient-aurora)',
+                      color: isActive
+                        ? 'var(--aurora-1)'
+                        : 'var(--color-text-primary)',
+                      textShadow: isActive
+                        ? '0 0 10px rgba(99, 102, 241, 0.5)'
+                        : 'none',
                     }}
-                  />
+                  >
+                    {tab.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-xs',
+                      'opacity-0',
+                      'group-hover:opacity-100',
+                      'transition-all',
+                      'duration-[var(--duration-fast)]',
+                      'mt-0.5'
+                    )}
+                    style={{
+                      color: isActive
+                        ? 'rgba(99, 102, 241, 0.8)'
+                        : 'var(--color-text-tertiary)',
+                    }}
+                  >
+                    {tab.id === 'upload' && 'Drag & drop supported'}
+                    {tab.id === 'text' && 'Real-time preview'}
+                    {tab.id === 'browse' && 'Your documents'}
+                  </span>
+                </div>
+
+                {/* Active state enhancements */}
+                {isActive && (
+                  <>
+                    {/* Outer glow effect */}
+                    <div
+                      className={cn(
+                        'absolute',
+                        'inset-0',
+                        'rounded-xl',
+                        'opacity-60',
+                        'blur-xl',
+                        'pointer-events-none'
+                      )}
+                      style={{
+                        background: 'var(--gradient-aurora)',
+                        boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)',
+                      }}
+                    />
+                    {/* Inner highlight */}
+                    <div
+                      className={cn(
+                        'absolute',
+                        'top-0',
+                        'left-0',
+                        'right-0',
+                        'h-1',
+                        'rounded-t-xl',
+                        'opacity-80'
+                      )}
+                      style={{
+                        background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.8), rgba(167, 139, 250, 0.6), rgba(99, 102, 241, 0.8))',
+                      }}
+                    />
+                  </>
                 )}
               </button>
             );

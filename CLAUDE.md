@@ -61,6 +61,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Brief description of design implementation
   - Difficulties encountered and solutions
 
+- **Context File Naming Convention**: All context documentation files must follow the format `YYYY-MM-DD-lower-caps.md` (e.g., `2026-01-04-new-visualization-guide.md`)
+- **File Header Requirements**: Every context file must include:
+  - Date at the top
+  - Hashtag keywords associated with the content
+  - Detailed context information
 - **All context documentation** goes to the .context folder of either the project, or the subfolder that is pertinent to that documentation. For example, if UI, it should go to `./frontend/.context/`
 
 #### Project Structure

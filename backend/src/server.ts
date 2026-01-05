@@ -5,6 +5,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import documentsRouter from './routes/documents.js';
 import { validateAWSConfig } from './config/aws.js';
@@ -40,22 +41,16 @@ app.all('/api/health', (req: any, res: any) => {
 // Serve frontend static files in production
 if (isProduction) {
   // Try multiple possible locations for frontend/dist
+  // In Render, CWD is usually the 'backend' folder, so '../frontend/dist' is the target.
   const possiblePaths = [
-    path.join(__dirname, '../../../../frontend/dist'), // Relative to dist/src/server.js
-    path.join(process.cwd(), '../frontend/dist'),      // Relative to process working directory (backend)
-    path.join(process.cwd(), 'frontend/dist'),         // If running from root
+    path.resolve(process.cwd(), '../frontend/dist'),
+    path.resolve(__dirname, '../../../../frontend/dist'),
+    path.resolve(process.cwd(), 'frontend/dist')
   ];
 
-  let frontendDistPath = '';
-  for (const p of possiblePaths) {
-    if (import.meta.url.startsWith('file:')) {
-      const fs = await import('fs');
-      if (fs.existsSync(p)) {
-        frontendDistPath = p;
-        break;
-      }
-    }
-  }
+  console.log('🔍 Searching for frontend build in:', possiblePaths);
+
+  const frontendDistPath = possiblePaths.find(p => fs.existsSync(p));
 
   if (frontendDistPath) {
     console.log(`📡 Serving frontend from: ${frontendDistPath}`);
@@ -70,8 +65,19 @@ if (isProduction) {
       res.sendFile(path.join(frontendDistPath, 'index.html'));
     });
   } else {
-    console.warn('⚠️  Frontend static files not found in any expected location:');
-    possiblePaths.forEach(p => console.warn(`   - ${p}`));
+    console.warn('⚠️  Frontend static files not found in any expected location.');
+    // Fallback route to indicate server is running but frontend is missing
+    app.get('*', (req: any, res: any) => {
+      if (req.path.startsWith('/api/')) {
+        return res.status(404).json({ error: 'API route not found' });
+      }
+      res.status(500).send(`
+        <h1>Backend Online</h1>
+        <p>The backend is running, but the frontend build could not be located.</p>
+        <p>Checked paths:</p>
+        <ul>${possiblePaths.map(p => `<li>${p}</li>`).join('')}</ul>
+      `);
+    });
   }
 }
 

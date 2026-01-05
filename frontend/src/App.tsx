@@ -17,7 +17,6 @@ import {
   StageAnalysis,
   StageVisualization,
 } from './electron/components';
-import { DevSamplerAccess } from './electron/dev/DevSamplerAccess';
 import { ToastContainer } from './electron/components/feedback/ToastContainer';
 import { ThemeToggle } from './design-system/components/ThemeToggle';
 
@@ -95,8 +94,6 @@ export default function App() {
         <StageVisualization onBack={handleBackFromVisualization} />
       </Stage>
 
-      {/* Development Access Tools */}
-      <DevSamplerAccess />
-    </StageContainer>
+          </StageContainer>
   );
 }
