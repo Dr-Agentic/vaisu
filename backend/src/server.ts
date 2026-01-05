@@ -40,17 +40,27 @@ app.all('/api/health', (req: any, res: any) => {
 
 // Serve frontend static files in production
 if (isProduction) {
+  console.log('🔍 Debug: Starting Frontend Path Resolution');
+  console.log(`   - CWD: ${process.cwd()}`);
+  console.log(`   - __dirname: ${__dirname}`);
+
   // Try multiple possible locations for frontend/dist
   // In Render, CWD is usually the 'backend' folder, so '../frontend/dist' is the target.
   const possiblePaths = [
     path.resolve(process.cwd(), '../frontend/dist'),
     path.resolve(__dirname, '../../../../frontend/dist'),
-    path.resolve(process.cwd(), 'frontend/dist')
+    path.resolve(process.cwd(), 'frontend/dist'),
+    '/opt/render/project/src/frontend/dist', // Absolute path on Render
+    '/opt/render/project/frontend/dist'      // Alternative absolute path
   ];
 
   console.log('🔍 Searching for frontend build in:', possiblePaths);
 
-  const frontendDistPath = possiblePaths.find(p => fs.existsSync(p));
+  const frontendDistPath = possiblePaths.find(p => {
+    const exists = fs.existsSync(p);
+    console.log(`   - Checking ${p}: ${exists ? 'FOUND ✅' : 'MISSING ❌'}`);
+    return exists;
+  });
 
   if (frontendDistPath) {
     console.log(`📡 Serving frontend from: ${frontendDistPath}`);
