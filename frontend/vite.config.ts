@@ -25,8 +25,7 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html'),
-        'theme-sampler': path.resolve(__dirname, 'theme-sampler.html')
+        main: path.resolve(__dirname, 'index.html')
       }
     }
   }

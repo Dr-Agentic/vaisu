@@ -204,45 +204,14 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                   'relative',
                   'group',
                   'hover:scale-105',
-                  'hover:shadow-xl'
+                  'hover:shadow-xl',
+                  isActive ? 'gradient-border-animated' : '',
+                  isActive ? 'bg-[rgba(99,102,241,0.25)]' : 'bg-transparent',
+                  isActive ? 'border-[rgba(99,102,241,0.8)]' : 'border-[rgba(255,255,255,0.08)]',
+                  isActive ? 'text-[var(--aurora-1)]' : 'text-[var(--color-text-secondary)]',
+                  'backdrop-blur-sm',
+                  'hover:bg-[rgba(255,255,255,0.06)]'
                 )}
-                style={{
-                  backgroundColor: isActive
-                    ? 'rgba(99, 102, 241, 0.25)'
-                    : 'rgba(255, 255, 255, 0.02)',
-                  border: '1px solid',
-                  borderColor: isActive
-                    ? 'rgba(99, 102, 241, 0.8)'
-                    : 'rgba(255, 255, 255, 0.08)',
-                  color: isActive
-                    ? 'var(--color-text-primary)'
-                    : 'var(--color-text-secondary)',
-                  fontSize: 'var(--font-size-sm)',
-                  fontWeight: isActive
-                    ? 'var(--font-weight-semibold)'
-                    : 'var(--font-weight-medium)',
-                  boxShadow: isActive
-                    ? '0 0 25px rgba(99, 102, 241, 0.35), inset 0 0 20px rgba(99, 102, 241, 0.1)'
-                    : '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
-                  backdropFilter: 'blur(10px)',
-                  WebkitBackdropFilter: 'blur(10px)',
-                }}
-                onMouseEnter={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                    e.currentTarget.style.color = 'var(--color-text-primary)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.06)';
-                    e.currentTarget.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isActive) {
-                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-                    e.currentTarget.style.color = 'var(--color-text-secondary)';
-                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.02)';
-                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)';
-                  }
-                }}
               >
                 {/* Icon container with enhanced styling */}
                 <div
@@ -255,20 +224,12 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                     'rounded-lg',
                     'transition-all',
                     'duration-[var(--duration-fast)]',
-                    'group-hover:scale-110'
+                    'group-hover:scale-110',
+                    'bg-[rgba(99,102,241,0.35)]',
+                    'border-[rgba(99,102,241,0.6)]',
+                    'hover:bg-[rgba(99,102,241,0.45)]',
+                    'hover:border-[rgba(99,102,241,0.8)]'
                   )}
-                  style={{
-                    backgroundColor: isActive
-                      ? 'rgba(99, 102, 241, 0.35)'
-                      : 'rgba(255, 255, 255, 0.06)',
-                    border: '1px solid',
-                    borderColor: isActive
-                      ? 'rgba(99, 102, 241, 0.6)'
-                      : 'rgba(255, 255, 255, 0.1)',
-                    boxShadow: isActive
-                      ? '0 0 15px rgba(99, 102, 241, 0.4)'
-                      : '0 2px 10px rgba(0, 0, 0, 0.2)',
-                  }}
                 >
                   {tab.icon}
                 </div>
@@ -279,16 +240,9 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                     className={cn(
                       'font-medium',
                       'transition-colors',
-                      'duration-[var(--duration-fast)]'
+                      'duration-[var(--duration-fast)]',
+                      'text-[var(--aurora-1)]'
                     )}
-                    style={{
-                      color: isActive
-                        ? 'var(--aurora-1)'
-                        : 'var(--color-text-primary)',
-                      textShadow: isActive
-                        ? '0 0 10px rgba(99, 102, 241, 0.5)'
-                        : 'none',
-                    }}
                   >
                     {tab.label}
                   </span>
@@ -299,13 +253,9 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                       'group-hover:opacity-100',
                       'transition-all',
                       'duration-[var(--duration-fast)]',
-                      'mt-0.5'
+                      'mt-0.5',
+                      'text-[rgba(99,102,241,0.8)]'
                     )}
-                    style={{
-                      color: isActive
-                        ? 'rgba(99, 102, 241, 0.8)'
-                        : 'var(--color-text-tertiary)',
-                    }}
                   >
                     {tab.id === 'upload' && 'Drag & drop supported'}
                     {tab.id === 'text' && 'Real-time preview'}
@@ -324,12 +274,12 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                         'rounded-xl',
                         'opacity-60',
                         'blur-xl',
-                        'pointer-events-none'
+                        'pointer-events-none',
+                        'bg-gradient-to-r',
+                        'from-[#6366f1]',
+                        'via-[#a855f7]',
+                        'to-[#ec4899]'
                       )}
-                      style={{
-                        background: 'var(--gradient-aurora)',
-                        boxShadow: '0 0 40px rgba(99, 102, 241, 0.6)',
-                      }}
                     />
                     {/* Inner highlight */}
                     <div
@@ -340,11 +290,12 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                         'right-0',
                         'h-1',
                         'rounded-t-xl',
-                        'opacity-80'
+                        'opacity-80',
+                        'bg-gradient-to-r',
+                        'from-[#6366f1]',
+                        'via-[#a855f7]',
+                        'to-[#6366f1]'
                       )}
-                      style={{
-                        background: 'linear-gradient(90deg, rgba(99, 102, 241, 0.8), rgba(167, 139, 250, 0.6), rgba(99, 102, 241, 0.8))',
-                      }}
                     />
                   </>
                 )}
