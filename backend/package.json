@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "AWS_REGION=us-east-1 tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/src/server.js",
+    "start": "node dist/backend/src/server.js",
     "test": "vitest",
     "setup:db": "tsx scripts/setup-dynamodb.ts",
     "setup:s3": "aws s3 mb s3://vaisu-documents-dev --region us-east-1",

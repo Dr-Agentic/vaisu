@@ -586,7 +586,8 @@ export type TaskType =
   | 'qa'
   | 'mindMapGeneration'
   | 'argumentMapGeneration'
-  | 'uml-extraction';
+  | 'uml-extraction'
+  | 'knowledge-graph-generation';
 
 export interface LLMCallConfig {
   model: string;
