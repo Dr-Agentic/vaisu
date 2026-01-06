@@ -63,16 +63,15 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
         )}
       >
         {document && (
-          <div 
-            className="mb-4 font-mono opacity-50 text-xs"
-            style={{ color: 'var(--color-text-tertiary)' }}
+          <div
+            className="mb-[var(--spacing-lg)] font-mono opacity-50 text-[var(--font-size-xs)] text-[var(--color-text-tertiary)]"
           >
             ID: {document.id}
           </div>
         )}
         {/* Progress Ring */}
         <div
-          className={cn('progress-ring', 'mb-8')}
+          className={cn('progress-ring', 'mb-[var(--spacing-2xl)]')}
           style={{
             border: '3px solid var(--color-border-subtle)',
             borderTopColor: 'var(--aurora-1)',
@@ -82,37 +81,30 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
 
         {/* Progress Text */}
         <h2
-          className="mb-2 text-xl font-semibold"
-          style={{
-            color: 'var(--color-text-primary)',
-            fontSize: 'var(--font-size-xl)',
-            fontWeight: 'var(--font-weight-semibold)',
-          }}
+          className="mb-[var(--spacing-base)] text-[var(--font-size-xl)] font-[var(--font-weight-semibold)] text-[var(--color-text-primary)]"
         >
           {message}
         </h2>
 
         {/* Progress Sub-message */}
         <p
-          className="base"
-          style={{
-            color: 'var(--color-text-secondary)',
-          }}
+          className="text-[var(--spacing-base)] text-[var(--color-text-secondary)]"
         >
           {subMessage}
         </p>
 
         {/* Progress Bar (if available) */}
         {progressPercent > 0 && (
-          <div className="w-64 mt-6">
+          <div className="w-[var(--spacing-12xl)] mt-[var(--spacing-lg)]">
             <div
-              className="h-2 rounded-full overflow-hidden"
+              className="h-[var(--spacing-xs)] rounded-full overflow-hidden"
               style={{
-                backgroundColor: 'var(--color-border-subtle)',
+                backgroundColor: 'var(--color-surface-elevated)',
+                border: '1px solid var(--color-border-subtle)',
               }}
             >
               <div
-                className={cn('h-full', 'transition-all', 'duration-300', 'ease-out')}
+                className={cn('h-full', 'transition-all', 'duration-[var(--motion-duration-base)]', 'ease-[var(--motion-easing-ease-out)]')}
                 style={{
                   width: `${progressPercent}%`,
                   backgroundColor: 'var(--aurora-1)',
@@ -120,10 +112,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
               />
             </div>
             <p
-              className="mt-2 text-sm"
-              style={{
-                color: 'var(--color-text-secondary)',
-              }}
+              className="mt-[var(--spacing-sm)] text-[var(--font-size-sm)] text-[var(--color-text-secondary)]"
             >
               {progressMessage}
             </p>

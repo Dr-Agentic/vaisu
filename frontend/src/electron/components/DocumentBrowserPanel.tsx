@@ -96,7 +96,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
   }, []);
 
   return (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col gap-[var(--spacing-lg)]">
       {/* Search Bar */}
       <div
         className={cn(
@@ -113,15 +113,15 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
         <Search
           className={cn(
             'absolute',
-            'left-4',
+            'left-[var(--spacing-lg)]',
             'top-1/2',
             '-translate-y-1/2',
             'transition-colors',
             'duration-[var(--duration-fast)]'
           )}
           style={{
-            width: '20px',
-            height: '20px',
+            width: 'var(--spacing-12)',
+            height: 'var(--spacing-12)',
             color: 'var(--color-text-secondary)',
           }}
         />
@@ -132,9 +132,9 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
           placeholder="Search documents..."
           className={cn(
             'w-full',
-            'pl-12',
-            'pr-4',
-            'py-3',
+            'pl-[var(--spacing-lg)]',
+            'pr-[var(--spacing-lg)]',
+            'py-[var(--spacing-md)]',
             'bg-transparent',
             'outline-none',
             'transition-colors',
@@ -151,7 +151,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
             onClick={() => setSearchQueryState('')}
             className={cn(
               'absolute',
-              'right-3',
+              'right-[var(--spacing-lg)]',
               'top-1/2',
               '-translate-y-1/2',
               'p-1',
@@ -162,7 +162,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
             )}
             aria-label="Clear search"
           >
-            <span style={{ color: 'var(--color-text-tertiary)', fontSize: '18px' }}>
+            <span style={{ color: 'var(--color-text-tertiary)', fontSize: 'var(--font-size-sm)' }}>
               ×
             </span>
           </button>
@@ -174,11 +174,11 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
         className={cn(
           'flex-1',
           'overflow-y-auto',
-          'pr-2',
+          'pr-[var(--spacing-sm)]',
           'custom-scrollbar'
         )}
         style={{
-          maxHeight: 'calc(100vh - 250px)',
+          maxHeight: 'calc(100vh - var(--spacing-64))',
         }}
       >
         {isLoadingList ? (
@@ -195,8 +195,8 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
             <Loader2
               className="animate-spin"
               style={{
-                width: '32px',
-                height: '32px',
+                width: 'var(--spacing-12)',
+                height: 'var(--spacing-12)',
                 color: 'var(--aurora-1)',
               }}
             />
@@ -304,7 +304,7 @@ const DocumentList = memo<DocumentListProps>(({ documents, currentDocumentId, on
   return (
     <VirtualizedList
       width={1000}
-      height={Math.min(documents.length * rowHeight, 600)}
+      height={Math.min(documents.length * rowHeight, 500)}
       rowCount={documents.length}
       rowHeight={rowHeight}
       rowRenderer={rowRenderer}

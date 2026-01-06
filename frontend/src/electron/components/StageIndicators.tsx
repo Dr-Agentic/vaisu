@@ -58,7 +58,7 @@ export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
         ref={ref}
         className={cn(
           'fixed',
-          'bottom-8',
+          'bottom-[var(--spacing-lg)]',
           'left-1/2',
           '-translate-x-1/2',
           'flex',
@@ -66,7 +66,7 @@ export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
           className
         )}
         style={{
-          gap: 'var(--space-md)',
+          gap: 'var(--spacing-md)',
         }}
         {...props}
       >

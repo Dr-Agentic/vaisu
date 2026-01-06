@@ -61,7 +61,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
   return (
     <div
       className={cn(
-        "border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md",
+        "border-l-4 rounded-xl p-[var(--spacing-lg)] shadow-strong animate-slide-in-right flex items-start gap-[var(--spacing-md)] min-w-[320px] max-w-md",
         "transition-all duration-200"
       )}
       style={{
@@ -70,28 +70,28 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
         boxShadow: 'var(--elevation-lg)',
       }}
     >
-      <Icon 
-        className="w-5 h-5 flex-shrink-0 mt-0.5" 
+      <Icon
+        className="w-[var(--spacing-12)] h-[var(--spacing-12)] flex-shrink-0 mt-[var(--spacing-xs)]"
         style={{ color: config.colorVar }}
       />
-      
+
       <div className="flex-1 min-w-0">
-        <h4 
+        <h4
           className="font-semibold text-sm"
           style={{ color: 'var(--color-text-primary)' }}
         >
           {title}
         </h4>
         {message && (
-          <p 
-            className="text-sm mt-1"
+          <p
+            className="text-sm mt-[var(--spacing-xs)]"
             style={{ color: 'var(--color-text-secondary)' }}
           >
             {message}
           </p>
         )}
       </div>
-      
+
       <button
         onClick={() => onClose(id)}
         className="flex-shrink-0 hover:scale-110 transition-all duration-200"
@@ -104,7 +104,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
           e.currentTarget.style.color = 'var(--color-text-tertiary)';
         }}
       >
-        <X className="w-5 h-5" />
+        <X className="w-[var(--spacing-12)] h-[var(--spacing-12)]" />
       </button>
     </div>
   );

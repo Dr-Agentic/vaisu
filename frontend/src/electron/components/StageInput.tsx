@@ -17,6 +17,7 @@ import { forwardRef, useState, useCallback } from 'react';
 import { ArrowLeft, Upload, FileText, FolderOpen } from 'lucide-react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { cn } from '../../lib/utils';
+import { Button } from '../../design-system/components';
 import { FileUploader } from './upload/FileUploader';
 import { TextInputArea } from './upload/TextInputArea';
 import { DocumentBrowserPanel } from './DocumentBrowserPanel';
@@ -113,36 +114,16 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
           >
             Upload Document
           </h2>
-          <button
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon={<ArrowLeft className="w-4 h-4" />}
             onClick={onBack}
-            className={cn(
-              'flex',
-              'items-center',
-              'gap-[var(--spacing-sm)]',
-              'px-[var(--spacing-base)]',
-              'py-[var(--spacing-sm)]',
-              'rounded-[var(--radius-md)]',
-              'transition-all',
-              'duration-[var(--motion-duration-base)]',
-              'ease-[var(--motion-easing-ease-out)]',
-              'outline-none',
-              'hover:bg-[var(--color-surface-base)]',
-              'border',
-              'border-[var(--color-border-subtle)]',
-              'text-[var(--color-text-secondary)]'
-            )}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
-              e.currentTarget.style.color = 'var(--color-text-primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
-              e.currentTarget.style.color = 'var(--color-text-secondary)';
-            }}
+            title="Back"
+            className="gap-[var(--spacing-sm)]"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span style={{ fontSize: 'var(--font-size-sm)' }}>Back</span>
-          </button>
+            <span />
+          </Button>
         </header>
 
         {/* Tab Navigation */}

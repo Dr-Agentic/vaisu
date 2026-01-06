@@ -5,6 +5,7 @@
  * These components are optimized for Electron and use the SOTA design system.
  */
 
+// Stage System
 export {
   StageContainer,
   Stage,
@@ -18,13 +19,31 @@ export {
 } from './StageIndicators';
 export { StageWelcome, type StageWelcomeProps } from './StageWelcome';
 export { StageInput, type StageInputProps } from './StageInput';
-export { DocumentBrowserPanel, type DocumentBrowserPanelProps } from './DocumentBrowserPanel';
 export { StageAnalysis, type StageAnalysisProps } from './StageAnalysis';
+export { StageVisualization, type StageVisualizationProps } from './StageVisualization';
+
+// Upload Components
+export { FileUploader } from './upload/FileUploader';
+export { TextInputArea } from './upload/TextInputArea';
+
+// Visualization Components
 export {
   VisualizationSidebar,
   type VisualizationSidebarProps,
   type VisualizationType,
   type VisualizationOption,
-  type DocumentSummary,
 } from './VisualizationSidebar';
-export { StageVisualization, type StageVisualizationProps } from './StageVisualization';
+export { VisualizationRenderer } from './VisualizationRenderer';
+
+// Feedback Components
+export { ToastContainer } from './feedback/ToastContainer';
+export { Toast } from './feedback/Toast';
+export { SkeletonCard } from './feedback/SkeletonCard';
+
+// Document Components
+export { DocumentBrowserPanel, type DocumentBrowserPanelProps } from './DocumentBrowserPanel';
+
+// Re-export design system components for convenience
+export { Button } from '../../design-system/components/Button';
+export { ThemeToggle } from '../../design-system/components/ThemeToggle';
+export type { ButtonProps, ButtonVariant, ButtonSize } from '../../design-system/components/Button';

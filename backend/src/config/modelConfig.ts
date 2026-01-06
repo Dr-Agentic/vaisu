@@ -1,17 +1,32 @@
 import type { TaskType, ModelConfig } from '../../shared/src/types.js';
 
+// LLM Model Constants - single source of truth for model identifiers
+export const LLM_MODELS = {
+  GROK_FAST: 'x-ai/grok-4.1-fast',
+  GPT_35_TURBO: 'openai/gpt-3.5-turbo',
+  GPT_4O: 'openai/gpt-4o',
+  GPT_45_MINI: 'openai/gpt-4.5-mini',
+  GEMINI_FLASH: 'google/gemini-2.0-flash-exp:free',
+  MIMO_FLASH: 'xiaomi/mimo-v2-flash:free'
+} as const;
+
+// LLM Selection Constants - easily switch between different model configurations
+export const LLM_PRIMARY = LLM_MODELS.GEMINI_FLASH;
+export const LLM_FALLBACK = LLM_MODELS.MIMO_FLASH;
+const LLM_MAXTOKENS = 50000;
+
 export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
   tldr: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 500,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: 'Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.'
   },
   executiveSummary: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 1500,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.5,
     systemPrompt: `Create an executive summary with the following structure:
 1. Headline: One compelling sentence capturing the essence
@@ -24,9 +39,9 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
 Return as JSON matching the ExecutiveSummary interface.`
   },
   entityExtraction: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 50000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.1,
     systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, organizations, locations, concepts, products, technologies, and key terms.
 
@@ -63,9 +78,9 @@ Return ONLY valid JSON in this exact format:
 Extract at least 10-30 entities if the document is substantial. Be thorough.`
   },
   relationshipDetection: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 50000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `Analyze relationships between the provided entities based on the text.
 
@@ -98,16 +113,16 @@ REMEMBER: Use entity IDs (entity-1, entity-2, etc.) NOT entity names (AWS, Machi
 Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`
   },
   sectionSummary: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 300,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: 'Summarize this section in 2-3 sentences. Extract key highlights and important keywords. Be concise and informative.'
   },
   signalAnalysis: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 500,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.2,
     systemPrompt: `Analyze the text for the following signals (score each 0-1):
 - structural: presence of headings, lists, clear organization
@@ -119,9 +134,9 @@ Extract at least 5-20 relationships if entities are connected. Focus on meaningf
 Return as JSON object with these six scores.`
   },
   vizRecommendation: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 1000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.4,
     systemPrompt: `Recommend the top 3-5 most appropriate visualizations for this document.
 Available types: structured-view, mind-map, flowchart, knowledge-graph, executive-dashboard, timeline.
@@ -129,34 +144,34 @@ For each recommendation include: type, score (0-1), and rationale (one sentence)
 Return as JSON array.`
   },
   kpiExtraction: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 1000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.1,
     systemPrompt: `Extract key performance indicators (KPIs) from the text.
 For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), and confidence (0-1).
 Deduplicate similar metrics. Return as JSON array.`
   },
   glossary: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 2000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `Extract keywords and acronyms with context-aware definitions.
 Analyze the domain and provide definitions appropriate to that context.
 Return as JSON array with: term, definition, domain, confidence.`
   },
   qa: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 800,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.6,
     systemPrompt: 'Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.'
   },
   mindMapGeneration: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-3.5-turbo',
-    maxTokens: 3000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.4,
     systemPrompt: `Analyze the document and create a hierarchical mind map structure with 3-5 levels of depth.
 
@@ -214,9 +229,9 @@ Return ONLY valid JSON matching this structure:
     Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`
   },
   argumentMapGeneration: {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-4o',
-    maxTokens: 4000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `Analyze the text to generate an interactive argument map based on the specific schema provided.
 
@@ -282,9 +297,9 @@ Return ONLY valid JSON in this exact format:
 }`
   },
   'uml-extraction': {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-4o',
-    maxTokens: 8000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical document and extract object-oriented structures.
 
@@ -376,9 +391,9 @@ Return as JSON with this structure:
 Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`
   },
   'knowledge-graph-generation': {
-    primary: 'x-ai/grok-4.1-fast',
-    fallback: 'openai/gpt-4o',
-    maxTokens: 6000,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
     temperature: 0.4,
     systemPrompt: `You are a knowledge graph generation expert. Analyze the document and create a comprehensive knowledge graph visualization.
 

@@ -37,9 +37,9 @@ export function VisualizationRenderer() {
   // Handle error state (cached error marker)
   if (data?.error) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-[var(--spacing-64)]">
         <div className="text-center">
-          <p className="text-red-600 mb-2">Failed to generate visualization</p>
+          <p className="text-red-600 mb-[var(--spacing-md)]">Failed to generate visualization</p>
           <p className="text-gray-500 text-sm">{data.message || 'Unknown error'}</p>
         </div>
       </div>
@@ -48,9 +48,9 @@ export function VisualizationRenderer() {
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-[var(--spacing-64)]">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary-600 mx-auto mb-2" />
+          <Loader2 className="w-[var(--spacing-8)] h-[var(--spacing-8)] animate-spin text-primary-600 mx-auto mb-[var(--spacing-md)]" />
           <p className="text-gray-600">Loading visualization...</p>
         </div>
       </div>
@@ -78,7 +78,7 @@ export function VisualizationRenderer() {
       return <ExecutiveDashboard data={data.data} />;
     default:
       return (
-        <div className="flex items-center justify-center h-64">
+        <div className="flex items-center justify-center h-[var(--spacing-64)]">
           <div className="text-center">
             <p className="text-gray-600">Visualization not implemented: {currentVisualization}</p>
           </div>

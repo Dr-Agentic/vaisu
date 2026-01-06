@@ -11,7 +11,7 @@
 
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { useTheme } from '../ThemeProvider';
-import { Button } from './Button';
+import { Button, type ButtonVariant } from './Button';
 import { cn } from '../../lib/utils';
 
 export interface ThemeToggleProps {
@@ -23,6 +23,11 @@ export interface ThemeToggleProps {
    * Show labels for each theme option
    */
   showLabels?: boolean;
+  /**
+   * Button variant
+   * @default "ghost"
+   */
+  variant?: ButtonVariant;
 }
 
 /**
@@ -30,7 +35,7 @@ export interface ThemeToggleProps {
  * 
  * Cycles through: system -> light -> dark -> system
  */
-export function ThemeToggle({ className, showLabels = false }: ThemeToggleProps) {
+export function ThemeToggle({ className, showLabels = false, variant = 'ghost' }: ThemeToggleProps) {
   const { theme, setTheme, resolvedTheme } = useTheme();
 
   const handleToggle = () => {
@@ -65,7 +70,7 @@ export function ThemeToggle({ className, showLabels = false }: ThemeToggleProps)
 
   return (
     <Button
-      variant="ghost"
+      variant={variant}
       size="sm"
       onClick={handleToggle}
       className={cn('gap-[var(--spacing-sm)]', className)}
