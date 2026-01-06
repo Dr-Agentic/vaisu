@@ -1,4 +1,5 @@
 import { Layers, Globe, Box, Cpu, User, FileText, HelpCircle } from 'lucide-react';
+
 import { GraphThemeColor } from './types';
 
 /**
@@ -6,14 +7,14 @@ import { GraphThemeColor } from './types';
  */
 export const getTypeIcon = (type: string) => {
   const normalizedType = type.toLowerCase();
-  
+
   if (normalizedType.includes('concept') || normalizedType.includes('layer')) return Layers;
   if (normalizedType.includes('org') || normalizedType.includes('network')) return Globe;
   if (normalizedType.includes('product') || normalizedType.includes('object')) return Box;
   if (normalizedType.includes('tech') || normalizedType.includes('system')) return Cpu;
   if (normalizedType.includes('person') || normalizedType.includes('user')) return User;
   if (normalizedType.includes('doc') || normalizedType.includes('file')) return FileText;
-  
+
   return HelpCircle;
 };
 
@@ -30,7 +31,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
       background: 'bg-purple-50 dark:bg-purple-900/20',
       text: 'text-purple-700 dark:text-purple-300',
       border: 'border-purple-200 dark:border-purple-800',
-      icon: 'text-purple-600 dark:text-purple-400'
+      icon: 'text-purple-600 dark:text-purple-400',
     };
   }
 
@@ -40,7 +41,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
       background: 'bg-blue-50 dark:bg-blue-900/20',
       text: 'text-blue-700 dark:text-blue-300',
       border: 'border-blue-200 dark:border-blue-800',
-      icon: 'text-blue-600 dark:text-blue-400'
+      icon: 'text-blue-600 dark:text-blue-400',
     };
   }
 
@@ -50,7 +51,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
       background: 'bg-orange-50 dark:bg-orange-900/20',
       text: 'text-orange-700 dark:text-orange-300',
       border: 'border-orange-200 dark:border-orange-800',
-      icon: 'text-orange-600 dark:text-orange-400'
+      icon: 'text-orange-600 dark:text-orange-400',
     };
   }
 
@@ -60,7 +61,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
       background: 'bg-slate-50 dark:bg-slate-900/20',
       text: 'text-slate-700 dark:text-slate-300',
       border: 'border-slate-200 dark:border-slate-800',
-      icon: 'text-slate-600 dark:text-slate-400'
+      icon: 'text-slate-600 dark:text-slate-400',
     };
   }
 
@@ -70,7 +71,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
       background: 'bg-green-50 dark:bg-green-900/20',
       text: 'text-green-700 dark:text-green-300',
       border: 'border-green-200 dark:border-green-800',
-      icon: 'text-green-600 dark:text-green-400'
+      icon: 'text-green-600 dark:text-green-400',
     };
   }
 
@@ -79,7 +80,7 @@ export const getTypeColor = (type: string): GraphThemeColor => {
     background: 'bg-gray-50 dark:bg-gray-900/20',
     text: 'text-gray-700 dark:text-gray-300',
     border: 'border-gray-200 dark:border-gray-800',
-    icon: 'text-gray-600 dark:text-gray-400'
+    icon: 'text-gray-600 dark:text-gray-400',
   };
 };
 

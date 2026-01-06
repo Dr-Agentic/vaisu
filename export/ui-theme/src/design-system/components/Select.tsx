@@ -1,8 +1,8 @@
 /**
  * Select Component
- * 
+ *
  * Accessible select dropdown with keyboard navigation and proper labeling.
- * 
+ *
  * @example
  * ```tsx
  * <Select
@@ -18,8 +18,9 @@
  * ```
  */
 
-import { SelectHTMLAttributes, forwardRef } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { SelectHTMLAttributes, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export interface SelectOption {
@@ -111,7 +112,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
       id,
       ...props
     },
-    ref
+    ref,
   ) => {
     const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
     const helperId = helperText ? `${selectId}-helper` : undefined;
@@ -130,7 +131,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               'font-[var(--font-weight-medium)]',
               'text-[var(--color-text-primary)]',
               sizeStyles[size].label,
-              'leading-[var(--line-height-tight)]'
+              'leading-[var(--line-height-tight)]',
             )}
           >
             {label}
@@ -160,19 +161,19 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               'disabled:opacity-60',
               'disabled:cursor-not-allowed',
               'cursor-pointer',
-              
+
               // Size styles
               sizeStyles[size].select,
-              
+
               // Padding for icon
               'pr-[var(--spacing-3xl)]',
-              
+
               // Border styles
               hasError
                 ? 'border-[var(--color-border-error)] focus-visible:border-[var(--color-border-error)] focus-visible:ring-2 focus-visible:ring-[var(--color-semantic-error-base)] focus-visible:ring-offset-2'
                 : 'border-[var(--color-border-base)] hover:border-[var(--color-border-strong)] focus-visible:border-[var(--color-border-focus)] focus-visible:ring-2 focus-visible:ring-[var(--color-border-focus)] focus-visible:ring-offset-2',
-              
-              className
+
+              className,
             )}
             aria-invalid={hasError}
             aria-required={required}
@@ -210,7 +211,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             className={cn(
               'text-[var(--font-size-sm)]',
               'text-[var(--color-text-secondary)]',
-              'leading-[var(--line-height-normal)]'
+              'leading-[var(--line-height-normal)]',
             )}
           >
             {helperText}
@@ -227,7 +228,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               'leading-[var(--line-height-normal)]',
               'flex',
               'items-center',
-              'gap-[var(--spacing-xs)]'
+              'gap-[var(--spacing-xs)]',
             )}
           >
             <span aria-hidden="true">⚠</span>
@@ -236,7 +237,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Select.displayName = 'Select';

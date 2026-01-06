@@ -1,8 +1,8 @@
 /**
  * Theme Toggle Component
- * 
+ *
  * Accessible theme switcher that cycles between light, dark, and system modes.
- * 
+ *
  * @example
  * ```tsx
  * <ThemeToggle />
@@ -10,9 +10,11 @@
  */
 
 import { Moon, Sun, Monitor } from 'lucide-react';
-import { useTheme } from '../ThemeProvider';
-import { Button, type ButtonVariant } from './Button';
+
 import { cn } from '../../lib/utils';
+import { useTheme } from '../ThemeProvider';
+
+import { Button, type ButtonVariant } from './Button';
 
 export interface ThemeToggleProps {
   /**
@@ -32,7 +34,7 @@ export interface ThemeToggleProps {
 
 /**
  * Theme Toggle Component
- * 
+ *
  * Cycles through: system -> light -> dark -> system
  */
 export function ThemeToggle({ className, showLabels = false, variant = 'ghost' }: ThemeToggleProps) {

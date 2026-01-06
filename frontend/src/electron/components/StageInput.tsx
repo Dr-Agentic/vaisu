@@ -13,14 +13,16 @@
  * ```
  */
 
-import { forwardRef, useState, useCallback } from 'react';
 import { ArrowLeft, Upload, FileText, FolderOpen } from 'lucide-react';
-import { useDocumentStore } from '../../stores/documentStore';
-import { cn } from '../../lib/utils';
+import { forwardRef, useState, useCallback } from 'react';
+
 import { Button } from '../../design-system/components';
+import { cn } from '../../lib/utils';
+import { useDocumentStore } from '../../stores/documentStore';
+
+import { DocumentBrowserPanel } from './DocumentBrowserPanel';
 import { FileUploader } from './upload/FileUploader';
 import { TextInputArea } from './upload/TextInputArea';
-import { DocumentBrowserPanel } from './DocumentBrowserPanel';
 
 export interface StageInputProps {
   /**
@@ -87,7 +89,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
           'flex',
           'flex-col',
           'bg-[var(--color-background-primary)]',
-          'text-[var(--color-text-primary)]'
+          'text-[var(--color-text-primary)]',
         )}
       >
         {/* Header */}
@@ -98,7 +100,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             'border-b',
             'flex',
             'items-center',
-            'justify-between'
+            'justify-between',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -109,7 +111,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
               'text-[var(--font-size-2xl)]',
               'font-[var(--font-weight-semibold)]',
               'text-[var(--color-text-primary)]',
-              'leading-[var(--line-height-tight)]'
+              'leading-[var(--line-height-tight)]',
             )}
           >
             Upload Document
@@ -142,7 +144,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             'overflow-hidden',
             'rounded-[var(--radius-xl)]',
             'border',
-            'border-[var(--color-border-subtle)]'
+            'border-[var(--color-border-subtle)]',
           )}
           role="tablist"
           aria-label="Input options"
@@ -156,7 +158,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
               'from-transparent',
               'via-[rgba(99,102,241,0.1)]',
               'to-transparent',
-              'pointer-events-none'
+              'pointer-events-none',
             )}
           />
 
@@ -190,7 +192,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                   isActive ? 'border-[var(--color-border-focus)]' : 'border-[var(--color-border-subtle)]',
                   isActive ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]',
                   'backdrop-blur-sm',
-                  'hover:bg-[var(--color-surface-base)]'
+                  'hover:bg-[var(--color-surface-base)]',
                 )}
               >
                 {/* Icon container with enhanced styling */}
@@ -210,7 +212,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                     'border',
                     'border-[var(--color-border-subtle)]',
                     'hover:bg-[var(--color-surface-elevated)]',
-                    'hover:border-[var(--color-border-strong)]'
+                    'hover:border-[var(--color-border-strong)]',
                   )}
                 >
                   {tab.icon}
@@ -225,7 +227,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                       'duration-[var(--motion-duration-base)]',
                       'ease-[var(--motion-easing-ease-out)]',
                       'text-[var(--color-text-primary)]',
-                      'leading-[var(--line-height-tight)]'
+                      'leading-[var(--line-height-tight)]',
                     )}
                   >
                     {tab.label}
@@ -239,7 +241,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                       'duration-[var(--motion-duration-base)]',
                       'ease-[var(--motion-easing-ease-out)]',
                       'mt-[var(--spacing-xs)]',
-                      'text-[var(--color-text-tertiary)]'
+                      'text-[var(--color-text-tertiary)]',
                     )}
                   >
                     {tab.id === 'upload' && 'Drag & drop supported'}
@@ -263,7 +265,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                         'bg-gradient-to-r',
                         'from-[var(--aurora-1)]',
                         'via-[var(--aurora-2)]',
-                        'to-[var(--aurora-3)]'
+                        'to-[var(--aurora-3)]',
                       )}
                     />
                     {/* Inner highlight */}
@@ -279,7 +281,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                         'bg-gradient-to-r',
                         'from-[var(--aurora-1)]',
                         'via-[var(--aurora-2)]',
-                        'to-[var(--aurora-1)]'
+                        'to-[var(--aurora-1)]',
                       )}
                     />
                   </>
@@ -297,7 +299,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             'flex-col',
             'px-8',
             'py-6',
-            'overflow-hidden'
+            'overflow-hidden',
           )}
         >
           <div
@@ -307,7 +309,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
               'mx-auto',
               'h-full',
               'flex',
-              'flex-col'
+              'flex-col',
             )}
           >
             {/* Upload Panel */}
@@ -322,7 +324,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 'flex',
                 'flex-col',
                 'items-center',
-                'justify-center'
+                'justify-center',
               )}
               style={{
                 display: activeTab === 'upload' ? 'flex' : 'none',
@@ -343,7 +345,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 'ease-[var(--motion-easing-ease-out)]',
                 'h-full',
                 'flex',
-                'flex-col'
+                'flex-col',
               )}
               style={{
                 display: activeTab === 'text' ? 'flex' : 'none',
@@ -360,7 +362,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                   'ease-[var(--motion-easing-ease-out)]',
                   'bg-[var(--color-surface-base)]',
                   'border',
-                  'border-[var(--color-border-subtle)]'
+                  'border-[var(--color-border-subtle)]',
                 )}
               >
                 <TextInputArea />
@@ -377,7 +379,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
                 'duration-[var(--duration-normal)]',
                 'h-full',
                 'flex',
-                'flex-col'
+                'flex-col',
               )}
               style={{
                 display: activeTab === 'browse' ? 'flex' : 'none',
@@ -394,7 +396,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
           className={cn(
             'px-[var(--spacing-lg)]',
             'pb-[var(--spacing-lg)]',
-            'text-center'
+            'text-center',
           )}
           style={{
             color: 'var(--color-text-tertiary)',
@@ -407,7 +409,7 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 StageInput.displayName = 'StageInput';

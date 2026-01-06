@@ -1,5 +1,6 @@
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useEffect } from 'react';
+
 import { cn } from '../../../lib/utils';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -61,8 +62,8 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
   return (
     <div
       className={cn(
-        "border-l-4 rounded-xl p-[var(--spacing-lg)] shadow-strong animate-slide-in-right flex items-start gap-[var(--spacing-md)] min-w-[320px] max-w-md",
-        "transition-all duration-200"
+        'border-l-4 rounded-xl p-[var(--spacing-lg)] shadow-strong animate-slide-in-right flex items-start gap-[var(--spacing-md)] min-w-[320px] max-w-md',
+        'transition-all duration-200',
       )}
       style={{
         backgroundColor: config.bgVar,

@@ -32,7 +32,7 @@ export abstract class LayoutEngine {
     from: NodePositions,
     to: NodePositions,
     duration: number,
-    onUpdate: (positions: NodePositions, progress: number) => void
+    onUpdate: (positions: NodePositions, progress: number) => void,
   ): Promise<void> {
     return new Promise((resolve) => {
       const startTime = performance.now();
@@ -53,7 +53,7 @@ export abstract class LayoutEngine {
 
           interpolated.set(id, {
             x: fromPos.x + (toPos.x - fromPos.x) * eased,
-            y: fromPos.y + (toPos.y - fromPos.y) * eased
+            y: fromPos.y + (toPos.y - fromPos.y) * eased,
           });
         });
 
@@ -76,7 +76,7 @@ export abstract class LayoutEngine {
   protected centerLayout(
     positions: NodePositions,
     width: number,
-    height: number
+    height: number,
   ): NodePositions {
     if (positions.size === 0) return positions;
 
@@ -99,7 +99,7 @@ export abstract class LayoutEngine {
     positions.forEach((pos, id) => {
       centered.set(id, {
         x: pos.x + offsetX,
-        y: pos.y + offsetY
+        y: pos.y + offsetY,
       });
     });
 
@@ -113,7 +113,7 @@ export abstract class LayoutEngine {
     positions: NodePositions,
     width: number,
     height: number,
-    padding: number = 50
+    padding: number = 50,
   ): NodePositions {
     if (positions.size === 0) return positions;
 
@@ -137,7 +137,7 @@ export abstract class LayoutEngine {
     positions.forEach((pos, id) => {
       scaled.set(id, {
         x: (pos.x - minX) * scale + padding,
-        y: (pos.y - minY) * scale + padding
+        y: (pos.y - minY) * scale + padding,
       });
     });
 

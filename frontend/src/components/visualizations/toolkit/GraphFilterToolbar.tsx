@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { getTypeIcon } from './utils';
 
 interface GraphFilterToolbarProps {
@@ -12,7 +13,7 @@ export const GraphFilterToolbar: React.FC<GraphFilterToolbarProps> = ({
   types,
   activeTypes,
   onToggleType,
-  className = ''
+  className = '',
 }) => {
   return (
     <div className={`flex flex-wrap items-center gap-2 p-4 bg-inherit ${className}`}>
@@ -29,9 +30,9 @@ export const GraphFilterToolbar: React.FC<GraphFilterToolbarProps> = ({
             onClick={() => onToggleType(type)}
             className={`
               flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border
-              ${isActive 
-                ? 'bg-[var(--color-surface-raised)] border-[var(--color-primary)] text-[var(--color-text-primary)] shadow-sm' 
-                : 'bg-transparent border-transparent text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)]'}
+              ${isActive
+            ? 'bg-[var(--color-surface-raised)] border-[var(--color-primary)] text-[var(--color-text-primary)] shadow-sm'
+            : 'bg-transparent border-transparent text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-raised)]'}
             `}
           >
             <Icon size={14} className={isActive ? 'text-[var(--color-primary)]' : 'opacity-50'} />

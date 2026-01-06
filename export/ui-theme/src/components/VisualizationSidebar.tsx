@@ -16,10 +16,12 @@
  * ```
  */
 
-import { forwardRef } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { forwardRef } from 'react';
+
 import { Badge } from '../../design-system/components/Badge';
 import { cn } from '../../lib/utils';
+
 import type { VisualizationType as SharedVisualizationType } from '@shared/types';
 
 // Re-export the shared type for convenience
@@ -191,7 +193,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
       onToggleCollapse,
       visualizations = DEFAULT_VISUALIZATIONS,
     },
-    ref
+    ref,
   ) => {
     return (
       <aside
@@ -203,7 +205,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           'duration-[var(--duration-normal)]',
           'ease-[var(--ease-out)]',
           collapsed ? 'w-0' : 'w-[280px]',
-          collapsed ? 'overflow-hidden' : 'overflow-y-auto'
+          collapsed ? 'overflow-hidden' : 'overflow-y-auto',
         )}
         style={{
           backgroundColor: 'var(--color-surface-base)',
@@ -224,7 +226,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
               'p-1',
               'rounded-md',
               'transition-all',
-              'duration-[var(--duration-fast)]'
+              'duration-[var(--duration-fast)]',
             )}
             style={{
               backgroundColor: 'var(--color-surface-elevated)',
@@ -254,7 +256,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
             'text-xs',
             'uppercase',
             'tracking-wider',
-            'font-medium'
+            'font-medium',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -281,7 +283,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                 'transition-all',
                 'duration-[var(--duration-fast)]',
                 'ease-[var(--ease-out)]',
-                'p-2'
+                'p-2',
               )}
               aria-label={`Switch to ${viz.name}`}
               aria-current={currentViz === viz.id ? 'true' : undefined}
@@ -319,7 +321,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                         'border',
                         'rounded',
                         'font-mono',
-                        'text-xs'
+                        'text-xs',
                       )}
                       style={{
                         backgroundColor: 'var(--color-surface-elevated)',
@@ -338,7 +340,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
         {/* Summary Panel - Removed as requested */}
       </aside>
     );
-  }
+  },
 );
 
 VisualizationSidebar.displayName = 'VisualizationSidebar';

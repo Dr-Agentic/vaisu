@@ -1,6 +1,8 @@
 import { create } from 'zustand';
-import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
+
 import { apiClient } from '../services/apiClient';
+
+import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
 import type { ToastType } from '../electron/components/feedback/Toast';
 
 export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
@@ -94,7 +96,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'success',
         title: 'Document uploaded successfully',
         message: 'Starting analysis...',
-        duration: 3000
+        duration: 3000,
       });
 
       // Refresh document list
@@ -111,7 +113,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'error',
         title: 'Upload failed',
         message: error.message || 'Failed to upload document',
-        duration: 0
+        duration: 0,
       });
     }
   },
@@ -124,14 +126,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         document: response.document,
         analysis: response.analysis,
         isLoading: false,
-        isAnalyzing: false
+        isAnalyzing: false,
       });
 
       get().addToast({
         type: 'success',
         title: 'Text analyzed successfully',
         message: 'Visualizations are ready',
-        duration: 3000
+        duration: 3000,
       });
 
       // Refresh document list
@@ -145,7 +147,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'error',
         title: 'Analysis failed',
         message: error.message || 'Failed to analyze text',
-        duration: 0
+        duration: 0,
       });
     }
   },
@@ -163,14 +165,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         const updates: any = {
           progressStep: progress.step,
           progressPercent: progress.progress,
-          progressMessage: progress.message
+          progressMessage: progress.message,
         };
 
         // If we have partial analysis results, update them immediately
         if ('partialAnalysis' in progress && progress.partialAnalysis) {
           updates.analysis = {
             ...get().analysis,
-            ...(progress as any).partialAnalysis
+            ...(progress as any).partialAnalysis,
           };
         }
 
@@ -190,14 +192,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         progressStep: 'complete',
         progressPercent: 100,
-        progressMessage: 'Analysis complete!'
+        progressMessage: 'Analysis complete!',
       });
 
       get().addToast({
         type: 'success',
         title: 'Analysis complete',
         message: 'All visualizations are ready to explore',
-        duration: 5000
+        duration: 5000,
       });
 
       // Load structured-view visualization immediately (priority visualization)
@@ -211,13 +213,13 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         progressStep: 'error',
         progressPercent: 0,
-        progressMessage: 'Analysis failed'
+        progressMessage: 'Analysis failed',
       });
       get().addToast({
         type: 'error',
         title: 'Analysis failed',
         message: error.message || 'Failed to analyze document',
-        duration: 0
+        duration: 0,
       });
     }
   },
@@ -240,7 +242,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       isLoading: true,
       progressStep: 'generating',
       progressPercent: 0,
-      progressMessage: `Generating ${type.replace('-', ' ')} visualization...`
+      progressMessage: `Generating ${type.replace('-', ' ')} visualization...`,
     });
 
     try {
@@ -262,7 +264,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         hasSections: Array.isArray(data?.sections),
         sectionsCount: data?.sections?.length,
         hasHierarchy: data?.hierarchy,
-        hierarchyType: typeof data?.hierarchy
+        hierarchyType: typeof data?.hierarchy,
       });
 
       // Validate data structure for terms-definitions
@@ -280,7 +282,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         progressStep: 'complete',
         progressPercent: 100,
-        progressMessage: 'Visualization ready!'
+        progressMessage: 'Visualization ready!',
       });
 
       // Clear progress after a short delay
@@ -288,7 +290,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         set({
           progressStep: '',
           progressPercent: 0,
-          progressMessage: ''
+          progressMessage: '',
         });
       }, 1000);
     } catch (error: any) {
@@ -303,7 +305,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         isLoading: false,
         progressStep: 'error',
         progressPercent: 0,
-        progressMessage: 'Failed to generate visualization'
+        progressMessage: 'Failed to generate visualization',
       });
     }
   },
@@ -324,7 +326,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       visualizationData: new Map(),
       progressStep: '',
       progressPercent: 0,
-      progressMessage: ''
+      progressMessage: '',
     });
   },
 
@@ -335,13 +337,13 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   addToast: (toast: Omit<ToastMessage, 'id'>) => {
     const id = `toast-${Date.now()}-${Math.random()}`;
     set((state) => ({
-      toasts: [...state.toasts, { ...toast, id }]
+      toasts: [...state.toasts, { ...toast, id }],
     }));
   },
 
   removeToast: (id: string) => {
     set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== id)
+      toasts: state.toasts.filter((t) => t.id !== id),
     }));
   },
 
@@ -358,7 +360,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'error',
         title: 'Failed to load documents',
         message: error.message,
-        duration: 5000
+        duration: 5000,
       });
     }
   },
@@ -381,14 +383,14 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         analysis: response.analysis || null,
         visualizationData: vizMap,
         isLoading: false,
-        currentVisualization: 'structured-view'
+        currentVisualization: 'structured-view',
       });
 
       get().addToast({
         type: 'success',
         title: 'Document loaded',
         message: 'All cached data restored',
-        duration: 3000
+        duration: 3000,
       });
     } catch (error: any) {
       set({ error: error.message || 'Failed to load document', isLoading: false });
@@ -396,7 +398,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'error',
         title: 'Failed to load document',
         message: error.message,
-        duration: 0
+        duration: 0,
       });
     }
   },
@@ -423,8 +425,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         type: 'error',
         title: 'Search failed',
         message: error.message,
-        duration: 5000
+        duration: 5000,
       });
     }
-  }
+  },
 }));

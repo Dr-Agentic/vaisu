@@ -1,8 +1,11 @@
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
-import type { Document, DocumentStructure, Section } from '../../../shared/src/types.js';
 import { createHash } from 'crypto';
+
+import mammoth from 'mammoth';
+import pdfParse from 'pdf-parse';
 import { v4 as uuidv4 } from 'uuid';
+
+import type { Document, DocumentStructure, Section } from '../../../shared/src/types.js';
+
 
 export class DocumentParser {
   /**
@@ -23,9 +26,9 @@ export class DocumentParser {
         wordCount: this.countWords(text),
         uploadDate: new Date(),
         fileType,
-        language: 'en' // TODO: detect language
+        language: 'en', // TODO: detect language
       },
-      structure
+      structure,
     };
   }
 
@@ -50,9 +53,9 @@ export class DocumentParser {
         wordCount: this.countWords(sanitizedText),
         uploadDate: new Date(),
         fileType: 'txt',
-        language: 'en' // TODO: detect language
+        language: 'en', // TODO: detect language
       },
-      structure
+      structure,
     };
   }
 
@@ -78,7 +81,7 @@ export class DocumentParser {
 
     return {
       sections,
-      hierarchy
+      hierarchy,
     };
   }
 
@@ -167,7 +170,7 @@ export class DocumentParser {
           startIndex: currentIndex,
           summary: '', // Will be filled by AI
           keywords: [],
-          children: []
+          children: [],
         };
         currentContent = [];
       } else if (line) {
@@ -195,7 +198,7 @@ export class DocumentParser {
         endIndex: text.length,
         summary: '',
         keywords: [],
-        children: []
+        children: [],
       });
     }
 
@@ -208,7 +211,7 @@ export class DocumentParser {
     if (mdMatch) {
       return {
         level: mdMatch[1].length,
-        title: mdMatch[2].trim()
+        title: mdMatch[2].trim(),
       };
     }
 
@@ -218,7 +221,7 @@ export class DocumentParser {
       const level = numberedMatch[1].split('.').length;
       return {
         level: Math.min(level, 5),
-        title: numberedMatch[2].trim()
+        title: numberedMatch[2].trim(),
       };
     }
 
@@ -226,7 +229,7 @@ export class DocumentParser {
     if (line === line.toUpperCase() && line.split(' ').length >= 3 && line.length < 100) {
       return {
         level: 1,
-        title: line
+        title: line,
       };
     }
 
@@ -242,7 +245,7 @@ export class DocumentParser {
         id: `node-${section.id}`,
         sectionId: section.id,
         level: section.level,
-        children: []
+        children: [],
       };
 
       // Find parent
@@ -293,7 +296,7 @@ export class DocumentParser {
 
     const ext = filename.split('.').pop()?.toLowerCase();
     // Only treat it as an extension if it looks like a valid file extension
-    if (!ext || !/^[a-z0-9_-]+$/.test(ext)) {
+    if (!ext || !(/^[a-z0-9_-]+$/).test(ext)) {
       return 'txt';
     }
     return ext;

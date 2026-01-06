@@ -1,13 +1,13 @@
 /**
  * useDebounce Hook
- * 
+ *
  * React hook to debounce a value. Useful for search inputs, API calls, etc.
- * 
+ *
  * @example
  * ```tsx
  * const [searchTerm, setSearchTerm] = useState('');
  * const debouncedSearchTerm = useDebounce(searchTerm, 500);
- * 
+ *
  * useEffect(() => {
  *   if (debouncedSearchTerm) {
  *     performSearch(debouncedSearchTerm);
@@ -20,7 +20,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to debounce a value
- * 
+ *
  * @param value - Value to debounce
  * @param delay - Delay in milliseconds (default: 500ms)
  * @returns Debounced value

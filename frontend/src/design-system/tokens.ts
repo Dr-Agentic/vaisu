@@ -1,9 +1,9 @@
 /**
  * Design System Tokens
- * 
+ *
  * Semantic design tokens following industry best practices.
  * All values use a 4px base grid system.
- * 
+ *
  * @see https://design-tokens.github.io/community-group/format/
  */
 

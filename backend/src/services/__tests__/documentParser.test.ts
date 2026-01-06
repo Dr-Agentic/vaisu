@@ -1,11 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { DocumentParser } from '../documentParser';
-import { 
-  SMALL_BUSINESS_REPORT, 
+
+import {
+  SMALL_BUSINESS_REPORT,
   HIERARCHICAL_DOCUMENT,
   EMPTY_DOCUMENT,
-  MALFORMED_DOCUMENT 
+  MALFORMED_DOCUMENT,
 } from '../../../../test/fixtures/documents';
+import { DocumentParser } from '../documentParser';
 
 describe('DocumentParser', () => {
   let parser: DocumentParser;
@@ -147,7 +148,7 @@ describe('DocumentParser', () => {
         { filename: 'document.txt', expected: 'txt', content: Buffer.from('Plain text content') },
         { filename: 'readme.md', expected: 'md', content: Buffer.from('# Markdown content') },
         { filename: 'no-extension', expected: 'txt', content: Buffer.from('No extension content') },
-        { filename: 'file.with.dots.txt', expected: 'txt', content: Buffer.from('Dots in filename') }
+        { filename: 'file.with.dots.txt', expected: 'txt', content: Buffer.from('Dots in filename') },
       ];
 
       for (const { filename, expected, content } of testCases) {
@@ -161,7 +162,7 @@ describe('DocumentParser', () => {
         { filename: '', expected: 'txt', content: Buffer.from('Empty filename') },
         { filename: 'file.', expected: 'txt', content: Buffer.from('File with trailing dot') },
         { filename: '.hidden', expected: 'txt', content: Buffer.from('Hidden file content') },
-        { filename: 'file with spaces', expected: 'txt', content: Buffer.from('Spaces in filename') }
+        { filename: 'file with spaces', expected: 'txt', content: Buffer.from('Spaces in filename') },
       ];
 
       for (const { filename, expected, content } of testCases) {

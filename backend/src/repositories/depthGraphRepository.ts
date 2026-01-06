@@ -1,5 +1,7 @@
 import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+
 import { dynamoDBClient, DYNAMODB_DEPTH_GRAPH_TABLE } from '../config/aws.js';
+
 import type { VisualizationRecord } from './types.js';
 
 /**
@@ -43,7 +45,7 @@ export async function findByDocumentId(documentId: string): Promise<Visualizatio
  */
 export async function update(
   documentId: string,
-  updates: Partial<VisualizationRecord>
+  updates: Partial<VisualizationRecord>,
 ): Promise<void> {
   const command = new PutCommand({
     TableName: DYNAMODB_DEPTH_GRAPH_TABLE,

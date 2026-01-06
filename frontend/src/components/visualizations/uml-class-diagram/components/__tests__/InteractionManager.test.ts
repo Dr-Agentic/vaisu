@@ -1,11 +1,13 @@
 /**
  * InteractionManager Tests
- * 
+ *
  * These tests focus on the logic for pan/zoom, selection, and interaction handling.
  */
 
 import { describe, it, expect } from 'vitest';
+
 import { zoomToFit, zoomToSelection } from '../InteractionManager';
+
 import type { ClassEntity, Position } from '@shared/types';
 
 describe('InteractionManager Logic Tests', () => {
@@ -19,7 +21,7 @@ describe('InteractionManager Logic Tests', () => {
       description: 'Base service class',
       sourceQuote: 'BaseService provides common functionality',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-2',
@@ -30,7 +32,7 @@ describe('InteractionManager Logic Tests', () => {
       description: 'User management service',
       sourceQuote: 'UserService handles user operations',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-3',
@@ -41,13 +43,13 @@ describe('InteractionManager Logic Tests', () => {
       description: 'Admin management service',
       sourceQuote: 'AdminService handles admin operations',
       sourceSpan: null,
-      documentLink: '#doc-1'
-    }
+      documentLink: '#doc-1',
+    },
   ];
 
   const mockRelationships = [
     { source: 'class-2', target: 'class-1', type: 'inheritance' },
-    { source: 'class-3', target: 'class-1', type: 'inheritance' }
+    { source: 'class-3', target: 'class-1', type: 'inheritance' },
   ];
 
   it('validates zoom to fit calculation', () => {
@@ -79,7 +81,7 @@ describe('InteractionManager Logic Tests', () => {
   it('validates zoom to selection calculation', () => {
     const selectedPositions: Position[] = [
       { x: 100, y: 100 },
-      { x: 300, y: 200 }
+      { x: 300, y: 200 },
     ];
     const viewportWidth = 1000;
     const viewportHeight = 800;
@@ -102,7 +104,7 @@ describe('InteractionManager Logic Tests', () => {
   it('validates connected classes calculation', () => {
     const getConnectedClasses = (classId: string): Set<string> => {
       const connected = new Set<string>();
-      
+
       mockRelationships.forEach(rel => {
         if (rel.source === classId) {
           connected.add(rel.target);
@@ -110,7 +112,7 @@ describe('InteractionManager Logic Tests', () => {
           connected.add(rel.source);
         }
       });
-      
+
       return connected;
     };
 
@@ -129,12 +131,12 @@ describe('InteractionManager Logic Tests', () => {
     const getInheritanceChain = (classId: string): Set<string> => {
       const chain = new Set<string>();
       const visited = new Set<string>();
-      
+
       const traverse = (id: string) => {
         if (visited.has(id)) return;
         visited.add(id);
         chain.add(id);
-        
+
         mockRelationships.forEach(rel => {
           if (rel.type === 'inheritance') {
             if (rel.source === id) {
@@ -145,7 +147,7 @@ describe('InteractionManager Logic Tests', () => {
           }
         });
       };
-      
+
       traverse(classId);
       return chain;
     };
@@ -165,11 +167,11 @@ describe('InteractionManager Logic Tests', () => {
   // Property Test 27: Selection highlighting
   it('property test: selection highlighting affects visual state (Property 27)', () => {
     const selectedClassIds = new Set(['class-1', 'class-2']);
-    
+
     // Selected classes should be highlighted
     expect(selectedClassIds.has('class-1')).toBe(true);
     expect(selectedClassIds.has('class-2')).toBe(true);
-    
+
     // Non-selected classes should not be highlighted
     expect(selectedClassIds.has('class-3')).toBe(false);
   });
@@ -177,7 +179,7 @@ describe('InteractionManager Logic Tests', () => {
   // Property Test 30: Multi-select accumulation
   it('property test: multi-select accumulates selections correctly (Property 30)', () => {
     let selectedClassIds = new Set<string>();
-    
+
     // Simulate multi-select behavior
     const handleMultiSelect = (classId: string, isMulti: boolean) => {
       if (isMulti) {
@@ -213,10 +215,10 @@ describe('InteractionManager Logic Tests', () => {
 
   it('validates dimmed classes calculation', () => {
     const selectedClassIds = new Set(['class-1']);
-    
+
     const getDimmedClasses = (): Set<string> => {
       if (selectedClassIds.size === 0) return new Set();
-      
+
       const connectedClasses = new Set<string>();
       selectedClassIds.forEach(id => {
         connectedClasses.add(id);
@@ -228,19 +230,19 @@ describe('InteractionManager Logic Tests', () => {
           }
         });
       });
-      
+
       const dimmedClasses = new Set<string>();
       mockClasses.forEach(cls => {
         if (!connectedClasses.has(cls.id)) {
           dimmedClasses.add(cls.id);
         }
       });
-      
+
       return dimmedClasses;
     };
 
     const dimmed = getDimmedClasses();
-    
+
     // BaseService and its connected classes should not be dimmed
     expect(dimmed.has('class-1')).toBe(false); // BaseService (selected)
     expect(dimmed.has('class-2')).toBe(false); // UserService (connected)
@@ -250,7 +252,7 @@ describe('InteractionManager Logic Tests', () => {
   it('validates zoom constraints', () => {
     const minZoom = 0.1;
     const maxZoom = 3.0;
-    
+
     const constrainZoom = (zoom: number): number => {
       return Math.max(minZoom, Math.min(maxZoom, zoom));
     };
@@ -264,7 +266,7 @@ describe('InteractionManager Logic Tests', () => {
     const calculateMomentum = (velocity: Position, friction: number = 0.95): Position => {
       return {
         x: velocity.x * friction,
-        y: velocity.y * friction
+        y: velocity.y * friction,
       };
     };
 
@@ -286,7 +288,7 @@ describe('InteractionManager Logic Tests', () => {
       '+': 'zoomIn',
       '=': 'zoomIn',
       '-': 'zoomOut',
-      '_': 'zoomOut'
+      '_': 'zoomOut',
     };
 
     // Test shortcut mapping
@@ -310,12 +312,12 @@ describe('InteractionManager Logic Tests', () => {
 
   it('validates pinch zoom calculation', () => {
     const calculatePinchZoom = (
-      currentDistance: number, 
-      previousDistance: number, 
-      currentZoom: number
+      currentDistance: number,
+      previousDistance: number,
+      currentZoom: number,
     ): number => {
       if (previousDistance === 0) return currentZoom;
-      
+
       const zoomFactor = currentDistance / previousDistance;
       return Math.max(0.1, Math.min(3.0, currentZoom * zoomFactor));
     };
@@ -336,7 +338,7 @@ describe('InteractionManager Logic Tests', () => {
       return {
         isHovered,
         scale: isHovered ? 1.05 : 1.0,
-        shadow: isHovered
+        shadow: isHovered,
       };
     };
 

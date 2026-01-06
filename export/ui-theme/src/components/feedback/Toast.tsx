@@ -1,5 +1,6 @@
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import { useEffect } from 'react';
+
 import { cn } from '../../../lib/utils';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
@@ -61,8 +62,8 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
   return (
     <div
       className={cn(
-        "border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md",
-        "transition-all duration-200"
+        'border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md',
+        'transition-all duration-200',
       )}
       style={{
         backgroundColor: config.bgVar,
@@ -70,20 +71,20 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
         boxShadow: 'var(--elevation-lg)',
       }}
     >
-      <Icon 
-        className="w-5 h-5 flex-shrink-0 mt-0.5" 
+      <Icon
+        className="w-5 h-5 flex-shrink-0 mt-0.5"
         style={{ color: config.colorVar }}
       />
-      
+
       <div className="flex-1 min-w-0">
-        <h4 
+        <h4
           className="font-semibold text-sm"
           style={{ color: 'var(--color-text-primary)' }}
         >
           {title}
         </h4>
         {message && (
-          <p 
+          <p
             className="text-sm mt-1"
             style={{ color: 'var(--color-text-secondary)' }}
           >
@@ -91,7 +92,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
           </p>
         )}
       </div>
-      
+
       <button
         onClick={() => onClose(id)}
         className="flex-shrink-0 hover:scale-110 transition-all duration-200"

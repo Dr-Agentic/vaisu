@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
 import dagre from 'dagre';
+import { useMemo } from 'react';
+
 import type { FlowchartData, FlowNode, FlowEdge } from '../../../../../shared/src/types';
 
 interface LayoutResult {
@@ -19,13 +20,13 @@ export function useFlowchartLayout(data: FlowchartData): LayoutResult {
     }
 
     const g = new dagre.graphlib.Graph();
-    
-    g.setGraph({ 
+
+    g.setGraph({
       rankdir: data.layout === 'leftToRight' ? 'LR' : 'TB',
       nodesep: 80,
       ranksep: 100,
       marginx: 50,
-      marginy: 50
+      marginy: 50,
     });
 
     g.setDefaultEdgeLabel(() => ({}));
@@ -49,7 +50,7 @@ export function useFlowchartLayout(data: FlowchartData): LayoutResult {
       return {
         ...node,
         x: nodeWithPos.x,
-        y: nodeWithPos.y
+        y: nodeWithPos.y,
       };
     });
 
@@ -58,7 +59,7 @@ export function useFlowchartLayout(data: FlowchartData): LayoutResult {
       const edgePoints = g.edge(edge.source, edge.target);
       return {
         ...edge,
-        points: edgePoints.points
+        points: edgePoints.points,
       };
     });
 
@@ -68,7 +69,7 @@ export function useFlowchartLayout(data: FlowchartData): LayoutResult {
       nodes: positionedNodes,
       edges: positionedEdges,
       width: graphLabel.width || 800,
-      height: graphLabel.height || 600
+      height: graphLabel.height || 600,
     };
   }, [data]);
 }

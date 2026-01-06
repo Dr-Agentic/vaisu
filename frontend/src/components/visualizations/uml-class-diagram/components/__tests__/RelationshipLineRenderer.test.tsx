@@ -1,15 +1,14 @@
 /**
  * RelationshipLineRenderer Component Tests
- * 
+ *
  * These tests focus on the logic and data structure validation for UML relationship rendering.
  */
 
 import { describe, it, expect } from 'vitest';
+
 import type { UMLRelationship } from '@shared/types';
 
 describe('RelationshipLineRenderer Logic Tests', () => {
-
-
   const mockRelationships: UMLRelationship[] = [
     {
       id: 'rel1',
@@ -18,7 +17,7 @@ describe('RelationshipLineRenderer Logic Tests', () => {
       type: 'inheritance',
       description: 'Class2 extends Class1',
       sourceQuote: 'quote',
-      evidence: []
+      evidence: [],
     },
     {
       id: 'rel2',
@@ -29,7 +28,7 @@ describe('RelationshipLineRenderer Logic Tests', () => {
       sourceMultiplicity: '1',
       targetMultiplicity: '0..*',
       sourceQuote: 'quote',
-      evidence: []
+      evidence: [],
     },
     {
       id: 'rel3',
@@ -40,8 +39,8 @@ describe('RelationshipLineRenderer Logic Tests', () => {
       sourceRole: 'user',
       targetRole: 'service',
       sourceQuote: 'quote',
-      evidence: []
-    }
+      evidence: [],
+    },
   ];
 
   it('validates relationship data structure', () => {
@@ -127,7 +126,7 @@ describe('RelationshipLineRenderer Logic Tests', () => {
 
     const parallelRels: any[] = [
       { source: 'a', target: 'b', type: 'inheritance', description: 'rel1' },
-      { source: 'a', target: 'b', type: 'association', description: 'rel2' }
+      { source: 'a', target: 'b', type: 'association', description: 'rel2' },
     ];
 
     expect(calculateOffset(parallelRels, 0)).toBe(-4); // First relationship offset

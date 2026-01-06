@@ -16,6 +16,7 @@
  */
 
 import { HTMLAttributes, ReactNode, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type StageName = 'welcome' | 'input' | 'analysis' | 'visualization';
@@ -38,7 +39,7 @@ export interface StageContainerProps extends HTMLAttributes<HTMLDivElement> {
  * Uses absolute positioning for all stages with CSS transitions.
  */
 export const StageContainer = forwardRef<HTMLDivElement, StageContainerProps>(
-  ({ currentStage, children, className, ...props }, ref) => {
+  ({ children, className, ...props }, ref) => {
     return (
       <div
         ref={ref}
@@ -47,14 +48,14 @@ export const StageContainer = forwardRef<HTMLDivElement, StageContainerProps>(
           'h-screen',
           'relative',
           'overflow-hidden',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 StageContainer.displayName = 'StageContainer';
@@ -101,14 +102,14 @@ export const Stage = forwardRef<HTMLDivElement, StageProps>(
           'flex-col',
           active && 'active',
           active && animationClass,
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Stage.displayName = 'Stage';

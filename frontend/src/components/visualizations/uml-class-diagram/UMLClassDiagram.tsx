@@ -1,14 +1,17 @@
-import { useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { toPng, toSvg } from 'html-to-image';
-import type { UMLDiagramData, ClassEntity, UMLRelationship } from '@shared/types';
+import { useEffect, useCallback, useMemo, useRef } from 'react';
+
+
 import { DiagramCanvas } from './components/DiagramCanvas';
-import { ControlPanel } from './controls/ControlPanel';
 import { TooltipManager } from './components/TooltipManager';
+import { ControlPanel } from './controls/ControlPanel';
 import { LegendPanel } from './controls/LegendPanel';
-import { useUMLDiagramStore } from './stores/umlDiagramStore';
-import { useUMLLayout } from './hooks/useUMLLayout';
 import { useUMLKeyboard } from './hooks/useUMLKeyboard';
+import { useUMLLayout } from './hooks/useUMLLayout';
+import { useUMLDiagramStore } from './stores/umlDiagramStore';
+
+import type { UMLDiagramData, ClassEntity, UMLRelationship } from '@shared/types';
 
 export interface UMLClassDiagramProps {
   data: UMLDiagramData;
@@ -23,7 +26,7 @@ export function UMLClassDiagram({
   initialZoom = 1.0,
   onClassSelect,
   onExport,
-  height = 600
+  height = 600,
 }: UMLClassDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +51,7 @@ export function UMLClassDiagram({
     setHoveredElement,
     applyFilters,
     toggleLegend,
-    resetView
+    resetView,
   } = useUMLDiagramStore();
 
   // Initialize data and layout
@@ -99,7 +102,7 @@ export function UMLClassDiagram({
     },
     onResetView: resetView,
     onExport: () => handleExport('png'),
-    onToggleLegend: toggleLegend
+    onToggleLegend: toggleLegend,
   });
 
   // Handle class selection
@@ -125,8 +128,8 @@ export function UMLClassDiagram({
       const typeMatch = filters.visibleTypes.has(cls.type);
       const stereotypeMatch = !cls.stereotype || filters.visibleStereotypes.has(cls.stereotype);
       const packageMatch = !cls.package || filters.visiblePackages.has(cls.package);
-      const searchMatch = !filters.searchQuery ||
-        cls.name.toLowerCase().includes(filters.searchQuery.toLowerCase());
+      const searchMatch = !filters.searchQuery
+        || cls.name.toLowerCase().includes(filters.searchQuery.toLowerCase());
 
       return typeMatch && stereotypeMatch && packageMatch && searchMatch;
     });
@@ -143,7 +146,7 @@ export function UMLClassDiagram({
     return {
       ...data,
       classes: visibleClasses,
-      relationships: visibleRelationships
+      relationships: visibleRelationships,
     };
   }, [data, filters]);
 
@@ -185,7 +188,7 @@ export function UMLClassDiagram({
             className="absolute inset-0 bg-white/80 flex items-center justify-center z-10"
           >
             <div className="flex items-center gap-3">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
               <span className="text-sm text-gray-600">Computing layout...</span>
             </div>
           </motion.div>

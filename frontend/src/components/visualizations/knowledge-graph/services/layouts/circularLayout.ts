@@ -1,15 +1,16 @@
-import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
 import { LayoutEngine, type LayoutOptions, type NodePositions } from '../layoutEngine';
+
+import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
 
 export class CircularLayout extends LayoutEngine {
   async compute(
     nodes: GraphNode[],
     _edges: GraphEdge[],
-    options: LayoutOptions = {}
+    options: LayoutOptions = {},
   ): Promise<NodePositions> {
     const {
       width = 1200,
-      height = 800
+      height = 800,
     } = options;
 
     if (nodes.length === 0) {
@@ -33,7 +34,7 @@ export class CircularLayout extends LayoutEngine {
       .map(([type, typeNodes]) => ({
         type,
         nodes: typeNodes,
-        totalImportance: typeNodes.reduce((sum, n) => sum + n.metadata.centrality, 0)
+        totalImportance: typeNodes.reduce((sum, n) => sum + n.metadata.centrality, 0),
       }))
       .sort((a, b) => b.totalImportance - a.totalImportance);
 

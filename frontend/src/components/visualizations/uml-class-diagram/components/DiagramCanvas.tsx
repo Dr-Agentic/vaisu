@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
-import type { UMLDiagramData, ClassEntity, UMLRelationship, Position } from '@shared/types';
-import type { LayoutResult } from '../stores/umlDiagramStore';
+
 import { ClassBox } from './ClassBox';
-import { RelationshipLineRenderer } from './RelationshipLineRenderer';
 import { PackageContainer } from './PackageContainer';
+import { RelationshipLineRenderer } from './RelationshipLineRenderer';
+
+import type { LayoutResult } from '../stores/umlDiagramStore';
+import type { UMLDiagramData, ClassEntity, UMLRelationship, Position } from '@shared/types';
 
 interface DiagramCanvasProps {
   data: UMLDiagramData;
@@ -27,7 +29,7 @@ export function DiagramCanvas({
   hoveredElement,
   onClassSelect,
   onHover,
-  onPanChange
+  onPanChange,
 }: DiagramCanvasProps) {
   // State for panning
   const isDragging = React.useRef(false);
@@ -55,7 +57,7 @@ export function DiagramCanvas({
 
     onPanChange({
       x: pan.x + splitX,
-      y: pan.y + splitY
+      y: pan.y + splitY,
     });
 
     lastMousePos.current = { x: e.clientX, y: e.clientY };
@@ -104,8 +106,8 @@ export function DiagramCanvas({
         x: bounds.x1 - 20, // Add padding
         y: bounds.y1 - 40, // Add top padding for tab
         width: bounds.x2 - bounds.x1 + 40,
-        height: bounds.y2 - bounds.y1 + 60
-      }
+        height: bounds.y2 - bounds.y1 + 60,
+      },
     }));
   }, [data.classes, layoutResult]);
 

@@ -1,7 +1,8 @@
-import { useState } from 'react';
 import { ZoomIn, ZoomOut, RotateCcw, Download, HelpCircle, ChevronDown } from 'lucide-react';
-import type { UMLDiagramData } from '@shared/types';
+import { useState } from 'react';
+
 import type { FilterState } from '../stores/umlDiagramStore';
+import type { UMLDiagramData } from '@shared/types';
 
 interface ControlPanelProps {
   data: UMLDiagramData;
@@ -20,7 +21,7 @@ export function ControlPanel({
   zoom,
   onZoomChange,
   showLegend,
-  onToggleLegend
+  onToggleLegend,
 }: ControlPanelProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
 
@@ -93,7 +94,7 @@ export function ControlPanel({
           className={`p-2 rounded-lg border ${showLegend
             ? 'bg-blue-50 border-blue-300 text-blue-700'
             : 'border-gray-300 hover:bg-gray-100'
-            }`}
+          }`}
           title="Toggle Legend"
         >
           <HelpCircle size={16} />
@@ -107,7 +108,7 @@ export function ControlPanel({
               className={`p-2 rounded-lg border flex items-center gap-1 ${showExportMenu
                 ? 'bg-blue-50 border-blue-300 text-blue-700'
                 : 'border-gray-300 hover:bg-gray-100'
-                }`}
+              }`}
               title="Export Diagram"
             >
               <Download size={16} />

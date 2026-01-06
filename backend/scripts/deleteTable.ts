@@ -1,10 +1,9 @@
 #!/usr/bin/env tsx
 
+import { DynamoDBClient, DeleteTableCommand } from '@aws-sdk/client-dynamodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DeleteTableCommand } from '@aws-sdk/client-dynamodb';
 import { DYNAMODB_KNOWLEDGE_GRAPH_TABLE, getAWSRegion, getAWSAccessKeyId, getAWSSecretAccessKey } from '../src/config/aws.js';
 
 async function deleteTable() {

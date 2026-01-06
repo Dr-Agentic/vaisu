@@ -1,9 +1,9 @@
 /**
  * Button Component
- * 
+ *
  * Accessible, semantic button component with multiple variants and states.
  * Follows WCAG 2.2 AA standards for accessibility.
- * 
+ *
  * @example
  * ```tsx
  * <Button variant="primary" size="md" onClick={handleClick}>
@@ -13,6 +13,7 @@
  */
 
 import { ButtonHTMLAttributes, forwardRef, ReactNode } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'accent' | 'outline' | 'ghost' | 'danger' | 'aurora' | 'nova' | 'aurora-fast' | 'aurora-static' | 'gradient-primary';
@@ -189,7 +190,7 @@ const sizeStyles: Record<ButtonSize, string> = {
 
 /**
  * Button Component
- * 
+ *
  * Accessible button with semantic variants and proper ARIA attributes.
  */
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -206,7 +207,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const isDisabled = disabled || loading;
 
@@ -228,20 +229,20 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           'outline-none',
           'select-none',
           'touch-manipulation',
-          
+
           // Variant styles
           variantStyles[variant],
-          
+
           // Size styles
           sizeStyles[size],
-          
+
           // Full width
           fullWidth && 'w-full',
-          
+
           // Loading state
           loading && 'cursor-wait',
-          
-          className
+
+          className,
         )}
         aria-busy={loading}
         aria-disabled={isDisabled}
@@ -266,7 +267,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = 'Button';

@@ -1,5 +1,6 @@
-import type { UMLRelationship, Position, ClassEntity } from '@shared/types';
 import { calculateClassDimensions } from './layoutUtils';
+
+import type { UMLRelationship, Position, ClassEntity } from '@shared/types';
 
 interface RelationshipLineRendererProps {
   relationships: UMLRelationship[];
@@ -81,44 +82,44 @@ const getRelationshipStyle = (type: string, zoom: number): LineStyle => {
       return {
         stroke: '#3b82f6', // blue
         strokeWidth: baseWidth,
-        markerEnd: 'url(#inheritance-end)'
+        markerEnd: 'url(#inheritance-end)',
       };
     case 'realization': // mapped from 'interface' in previous code, but type is 'realization' in UMLRelationship
       return {
         stroke: '#10b981', // green
         strokeWidth: baseWidth,
         strokeDasharray: '5,5',
-        markerEnd: 'url(#interface-end)'
+        markerEnd: 'url(#interface-end)',
       };
     case 'composition':
       return {
         stroke: '#ef4444', // red
         strokeWidth: baseWidth,
-        markerStart: 'url(#composition-start)'
+        markerStart: 'url(#composition-start)',
       };
     case 'aggregation':
       return {
         stroke: '#f97316', // orange
         strokeWidth: baseWidth,
-        markerStart: 'url(#aggregation-start)'
+        markerStart: 'url(#aggregation-start)',
       };
     case 'association':
       return {
         stroke: '#6b7280', // gray
         strokeWidth: baseWidth,
-        markerEnd: 'url(#association-end)'
+        markerEnd: 'url(#association-end)',
       };
     case 'dependency':
       return {
         stroke: '#9ca3af', // light gray
         strokeWidth: baseWidth,
         strokeDasharray: '3,3',
-        markerEnd: 'url(#dependency-end)'
+        markerEnd: 'url(#dependency-end)',
       };
     default:
       return {
         stroke: '#6b7280',
-        strokeWidth: baseWidth
+        strokeWidth: baseWidth,
       };
   }
 };
@@ -127,7 +128,7 @@ const getRectIntersection = (
   center: Position,
   width: number,
   height: number,
-  target: Position
+  target: Position,
 ): Position => {
   const dx = target.x - center.x;
   const dy = target.y - center.y;
@@ -178,7 +179,7 @@ const calculateLinePoints = (
   fromClass: ClassEntity | undefined,
   toClass: ClassEntity | undefined,
   offset: number = 0,
-  zoom: number
+  zoom: number,
 ): { path: string, midX: number, midY: number } | null => {
   if (!fromClass || !toClass) return null;
 
@@ -216,7 +217,7 @@ const calculateLinePoints = (
   return {
     path: `M ${startX} ${startY} L ${midX} ${startY} L ${midX} ${endY} L ${endX} ${endY}`,
     midX,
-    midY: startY + (endY - startY) / 2
+    midY: startY + (endY - startY) / 2,
   };
 };
 
@@ -247,7 +248,7 @@ export const RelationshipLineRenderer: React.FC<RelationshipLineRendererProps> =
   relationships,
   classPositions,
   classes,
-  zoom
+  zoom,
 }) => {
   // Group parallel relationships for offset calculation
   const relationshipGroups = new Map<string, UMLRelationship[]>();
@@ -289,7 +290,7 @@ export const RelationshipLineRenderer: React.FC<RelationshipLineRendererProps> =
             fromClass,
             toClass,
             offset,
-            zoom
+            zoom,
           );
 
           if (!result) return null;

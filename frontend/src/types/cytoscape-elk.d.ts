@@ -1,6 +1,6 @@
 declare module 'cytoscape-elk' {
   import cytoscape from 'cytoscape';
-  
-  const elk: (cytoscape: typeof cytoscape) => void;
+
+  const elk: (cy: typeof cytoscape) => void;
   export default elk;
 }

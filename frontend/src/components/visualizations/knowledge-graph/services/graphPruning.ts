@@ -1,5 +1,5 @@
-import type { GraphNode, GraphEdge } from '../../../../../../shared/src/types';
 import type { CentralityScores } from './centralityService';
+import type { GraphNode, GraphEdge } from '../../../../../../shared/src/types';
 
 export class GraphPruningService {
   /**
@@ -9,7 +9,7 @@ export class GraphPruningService {
     nodes: GraphNode[],
     edges: GraphEdge[],
     centralityScores: Map<string, CentralityScores>,
-    percentileThreshold: number
+    percentileThreshold: number,
   ): { nodes: GraphNode[]; edges: GraphEdge[] } {
     // Calculate threshold value
     const threshold = this.calculatePercentileThreshold(centralityScores, percentileThreshold);
@@ -24,7 +24,7 @@ export class GraphPruningService {
 
     // Filter edges to only include those between remaining nodes
     const prunedEdges = edges.filter(edge =>
-      prunedNodeIds.has(edge.source) && prunedNodeIds.has(edge.target)
+      prunedNodeIds.has(edge.source) && prunedNodeIds.has(edge.target),
     );
 
     return { nodes: prunedNodes, edges: prunedEdges };
@@ -36,13 +36,13 @@ export class GraphPruningService {
   filterByEntityType(
     nodes: GraphNode[],
     edges: GraphEdge[],
-    visibleTypes: Set<string>
+    visibleTypes: Set<string>,
   ): { nodes: GraphNode[]; edges: GraphEdge[] } {
     const filteredNodes = nodes.filter(node => visibleTypes.has(node.type));
     const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
 
     const filteredEdges = edges.filter(edge =>
-      filteredNodeIds.has(edge.source) && filteredNodeIds.has(edge.target)
+      filteredNodeIds.has(edge.source) && filteredNodeIds.has(edge.target),
     );
 
     return { nodes: filteredNodes, edges: filteredEdges };
@@ -54,20 +54,20 @@ export class GraphPruningService {
   filterBySearch(
     nodes: GraphNode[],
     edges: GraphEdge[],
-    searchQuery: string
+    searchQuery: string,
   ): { nodes: GraphNode[]; edges: GraphEdge[]; matchedNodeIds: string[] } {
     if (!searchQuery.trim()) {
       return {
         nodes,
         edges,
-        matchedNodeIds: []
+        matchedNodeIds: [],
       };
     }
 
     const query = searchQuery.toLowerCase();
     const matchedNodes = nodes.filter(node =>
-      node.label.toLowerCase().includes(query) ||
-      node.metadata.description?.toLowerCase().includes(query)
+      node.label.toLowerCase().includes(query)
+      || node.metadata.description?.toLowerCase().includes(query),
     );
 
     const matchedNodeIds = matchedNodes.map(n => n.id);
@@ -75,7 +75,7 @@ export class GraphPruningService {
     return {
       nodes,
       edges,
-      matchedNodeIds
+      matchedNodeIds,
     };
   }
 
@@ -84,7 +84,7 @@ export class GraphPruningService {
    */
   filterEdgesByType(
     edges: GraphEdge[],
-    visibleTypes: Set<string>
+    visibleTypes: Set<string>,
   ): GraphEdge[] {
     return edges.filter(edge => visibleTypes.has(edge.type));
   }
@@ -101,7 +101,7 @@ export class GraphPruningService {
       visibleEntityTypes?: Set<string>;
       visibleRelationTypes?: Set<string>;
       searchQuery?: string;
-    }
+    },
   ): {
     nodes: GraphNode[];
     edges: GraphEdge[];
@@ -117,7 +117,7 @@ export class GraphPruningService {
         filteredNodes,
         filteredEdges,
         filters.centralityScores,
-        filters.importanceThreshold
+        filters.importanceThreshold,
       );
       filteredNodes = result.nodes;
       filteredEdges = result.edges;
@@ -128,7 +128,7 @@ export class GraphPruningService {
       const result = this.filterByEntityType(
         filteredNodes,
         filteredEdges,
-        filters.visibleEntityTypes
+        filters.visibleEntityTypes,
       );
       filteredNodes = result.nodes;
       filteredEdges = result.edges;
@@ -138,7 +138,7 @@ export class GraphPruningService {
     if (filters.visibleRelationTypes && filters.visibleRelationTypes.size > 0) {
       filteredEdges = this.filterEdgesByType(
         filteredEdges,
-        filters.visibleRelationTypes
+        filters.visibleRelationTypes,
       );
     }
 
@@ -147,7 +147,7 @@ export class GraphPruningService {
       const result = this.filterBySearch(
         filteredNodes,
         filteredEdges,
-        filters.searchQuery
+        filters.searchQuery,
       );
       matchedNodeIds = result.matchedNodeIds;
     }
@@ -155,7 +155,7 @@ export class GraphPruningService {
     return {
       nodes: filteredNodes,
       edges: filteredEdges,
-      matchedNodeIds
+      matchedNodeIds,
     };
   }
 
@@ -164,7 +164,7 @@ export class GraphPruningService {
    */
   private calculatePercentileThreshold(
     scores: Map<string, CentralityScores>,
-    percentile: number
+    percentile: number,
   ): number {
     const values = Array.from(scores.values()).map(s => s.combined);
     values.sort((a, b) => a - b);
@@ -190,7 +190,7 @@ export class GraphPruningService {
    */
   removeIsolatedNodes(
     nodes: GraphNode[],
-    edges: GraphEdge[]
+    edges: GraphEdge[],
   ): { nodes: GraphNode[]; edges: GraphEdge[] } {
     const isolatedNodes = this.getIsolatedNodes(nodes, edges);
     const isolatedNodeIds = new Set(isolatedNodes.map(n => n.id));

@@ -15,7 +15,9 @@
  */
 
 import { HTMLAttributes, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
+
 import type { StageName } from './StageContainer';
 
 export interface StageIndicatorsProps extends HTMLAttributes<HTMLDivElement> {
@@ -63,7 +65,7 @@ export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
           '-translate-x-1/2',
           'flex',
           'z-[100]',
-          className
+          className,
         )}
         style={{
           gap: 'var(--spacing-md)',
@@ -89,7 +91,7 @@ export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
                 'duration-[var(--duration-normal)]',
                 'ease-[var(--ease-out)]',
                 !interactive && 'pointer-events-none',
-                isInteractive && 'cursor-pointer'
+                isInteractive && 'cursor-pointer',
               )}
               aria-label={`Go to ${stage} stage`}
               aria-current={isActive ? 'step' : undefined}
@@ -98,7 +100,7 @@ export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
         })}
       </div>
     );
-  }
+  },
 );
 
 StageIndicators.displayName = 'StageIndicators';

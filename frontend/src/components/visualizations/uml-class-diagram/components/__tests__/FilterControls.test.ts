@@ -1,10 +1,11 @@
 /**
  * FilterControls Tests
- * 
+ *
  * These tests focus on the logic for filtering and search functionality.
  */
 
 import { describe, it, expect } from 'vitest';
+
 import type { ClassEntity } from '@shared/types';
 
 describe('FilterControls Logic Tests', () => {
@@ -20,7 +21,7 @@ describe('FilterControls Logic Tests', () => {
       description: 'Handles user authentication',
       sourceQuote: 'UserService manages users',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-2',
@@ -33,7 +34,7 @@ describe('FilterControls Logic Tests', () => {
       description: 'User data access interface',
       sourceQuote: 'IUserRepository defines contract',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-3',
@@ -45,8 +46,8 @@ describe('FilterControls Logic Tests', () => {
       description: 'Base class for entities',
       sourceQuote: 'BaseEntity provides common functionality',
       sourceSpan: null,
-      documentLink: '#doc-1'
-    }
+      documentLink: '#doc-1',
+    },
   ];
 
   // Property Test 31: Type filter application
@@ -73,9 +74,9 @@ describe('FilterControls Logic Tests', () => {
     const searchClasses = (classes: ClassEntity[], searchTerm: string) => {
       const searchLower = searchTerm.toLowerCase();
       return classes.filter(cls =>
-        cls.name.toLowerCase().includes(searchLower) ||
-        cls.description?.toLowerCase().includes(searchLower) ||
-        cls.package?.toLowerCase().includes(searchLower)
+        cls.name.toLowerCase().includes(searchLower)
+        || cls.description?.toLowerCase().includes(searchLower)
+        || cls.package?.toLowerCase().includes(searchLower),
       );
     };
 
@@ -126,7 +127,7 @@ describe('FilterControls Logic Tests', () => {
     const applyCombinedFilters = (
       classes: ClassEntity[],
       typeFilter: Set<string>,
-      searchTerm: string
+      searchTerm: string,
     ) => {
       let filtered = classes;
 
@@ -139,9 +140,9 @@ describe('FilterControls Logic Tests', () => {
       if (searchTerm.trim()) {
         const searchLower = searchTerm.toLowerCase();
         filtered = filtered.filter(cls =>
-          cls.name.toLowerCase().includes(searchLower) ||
-          cls.description?.toLowerCase().includes(searchLower) ||
-          cls.package?.toLowerCase().includes(searchLower)
+          cls.name.toLowerCase().includes(searchLower)
+          || cls.description?.toLowerCase().includes(searchLower)
+          || cls.package?.toLowerCase().includes(searchLower),
         );
       }
 
@@ -151,7 +152,7 @@ describe('FilterControls Logic Tests', () => {
     // Filter for classes containing "User"
     const typeFilter = new Set(['class', 'interface']);
     const results = applyCombinedFilters(mockClasses, typeFilter, 'User');
-    
+
     expect(results.length).toBe(2); // UserService (class) and IUserRepository (interface)
     expect(results.every(cls => ['class', 'interface'].includes(cls.type))).toBe(true);
     expect(results.every(cls => cls.name.toLowerCase().includes('user'))).toBe(true);
@@ -161,12 +162,12 @@ describe('FilterControls Logic Tests', () => {
     const getFocusedClasses = (
       classes: ClassEntity[],
       focusedClassId: string | null,
-      relationships: Array<{ source: string; target: string }>
+      relationships: Array<{ source: string; target: string }>,
     ) => {
       if (!focusedClassId) return classes;
 
       const connectedIds = new Set([focusedClassId]);
-      
+
       // Add immediate neighbors
       relationships.forEach(rel => {
         if (rel.source === focusedClassId) {
@@ -181,7 +182,7 @@ describe('FilterControls Logic Tests', () => {
 
     const relationships = [
       { source: 'class-1', target: 'class-2' },
-      { source: 'class-2', target: 'class-3' }
+      { source: 'class-2', target: 'class-3' },
     ];
 
     // Focus on class-1
@@ -207,19 +208,19 @@ describe('FilterControls Logic Tests', () => {
       return {
         types: Array.from(types),
         stereotypes: Array.from(stereotypes),
-        packages: Array.from(packages)
+        packages: Array.from(packages),
       };
     };
 
     const options = extractFilterOptions(mockClasses);
-    
+
     expect(options.types).toContain('class');
     expect(options.types).toContain('interface');
     expect(options.types).toContain('abstract');
-    
+
     expect(options.stereotypes).toContain('service');
     expect(options.stereotypes).toContain('repository');
-    
+
     expect(options.packages).toContain('com.example.service');
     expect(options.packages).toContain('com.example.repository');
     expect(options.packages).toContain('com.example.entity');
@@ -229,8 +230,8 @@ describe('FilterControls Logic Tests', () => {
     const caseInsensitiveSearch = (classes: ClassEntity[], searchTerm: string) => {
       const searchLower = searchTerm.toLowerCase();
       return classes.filter(cls =>
-        cls.name.toLowerCase().includes(searchLower) ||
-        cls.description?.toLowerCase().includes(searchLower)
+        cls.name.toLowerCase().includes(searchLower)
+        || cls.description?.toLowerCase().includes(searchLower),
       );
     };
 
@@ -245,19 +246,19 @@ describe('FilterControls Logic Tests', () => {
     const applyEmptyFilters = (classes: ClassEntity[]) => {
       const emptyTypeFilter = new Set<string>();
       const emptySearchTerm = '';
-      
-      let filtered = classes;
-      
+
+      const filtered = classes;
+
       // Empty type filter should show all classes
       if (emptyTypeFilter.size === 0) {
         // No filtering applied
       }
-      
+
       // Empty search should show all classes
       if (!emptySearchTerm.trim()) {
         // No search filtering applied
       }
-      
+
       return filtered;
     };
 

@@ -1,14 +1,16 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-import { documentParser } from '../services/documentParser.js';
-import { textAnalyzer } from '../services/analysis/textAnalyzer.js';
-import { visualizationGenerator } from '../services/visualization/visualizationGenerator.js';
-import { visualizationService } from '../repositories/visualizationService.js';
-import { calculateContentHash } from '../utils/hash.js';
-import * as documentRepository from '../repositories/documentRepository.js';
+
 import * as analysisRepository from '../repositories/analysisRepository.js';
+import * as documentRepository from '../repositories/documentRepository.js';
+import { visualizationService } from '../repositories/visualizationService.js';
+import { textAnalyzer } from '../services/analysis/textAnalyzer.js';
+import { documentParser } from '../services/documentParser.js';
 import * as s3Storage from '../services/storage/s3Storage.js';
+import { visualizationGenerator } from '../services/visualization/visualizationGenerator.js';
+import { calculateContentHash } from '../utils/hash.js';
+
 import type { Document, DocumentAnalysis } from '../../shared/src/types.js';
 import type { DocumentRecord, AnalysisRecord } from '../repositories/types.js';
 
@@ -40,7 +42,7 @@ const progressStore = new Map<string, ProgressInfo>();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 1024 * 1024 * 1024 // 1GB
+    fileSize: 1024 * 1024 * 1024, // 1GB
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = ['text/plain', 'application/pdf', 'text/markdown'];
@@ -49,7 +51,7 @@ const upload = multer({
     } else {
       cb(new Error('Invalid file type. Only .txt, .pdf, and .md files are allowed.'));
     }
-  }
+  },
 });
 
 // In-memory storage (replace with database in production)
@@ -66,7 +68,7 @@ function toDocumentListItem(doc: Document): any {
     uploadDate: doc.metadata.uploadDate,
     tldr: analysis?.tldr,
     summaryHeadline: analysis?.executiveSummary?.headline,
-    wordCount: doc.metadata.wordCount
+    wordCount: doc.metadata.wordCount,
   };
 }
 
@@ -103,7 +105,7 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
     res.json({
       documentId: document.id,
       message: 'Document uploaded successfully',
-      document
+      document,
     });
   } catch (error: any) {
     console.error('Upload error:', error);
@@ -169,16 +171,16 @@ router.post('/analyze', async (req: Request, res: Response) => {
               document,
               analysis: cachedAnalysis.analysis,
               processingTime,
-              cached: true
+              cached: true,
             });
           }
         } else {
-          console.log(`❌ Cache MISS - will analyze and store`);
+          console.log('❌ Cache MISS - will analyze and store');
         }
       } catch (cacheError) {
         console.error('Cache lookup error (continuing with analysis):', cacheError);
         if (cacheError instanceof Error) {
-            console.error('Stack:', cacheError.stack);
+          console.error('Stack:', cacheError.stack);
         }
         // Continue with analysis if cache fails
       }
@@ -189,7 +191,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
       step: string,
       progress: number,
       message: string,
-      partialAnalysis?: Partial<DocumentAnalysis>
+      partialAnalysis?: Partial<DocumentAnalysis>,
     ) => {
       console.log(`[${document.id}] ${progress}% - ${message}`);
       progressStore.set(document.id, { step, progress, message, partialAnalysis });
@@ -208,7 +210,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
 
-        console.log(`💾 Storing document in S3 and DynamoDB...`);
+        console.log('💾 Storing document in S3 and DynamoDB...');
 
         // Upload to S3
         const s3Result = await s3Storage.uploadDocument(contentHash, filename, buffer);
@@ -254,12 +256,12 @@ router.post('/analyze', async (req: Request, res: Response) => {
           document,
           analysis,
           processingTime,
-          cached: false
+          cached: false,
         });
       } catch (storageError) {
         console.error('❌ Storage error:', storageError);
         if (storageError instanceof Error) {
-            console.error('Stack:', storageError.stack);
+          console.error('Stack:', storageError.stack);
         }
         // Return analysis even if storage fails
       }
@@ -270,7 +272,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
       document,
       analysis,
       processingTime,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Analysis error:', error);
@@ -305,7 +307,7 @@ router.get('/search', (req: Request, res: Response) => {
     res.json({
       documents: documentList,
       total: matchingDocs.length,
-      query
+      query,
     });
   } catch (error: any) {
     console.error('Search documents error:', error);
@@ -325,7 +327,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
   res.json({
     document,
-    analysis
+    analysis,
   });
 });
 
@@ -341,7 +343,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 
     // If not in memory, try loading from DynamoDB
     if (!document) {
-      console.log(`🔍 Document not in memory, checking DynamoDB...`);
+      console.log('🔍 Document not in memory, checking DynamoDB...');
       try {
         const docRecord = await documentRepository.findById(id);
         const analysisRecord = await analysisRepository.findByDocumentId(id);
@@ -360,7 +362,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
           document = await documentParser.parseDocument(
             contentBuffer,
             docRecord.filename,
-            docRecord.documentId  // Pass the original document ID to preserve it
+            docRecord.documentId,  // Pass the original document ID to preserve it
           );
 
           analysis = analysisRecord.analysis;
@@ -400,17 +402,17 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
     const data = await visualizationGenerator.generateVisualization(
       type as any,
       document,
-      analysis as any
+      analysis as any,
     );
 
     console.log(`✅ Visualization generation completed for ${type}`);
     console.log(`📤 Response data type: ${typeof data}`);
-    console.log(`📊 Data keys:`, Object.keys(data || {}));
+    console.log('📊 Data keys:', Object.keys(data || {}));
 
     res.json({
       type,
       data,
-      cached: false
+      cached: false,
     });
   } catch (error: any) {
     console.error('Visualization error:', error);
@@ -431,7 +433,7 @@ router.get('/:id/visualizations/:type', async (req: Request, res: Response) => {
         type,
         data: existingVisualization.visualizationData,
         cached: true,
-        metadata: existingVisualization.llmMetadata
+        metadata: existingVisualization.llmMetadata,
       });
     } else {
       res.status(404).json({ error: 'Visualization not found. Generate it first by POSTing to this endpoint.' });
@@ -454,7 +456,7 @@ router.get('/:id/visualizations', async (req: Request, res: Response) => {
       acc[viz.visualizationType] = {
         data: viz.visualizationData,
         metadata: viz.llmMetadata,
-        cached: true
+        cached: true,
       };
       return acc;
     }, {} as Record<string, any>);
@@ -462,7 +464,7 @@ router.get('/:id/visualizations', async (req: Request, res: Response) => {
     res.json({
       documentId: id,
       visualizations: result,
-      count: visualizations.length
+      count: visualizations.length,
     });
   } catch (error: any) {
     console.error('Get all visualizations error:', error);
@@ -507,7 +509,7 @@ router.get('/:id/full', async (req: Request, res: Response) => {
         const document = await documentParser.parseDocument(
           contentBuffer,
           docRecord.filename,
-          docRecord.documentId  // Pass the original document ID to preserve it
+          docRecord.documentId,  // Pass the original document ID to preserve it
         );
 
         // Extract visualizations from analysis if they exist
@@ -518,7 +520,7 @@ router.get('/:id/full', async (req: Request, res: Response) => {
         return res.json({
           document,
           analysis: analysisRecord.analysis,
-          visualizations: docVisualizations
+          visualizations: docVisualizations,
         });
       }
     } catch (dbError) {
@@ -542,7 +544,7 @@ router.get('/:id/full', async (req: Request, res: Response) => {
     res.json({
       document,
       analysis,
-      visualizations: docVisualizations
+      visualizations: docVisualizations,
     });
   } catch (error: any) {
     console.error('Get full document error:', error);
@@ -576,7 +578,7 @@ router.get('/', async (req: Request, res: Response) => {
             summaryHeadline: analysisRecord?.analysis?.executiveSummary?.headline,
             wordCount: 0, // Not stored in DynamoDB record
           };
-        })
+        }),
       );
 
       console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
@@ -604,7 +606,7 @@ router.get('/', async (req: Request, res: Response) => {
       documents: documentList,
       total,
       limit,
-      offset
+      offset,
     });
   } catch (error: any) {
     console.error('List documents error:', error);

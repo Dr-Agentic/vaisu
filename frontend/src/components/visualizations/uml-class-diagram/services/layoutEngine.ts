@@ -1,6 +1,7 @@
 import dagre from 'dagre';
-import type { ClassEntity, UMLRelationship, Position } from '@shared/types';
+
 import type { LayoutResult } from '../stores/umlDiagramStore';
+import type { ClassEntity, UMLRelationship, Position } from '@shared/types';
 
 export interface LayoutOptions {
   algorithm: 'hierarchical' | 'force-directed' | 'orthogonal';
@@ -19,7 +20,7 @@ const DEFAULT_OPTIONS: Required<LayoutOptions> = {
   rankSeparation: 120,
   edgeSeparation: 10,
   nodeWidth: 200,
-  nodeHeight: 120
+  nodeHeight: 120,
 };
 
 /**
@@ -72,7 +73,7 @@ function detectAndRemoveCycles(relationships: UMLRelationship[]): UMLRelationshi
 
   // Remove cyclic edges
   return relationships.filter(rel =>
-    rel.type !== 'inheritance' || !cyclicEdges.has(`${rel.source}-${rel.target}`)
+    rel.type !== 'inheritance' || !cyclicEdges.has(`${rel.source}-${rel.target}`),
   );
 }
 
@@ -81,7 +82,7 @@ function detectAndRemoveCycles(relationships: UMLRelationship[]): UMLRelationshi
  */
 function preventCollisions(
   positions: Map<string, Position>,
-  options: Required<LayoutOptions>
+  options: Required<LayoutOptions>,
 ): Map<string, Position> {
   const adjustedPositions = new Map(positions);
   const { nodeWidth, nodeHeight, nodeSeparation, rankSeparation } = options;
@@ -125,7 +126,7 @@ class LayoutEngine {
   async compute(
     classes: ClassEntity[],
     relationships: UMLRelationship[],
-    options: Partial<LayoutOptions> = {}
+    options: Partial<LayoutOptions> = {},
   ): Promise<LayoutResult> {
     const opts = { ...DEFAULT_OPTIONS, ...options };
 
@@ -173,7 +174,7 @@ class LayoutEngine {
   private generateCacheKey(
     classes: ClassEntity[],
     relationships: UMLRelationship[],
-    options: Required<LayoutOptions>
+    options: Required<LayoutOptions>,
   ): string {
     const classIds = classes.map(c => c.id).sort().join(',');
     const relationshipIds = relationships.map(r => `${r.source}-${r.target}-${r.type}`).sort().join(',');
@@ -188,7 +189,7 @@ class LayoutEngine {
   private computeHierarchicalLayout(
     classes: ClassEntity[],
     relationships: UMLRelationship[],
-    options: Required<LayoutOptions>
+    options: Required<LayoutOptions>,
   ): LayoutResult {
     // Create dagre graph
     const g = new dagre.graphlib.Graph();
@@ -197,7 +198,7 @@ class LayoutEngine {
       ranksep: options.rankSeparation,
       nodesep: options.nodeSeparation,
       marginx: 20,
-      marginy: 20
+      marginy: 20,
     });
     g.setDefaultEdgeLabel(() => ({}));
 
@@ -206,7 +207,7 @@ class LayoutEngine {
       g.setNode(classEntity.id, {
         width: options.nodeWidth,
         height: options.nodeHeight,
-        label: classEntity.name
+        label: classEntity.name,
       });
     });
 
@@ -215,7 +216,7 @@ class LayoutEngine {
 
     // Filter out relationships where source or target doesn't exist to prevent undefined errors
     const validRelationships = relationships.filter(rel =>
-      validClassIds.has(rel.source) && validClassIds.has(rel.target)
+      validClassIds.has(rel.source) && validClassIds.has(rel.target),
     );
 
     // Remove cycles from relationships before adding edges
@@ -245,7 +246,7 @@ class LayoutEngine {
       const node = g.node(nodeId);
       positions.set(nodeId, {
         x: node.x - node.width / 2,
-        y: node.y - node.height / 2
+        y: node.y - node.height / 2,
       });
     });
 
@@ -265,7 +266,7 @@ class LayoutEngine {
           { x: sourcePos.x + options.nodeWidth / 2, y: sourcePos.y + options.nodeHeight / 2 },
           { x: midX, y: sourcePos.y + options.nodeHeight / 2 },
           { x: midX, y: targetPos.y + options.nodeHeight / 2 },
-          { x: targetPos.x + options.nodeWidth / 2, y: targetPos.y + options.nodeHeight / 2 }
+          { x: targetPos.x + options.nodeWidth / 2, y: targetPos.y + options.nodeHeight / 2 },
         ];
         edges.set(rel.id, { points });
       }
@@ -287,14 +288,14 @@ class LayoutEngine {
       x: minX - padding,
       y: minY - padding,
       width: (maxX - minX) + (2 * padding),
-      height: (maxY - minY) + (2 * padding)
+      height: (maxY - minY) + (2 * padding),
     };
 
     return {
       positions: adjustedPositions,
       edges,
       bounds,
-      computationTime: 0 // Will be set by caller
+      computationTime: 0, // Will be set by caller
     };
   }
 
@@ -312,7 +313,7 @@ class LayoutEngine {
 
       positions.set(classEntity.id, {
         x: col * spacing,
-        y: row * spacing
+        y: row * spacing,
       });
     });
 
@@ -326,9 +327,9 @@ class LayoutEngine {
         x: 0,
         y: 0,
         width: cols * spacing,
-        height: rows * spacing
+        height: rows * spacing,
       },
-      computationTime: 0
+      computationTime: 0,
     };
   }
 
@@ -341,11 +342,9 @@ class LayoutEngine {
 
     return {
       x: Math.max(0, centerX),
-      y: Math.max(0, centerY)
+      y: Math.max(0, centerY),
     };
   }
-
-
 }
 
 export const layoutEngine = new LayoutEngine();

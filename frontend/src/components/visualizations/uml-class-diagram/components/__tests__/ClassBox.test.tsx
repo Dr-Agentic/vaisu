@@ -1,11 +1,12 @@
 /**
  * ClassBox Component Tests
- * 
+ *
  * These tests focus on the logic and data structure validation for UML class rendering.
  * DOM testing requires additional setup with @testing-library/react and jsdom.
  */
 
 import { describe, it, expect, vi } from 'vitest';
+
 import type { ClassEntity } from '@shared/types';
 
 const mockClassEntity: ClassEntity = {
@@ -20,7 +21,7 @@ const mockClassEntity: ClassEntity = {
       name: 'userRepository',
       type: 'UserRepository',
       visibility: 'private',
-      isStatic: false
+      isStatic: false,
     },
     {
       id: 'attr-2',
@@ -28,8 +29,8 @@ const mockClassEntity: ClassEntity = {
       type: 'Logger',
       visibility: 'protected',
       isStatic: true,
-      defaultValue: 'LoggerFactory.getLogger()'
-    }
+      defaultValue: 'LoggerFactory.getLogger()',
+    },
   ],
   methods: [
     {
@@ -41,8 +42,8 @@ const mockClassEntity: ClassEntity = {
       isAbstract: false,
       parameters: [
         { name: 'username', type: 'String' },
-        { name: 'password', type: 'String' }
-      ]
+        { name: 'password', type: 'String' },
+      ],
     },
     {
       id: 'method-2',
@@ -51,13 +52,13 @@ const mockClassEntity: ClassEntity = {
       visibility: 'private',
       isStatic: false,
       isAbstract: false,
-      parameters: [{ name: 'user', type: 'User' }]
-    }
+      parameters: [{ name: 'user', type: 'User' }],
+    },
   ],
   description: 'Handles user authentication and management',
   sourceQuote: 'The UserService class manages user operations',
   sourceSpan: null,
-  documentLink: '#document-1'
+  documentLink: '#document-1',
 };
 
 const mockInterfaceEntity: ClassEntity = {
@@ -73,13 +74,13 @@ const mockInterfaceEntity: ClassEntity = {
       visibility: 'public',
       isStatic: false,
       isAbstract: true,
-      parameters: [{ name: 'id', type: 'String' }]
-    }
+      parameters: [{ name: 'id', type: 'String' }],
+    },
   ],
   description: 'Repository interface for user data access',
   sourceQuote: 'IUserRepository defines the contract',
   sourceSpan: null,
-  documentLink: '#document-1'
+  documentLink: '#document-1',
 };
 
 const mockAbstractEntity: ClassEntity = {
@@ -95,25 +96,25 @@ const mockAbstractEntity: ClassEntity = {
       visibility: 'public',
       isStatic: false,
       isAbstract: true,
-      parameters: []
-    }
+      parameters: [],
+    },
   ],
   description: 'Base class for all services',
   sourceQuote: 'BaseService provides common functionality',
   sourceSpan: null,
-  documentLink: '#document-1'
+  documentLink: '#document-1',
 };
 
 describe('ClassBox Logic Tests', () => {
   // Property 11: Three-compartment structure validation
   it('should validate class entity has all required compartments (Property 11)', () => {
-    // Property 11: For any class entity, it should have the structure for 
+    // Property 11: For any class entity, it should have the structure for
     // three compartments: name, attributes, and methods
-    
+
     expect(mockClassEntity.name).toBeDefined();
     expect(mockClassEntity.attributes).toBeDefined();
     expect(mockClassEntity.methods).toBeDefined();
-    
+
     // Validate compartment data types
     expect(typeof mockClassEntity.name).toBe('string');
     expect(Array.isArray(mockClassEntity.attributes)).toBe(true);
@@ -124,7 +125,7 @@ describe('ClassBox Logic Tests', () => {
   it('should validate class name requirements (Property 12)', () => {
     // Property 12: For any class entity, the name should be a non-empty string
     // suitable for display with proper formatting
-    
+
     expect(mockClassEntity.name).toBeDefined();
     expect(typeof mockClassEntity.name).toBe('string');
     expect(mockClassEntity.name.length).toBeGreaterThan(0);
@@ -143,7 +144,7 @@ describe('ClassBox Logic Tests', () => {
 
   it('should format attribute signatures correctly', () => {
     const attr = mockClassEntity.attributes[0];
-    
+
     // Test visibility symbol mapping
     expect(['public', 'private', 'protected', 'package']).toContain(attr.visibility);
     expect(typeof attr.name).toBe('string');
@@ -153,7 +154,7 @@ describe('ClassBox Logic Tests', () => {
 
   it('should format method signatures correctly', () => {
     const method = mockClassEntity.methods[0];
-    
+
     // Test method structure
     expect(['public', 'private', 'protected', 'package']).toContain(method.visibility);
     expect(typeof method.name).toBe('string');
@@ -161,7 +162,7 @@ describe('ClassBox Logic Tests', () => {
     expect(typeof method.isStatic).toBe('boolean');
     expect(typeof method.isAbstract).toBe('boolean');
     expect(Array.isArray(method.parameters)).toBe(true);
-    
+
     // Test parameter structure
     method.parameters.forEach(param => {
       expect(typeof param.name).toBe('string');
@@ -190,7 +191,7 @@ describe('ClassBox Logic Tests', () => {
   it('should validate static member identification', () => {
     const staticAttr = mockClassEntity.attributes.find(a => a.isStatic);
     const nonStaticAttr = mockClassEntity.attributes.find(a => !a.isStatic);
-    
+
     expect(staticAttr).toBeDefined();
     expect(nonStaticAttr).toBeDefined();
     expect(staticAttr?.isStatic).toBe(true);
@@ -200,7 +201,7 @@ describe('ClassBox Logic Tests', () => {
   it('should validate abstract method identification', () => {
     const abstractMethod = mockAbstractEntity.methods.find(m => m.isAbstract);
     const concreteMethod = mockClassEntity.methods.find(m => !m.isAbstract);
-    
+
     expect(abstractMethod).toBeDefined();
     expect(concreteMethod).toBeDefined();
     expect(abstractMethod?.isAbstract).toBe(true);
@@ -244,14 +245,14 @@ describe('ClassBox Logic Tests', () => {
     const mockHandlers = {
       onHover: vi.fn(),
       onHoverEnd: vi.fn(),
-      onClick: vi.fn()
+      onClick: vi.fn(),
     };
 
     // Test that handlers are functions
     expect(typeof mockHandlers.onHover).toBe('function');
     expect(typeof mockHandlers.onHoverEnd).toBe('function');
     expect(typeof mockHandlers.onClick).toBe('function');
-    
+
     // Test handler calls
     mockHandlers.onClick(mockClassEntity);
     expect(mockHandlers.onClick).toHaveBeenCalledWith(mockClassEntity);

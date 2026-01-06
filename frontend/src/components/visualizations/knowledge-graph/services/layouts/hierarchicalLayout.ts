@@ -1,18 +1,20 @@
 import dagre from 'dagre';
-import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
+
 import { LayoutEngine, type LayoutOptions, type NodePositions } from '../layoutEngine';
+
+import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
 
 export class HierarchicalLayout extends LayoutEngine {
   async compute(
     nodes: GraphNode[],
     edges: GraphEdge[],
-    options: LayoutOptions = {}
+    options: LayoutOptions = {},
   ): Promise<NodePositions> {
     const {
       width = 1200,
       height = 800,
       nodeSpacing = 100,
-      levelSeparation = 150
+      levelSeparation = 150,
     } = options;
 
     if (nodes.length === 0) {
@@ -21,14 +23,14 @@ export class HierarchicalLayout extends LayoutEngine {
 
     // Create dagre graph
     const g = new dagre.graphlib.Graph();
-    
+
     // Set graph options
     g.setGraph({
       rankdir: 'TB', // Top to bottom
       nodesep: nodeSpacing,
       ranksep: levelSeparation,
       marginx: 50,
-      marginy: 50
+      marginy: 50,
     });
 
     // Default node and edge labels
@@ -39,7 +41,7 @@ export class HierarchicalLayout extends LayoutEngine {
       g.setNode(node.id, {
         label: node.label,
         width: node.size * 2 || 60,
-        height: node.size * 1.5 || 45
+        height: node.size * 1.5 || 45,
       });
     });
 
@@ -58,13 +60,13 @@ export class HierarchicalLayout extends LayoutEngine {
       if (dagreNode) {
         positions.set(node.id, {
           x: dagreNode.x,
-          y: dagreNode.y
+          y: dagreNode.y,
         });
       } else {
         // Fallback for disconnected nodes
         positions.set(node.id, {
           x: Math.random() * width,
-          y: Math.random() * height
+          y: Math.random() * height,
         });
       }
     });

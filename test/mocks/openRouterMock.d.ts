@@ -136,22 +136,22 @@ export declare const mockOpenRouterResponses: {
  * matching the format returned by the real OpenRouterClient
  */
 export declare function createMockOpenRouterClient(): {
-    call: import("vitest").Mock<any, any>;
-    callWithFallback: import("vitest").Mock<any, any>;
-    parseJSONResponse: import("vitest").Mock<any, any>;
+    call: import('vitest').Mock<any, any>;
+    callWithFallback: import('vitest').Mock<any, any>;
+    parseJSONResponse: import('vitest').Mock<any, any>;
 };
 /**
  * Mock for testing API failures
  */
 export declare function createFailingMockOpenRouterClient(): {
-    call: import("vitest").Mock<any, any>;
-    callWithFallback: import("vitest").Mock<any, any>;
+    call: import('vitest').Mock<any, any>;
+    callWithFallback: import('vitest').Mock<any, any>;
 };
 /**
  * Mock for testing slow responses
  */
 export declare function createSlowMockOpenRouterClient(): {
-    call: import("vitest").Mock<any, any>;
-    callWithFallback: import("vitest").Mock<any, any>;
+    call: import('vitest').Mock<any, any>;
+    callWithFallback: import('vitest').Mock<any, any>;
 };
 //# sourceMappingURL=openRouterMock.d.ts.map

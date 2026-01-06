@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { TextAnalyzer } from '../textAnalyzer';
-import { createMockOpenRouterClient } from '../../../../../test/mocks/openRouterMock';
+
 import {
   SMALL_BUSINESS_REPORT,
   PROCESS_DOCUMENT,
   TECHNICAL_SPEC,
-  QUANTITATIVE_REPORT
+  QUANTITATIVE_REPORT,
 } from '../../../../../test/fixtures/documents';
+import { createMockOpenRouterClient } from '../../../../../test/mocks/openRouterMock';
+import { TextAnalyzer } from '../textAnalyzer';
 
 describe('TextAnalyzer', () => {
   let analyzer: TextAnalyzer;
@@ -32,7 +33,7 @@ describe('TextAnalyzer', () => {
       expect(tldr.model).toBeDefined();
       expect(mockLLMClient.callWithFallback).toHaveBeenCalledWith(
         'tldr',
-        expect.any(String)
+        expect.any(String),
       );
     });
 
@@ -79,7 +80,7 @@ describe('TextAnalyzer', () => {
 
       expect(mockLLMClient.callWithFallback).toHaveBeenCalledWith(
         'executiveSummary',
-        expect.any(String)
+        expect.any(String),
       );
     });
   });
@@ -119,6 +120,96 @@ describe('TextAnalyzer', () => {
     });
   });
 
+  describe('generateSectionSummaries', () => {
+    it('should recursively generate summaries and keywords for nested sections', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: 'Content',
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: {
+          sections: [
+            {
+              id: 's1',
+              content: 'Section 1 content with enough length to trigger summary...'.repeat(5),
+              children: [
+                {
+                  id: 's1-1',
+                  content: 'Subsection 1.1 content with enough length...'.repeat(5),
+                  children: [],
+                }
+              ]
+            }
+          ],
+          hierarchy: []
+        },
+      } as any;
+
+      // Mock LLM response for section summary
+      mockLLMClient.callWithFallback.mockImplementation((task: string) => {
+        if (task === 'sectionSummary') {
+          return Promise.resolve({
+            content: JSON.stringify({
+              summary: 'Mocked summary',
+              keywords: ['mock', 'keyword'],
+            }),
+            tokensUsed: 10,
+            model: 'test',
+          });
+        }
+        return Promise.resolve({ content: '{}', tokensUsed: 0, model: 'test' });
+      });
+
+      await analyzer.generateSectionSummaries(mockDocument);
+
+      const s1 = mockDocument.structure.sections[0];
+      const s1_1 = s1.children[0];
+
+      expect(s1.summary).toBe('Mocked summary');
+      expect(s1.keywords).toEqual(['mock', 'keyword']);
+
+      expect(s1_1.summary).toBe('Mocked summary');
+      expect(s1_1.keywords).toEqual(['mock', 'keyword']);
+    });
+
+    it('should fallback to text content if JSON parsing fails', async () => {
+      const mockDocument = {
+        id: 'test',
+        title: 'Test',
+        content: 'Content',
+        metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
+        structure: {
+          sections: [
+            {
+              id: 's1',
+              content: 'Section 1 content with enough length...'.repeat(5),
+              children: [],
+            },
+          ],
+          hierarchy: [],
+        },
+      } as any;
+
+      // Mock LLM response with invalid JSON
+      mockLLMClient.callWithFallback.mockResolvedValue({
+        content: 'Plain text summary',
+        tokensUsed: 10,
+        model: 'test',
+      });
+
+      // Mock parsing failure
+      mockLLMClient.parseJSONResponse.mockImplementation(() => {
+        throw new Error('Invalid JSON');
+      });
+
+      await analyzer.generateSectionSummaries(mockDocument);
+
+      const s1 = mockDocument.structure.sections[0];
+      expect(s1.summary).toBe('Plain text summary');
+      expect(s1.keywords).toEqual([]);
+    });
+  });
+
   describe('recommendVisualizations', () => {
     it('should recommend 3-5 visualizations', async () => {
       const mockDocument = {
@@ -126,7 +217,7 @@ describe('TextAnalyzer', () => {
         title: 'Test',
         content: SMALL_BUSINESS_REPORT,
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
-        structure: { sections: [{} as any, {} as any], hierarchy: [] }
+        structure: { sections: [{} as any, {} as any], hierarchy: [] },
       } as any;
 
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
@@ -135,7 +226,7 @@ describe('TextAnalyzer', () => {
         mockDocument,
         mockSignals,
         5, // entityCount
-        3  // relationshipCount
+        3,  // relationshipCount
       );
 
       expect(recommendations.length).toBeGreaterThanOrEqual(3);
@@ -148,7 +239,7 @@ describe('TextAnalyzer', () => {
         title: 'Test',
         content: SMALL_BUSINESS_REPORT,
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
-        structure: { sections: [{} as any], hierarchy: [] }
+        structure: { sections: [{} as any], hierarchy: [] },
       } as any;
 
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
@@ -157,7 +248,7 @@ describe('TextAnalyzer', () => {
         mockDocument,
         mockSignals,
         5,
-        3
+        3,
       );
 
       recommendations.forEach(rec => {
@@ -174,7 +265,7 @@ describe('TextAnalyzer', () => {
         title: 'Test',
         content: SMALL_BUSINESS_REPORT,
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
-        structure: { sections: [{} as any], hierarchy: [] }
+        structure: { sections: [{} as any], hierarchy: [] },
       } as any;
 
       const mockSignals = { structural: 0.8, process: 0.3, quantitative: 0.5, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
@@ -183,12 +274,12 @@ describe('TextAnalyzer', () => {
         mockDocument,
         mockSignals,
         5,
-        3
+        3,
       );
 
       for (let i = 0; i < recommendations.length - 1; i++) {
         expect(recommendations[i].score).toBeGreaterThanOrEqual(
-          recommendations[i + 1].score
+          recommendations[i + 1].score,
         );
       }
     });
@@ -199,7 +290,7 @@ describe('TextAnalyzer', () => {
         title: 'Test',
         content: QUANTITATIVE_REPORT,
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
-        structure: { sections: [{} as any], hierarchy: [] }
+        structure: { sections: [{} as any], hierarchy: [] },
       } as any;
 
       const mockSignals = { structural: 0.5, process: 0.2, quantitative: 0.9, technical: 0.2, argumentative: 0.3, temporal: 0.2 };
@@ -208,11 +299,11 @@ describe('TextAnalyzer', () => {
         mockDocument,
         mockSignals,
         5,
-        3
+        3,
       );
 
       const hasExecutiveDashboard = recommendations.some(
-        rec => rec.type === 'executive-dashboard'
+        rec => rec.type === 'executive-dashboard',
       );
 
       // Debug: log recommendations if test fails
@@ -229,7 +320,7 @@ describe('TextAnalyzer', () => {
         title: 'Test',
         content: PROCESS_DOCUMENT,
         metadata: { wordCount: 100, uploadDate: new Date(), fileType: 'txt', language: 'en' },
-        structure: { sections: [{} as any], hierarchy: [] }
+        structure: { sections: [{} as any], hierarchy: [] },
       } as any;
 
       const mockSignals = { structural: 0.5, process: 0.9, quantitative: 0.2, technical: 0.3, argumentative: 0.2, temporal: 0.3 };
@@ -238,11 +329,11 @@ describe('TextAnalyzer', () => {
         mockDocument,
         mockSignals,
         5,
-        3
+        3,
       );
 
       const hasFlowchart = recommendations.some(
-        rec => rec.type === 'flowchart' || rec.type === 'swimlane'
+        rec => rec.type === 'flowchart' || rec.type === 'swimlane',
       );
       expect(hasFlowchart).toBe(true);
     });
@@ -258,12 +349,12 @@ describe('TextAnalyzer', () => {
           wordCount: 100,
           uploadDate: new Date(),
           fileType: 'txt',
-          language: 'en'
+          language: 'en',
         },
         structure: {
           sections: [],
-          hierarchy: []
-        }
+          hierarchy: [],
+        },
       };
 
       const analysis = await analyzer.analyzeDocument(parsedDoc);
@@ -283,12 +374,12 @@ describe('TextAnalyzer', () => {
           wordCount: 100,
           uploadDate: new Date(),
           fileType: 'txt',
-          language: 'en'
+          language: 'en',
         },
         structure: {
           sections: [],
-          hierarchy: []
-        }
+          hierarchy: [],
+        },
       };
 
       const start = Date.now();
@@ -302,12 +393,12 @@ describe('TextAnalyzer', () => {
   describe('error handling', () => {
     it('should handle LLM API failures gracefully', async () => {
       const failingClient = {
-        callWithFallback: vi.fn().mockRejectedValue(new Error('API Error'))
+        callWithFallback: vi.fn().mockRejectedValue(new Error('API Error')),
       };
       const failingAnalyzer = new TextAnalyzer(failingClient);
 
       await expect(
-        failingAnalyzer.generateTLDR(SMALL_BUSINESS_REPORT)
+        failingAnalyzer.generateTLDR(SMALL_BUSINESS_REPORT),
       ).rejects.toThrow();
     });
 
@@ -322,9 +413,9 @@ describe('TextAnalyzer', () => {
           return {
             content: 'Success after retry',
             tokensUsed: 100,
-            model: 'test-model'
+            model: 'test-model',
           };
-        })
+        }),
       };
 
       const retryAnalyzer = new TextAnalyzer(retryClient);

@@ -1,6 +1,6 @@
 /**
  * Theme Provider
- * 
+ *
  * Provides theme context and system preference detection.
  * Supports light, dark, and system (auto) modes.
  */
@@ -48,20 +48,20 @@ export function ThemeProvider({
 }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     if (typeof window === 'undefined') return defaultTheme;
-    
+
     const stored = localStorage.getItem(storageKey) as ThemeMode | null;
     return (stored && ['light', 'dark', 'system'].includes(stored)) ? stored : defaultTheme;
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() => 
-    resolveTheme(theme)
+  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>(() =>
+    resolveTheme(theme),
   );
 
   // Update resolved theme when theme mode changes
   useEffect(() => {
     const resolved = resolveTheme(theme);
     setResolvedTheme(resolved);
-    
+
     // Update data-theme attribute
     const root = document.documentElement;
     if (theme === 'system') {
@@ -108,7 +108,7 @@ export function ThemeProvider({
 
 /**
  * Hook to access theme context
- * 
+ *
  * @throws Error if used outside ThemeProvider
  */
 export function useTheme(): ThemeContextValue {

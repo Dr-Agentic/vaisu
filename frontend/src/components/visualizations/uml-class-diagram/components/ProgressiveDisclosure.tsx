@@ -1,6 +1,7 @@
-import React from 'react';
-import type { ClassEntity } from '@shared/types';
 import DOMPurify from 'dompurify';
+import React from 'react';
+
+import type { ClassEntity } from '@shared/types';
 
 interface ProgressiveDisclosureProps {
   classEntity: ClassEntity;
@@ -27,7 +28,7 @@ export function getVisibilityConfig(zoom: number): VisibilityConfig {
       showMethods: false,
       showDetails: false,
       showParameterNames: false,
-      showEdgeLabels: false
+      showEdgeLabels: false,
     };
   } else if (zoom < 0.9) {
     // Medium zoom - show attributes but hide methods
@@ -36,7 +37,7 @@ export function getVisibilityConfig(zoom: number): VisibilityConfig {
       showMethods: false,
       showDetails: false,
       showParameterNames: false,
-      showEdgeLabels: false
+      showEdgeLabels: false,
     };
   } else if (zoom < 1.5) {
     // Normal zoom - show all compartments
@@ -45,7 +46,7 @@ export function getVisibilityConfig(zoom: number): VisibilityConfig {
       showMethods: true,
       showDetails: false,
       showParameterNames: false,
-      showEdgeLabels: false
+      showEdgeLabels: false,
     };
   } else {
     // High zoom - show enhanced details
@@ -54,7 +55,7 @@ export function getVisibilityConfig(zoom: number): VisibilityConfig {
       showMethods: true,
       showDetails: true,
       showParameterNames: true,
-      showEdgeLabels: true
+      showEdgeLabels: true,
     };
   }
 }
@@ -86,7 +87,7 @@ export function shouldUseScrollableCompartment(memberCount: number, zoom: number
  */
 export function formatMethodSignature(
   method: ClassEntity['methods'][0],
-  config: VisibilityConfig
+  config: VisibilityConfig,
 ): string {
   const visibility = getVisibilitySymbol(method.visibility);
   const name = method.isAbstract ? `<i>${method.name}</i>` : method.name;
@@ -113,7 +114,7 @@ export function formatMethodSignature(
  */
 export function formatAttributeSignature(
   attribute: ClassEntity['attributes'][0],
-  config: VisibilityConfig
+  config: VisibilityConfig,
 ): string {
   const visibility = getVisibilitySymbol(attribute.visibility);
   const isStatic = attribute.isStatic ? '<u>' : '';
@@ -146,7 +147,7 @@ function getVisibilitySymbol(visibility: string): string {
  */
 export const ProgressiveDisclosure: React.FC<ProgressiveDisclosureProps> = ({
   zoom,
-  children
+  children,
 }) => {
   const fontSize = getFontSize(zoom);
 
@@ -155,7 +156,7 @@ export const ProgressiveDisclosure: React.FC<ProgressiveDisclosureProps> = ({
       className="transition-all duration-250 ease-out"
       style={{
         fontSize: `${fontSize}px`,
-        transform: `scale(${Math.max(0.8, Math.min(1.2, zoom))})`
+        transform: `scale(${Math.max(0.8, Math.min(1.2, zoom))})`,
       }}
     >
       {children}
@@ -179,7 +180,7 @@ export const ProgressiveCompartment: React.FC<CompartmentProps> = ({
   items,
   zoom,
   visible,
-  maxItems = 10
+  maxItems = 10,
 }) => {
   if (!visible) return null;
 
@@ -203,8 +204,8 @@ export const ProgressiveCompartment: React.FC<CompartmentProps> = ({
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(item.signature, {
                 ALLOWED_TAGS: ['i', 'u', 'em', 'strong'],
-                ALLOWED_ATTR: []
-              })
+                ALLOWED_ATTR: [],
+              }),
             }}
           />
         ))}
@@ -230,7 +231,7 @@ interface EnhancedDetailsProps {
 export const EnhancedDetails: React.FC<EnhancedDetailsProps> = ({
   classEntity,
   zoom,
-  visible
+  visible,
 }) => {
   if (!visible || zoom < 1.5) return null;
 
@@ -271,7 +272,7 @@ export const ZoomBasedEdgeLabel: React.FC<ZoomBasedEdgeLabelProps> = ({
   zoom,
   minZoom = 1.2,
   x,
-  y
+  y,
 }) => {
   if (zoom < minZoom) return null;
 

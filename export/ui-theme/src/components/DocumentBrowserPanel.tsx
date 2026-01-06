@@ -10,12 +10,15 @@
  * ```
  */
 
-import { useEffect, useState, useCallback, memo } from 'react';
 import { Search, FileX, Loader2, FileText, Clock } from 'lucide-react';
-import { useDocumentStore } from '../../stores/documentStore';
-import type { DocumentListItem as DocumentListItemType } from '../../stores/documentStore';
-import { cn } from '../../lib/utils';
+import { useEffect, useState, useCallback, memo } from 'react';
 import { List as VirtualizedList } from 'react-virtualized';
+
+import { cn } from '../../lib/utils';
+import { useDocumentStore } from '../../stores/documentStore';
+
+import type { DocumentListItem as DocumentListItemType } from '../../stores/documentStore';
+
 
 export interface DocumentBrowserPanelProps {
   /**
@@ -36,7 +39,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
     isLoadingList,
     fetchDocumentList,
     searchDocuments,
-    document: currentDocument
+    document: currentDocument,
   } = useDocumentStore();
 
   const [searchQuery, setSearchQueryState] = useState('');
@@ -102,7 +105,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
         className={cn(
           'relative',
           'transition-all',
-          'duration-[var(--duration-fast)]'
+          'duration-[var(--duration-fast)]',
         )}
         style={{
           backgroundColor: 'var(--color-surface-base)',
@@ -117,7 +120,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
             'top-1/2',
             '-translate-y-1/2',
             'transition-colors',
-            'duration-[var(--duration-fast)]'
+            'duration-[var(--duration-fast)]',
           )}
           style={{
             width: '20px',
@@ -138,7 +141,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
             'bg-transparent',
             'outline-none',
             'transition-colors',
-            'duration-[var(--duration-fast)]'
+            'duration-[var(--duration-fast)]',
           )}
           style={{
             color: 'var(--color-text-primary)',
@@ -158,7 +161,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
               'rounded-sm',
               'hover:bg-white/10',
               'transition-colors',
-              'duration-[var(--duration-fast)]'
+              'duration-[var(--duration-fast)]',
             )}
             aria-label="Clear search"
           >
@@ -175,7 +178,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
           'flex-1',
           'overflow-y-auto',
           'pr-2',
-          'custom-scrollbar'
+          'custom-scrollbar',
         )}
         style={{
           maxHeight: 'calc(100vh - 250px)',
@@ -189,7 +192,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
               'items-center',
               'justify-center',
               'py-16',
-              'gap-4'
+              'gap-4',
             )}
           >
             <Loader2
@@ -218,7 +221,7 @@ export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelPro
               'justify-center',
               'py-16',
               'px-4',
-              'text-center'
+              'text-center',
             )}
           >
             <FileX
@@ -343,7 +346,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
         'transition-all',
         'duration-[var(--duration-normal)]',
         'group',
-        'outline-none'
+        'outline-none',
       )}
       style={{
         backgroundColor: isActive
@@ -383,7 +386,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
             'mt-0.5',
             'transition-transform',
             'duration-[var(--duration-fast)]',
-            'group-hover:scale-110'
+            'group-hover:scale-110',
           )}
           role="img"
           aria-label={`${document.fileType} file`}
@@ -400,7 +403,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
               'items-start',
               'justify-between',
               'gap-3',
-              'mb-2'
+              'mb-2',
             )}
           >
             <h3
@@ -414,7 +417,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
             >
               {document.title}
             </h3>
-            <span 
+            <span
               className="font-mono opacity-40 text-[10px] ml-2 shrink-0"
               style={{ color: 'var(--color-text-tertiary)' }}
             >
@@ -425,7 +428,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
                 'flex',
                 'items-center',
                 'gap-1',
-                'flex-shrink-0'
+                'flex-shrink-0',
               )}
               style={{
                 color: 'var(--color-text-tertiary)',
@@ -456,7 +459,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
             className={cn(
               'flex',
               'items-center',
-              'gap-3'
+              'gap-3',
             )}
             style={{
               color: 'var(--color-text-tertiary)',
@@ -492,7 +495,7 @@ const DocumentListItem = memo<DocumentListItemProps>(({ document, isActive, file
               'flex-shrink-0',
               'w-1.5',
               'h-1.5',
-              'rounded-full'
+              'rounded-full',
             )}
             style={{
               backgroundColor: 'var(--aurora-2)',

@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import request from 'supertest';
 import express from 'express';
+import request from 'supertest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { documentsRouter } from '../documents.js';
 
 // Mock the dependencies
@@ -70,7 +71,7 @@ describe('Documents API - Search and List', () => {
     app = express();
     app.use(express.json());
     app.use('/api/documents', documentsRouter);
-    
+
     // Note: In-memory storage is shared across tests in the same file
     // This is intentional to test the cumulative behavior
   });
@@ -166,7 +167,7 @@ describe('Documents API - Search and List', () => {
         .query({ q: 'test' });
 
       expect(response.status).toBe(200);
-      
+
       if (response.body.documents.length >= 2) {
         // Check that dates are in descending order
         const dates = response.body.documents.map((d: any) => new Date(d.uploadDate).getTime());
@@ -258,7 +259,7 @@ describe('Documents API - Search and List', () => {
       const response = await request(app).get('/api/documents');
 
       expect(response.status).toBe(200);
-      
+
       if (response.body.documents.length >= 2) {
         // Check that dates are in descending order
         const dates = response.body.documents.map((d: any) => new Date(d.uploadDate).getTime());

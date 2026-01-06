@@ -1,6 +1,8 @@
 import axios, { AxiosInstance } from 'axios';
-import type { LLMCallConfig, LLMResponse, TaskType } from '../../../../shared/src/types.js';
+
 import { getModelForTask } from '../../config/modelConfig.js';
+
+import type { LLMCallConfig, LLMResponse, TaskType } from '../../../../shared/src/types.js';
 
 export class OpenRouterClient {
   private client: AxiosInstance;
@@ -23,9 +25,9 @@ export class OpenRouterClient {
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
         'HTTP-Referer': this.appUrl,
-        'X-Title': 'Vaisu'
+        'X-Title': 'Vaisu',
       },
-      timeout: 60000
+      timeout: 60000,
     });
   }
 
@@ -37,11 +39,11 @@ export class OpenRouterClient {
         model: config.model,
         messages: config.messages,
         max_tokens: config.maxTokens,
-        temperature: config.temperature
+        temperature: config.temperature,
       }, {
         headers: {
-          'Content-Type': 'application/json'
-        }
+          'Content-Type': 'application/json',
+        },
       });
 
       const choice = response.data.choices[0];
@@ -52,7 +54,7 @@ export class OpenRouterClient {
       return {
         content: choice.message.content,
         tokensUsed: usage.total_tokens,
-        model: config.model
+        model: config.model,
       };
     } catch (error: any) {
       console.error('OpenRouter API error:', error.response?.data || error.message);
@@ -70,10 +72,10 @@ export class OpenRouterClient {
         model: modelConfig.primary,
         messages: [
           { role: 'system', content: modelConfig.systemPrompt },
-          { role: 'user', content: prompt }
+          { role: 'user', content: prompt },
         ],
         maxTokens: modelConfig.maxTokens,
-        temperature: modelConfig.temperature
+        temperature: modelConfig.temperature,
       });
     } catch (error) {
       if (retries > 0) {
@@ -85,10 +87,10 @@ export class OpenRouterClient {
             model: modelConfig.fallback,
             messages: [
               { role: 'system', content: modelConfig.systemPrompt },
-              { role: 'user', content: prompt }
+              { role: 'user', content: prompt },
             ],
             maxTokens: modelConfig.maxTokens,
-            temperature: modelConfig.temperature
+            temperature: modelConfig.temperature,
           });
         } catch (fallbackError) {
           if (retries > 1) {
@@ -110,7 +112,7 @@ export class OpenRouterClient {
     for (let i = 0; i < requests.length; i += batchSize) {
       const batch = requests.slice(i, i + batchSize);
       const batchResults = await Promise.all(
-        batch.map(config => this.call(config))
+        batch.map(config => this.call(config)),
       );
       results.push(...batchResults);
     }

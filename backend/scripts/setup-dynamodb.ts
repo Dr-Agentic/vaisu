@@ -1,7 +1,6 @@
 #!/usr/bin/env tsx
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { CreateTableCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, CreateTableCommand } from '@aws-sdk/client-dynamodb';
 import 'dotenv/config';
 
 // Environment variables
@@ -15,167 +14,167 @@ const TABLES = [
     name: process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
       { AttributeName: 'contentHash', AttributeType: 'S' },
-      { AttributeName: 'filename', AttributeType: 'S' }
+      { AttributeName: 'filename', AttributeType: 'S' },
     ],
     globalSecondaryIndexes: [{
       IndexName: 'GSI1',
       KeySchema: [
         { AttributeName: 'contentHash', KeyType: 'HASH' },
-        { AttributeName: 'filename', KeyType: 'RANGE' }
+        { AttributeName: 'filename', KeyType: 'RANGE' },
       ],
       Projection: { ProjectionType: 'ALL' },
       ProvisionedThroughput: {
         ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5
-      }
+        WriteCapacityUnits: 5,
+      },
     }],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   // Visualization tables (one per representation model)
   {
     name: process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_MIND_MAP_TABLE || 'vaisu-mind-map',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline',
     keySchema: [
       { AttributeName: 'documentId', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'documentId', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
+      WriteCapacityUnits: 5,
+    },
   },
   {
     name: process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph',
     keySchema: [
       { AttributeName: 'PK', KeyType: 'HASH' },
-      { AttributeName: 'SK', KeyType: 'RANGE' }
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
       { AttributeName: 'PK', AttributeType: 'S' },
-      { AttributeName: 'SK', AttributeType: 'S' }
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
     provisionedThroughput: {
       ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5
-    }
-  }
+      WriteCapacityUnits: 5,
+    },
+  },
 ];
 
 async function main() {

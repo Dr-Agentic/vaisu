@@ -1,8 +1,8 @@
 /**
  * useMediaQuery Hook
- * 
+ *
  * React hook for responsive design using media queries.
- * 
+ *
  * @example
  * ```tsx
  * const isMobile = useMediaQuery('(max-width: 768px)');
@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to track media query matches
- * 
+ *
  * @param query - Media query string (e.g., '(max-width: 768px)')
  * @returns Boolean indicating if the media query matches
  */

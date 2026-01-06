@@ -1,11 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { TermsDefinitionsData, GlossaryTerm } from '../../../../shared/src/types';
-import { GraphViewerLayout } from './toolkit/GraphViewerLayout';
 import { Search, Filter, BookOpen, Hash, Tag } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../design-system/components/Card';
+import React, { useState, useMemo } from 'react';
+
+import { TermsDefinitionsData, GlossaryTerm } from '../../../../shared/src/types';
 import { Badge, BadgeVariant } from '../../design-system/components/Badge';
 import { Button } from '../../design-system/components/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../../design-system/components/Card';
 import { Input } from '../../design-system/components/Input';
+
+import { GraphViewerLayout } from './toolkit/GraphViewerLayout';
 
 interface TermsDefinitionsProps {
   data: TermsDefinitionsData;
@@ -78,12 +80,12 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
 
   const filteredTerms = useMemo(() => {
     if (!data || !data.terms) return [];
-    
+
     return data.terms.filter(term => {
-      const matchesSearch = term.term.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          term.definition.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = term.term.toLowerCase().includes(searchQuery.toLowerCase())
+                          || term.definition.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesType = selectedType === 'all' || term.type === selectedType;
-      
+
       return matchesSearch && matchesType;
     });
   }, [data, searchQuery, selectedType]);

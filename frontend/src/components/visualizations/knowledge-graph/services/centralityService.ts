@@ -1,4 +1,5 @@
 import Graph from 'graphology';
+
 import type { GraphNode, GraphEdge } from '../../../../../../shared/src/types';
 
 export interface CentralityScores {
@@ -38,16 +39,16 @@ export class CentralityService {
       const normalizedBetweenness = betweennessScores[node.id] || 0;
       const normalizedEigenvector = eigenvectorScores[node.id] || 0;
 
-      const combined = 
-        0.4 * normalizedDegree +
-        0.3 * normalizedBetweenness +
-        0.3 * normalizedEigenvector;
+      const combined
+        = 0.4 * normalizedDegree
+        + 0.3 * normalizedBetweenness
+        + 0.3 * normalizedEigenvector;
 
       scores.set(node.id, {
         degree: normalizedDegree,
         betweenness: normalizedBetweenness,
         eigenvector: normalizedEigenvector,
-        combined
+        combined,
       });
     });
 
@@ -68,7 +69,7 @@ export class CentralityService {
       const distances = new Map<string, number>();
       const predecessors = new Map<string, Set<string>>();
       const queue: string[] = [source.id];
-      
+
       distances.set(source.id, 0);
       predecessors.set(source.id, new Set());
 
@@ -113,7 +114,7 @@ export class CentralityService {
     if (source === target) return 1;
     const preds = predecessors.get(target);
     if (!preds || preds.size === 0) return 0;
-    
+
     let count = 0;
     preds.forEach(pred => {
       count += this.countPaths(source, pred, predecessors);
@@ -138,7 +139,7 @@ export class CentralityService {
       try {
         if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
           graph.addEdge(edge.source, edge.target, {
-            weight: edge.strength
+            weight: edge.strength,
           });
         }
       } catch (error) {
@@ -155,12 +156,12 @@ export class CentralityService {
   getTopNodes(
     nodes: GraphNode[],
     scores: Map<string, CentralityScores>,
-    limit: number = 10
+    limit: number = 10,
   ): GraphNode[] {
     return nodes
       .map(node => ({
         node,
-        score: scores.get(node.id)?.combined || 0
+        score: scores.get(node.id)?.combined || 0,
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, limit)
@@ -172,7 +173,7 @@ export class CentralityService {
    */
   getPercentileThreshold(
     scores: Map<string, CentralityScores>,
-    percentile: number
+    percentile: number,
   ): number {
     const values = Array.from(scores.values()).map(s => s.combined);
     values.sort((a, b) => a - b);

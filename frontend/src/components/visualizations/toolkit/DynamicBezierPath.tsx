@@ -15,7 +15,7 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
   x2,
   y2,
   label,
-  isActive = false
+  isActive = false,
 }) => {
   const strokeColor = isActive ? 'var(--color-primary)' : 'var(--color-border-strong)';
   const strokeWidth = isActive ? 2 : 1.5;
@@ -34,18 +34,18 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
     // If x2 > x1, arc down? Or just straight line if very close?
     // Let's use a cubic bezier for a smooth horizontal connection
     // C control_point1, control_point2, end_point
-    
+
     // Simple S-curve even for same row usually looks okay if we control handles
     // But if strictly horizontal, maybe just a line?
     if (dy < 5) {
-        pathData = `M ${x1} ${y1} L ${x2} ${y2}`;
+      pathData = `M ${x1} ${y1} L ${x2} ${y2}`;
     } else {
-        pathData = `M ${x1} ${y1} C ${x1 + dx/2} ${y1}, ${x2 - dx/2} ${y2}, ${x2} ${y2}`;
+      pathData = `M ${x1} ${y1} C ${x1 + dx / 2} ${y1}, ${x2 - dx / 2} ${y2}, ${x2} ${y2}`;
     }
   } else {
     // S-Curve (Vertical separation)
     // Control points vertical
-    pathData = `M ${x1} ${y1} C ${x1} ${y1 + dy/2}, ${x2} ${y2 - dy/2}, ${x2} ${y2}`;
+    pathData = `M ${x1} ${y1} C ${x1} ${y1 + dy / 2}, ${x2} ${y2 - dy / 2}, ${x2} ${y2}`;
     // Or Horizontal S-curve logic depending on layout direction
     // Assuming Left-to-Right layout generally for these graphs?
     // If Flowchart/MindMap (L->R):
@@ -59,7 +59,7 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
 
   const activeStyle: React.CSSProperties = isActive ? {
     strokeDasharray: '10 10',
-    animation: 'flow 1s linear infinite'
+    animation: 'flow 1s linear infinite',
   } : {};
 
   return (
@@ -73,7 +73,7 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
         className="transition-colors duration-300"
         style={activeStyle}
       />
-      
+
       {/* Invisible wider path for easier hovering */}
       <path
         d={pathData}
@@ -94,9 +94,9 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
           <div className="flex justify-center items-center">
             <span className={`
               px-2 py-0.5 text-[10px] rounded-full border shadow-sm truncate max-w-full
-              ${isActive 
-                ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800' 
-                : 'bg-white text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'}
+              ${isActive
+          ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
+          : 'bg-white text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'}
             `}>
               {label}
             </span>

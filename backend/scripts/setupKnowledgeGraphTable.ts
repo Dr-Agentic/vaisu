@@ -1,10 +1,9 @@
 #!/usr/bin/env tsx
 
+import { DynamoDBClient, CreateTableCommand } from '@aws-sdk/client-dynamodb';
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { CreateTableCommand } from '@aws-sdk/client-dynamodb';
 import { DYNAMODB_KNOWLEDGE_GRAPH_TABLE, getAWSRegion, getAWSAccessKeyId, getAWSSecretAccessKey } from '../src/config/aws.js';
 
 async function createKnowledgeGraphTable() {
@@ -23,24 +22,24 @@ async function createKnowledgeGraphTable() {
     KeySchema: [
       {
         AttributeName: 'documentId',
-        KeyType: 'HASH'  // Partition key
+        KeyType: 'HASH',  // Partition key
       },
       {
         AttributeName: 'SK',
-        KeyType: 'RANGE' // Sort key
-      }
+        KeyType: 'RANGE', // Sort key
+      },
     ],
     AttributeDefinitions: [
       {
         AttributeName: 'documentId',
-        AttributeType: 'S'
+        AttributeType: 'S',
       },
       {
         AttributeName: 'SK',
-        AttributeType: 'S'
-      }
+        AttributeType: 'S',
+      },
     ],
-    BillingMode: 'PAY_PER_REQUEST'
+    BillingMode: 'PAY_PER_REQUEST',
   });
 
   try {

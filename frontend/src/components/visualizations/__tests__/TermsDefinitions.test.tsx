@@ -1,13 +1,14 @@
 /**
  * TermsDefinitions Component Tests
- * 
+ *
  * NOTE: To run these tests, install testing dependencies:
  * npm install --save-dev @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom
- * 
+ *
  * Then update vitest.config.ts to use 'jsdom' environment for frontend tests.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import type { TermsDefinitionsData, GlossaryTerm } from '../../../../../shared/src/types';
 
 describe('TermsDefinitions Data Structure Tests', () => {
@@ -23,7 +24,7 @@ describe('TermsDefinitions Data Structure Tests', () => {
           type: 'acronym',
           confidence: 0.95,
           mentions: 5,
-          context: 'Used throughout the document'
+          context: 'Used throughout the document',
         },
         {
           id: 'term-2',
@@ -31,7 +32,7 @@ describe('TermsDefinitions Data Structure Tests', () => {
           definition: 'An architectural style that structures an application as a collection of loosely coupled services',
           type: 'technical',
           confidence: 0.9,
-          mentions: 3
+          mentions: 3,
         },
         {
           id: 'term-3',
@@ -39,7 +40,7 @@ describe('TermsDefinitions Data Structure Tests', () => {
           definition: 'The capability of a system to handle a growing amount of work',
           type: 'concept',
           confidence: 0.85,
-          mentions: 2
+          mentions: 2,
         },
         {
           id: 'term-4',
@@ -47,14 +48,14 @@ describe('TermsDefinitions Data Structure Tests', () => {
           definition: 'Create, Read, Update, Delete - basic operations for data management',
           type: 'acronym',
           confidence: 0.9,
-          mentions: 4
-        }
+          mentions: 4,
+        },
       ],
       metadata: {
         totalTerms: 4,
         extractionConfidence: 0.9,
-        documentDomain: 'software engineering'
-      }
+        documentDomain: 'software engineering',
+      },
     };
   });
 
@@ -93,8 +94,8 @@ describe('TermsDefinitions Data Structure Tests', () => {
   describe('Search Logic', () => {
     const filterTerms = (terms: GlossaryTerm[], query: string) => {
       return terms.filter(term =>
-        term.term.toLowerCase().includes(query.toLowerCase()) ||
-        term.definition.toLowerCase().includes(query.toLowerCase())
+        term.term.toLowerCase().includes(query.toLowerCase())
+        || term.definition.toLowerCase().includes(query.toLowerCase()),
       );
     };
 
@@ -155,8 +156,8 @@ describe('TermsDefinitions Data Structure Tests', () => {
   describe('Combined Search and Filter Logic', () => {
     const filterTerms = (terms: GlossaryTerm[], query: string, type: string) => {
       return terms.filter(term => {
-        const matchesSearch = term.term.toLowerCase().includes(query.toLowerCase()) ||
-                             term.definition.toLowerCase().includes(query.toLowerCase());
+        const matchesSearch = term.term.toLowerCase().includes(query.toLowerCase())
+                             || term.definition.toLowerCase().includes(query.toLowerCase());
         const matchesType = type === 'all' || term.type === type;
         return matchesSearch && matchesType;
       });
@@ -177,7 +178,7 @@ describe('TermsDefinitions Data Structure Tests', () => {
   describe('Alphabetical Sorting', () => {
     it('should sort terms alphabetically', () => {
       const terms = [...mockData.terms].sort((a, b) => a.term.localeCompare(b.term));
-      
+
       expect(terms[0].term).toBe('API');
       expect(terms[1].term).toBe('CRUD');
       expect(terms[2].term).toBe('Microservices');
@@ -191,7 +192,7 @@ describe('TermsDefinitions Data Structure Tests', () => {
         acronym: 'bg-blue-100 text-blue-700',
         technical: 'bg-purple-100 text-purple-700',
         jargon: 'bg-amber-100 text-amber-700',
-        concept: 'bg-emerald-100 text-emerald-700'
+        concept: 'bg-emerald-100 text-emerald-700',
       };
       return colors[type] || 'bg-gray-100 text-gray-700';
     };
@@ -240,9 +241,9 @@ describe('TermsDefinitions Data Structure Tests', () => {
         definition: 'A test term',
         type: 'concept',
         confidence: 0.8,
-        mentions: 1
+        mentions: 1,
       };
-      
+
       expect(singleMentionTerm.mentions).toBe(1);
     });
   });

@@ -1,16 +1,17 @@
 import { create } from 'zustand';
+
 import { ArgumentMapStore } from '../types';
 
 const initialCamera = {
   x: 0,
   y: 0,
   z: 100,
-  target: [0, 0, 0] as [number, number, number]
+  target: [0, 0, 0] as [number, number, number],
 };
 
 const initialStrengthFilter = {
   min: 0,
-  max: 1
+  max: 1,
 };
 
 export const useArgumentMapStore = create<ArgumentMapStore>((set, get) => ({
@@ -51,7 +52,7 @@ export const useArgumentMapStore = create<ArgumentMapStore>((set, get) => ({
     set({
       selectedNodeId: id,
       focusedNodes: id ? [id, ...get().focusedNodes] : [],
-      hoveredNodeId: hoveredNodeId === id ? null : hoveredNodeId
+      hoveredNodeId: hoveredNodeId === id ? null : hoveredNodeId,
     });
   },
 
@@ -74,7 +75,7 @@ export const useArgumentMapStore = create<ArgumentMapStore>((set, get) => ({
 
   updateCamera: (camera) => {
     set((state) => ({
-      camera: { ...state.camera, ...camera }
+      camera: { ...state.camera, ...camera },
     }));
   },
 
@@ -105,8 +106,8 @@ export const useArgumentMapStore = create<ArgumentMapStore>((set, get) => ({
         position: node.position || {
           x: (Math.random() - 0.5) * 200,
           y: (Math.random() - 0.5) * 200,
-          z: (Math.random() - 0.5) * 200
-        }
+          z: (Math.random() - 0.5) * 200,
+        },
       }));
 
       set({
@@ -115,15 +116,15 @@ export const useArgumentMapStore = create<ArgumentMapStore>((set, get) => ({
         isLoading: false,
         layout: 'FORCE_DIRECTED',
         clustering: true,
-        semanticGrouping: true
+        semanticGrouping: true,
       });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : 'Failed to load visualization',
-        isLoading: false
+        isLoading: false,
       });
     }
-  }
+  },
 }));
 
 // Selector hooks for better performance

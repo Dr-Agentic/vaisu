@@ -10,15 +10,15 @@ export const mockOpenRouterResponses = {
     choices: [{
       message: {
         role: 'assistant',
-        content: 'This is a test TLDR summary of the document. It captures the main points concisely in 2-3 sentences.'
+        content: 'This is a test TLDR summary of the document. It captures the main points concisely in 2-3 sentences.',
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 500,
       completion_tokens: 50,
-      total_tokens: 550
-    }
+      total_tokens: 550,
+    },
   },
 
   executiveSummary: {
@@ -32,33 +32,33 @@ export const mockOpenRouterResponses = {
           keyIdeas: [
             'Revenue increased by 15% to $2.5M',
             'Customer acquisition cost decreased by 20%',
-            'Market expansion opportunities identified'
+            'Market expansion opportunities identified',
           ],
           kpis: [
             { label: 'Revenue', value: 2500000, unit: 'USD', trend: 'up' },
             { label: 'Growth', value: 15, unit: '%', trend: 'up' },
-            { label: 'CAC', value: 150, unit: 'USD', trend: 'down' }
+            { label: 'CAC', value: 150, unit: 'USD', trend: 'down' },
           ],
           risks: [
             'Increasing market competition',
             'Supply chain delays',
-            'Customer churn at 3%'
+            'Customer churn at 3%',
           ],
           opportunities: [
             'New market expansion',
             'Product line extension',
-            'Strategic partnerships'
+            'Strategic partnerships',
           ],
-          callToAction: 'Focus on market expansion while optimizing operations'
-        })
+          callToAction: 'Focus on market expansion while optimizing operations',
+        }),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 800,
       completion_tokens: 200,
-      total_tokens: 1000
-    }
+      total_tokens: 1000,
+    },
   },
 
   entityExtraction: {
@@ -72,17 +72,17 @@ export const mockOpenRouterResponses = {
             { text: 'Q4', type: 'temporal', importance: 0.8 },
             { text: 'Revenue', type: 'metric', importance: 0.9 },
             { text: '$2.5M', type: 'numeric', importance: 0.9 },
-            { text: 'Customer acquisition cost', type: 'metric', importance: 0.7 }
-          ]
-        })
+            { text: 'Customer acquisition cost', type: 'metric', importance: 0.7 },
+          ],
+        }),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 600,
       completion_tokens: 100,
-      total_tokens: 700
-    }
+      total_tokens: 700,
+    },
   },
 
   signalAnalysis: {
@@ -97,16 +97,16 @@ export const mockOpenRouterResponses = {
           quantitative: 0.9,
           technical: 0.2,
           argumentative: 0.4,
-          temporal: 0.6
-        })
+          temporal: 0.6,
+        }),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 500,
       completion_tokens: 50,
-      total_tokens: 550
-    }
+      total_tokens: 550,
+    },
   },
 
   relationshipDetection: {
@@ -118,17 +118,17 @@ export const mockOpenRouterResponses = {
         content: JSON.stringify({
           relationships: [
             { source: 'Revenue', target: '$2.5M', type: 'has-value' },
-            { source: 'Q4', target: 'Revenue', type: 'temporal' }
-          ]
-        })
+            { source: 'Q4', target: 'Revenue', type: 'temporal' },
+          ],
+        }),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 600,
       completion_tokens: 80,
-      total_tokens: 680
-    }
+      total_tokens: 680,
+    },
   },
 
   sectionSummary: {
@@ -137,15 +137,15 @@ export const mockOpenRouterResponses = {
     choices: [{
       message: {
         role: 'assistant',
-        content: 'This section discusses key metrics and performance indicators.'
+        content: 'This section discusses key metrics and performance indicators.',
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 400,
       completion_tokens: 30,
-      total_tokens: 430
-    }
+      total_tokens: 430,
+    },
   },
 
   visualizationRecommendations: {
@@ -159,28 +159,28 @@ export const mockOpenRouterResponses = {
             {
               type: 'executive-dashboard',
               score: 0.95,
-              rationale: 'High quantitative signal detected (0.9). Document contains 8 numeric metrics and KPIs.'
+              rationale: 'High quantitative signal detected (0.9). Document contains 8 numeric metrics and KPIs.',
             },
             {
               type: 'structured-view',
               score: 0.85,
-              rationale: 'Clear hierarchical structure with 4 main sections and subsections.'
+              rationale: 'Clear hierarchical structure with 4 main sections and subsections.',
             },
             {
               type: 'waterfall-chart',
               score: 0.75,
-              rationale: 'Sequential financial data showing progression from Q1 to Q4.'
-            }
-          ]
-        })
+              rationale: 'Sequential financial data showing progression from Q1 to Q4.',
+            },
+          ],
+        }),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 1000,
       completion_tokens: 150,
-      total_tokens: 1150
-    }
+      total_tokens: 1150,
+    },
   },
 
   sectionSummaries: {
@@ -193,23 +193,23 @@ export const mockOpenRouterResponses = {
           {
             sectionId: 'section-1',
             summary: 'Executive summary highlighting 15% revenue growth and improved customer metrics.',
-            keywords: ['revenue', 'growth', 'CAC']
+            keywords: ['revenue', 'growth', 'CAC'],
           },
           {
             sectionId: 'section-2',
             summary: 'Key performance metrics showing strong financial performance.',
-            keywords: ['metrics', 'KPI', 'performance']
-          }
-        ])
+            keywords: ['metrics', 'KPI', 'performance'],
+          },
+        ]),
       },
-      finish_reason: 'stop'
+      finish_reason: 'stop',
     }],
     usage: {
       prompt_tokens: 700,
       completion_tokens: 120,
-      total_tokens: 820
-    }
-  }
+      total_tokens: 820,
+    },
+  },
 };
 
 /**
@@ -227,7 +227,7 @@ export function createMockOpenRouterClient() {
       return {
         content: rawResponse.choices[0].message.content,
         tokensUsed: rawResponse.usage.total_tokens,
-        model: rawResponse.model
+        model: rawResponse.model,
       };
     }),
 
@@ -253,32 +253,32 @@ export function createMockOpenRouterClient() {
             quantitative: 0.9,
             technical: 0.2,
             argumentative: 0.4,
-            temporal: 0.6
+            temporal: 0.6,
           };
 
-          if (prompt.toLowerCase().includes('workflow') ||
-            prompt.toLowerCase().includes('process') ||
-            prompt.toLowerCase().includes('step') ||
-            prompt.toLowerCase().includes('procedure')) {
+          if (prompt.toLowerCase().includes('workflow')
+            || prompt.toLowerCase().includes('process')
+            || prompt.toLowerCase().includes('step')
+            || prompt.toLowerCase().includes('procedure')) {
             signals = {
               structural: 0.6,
               process: 0.85,
               quantitative: 0.3,
               technical: 0.4,
               argumentative: 0.2,
-              temporal: 0.7
+              temporal: 0.7,
             };
-          } else if (prompt.toLowerCase().includes('api') ||
-            prompt.toLowerCase().includes('endpoint') ||
-            prompt.toLowerCase().includes('technical') ||
-            prompt.toLowerCase().includes('specification')) {
+          } else if (prompt.toLowerCase().includes('api')
+            || prompt.toLowerCase().includes('endpoint')
+            || prompt.toLowerCase().includes('technical')
+            || prompt.toLowerCase().includes('specification')) {
             signals = {
               structural: 0.7,
               process: 0.4,
               quantitative: 0.3,
               technical: 0.85,
               argumentative: 0.2,
-              temporal: 0.3
+              temporal: 0.3,
             };
           }
 
@@ -288,9 +288,9 @@ export function createMockOpenRouterClient() {
               ...mockOpenRouterResponses.signalAnalysis.choices[0],
               message: {
                 ...mockOpenRouterResponses.signalAnalysis.choices[0].message,
-                content: JSON.stringify(signals)
-              }
-            }]
+                content: JSON.stringify(signals),
+              },
+            }],
           };
           break;
         case 'relationshipDetection':
@@ -305,23 +305,23 @@ export function createMockOpenRouterClient() {
             {
               type: 'executive-dashboard',
               score: 0.95,
-              rationale: 'High quantitative signal detected. Document contains numeric metrics and KPIs.'
+              rationale: 'High quantitative signal detected. Document contains numeric metrics and KPIs.',
             },
             {
               type: 'structured-view',
               score: 0.85,
-              rationale: 'Clear hierarchical structure with main sections and subsections.'
+              rationale: 'Clear hierarchical structure with main sections and subsections.',
             },
             {
               type: 'waterfall-chart',
               score: 0.75,
-              rationale: 'Sequential data showing progression over time.'
+              rationale: 'Sequential data showing progression over time.',
             },
             {
               type: 'mind-map',
               score: 0.70,
-              rationale: 'Good for visualizing relationships between concepts.'
-            }
+              rationale: 'Good for visualizing relationships between concepts.',
+            },
           ];
 
           // Check signals in the prompt
@@ -337,23 +337,23 @@ export function createMockOpenRouterClient() {
               {
                 type: 'flowchart',
                 score: 0.95,
-                rationale: 'High process signal detected. Document describes sequential workflow.'
+                rationale: 'High process signal detected. Document describes sequential workflow.',
               },
               {
                 type: 'swimlane',
                 score: 0.85,
-                rationale: 'Multiple actors and process steps identified.'
+                rationale: 'Multiple actors and process steps identified.',
               },
               {
                 type: 'structured-view',
                 score: 0.80,
-                rationale: 'Clear hierarchical structure.'
+                rationale: 'Clear hierarchical structure.',
               },
               {
                 type: 'timeline',
                 score: 0.70,
-                rationale: 'Temporal progression in the process.'
-              }
+                rationale: 'Temporal progression in the process.',
+              },
             ];
           } else if (quantitativeSignal < 0.5) {
             // Low quantitative signal - don't recommend dashboard
@@ -361,18 +361,18 @@ export function createMockOpenRouterClient() {
               {
                 type: 'structured-view',
                 score: 0.90,
-                rationale: 'Clear hierarchical structure with main sections and subsections.'
+                rationale: 'Clear hierarchical structure with main sections and subsections.',
               },
               {
                 type: 'mind-map',
                 score: 0.85,
-                rationale: 'Good for visualizing relationships between concepts.'
+                rationale: 'Good for visualizing relationships between concepts.',
               },
               {
                 type: 'knowledge-graph',
                 score: 0.75,
-                rationale: 'Shows connections between entities.'
-              }
+                rationale: 'Shows connections between entities.',
+              },
             ];
           }
 
@@ -382,9 +382,9 @@ export function createMockOpenRouterClient() {
               ...mockOpenRouterResponses.visualizationRecommendations.choices[0],
               message: {
                 ...mockOpenRouterResponses.visualizationRecommendations.choices[0].message,
-                content: JSON.stringify({ recommendations })
-              }
-            }]
+                content: JSON.stringify({ recommendations }),
+              },
+            }],
           };
           break;
         default:
@@ -395,13 +395,13 @@ export function createMockOpenRouterClient() {
       return {
         content: rawResponse.choices[0].message.content,
         tokensUsed: rawResponse.usage.total_tokens,
-        model: rawResponse.model
+        model: rawResponse.model,
       };
     }),
 
     parseJSONResponse: vi.fn((response: any) => {
       return JSON.parse(response.content);
-    })
+    }),
   };
 }
 
@@ -411,7 +411,7 @@ export function createMockOpenRouterClient() {
 export function createFailingMockOpenRouterClient() {
   return {
     call: vi.fn().mockRejectedValue(new Error('OpenRouter API Error: Rate limit exceeded')),
-    callWithFallback: vi.fn().mockRejectedValue(new Error('All models failed'))
+    callWithFallback: vi.fn().mockRejectedValue(new Error('All models failed')),
   };
 }
 
@@ -427,6 +427,6 @@ export function createSlowMockOpenRouterClient() {
     callWithFallback: vi.fn().mockImplementation(async () => {
       await new Promise(resolve => setTimeout(resolve, 5000));
       return mockOpenRouterResponses.tldr;
-    })
+    }),
   };
 }

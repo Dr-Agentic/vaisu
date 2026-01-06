@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from 'react';
+
 import { GraphNode } from './types';
 import { getTypeColor } from './utils';
 
@@ -24,13 +25,13 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
   isDimmed = false,
   onClick,
   className = '',
-  style
+  style,
 }) => {
   // Use prop value for isHovered, only manage internal state if not controlled
   const [internalIsHovered, setInternalIsHovered] = useState(false);
   const controlledIsHovered = isHovered !== undefined ? isHovered : internalIsHovered;
   const theme = getTypeColor(node.type);
-  
+
   // Calculate importance (0-5 scale)
   let importanceValue = 1;
   if (typeof node.importance === 'number') {
@@ -83,9 +84,9 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
         </span>
         <div className="flex gap-1">
           {[...Array(5)].map((_, i) => (
-            <div 
-              key={i} 
-              className={`w-1 h-3 rounded-full ${i < importanceValue ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`} 
+            <div
+              key={i}
+              className={`w-1 h-3 rounded-full ${i < importanceValue ? 'bg-blue-500' : 'bg-slate-200 dark:bg-slate-700'}`}
             />
           ))}
         </div>
@@ -97,11 +98,11 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
             {node.type}
           </span>
         </div>
-        
+
         <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 leading-tight mb-6">
           {node.label}
         </h3>
-        
+
         <div className="relative h-px bg-slate-100 dark:bg-slate-800 mb-6 overflow-visible">
           <div className="absolute left-0 -top-1 w-2 h-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
           <div className="absolute right-0 -top-1 w-2 h-2 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900" />
@@ -126,7 +127,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
                     </p>
                   </div>
                 )}
-                
+
                 {node.mentions && node.mentions.length > 0 && (
                   <div>
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">
@@ -145,7 +146,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
-        
+
         {!controlledIsHovered && !isSelected && (
           <div className="flex justify-center gap-1 opacity-20">
             <div className="w-1.5 h-1.5 rounded-full bg-slate-900 dark:bg-slate-100" />

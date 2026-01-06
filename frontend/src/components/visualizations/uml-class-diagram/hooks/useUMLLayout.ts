@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
-import type { ClassEntity, UMLRelationship } from '@shared/types';
-import { useUMLDiagramStore } from '../stores/umlDiagramStore';
+
 import { layoutEngine } from '../services/layoutEngine';
+import { useUMLDiagramStore } from '../stores/umlDiagramStore';
+
+import type { ClassEntity, UMLRelationship } from '@shared/types';
 
 export function useUMLLayout() {
   const { setLayoutResult, setLayouting } = useUMLDiagramStore();
 
   const computeLayout = useCallback(async (
     classes: ClassEntity[],
-    relationships: UMLRelationship[]
+    relationships: UMLRelationship[],
   ) => {
     if (classes.length === 0) return;
 
@@ -21,14 +23,14 @@ export function useUMLLayout() {
       direction: 'TB',
       nodeSeparation: 80,
       rankSeparation: 120,
-      edgeSeparation: 10
+      edgeSeparation: 10,
     });
 
     const endTime = performance.now();
 
     setLayoutResult({
       ...result,
-      computationTime: endTime - startTime
+      computationTime: endTime - startTime,
     });
 
     console.log(`✅ Layout computed in ${Math.round(endTime - startTime)}ms for ${classes.length} classes`);

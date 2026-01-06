@@ -1,11 +1,13 @@
 import React, { useMemo } from 'react';
-import type { ClassEntity, Position } from '@shared/types';
+
 import {
   getVisibilityConfig,
   getFontSize,
   formatMethodSignature,
-  formatAttributeSignature
+  formatAttributeSignature,
 } from './ProgressiveDisclosure';
+
+import type { ClassEntity, Position } from '@shared/types';
 
 interface ClassBoxProps {
   classEntity: ClassEntity;
@@ -18,7 +20,7 @@ interface ClassBoxProps {
   onClick: (entity: ClassEntity) => void;
 }
 
-export const ClassBox = React.memo(function ClassBox({
+export const ClassBox = React.memo(({
   classEntity,
   position,
   zoom,
@@ -26,8 +28,8 @@ export const ClassBox = React.memo(function ClassBox({
   hovered,
   onHover,
   onHoverEnd,
-  onClick
-}: ClassBoxProps) {
+  onClick,
+}: ClassBoxProps) => {
   // Local state for collapsible compartments
   const [isAttributesCollapsed, setIsAttributesCollapsed] = React.useState(false);
   const [isMethodsCollapsed, setIsMethodsCollapsed] = React.useState(false);
@@ -38,7 +40,7 @@ export const ClassBox = React.memo(function ClassBox({
     return {
       ...config,
       fontSize: getFontSize(zoom, 12),
-      compartmentPadding: Math.max(4, Math.min(10, zoom * 6))
+      compartmentPadding: Math.max(4, Math.min(10, zoom * 6)),
     };
   }, [zoom]);
 
@@ -49,25 +51,25 @@ export const ClassBox = React.memo(function ClassBox({
         return {
           borderColor: '#10B981', // green
           backgroundColor: '#F0FDF4',
-          textColor: '#065F46'
+          textColor: '#065F46',
         };
       case 'abstract':
         return {
           borderColor: '#8B5CF6', // purple
           backgroundColor: '#FAF5FF',
-          textColor: '#581C87'
+          textColor: '#581C87',
         };
       case 'enum':
         return {
           borderColor: '#F59E0B', // orange
           backgroundColor: '#FFFBEB',
-          textColor: '#92400E'
+          textColor: '#92400E',
         };
       default: // class
         return {
           borderColor: '#3B82F6', // blue
           backgroundColor: '#F8FAFC',
-          textColor: '#1E40AF'
+          textColor: '#1E40AF',
         };
     }
   };
@@ -183,7 +185,7 @@ export const ClassBox = React.memo(function ClassBox({
         className={`transition-all duration-150 ${hovered ? 'drop-shadow-lg' : ''} ${selected ? 'ring-2 ring-blue-500' : ''}`}
         style={{
           transform: hovered ? 'scale(1.02)' : 'scale(1)',
-          transformOrigin: 'center'
+          transformOrigin: 'center',
         }}
       />
 
@@ -258,7 +260,7 @@ export const ClassBox = React.memo(function ClassBox({
             />
             {/* Collapse Icon */}
             <path
-              d={isAttributesCollapsed ? "M6 9l6 6 6-6" : "M6 15l6-6 6 6"}
+              d={isAttributesCollapsed ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6'}
               transform={`translate(${x + boxWidth - 20}, ${y + baseHeight + 5}) scale(0.6)`}
               fill="none"
               stroke={typeStyle.borderColor}
@@ -325,7 +327,7 @@ export const ClassBox = React.memo(function ClassBox({
             />
             {/* Collapse Icon */}
             <path
-              d={isMethodsCollapsed ? "M6 9l6 6 6-6" : "M6 15l6-6 6 6"}
+              d={isMethodsCollapsed ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6'}
               transform={`translate(${x + boxWidth - 20}, ${y + baseHeight + (showAttributes ? (isAttributesCollapsed ? headerHeight : headerHeight + visibility.compartmentPadding * 2 + classEntity.attributes.length * lineHeight) : 0) + 5}) scale(0.6)`}
               fill="none"
               stroke={typeStyle.borderColor}

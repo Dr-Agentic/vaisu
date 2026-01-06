@@ -1,8 +1,9 @@
 import axios from 'axios';
+
 import type {
   Document,
   DocumentAnalysis,
-  VisualizationType
+  VisualizationType,
 } from '../../../shared/src/types';
 
 const API_BASE_URL = '/api';
@@ -10,8 +11,8 @@ const API_BASE_URL = '/api';
 const client = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
-  }
+    'Content-Type': 'application/json',
+  },
 });
 
 export const apiClient = {
@@ -21,8 +22,8 @@ export const apiClient = {
 
     const response = await client.post('/documents/upload', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     });
 
     return response.data;
@@ -50,14 +51,14 @@ export const apiClient = {
 
   async listDocuments(limit = 50, offset = 0): Promise<{ documents: any[]; total: number; limit: number; offset: number }> {
     const response = await client.get('/documents', {
-      params: { limit, offset }
+      params: { limit, offset },
     });
     return response.data;
   },
 
   async searchDocuments(query: string): Promise<{ documents: any[]; total: number; query: string }> {
     const response = await client.get('/documents/search', {
-      params: { q: query }
+      params: { q: query },
     });
     return response.data;
   },
@@ -70,5 +71,5 @@ export const apiClient = {
   async generateVisualization(documentId: string, type: VisualizationType): Promise<any> {
     const response = await client.post(`/documents/${documentId}/visualizations/${type}`);
     return response.data;
-  }
+  },
 };

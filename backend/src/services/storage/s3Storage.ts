@@ -1,6 +1,8 @@
 import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
 import { s3Client, S3_BUCKET_NAME } from '../../config/aws.js';
+
 import type { S3UploadResult } from '../../repositories/types.js';
 
 /**
@@ -17,7 +19,7 @@ export function buildS3Key(hash: string, filename: string): string {
 export async function uploadDocument(
   hash: string,
   filename: string,
-  content: Buffer
+  content: Buffer,
 ): Promise<S3UploadResult> {
   const key = buildS3Key(hash, filename);
 

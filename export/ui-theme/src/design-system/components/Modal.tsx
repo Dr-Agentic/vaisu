@@ -1,9 +1,9 @@
 /**
  * Modal Component
- * 
+ *
  * Accessible modal dialog with focus trap, keyboard navigation, and backdrop.
  * Follows WAI-ARIA dialog pattern.
- * 
+ *
  * @example
  * ```tsx
  * <Modal isOpen={isOpen} onClose={handleClose} title="Confirm Action">
@@ -18,10 +18,12 @@
  * ```
  */
 
+import { X } from 'lucide-react';
 import { useEffect, useRef, ReactNode, HTMLAttributes } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+
 import { cn } from '../../lib/utils';
+
 import { Button } from './Button';
 
 export interface ModalProps {
@@ -73,7 +75,7 @@ const sizeStyles = {
 
 /**
  * Modal Component
- * 
+ *
  * Accessible modal dialog with proper focus management and ARIA attributes.
  */
 export function Modal({
@@ -100,7 +102,7 @@ export function Modal({
     const modal = modalRef.current;
     if (modal) {
       const focusableElements = modal.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
       const firstElement = focusableElements[0];
       if (firstElement) {
@@ -123,7 +125,7 @@ export function Modal({
     return () => {
       document.removeEventListener('keydown', handleEscape);
       document.body.style.overflow = '';
-      
+
       // Restore focus to previous element
       if (previousActiveElement.current) {
         previousActiveElement.current.focus();
@@ -168,7 +170,7 @@ export function Modal({
           'border border-[var(--color-border-subtle)]',
           'max-h-[90vh]',
           'flex flex-col',
-          'animate-fade-in'
+          'animate-fade-in',
         )}
       >
         {/* Header */}
@@ -181,7 +183,7 @@ export function Modal({
                   'text-[var(--font-size-xl)]',
                   'font-[var(--font-weight-semibold)]',
                   'text-[var(--color-text-primary)]',
-                  'leading-[var(--line-height-tight)]'
+                  'leading-[var(--line-height-tight)]',
                 )}
               >
                 {title}
@@ -240,7 +242,7 @@ export function ModalFooter({ className, children, ...props }: ModalFooterProps)
         'p-[var(--spacing-lg)]',
         'border-t border-[var(--color-border-subtle)]',
         'bg-[var(--color-background-secondary)]',
-        className
+        className,
       )}
       {...props}
     >

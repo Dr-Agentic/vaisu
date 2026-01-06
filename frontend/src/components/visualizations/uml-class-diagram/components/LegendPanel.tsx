@@ -38,19 +38,19 @@ export const LegendPanel: React.FC<LegendPanelProps> = ({ visible, onToggle }) =
           <h4 className="font-medium text-gray-800 mb-2">Class Types</h4>
           <div className="space-y-2 text-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-6 bg-blue-50 border-2 border-blue-600 rounded"></div>
+              <div className="w-8 h-6 bg-blue-50 border-2 border-blue-600 rounded" />
               <span>Class</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-6 bg-green-50 border-2 border-green-600 rounded"></div>
+              <div className="w-8 h-6 bg-green-50 border-2 border-green-600 rounded" />
               <span>Interface</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-6 bg-purple-50 border-2 border-purple-600 rounded"></div>
+              <div className="w-8 h-6 bg-purple-50 border-2 border-purple-600 rounded" />
               <span>Abstract Class</span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-6 bg-orange-50 border-2 border-orange-600 rounded"></div>
+              <div className="w-8 h-6 bg-orange-50 border-2 border-orange-600 rounded" />
               <span>Enumeration</span>
             </div>
           </div>

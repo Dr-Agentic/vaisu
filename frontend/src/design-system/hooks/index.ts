@@ -1,6 +1,6 @@
 /**
  * Design System Hooks
- * 
+ *
  * Collection of utility hooks for the design system.
  */
 

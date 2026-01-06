@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { useTheme } from '@/design-system/ThemeProvider';
 
 interface GraphViewerLayoutProps {
@@ -12,7 +13,7 @@ export const GraphViewerLayout: React.FC<GraphViewerLayoutProps> = ({
   title,
   description,
   children,
-  actions
+  actions,
 }) => {
   const { resolvedTheme } = useTheme();
   const isDarkMode = resolvedTheme === 'dark';

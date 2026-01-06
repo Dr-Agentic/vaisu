@@ -24,8 +24,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['MIT AI Research', 'Stanford AI Index 2024'],
         description: 'Fundamental AI/ML technologies including deep learning, neural networks, and machine learning algorithms that enable modern AI systems.',
-        category: 'Technology'
-      }
+        category: 'Technology',
+      },
     },
     {
       id: 'society_impact',
@@ -35,8 +35,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['UNESCO AI Ethics Guidelines', 'EU Commission Reports'],
         description: 'Growing concerns about AI bias, discrimination, privacy violations, and social inequality implications.',
-        category: 'Social'
-      }
+        category: 'Social',
+      },
     },
     {
       id: 'economic_potential',
@@ -46,8 +46,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['World Economic Forum', 'McKinsey Global Institute'],
         description: 'AI projected to contribute $15.7 trillion to global economy by 2030 through productivity gains and innovation.',
-        category: 'Economic'
-      }
+        category: 'Economic',
+      },
     },
 
     // Column 1: Regulations & Policies (in-degree = 1+, regulatory frameworks)
@@ -59,8 +59,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['European Commission', 'Official EU Legislation'],
         description: 'Comprehensive AI regulation establishing risk categories and conformity requirements for AI systems in the EU market.',
-        category: 'Regulatory'
-      }
+        category: 'Regulatory',
+      },
     },
     {
       id: 'us_ai_bill_rights',
@@ -70,8 +70,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['White House Office of Science and Technology Policy'],
         description: 'Non-binding framework establishing principles for safe and trustworthy AI development in the United States.',
-        category: 'Regulatory'
-      }
+        category: 'Regulatory',
+      },
     },
     {
       id: 'gdpr_ai_amendments',
@@ -81,8 +81,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['European Data Protection Board'],
         description: 'Updates to GDPR addressing automated decision-making, profiling, and AI-specific data protection requirements.',
-        category: 'Legal'
-      }
+        category: 'Legal',
+      },
     },
 
     // Column 2: Impacts & Outcomes (in-degree = 2+, direct consequences)
@@ -94,8 +94,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['Boston Consulting Group', 'Deloitte AI Compliance Study'],
         description: 'AI companies facing 15-30% increase in operational costs due to regulatory compliance requirements.',
-        category: 'Business'
-      }
+        category: 'Business',
+      },
     },
     {
       id: 'innovation_slowdown',
@@ -105,8 +105,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['AI Now Institute', 'Stanford HAI'],
         description: 'Regulatory uncertainty causing 18-month delays in AI product development timelines.',
-        category: 'Business'
-      }
+        category: 'Business',
+      },
     },
     {
       id: 'market_consolidation',
@@ -116,8 +116,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['Brookings Institution', 'OECD AI Policy Observatory'],
         description: 'Regulations favoring large tech companies with compliance resources, reducing startup competition.',
-        category: 'Market'
-      }
+        category: 'Market',
+      },
     },
     {
       id: 'consumer_protection',
@@ -127,8 +127,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['Consumer Reports', 'European Consumer Organization'],
         description: 'Significant improvement in AI transparency and accountability leading to better consumer trust.',
-        category: 'Social'
-      }
+        category: 'Social',
+      },
     },
 
     // Column 3: Risks & Opportunities (in-degree = 3+, strategic implications)
@@ -140,8 +140,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['Financial Times', 'World Economic Forum Risk Report'],
         description: 'AI development shifting to jurisdictions with lax regulations, creating uneven global standards.',
-        category: 'Strategic'
-      }
+        category: 'Strategic',
+      },
     },
     {
       id: 'talent_drain',
@@ -151,8 +151,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['McKinsey Talent Survey', 'European AI Talent Report'],
         description: 'AI researchers and developers relocating to more innovation-friendly jurisdictions.',
-        category: 'Human Capital'
-      }
+        category: 'Human Capital',
+      },
     },
     {
       id: 'trust_opportunity',
@@ -162,8 +162,8 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['Edelman Trust Barometer', 'PwC Global AI Survey'],
         description: 'Well-regulated AI markets experiencing 40% faster consumer adoption rates.',
-        category: 'Market'
-      }
+        category: 'Market',
+      },
     },
     {
       id: 'ethical_ai_leadership',
@@ -173,9 +173,9 @@ export const aiRegulationPolicySeed: {
       metadata: {
         sources: ['World Economic Forum', 'Global AI Ethics Consortium'],
         description: 'First-mover advantage for companies establishing ethical AI standards and practices.',
-        category: 'Strategic'
-      }
-    }
+        category: 'Strategic',
+      },
+    },
   ],
 
   edges: [
@@ -187,7 +187,7 @@ export const aiRegulationPolicySeed: {
       relation: 'enables',
       weight: 0.9,
       evidence: ['EU AI Act references technical risk categories'],
-      relationshipType: 'INFLUENCES'
+      relationshipType: 'INFLUENCES',
     },
     {
       id: 'foundations_us_bill',
@@ -196,7 +196,7 @@ export const aiRegulationPolicySeed: {
       relation: 'informs',
       weight: 0.85,
       evidence: ['US policy documents cite technical capabilities'],
-      relationshipType: 'INFLUENCES'
+      relationshipType: 'INFLUENCES',
     },
     {
       id: 'society_eu_act',
@@ -205,7 +205,7 @@ export const aiRegulationPolicySeed: {
       relation: 'drives',
       weight: 0.95,
       evidence: ['EU policy responses to public concerns'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
     {
       id: 'society_us_bill',
@@ -214,7 +214,7 @@ export const aiRegulationPolicySeed: {
       relation: 'influences',
       weight: 0.9,
       evidence: ['US policy addresses bias and discrimination'],
-      relationshipType: 'INFLUENCES'
+      relationshipType: 'INFLUENCES',
     },
     {
       id: 'economic_gdpr',
@@ -223,7 +223,7 @@ export const aiRegulationPolicySeed: {
       relation: 'triggers',
       weight: 0.8,
       evidence: ['GDPR updates respond to economic AI growth'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
 
     // Regulations → Impacts (Direct regulatory consequences)
@@ -234,7 +234,7 @@ export const aiRegulationPolicySeed: {
       relation: 'increases',
       weight: 0.9,
       evidence: ['EU companies report compliance cost increases'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
     {
       id: 'us_bill_innovation',
@@ -243,7 +243,7 @@ export const aiRegulationPolicySeed: {
       relation: 'delays',
       weight: 0.75,
       evidence: ['US companies cite regulatory uncertainty'],
-      relationshipType: 'INFLUENCES'
+      relationshipType: 'INFLUENCES',
     },
     {
       id: 'gdpr_market',
@@ -252,7 +252,7 @@ export const aiRegulationPolicySeed: {
       relation: 'accelerates',
       weight: 0.85,
       evidence: ['SMBs struggle with GDPR compliance costs'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
     {
       id: 'eu_act_protection',
@@ -261,7 +261,7 @@ export const aiRegulationPolicySeed: {
       relation: 'enhances',
       weight: 0.9,
       evidence: ['EU consumers report increased AI trust'],
-      relationshipType: 'REGULATES'
+      relationshipType: 'REGULATES',
     },
 
     // Impacts → Risks/Opportunities (Strategic implications)
@@ -272,7 +272,7 @@ export const aiRegulationPolicySeed: {
       relation: 'drives',
       weight: 0.85,
       evidence: ['Companies relocating to avoid high costs'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
     {
       id: 'slowdown_talent',
@@ -281,7 +281,7 @@ export const aiRegulationPolicySeed: {
       relation: 'causes',
       weight: 0.8,
       evidence: ['Researchers moving to more innovative markets'],
-      relationshipType: 'CAUSES'
+      relationshipType: 'CAUSES',
     },
     {
       id: 'protection_trust',
@@ -290,7 +290,7 @@ export const aiRegulationPolicySeed: {
       relation: 'creates',
       weight: 0.9,
       evidence: ['Regulated markets show higher adoption rates'],
-      relationshipType: 'MEDIATES'
+      relationshipType: 'MEDIATES',
     },
     {
       id: 'consolidation_leadership',
@@ -299,7 +299,7 @@ export const aiRegulationPolicySeed: {
       relation: 'enables',
       weight: 0.75,
       evidence: ['Large players setting industry standards'],
-      relationshipType: 'DEPENDS_ON'
+      relationshipType: 'DEPENDS_ON',
     },
 
     // Cross-column relationships (complex interactions)
@@ -310,7 +310,7 @@ export const aiRegulationPolicySeed: {
       relation: 'underpins',
       weight: 0.7,
       evidence: ['Technical reliability builds consumer trust'],
-      relationshipType: 'MEDIATES'
+      relationshipType: 'MEDIATES',
     },
     {
       id: 'society_arbitrage',
@@ -319,9 +319,9 @@ export const aiRegulationPolicySeed: {
       relation: 'exacerbates',
       weight: 0.65,
       evidence: ['Public pressure varies by jurisdiction'],
-      relationshipType: 'INFLUENCES'
-    }
-  ]
+      relationshipType: 'INFLUENCES',
+    },
+  ],
 };
 
 /**
@@ -331,6 +331,6 @@ export const aiRegulationPolicySeed: {
 export const createAiRegulationPolicyGraph = (): { nodes: KnowledgeNode[]; edges: KnowledgeEdge[] } => {
   return {
     nodes: aiRegulationPolicySeed.nodes.map(node => ({ ...node })),
-    edges: aiRegulationPolicySeed.edges.map(edge => ({ ...edge }))
+    edges: aiRegulationPolicySeed.edges.map(edge => ({ ...edge })),
   };
 };

@@ -27,7 +27,6 @@ export const loadAiRegulationPolicyDemo = (): void => {
     }, {} as Record<number, number>);
 
     console.log('📁 Column distribution:', columnStats);
-
   } catch (error) {
     console.error('❌ Failed to load AI Regulation Policy seed data:', error);
   }
@@ -71,7 +70,7 @@ export const getGraphSummary = (): {
     edgeCount: edges.length,
     columnCount,
     nodeTypes,
-    relationshipTypes
+    relationshipTypes,
   };
 };
 
@@ -96,7 +95,7 @@ export const validateGraph = (): {
 
   // Check for invalid edge references
   const invalidEdges = edges.filter(edge =>
-    !nodeIds.has(edge.source) || !nodeIds.has(edge.target)
+    !nodeIds.has(edge.source) || !nodeIds.has(edge.target),
   );
 
   if (invalidEdges.length > 0) {
@@ -124,7 +123,7 @@ export const validateGraph = (): {
 
   return {
     isValid,
-    issues
+    issues,
   };
 };
 
@@ -141,7 +140,7 @@ export const getColumnStatistics = () => {
         nodeCount: 0,
         nodeTypes: {} as Record<string, number>,
         totalConfidence: 0,
-        averageConfidence: 0
+        averageConfidence: 0,
       };
     }
 

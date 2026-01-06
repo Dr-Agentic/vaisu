@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { visualizationService } from '../visualizationService.js';
+
 import type { VisualizationRecord } from '../types.js';
 
 // Mock all repository modules
@@ -154,7 +156,7 @@ describe('visualizationService', () => {
 
       const result = await visualizationService.findByDocumentIdAndType(
         'test-doc-id',
-        'argument-map'
+        'argument-map',
       );
 
       expect(result).toEqual(mockVisualization);
@@ -168,7 +170,7 @@ describe('visualizationService', () => {
 
       const result = await visualizationService.findByDocumentIdAndType(
         'test-doc-id',
-        'argument-map'
+        'argument-map',
       );
 
       expect(result).toBeNull();

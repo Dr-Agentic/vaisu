@@ -1,5 +1,6 @@
 import Graph from 'graphology';
 import louvain from 'graphology-communities-louvain';
+
 import type { GraphNode, GraphEdge, Cluster } from '../../../../../../shared/src/types';
 
 export class ClusteringService {
@@ -10,11 +11,11 @@ export class ClusteringService {
     if (nodes.length === 0) return [];
 
     const graph = this.buildGraphologyGraph(nodes, edges);
-    
+
     // Run Louvain community detection
     const communities = louvain(graph, {
       resolution: 1.0,
-      randomWalk: false
+      randomWalk: false,
     });
 
     // Group nodes by community
@@ -35,7 +36,7 @@ export class ClusteringService {
     communityMap.forEach((nodeIds, communityId) => {
       // Find the most central node in the cluster as the label
       const clusterNodes = nodes.filter(n => nodeIds.includes(n.id));
-      const labelNode = clusterNodes.reduce((max, node) => 
+      const labelNode = clusterNodes.reduce((max, node) =>
         (node.metadata.centrality > max.metadata.centrality) ? node : max
       , clusterNodes[0]);
 
@@ -43,7 +44,7 @@ export class ClusteringService {
         id: `cluster-${communityId}`,
         label: labelNode?.label || `Cluster ${communityId}`,
         nodeIds,
-        color: colors[colorIndex % colors.length]
+        color: colors[colorIndex % colors.length],
       });
       colorIndex++;
     });
@@ -56,7 +57,7 @@ export class ClusteringService {
    */
   calculateClusterBoundary(
     nodeIds: string[],
-    nodePositions: Map<string, { x: number; y: number }>
+    nodePositions: Map<string, { x: number; y: number }>,
   ): { x: number; y: number }[] {
     const points = nodeIds
       .map(id => nodePositions.get(id))
@@ -72,7 +73,7 @@ export class ClusteringService {
    * Assign cluster colors to nodes
    */
   assignClusterColors(
-    clusters: Cluster[]
+    clusters: Cluster[],
   ): Map<string, { clusterId: string; clusterColor: string }> {
     const assignments = new Map<string, { clusterId: string; clusterColor: string }>();
 
@@ -80,7 +81,7 @@ export class ClusteringService {
       cluster.nodeIds.forEach(nodeId => {
         assignments.set(nodeId, {
           clusterId: cluster.id,
-          clusterColor: cluster.color
+          clusterColor: cluster.color,
         });
       });
     });
@@ -105,7 +106,7 @@ export class ClusteringService {
       try {
         if (graph.hasNode(edge.source) && graph.hasNode(edge.target)) {
           graph.addEdge(edge.source, edge.target, {
-            weight: edge.strength
+            weight: edge.strength,
           });
         }
       } catch (error) {
@@ -130,7 +131,7 @@ export class ClusteringService {
       '#EC4899', // Pink
       '#F97316', // Orange
       '#14B8A6', // Teal
-      '#A855F7'  // Violet
+      '#A855F7',  // Violet
     ];
 
     if (count <= baseColors.length) {
@@ -178,8 +179,8 @@ export class ClusteringService {
 
       // Remove points that make clockwise turn
       while (
-        hull.length > 1 &&
-        this.crossProduct(nextToTop, top, sorted[i]) <= 0
+        hull.length > 1
+        && this.crossProduct(nextToTop, top, sorted[i]) <= 0
       ) {
         hull.pop();
         top = hull[hull.length - 1];
@@ -198,7 +199,7 @@ export class ClusteringService {
   private crossProduct(
     o: { x: number; y: number },
     a: { x: number; y: number },
-    b: { x: number; y: number }
+    b: { x: number; y: number },
   ): number {
     return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
   }

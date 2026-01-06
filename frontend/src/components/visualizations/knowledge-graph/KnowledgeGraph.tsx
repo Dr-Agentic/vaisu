@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
-import { useKnowledgeGraphStore } from './stores/knowledgeGraphStore';
-import { useKnowledgeGraphInteractions, useSectorTitles } from './hooks/useKnowledgeGraphLayout';
-import { 
+
+import {
   GraphViewerLayout,
-  GraphEntityCard, 
-  DynamicBezierPath, 
-  GraphBackground, 
+  GraphEntityCard,
+  DynamicBezierPath,
+  GraphBackground,
   GraphConnectionModal,
-  GraphEdgeLayer
+  GraphEdgeLayer,
 } from '../toolkit';
 import { GraphNode } from '../toolkit/types';
+
+import { useKnowledgeGraphInteractions, useSectorTitles } from './hooks/useKnowledgeGraphLayout';
+import { useKnowledgeGraphStore } from './stores/knowledgeGraphStore';
 import { KnowledgeNode } from './types';
 
 /**
@@ -25,8 +27,8 @@ const convertToGraphNode = (node: KnowledgeNode): GraphNode => ({
   mentions: node.metadata.sources,
   metadata: {
     ...node.metadata,
-    confidence: node.confidence
-  }
+    confidence: node.confidence,
+  },
 });
 
 export const KnowledgeGraph: React.FC = () => {
@@ -36,7 +38,7 @@ export const KnowledgeGraph: React.FC = () => {
     isInitialized,
     error,
     edges,
-    columnWidth
+    columnWidth,
   } = useKnowledgeGraphStore();
 
   const {
@@ -44,7 +46,7 @@ export const KnowledgeGraph: React.FC = () => {
     handleNodeHover,
     handleEdgeHover,
     selectedNodeId,
-    hoveredEdgeId
+    hoveredEdgeId,
   } = useKnowledgeGraphInteractions();
 
   const { getColumnData } = useSectorTitles();
@@ -71,7 +73,7 @@ export const KnowledgeGraph: React.FC = () => {
         const rect = el.getBoundingClientRect();
         newCoords[node.id] = {
           x: rect.left - contentRect.left + rect.width / 2,
-          y: rect.top - contentRect.top + rect.height / 2
+          y: rect.top - contentRect.top + rect.height / 2,
         };
       }
     });
@@ -89,7 +91,7 @@ export const KnowledgeGraph: React.FC = () => {
       observer.observe(scrollContainer);
       scrollContainer.addEventListener('scroll', updateCoords, { capture: true });
     }
-    
+
     // Settling timeout
     const timeout = setTimeout(updateCoords, 100);
 
@@ -116,18 +118,18 @@ export const KnowledgeGraph: React.FC = () => {
     target: e.target,
     type: e.relation,
     strength: e.weight,
-    rationale: e.evidence?.join('; ')
+    rationale: e.evidence?.join('; '),
   })), [edges]);
 
-  const activeEdge = useMemo(() => 
+  const activeEdge = useMemo(() =>
     hoveredEdgeId ? graphEdges.find(e => e.id === hoveredEdgeId) || null : null,
   [hoveredEdgeId, graphEdges]);
 
-  const activeSourceNode = useMemo(() => 
+  const activeSourceNode = useMemo(() =>
     activeEdge ? nodes.find(n => n.id === activeEdge.source) : undefined,
   [activeEdge, nodes]);
 
-  const activeTargetNode = useMemo(() => 
+  const activeTargetNode = useMemo(() =>
     activeEdge ? nodes.find(n => n.id === activeEdge.target) : undefined,
   [activeEdge, nodes]);
 
@@ -157,14 +159,15 @@ export const KnowledgeGraph: React.FC = () => {
       title="Neural Knowledge Graph"
       description="Hierarchical mapping of entities and relationships using natural flow."
     >
-      <div 
-        ref={scrollContainerRef} 
-        className="relative w-full h-full bg-slate-50 overflow-auto custom-scrollbar"
-      >
+      <div className="relative w-full h-full bg-slate-50">
         <GraphBackground />
 
-        <div className="kg-content-wrapper flex gap-24 p-24 min-w-max min-h-full relative z-10">
-          {/* Sector Columns */}
+        <div
+          ref={scrollContainerRef}
+          className="absolute inset-0 overflow-auto custom-scrollbar"
+        >
+          <div className="kg-content-wrapper flex gap-24 p-24 min-w-max min-h-full relative z-10">
+            {/* Sector Columns */}
           {columnData.map((column, i) => (
             <div key={column.id} className="flex flex-col gap-12" style={{ width: columnWidth }}>
               {/* Header */}
@@ -181,8 +184,8 @@ export const KnowledgeGraph: React.FC = () => {
               {/* Nodes in this column */}
               <div className="flex flex-col gap-12">
                 {column.nodes.map((node) => (
-                  <div 
-                    key={node.id} 
+                  <div
+                    key={node.id}
                     ref={el => cardRefs.current[node.id] = el}
                     className="transition-transform duration-300"
                   >
@@ -209,8 +212,8 @@ export const KnowledgeGraph: React.FC = () => {
               if (!s || !t) return null;
 
               return (
-                <g 
-                  key={edge.id} 
+                <g
+                  key={edge.id}
                   onMouseEnter={() => handleEdgeHover(edge.id)}
                   onMouseLeave={() => handleEdgeHover(null)}
                   className="cursor-pointer"
@@ -225,6 +228,7 @@ export const KnowledgeGraph: React.FC = () => {
               );
             })}
           </GraphEdgeLayer>
+        </div>
         </div>
 
         <GraphConnectionModal

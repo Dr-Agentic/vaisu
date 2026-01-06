@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import { VisualizationGenerator } from '../visualizationGenerator';
+
 import type { Document, DocumentAnalysis, MindMapData, UMLDiagramData } from '../../../../../shared/src/types';
 
 // Mock the OpenRouter client
@@ -37,9 +39,9 @@ vi.mock('../../llm/openRouterClient', () => ({
                     detailedExplanation: 'This subsection provides detailed background information.',
                     sourceTextExcerpt: 'Background content from the document.',
                     importance: 0.6,
-                    children: []
-                  }
-                ]
+                    children: [],
+                  },
+                ],
               },
               {
                 id: 'node-2',
@@ -50,15 +52,15 @@ vi.mock('../../llm/openRouterClient', () => ({
                 detailedExplanation: 'The second section concludes the main points.',
                 sourceTextExcerpt: 'Conclusion content from the document.',
                 importance: 0.7,
-                children: []
-              }
-            ]
-          }
-        ]
-      })
+                children: [],
+              },
+            ],
+          },
+        ],
+      }),
     }),
-    parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-  })
+    parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+  }),
 }));
 
 // Mock visualizationService to prevent DynamoDB access
@@ -68,8 +70,8 @@ vi.mock('../../../repositories/visualizationService', () => ({
     findByDocumentIdAndType: vi.fn().mockResolvedValue(null),
     findByDocumentId: vi.fn().mockResolvedValue([]),
     update: vi.fn().mockResolvedValue(undefined),
-    deleteVisualization: vi.fn().mockResolvedValue(undefined)
-  }
+    deleteVisualization: vi.fn().mockResolvedValue(undefined),
+  },
 }));
 
 describe('VisualizationGenerator', () => {
@@ -88,7 +90,7 @@ describe('VisualizationGenerator', () => {
         wordCount: 8,
         uploadDate: new Date(),
         fileType: 'txt',
-        language: 'en'
+        language: 'en',
       },
       structure: {
         sections: [
@@ -111,9 +113,9 @@ describe('VisualizationGenerator', () => {
                 endIndex: 200,
                 summary: 'Background summary',
                 keywords: ['background'],
-                children: []
-              }
-            ]
+                children: [],
+              },
+            ],
           },
           {
             id: 'section-2',
@@ -124,11 +126,11 @@ describe('VisualizationGenerator', () => {
             endIndex: 300,
             summary: 'Conclusion summary',
             keywords: ['conclusion'],
-            children: []
-          }
+            children: [],
+          },
         ],
-        hierarchy: []
-      }
+        hierarchy: [],
+      },
     };
 
     mockAnalysis = {
@@ -139,7 +141,7 @@ describe('VisualizationGenerator', () => {
         kpis: [],
         risks: [],
         opportunities: [],
-        callToAction: 'Review the document'
+        callToAction: 'Review the document',
       },
       entities: [],
       relationships: [],
@@ -150,9 +152,9 @@ describe('VisualizationGenerator', () => {
         quantitative: 0.2,
         technical: 0.1,
         argumentative: 0.4,
-        temporal: 0.2
+        temporal: 0.2,
       },
-      recommendations: []
+      recommendations: [],
     };
   });
 
@@ -161,7 +163,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'structured-view',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result).toBeDefined();
@@ -174,7 +176,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result).toBeDefined();
@@ -189,7 +191,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'flowchart',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result).toBeDefined();
@@ -205,8 +207,8 @@ describe('VisualizationGenerator', () => {
           text: 'Test Entity',
           type: 'concept',
           mentions: [],
-          importance: 0.8
-        }
+          importance: 0.8,
+        },
       ];
       mockAnalysis.relationships = [
         {
@@ -215,14 +217,14 @@ describe('VisualizationGenerator', () => {
           target: 'entity-2',
           type: 'relates-to',
           strength: 0.7,
-          evidence: []
-        }
+          evidence: [],
+        },
       ];
 
       const result = await generator.generateVisualization(
         'knowledge-graph',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result).toBeDefined();
@@ -236,8 +238,8 @@ describe('VisualizationGenerator', () => {
         generator.generateVisualization(
           'unsupported-type' as any,
           mockDocument,
-          mockAnalysis
-        )
+          mockAnalysis,
+        ),
       ).rejects.toThrow('not yet implemented');
     });
   });
@@ -247,7 +249,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root).toBeDefined();
@@ -261,13 +263,13 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.color).toBeDefined();
       expect(result.root.children[0].color).toBeDefined();
       expect(result.root.children[0].children[0].color).toBeDefined();
-      
+
       // Different levels should have different colors
       expect(result.root.color).not.toBe(result.root.children[0].color);
     });
@@ -276,7 +278,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.metadata).toBeDefined();
@@ -288,7 +290,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.subtitle).toBeDefined();
@@ -301,7 +303,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.icon).toBeDefined();
@@ -315,7 +317,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.detailedExplanation).toBeDefined();
@@ -327,7 +329,7 @@ describe('VisualizationGenerator', () => {
       const result = (await generator.generateVisualization(
         'mind-map',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       )) as MindMapData;
 
       expect(result.root.sourceTextExcerpt).toBeDefined();
@@ -339,8 +341,8 @@ describe('VisualizationGenerator', () => {
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
           callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
+          parseJSONResponse: vi.fn(),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
@@ -349,8 +351,8 @@ describe('VisualizationGenerator', () => {
         testGenerator.generateVisualization(
           'mind-map',
           mockDocument,
-          mockAnalysis
-        )
+          mockAnalysis,
+        ),
       ).rejects.toThrow('LLM failed');
 
       vi.doUnmock('../../llm/openRouterClient');
@@ -362,7 +364,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'flowchart',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.nodes).toHaveLength(2);
@@ -374,7 +376,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'flowchart',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.edges).toHaveLength(1);
@@ -391,21 +393,21 @@ describe('VisualizationGenerator', () => {
           text: 'Entity 1',
           type: 'person',
           mentions: [],
-          importance: 0.9
+          importance: 0.9,
         },
         {
           id: 'entity-2',
           text: 'Entity 2',
           type: 'organization',
           mentions: [],
-          importance: 0.7
-        }
+          importance: 0.7,
+        },
       ];
 
       const result = await generator.generateVisualization(
         'knowledge-graph',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.nodes).toHaveLength(2);
@@ -416,7 +418,7 @@ describe('VisualizationGenerator', () => {
     it('should create edges from relationships', async () => {
       mockAnalysis.entities = [
         { id: 'e1', text: 'E1', type: 'concept', mentions: [], importance: 0.8 },
-        { id: 'e2', text: 'E2', type: 'concept', mentions: [], importance: 0.7 }
+        { id: 'e2', text: 'E2', type: 'concept', mentions: [], importance: 0.7 },
       ];
       mockAnalysis.relationships = [
         {
@@ -425,14 +427,14 @@ describe('VisualizationGenerator', () => {
           target: 'e2',
           type: 'causes',
           strength: 0.8,
-          evidence: []
-        }
+          evidence: [],
+        },
       ];
 
       const result = await generator.generateVisualization(
         'knowledge-graph',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.edges).toHaveLength(1);
@@ -444,7 +446,7 @@ describe('VisualizationGenerator', () => {
     it('should update node connection counts', async () => {
       mockAnalysis.entities = [
         { id: 'e1', text: 'E1', type: 'concept', mentions: [], importance: 0.8 },
-        { id: 'e2', text: 'E2', type: 'concept', mentions: [], importance: 0.7 }
+        { id: 'e2', text: 'E2', type: 'concept', mentions: [], importance: 0.7 },
       ];
       mockAnalysis.relationships = [
         {
@@ -453,14 +455,14 @@ describe('VisualizationGenerator', () => {
           target: 'e2',
           type: 'relates-to',
           strength: 0.8,
-          evidence: []
-        }
+          evidence: [],
+        },
       ];
 
       const result = await generator.generateVisualization(
         'knowledge-graph',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       const node1 = result.nodes.find((n: any) => n.id === 'e1');
@@ -476,7 +478,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'executive-dashboard',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.executiveCard).toBeDefined();
@@ -490,14 +492,14 @@ describe('VisualizationGenerator', () => {
           label: 'Revenue',
           value: 1000000,
           unit: 'USD',
-          confidence: 0.9
-        }
+          confidence: 0.9,
+        },
       ];
 
       const result = await generator.generateVisualization(
         'executive-dashboard',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.kpiTiles).toHaveLength(1);
@@ -519,28 +521,28 @@ describe('VisualizationGenerator', () => {
                   type: 'acronym',
                   confidence: 0.95,
                   mentions: 5,
-                  context: 'Used throughout the document to describe system integration'
+                  context: 'Used throughout the document to describe system integration',
                 },
                 {
                   term: 'Microservices',
                   definition: 'An architectural style that structures an application as a collection of loosely coupled services',
                   type: 'technical',
                   confidence: 0.9,
-                  mentions: 3
+                  mentions: 3,
                 },
                 {
                   term: 'Scalability',
                   definition: 'The capability of a system to handle a growing amount of work',
                   type: 'concept',
                   confidence: 0.85,
-                  mentions: 2
-                }
+                  mentions: 2,
+                },
               ],
-              domain: 'software engineering'
-            })
+              domain: 'software engineering',
+            }),
           }),
-          parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-        })
+          parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+        }),
       }));
     });
 
@@ -548,7 +550,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'terms-definitions',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result).toBeDefined();
@@ -561,12 +563,12 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'terms-definitions',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.terms).toBeDefined();
       expect(result.terms.length).toBeGreaterThan(1);
-      
+
       // Check alphabetical order
       for (let i = 0; i < result.terms.length - 1; i++) {
         expect(result.terms[i].term.localeCompare(result.terms[i + 1].term)).toBeLessThanOrEqual(0);
@@ -577,7 +579,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'terms-definitions',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       const term = result.terms[0];
@@ -593,7 +595,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'terms-definitions',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       );
 
       expect(result.metadata.documentDomain).toBeDefined();
@@ -605,8 +607,8 @@ describe('VisualizationGenerator', () => {
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
           callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
+          parseJSONResponse: vi.fn(),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
@@ -615,8 +617,8 @@ describe('VisualizationGenerator', () => {
         testGenerator.generateVisualization(
           'terms-definitions',
           mockDocument,
-          mockAnalysis
-        )
+          mockAnalysis,
+        ),
       ).rejects.toThrow('LLM failed');
 
       vi.doUnmock('../../llm/openRouterClient');
@@ -627,12 +629,12 @@ describe('VisualizationGenerator', () => {
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
           callWithFallback: vi.fn().mockResolvedValue({
-            content: 'invalid json'
+            content: 'invalid json',
           }),
           parseJSONResponse: vi.fn().mockImplementation(() => {
             throw new Error('Invalid JSON');
-          })
-        })
+          }),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
@@ -641,8 +643,8 @@ describe('VisualizationGenerator', () => {
         testGenerator.generateVisualization(
           'terms-definitions',
           mockDocument,
-          mockAnalysis
-        )
+          mockAnalysis,
+        ),
       ).rejects.toThrow();
 
       vi.doUnmock('../../llm/openRouterClient');
@@ -669,8 +671,8 @@ describe('VisualizationGenerator', () => {
                       name: 'userRepository',
                       type: 'UserRepository',
                       visibility: 'private',
-                      isStatic: false
-                    }
+                      isStatic: false,
+                    },
                   ],
                   methods: [
                     {
@@ -681,10 +683,10 @@ describe('VisualizationGenerator', () => {
                       isAbstract: false,
                       parameters: [
                         { name: 'username', type: 'String' },
-                        { name: 'password', type: 'String' }
-                      ]
-                    }
-                  ]
+                        { name: 'password', type: 'String' },
+                      ],
+                    },
+                  ],
                 },
                 {
                   name: 'IUserRepository',
@@ -699,10 +701,10 @@ describe('VisualizationGenerator', () => {
                       visibility: 'public',
                       isStatic: false,
                       isAbstract: true,
-                      parameters: [{ name: 'id', type: 'String' }]
-                    }
-                  ]
-                }
+                      parameters: [{ name: 'id', type: 'String' }],
+                    },
+                  ],
+                },
               ],
               relationships: [
                 {
@@ -710,19 +712,19 @@ describe('VisualizationGenerator', () => {
                   target: 'IUserRepository',
                   type: 'dependency',
                   description: 'UserService depends on IUserRepository',
-                  evidence: 'UserService uses IUserRepository for data access'
-                }
+                  evidence: 'UserService uses IUserRepository for data access',
+                },
               ],
               packages: [
                 {
                   name: 'com.example.service',
-                  classes: ['UserService']
-                }
-              ]
-            })
+                  classes: ['UserService'],
+                },
+              ],
+            }),
           }),
-          parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-        })
+          parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+        }),
       }));
     });
 
@@ -730,7 +732,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result).toBeDefined();
@@ -744,11 +746,11 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.classes).toHaveLength(2);
-      
+
       const userService = result.classes[0];
       expect(userService.id).toBeDefined();
       expect(userService.name).toBe('UserService');
@@ -764,12 +766,12 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       const userService = result.classes[0];
       expect(userService.attributes).toHaveLength(1);
-      
+
       const attribute = userService.attributes[0];
       expect(attribute.name).toBe('userRepository');
       expect(attribute.type).toBe('UserRepository');
@@ -781,12 +783,12 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       const userService = result.classes[0];
       expect(userService.methods).toHaveLength(1);
-      
+
       const method = userService.methods[0];
       expect(method.name).toBe('authenticate');
       expect(method.returnType).toBe('boolean');
@@ -802,7 +804,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       const repository = result.classes[1];
@@ -815,11 +817,11 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.relationships).toHaveLength(1);
-      
+
       const relationship = result.relationships[0];
       expect(relationship.id).toBeDefined();
       expect(relationship.source).toBeDefined();
@@ -833,15 +835,15 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       const userServiceId = result.classes.find(c => c.name === 'UserService')?.id;
       const repositoryId = result.classes.find(c => c.name === 'IUserRepository')?.id;
-      
+
       expect(userServiceId).toBeDefined();
       expect(repositoryId).toBeDefined();
-      
+
       const relationship = result.relationships[0];
       expect([userServiceId, repositoryId]).toContain(relationship.source);
       expect([userServiceId, repositoryId]).toContain(relationship.target);
@@ -851,11 +853,11 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.packages).toHaveLength(1);
-      
+
       const package1 = result.packages[0];
       expect(package1.name).toBe('com.example.service');
       expect(package1.classes).toHaveLength(1);
@@ -866,7 +868,7 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.metadata.totalClasses).toBe(2);
@@ -885,21 +887,21 @@ describe('VisualizationGenerator', () => {
               classes: [
                 {
                   name: 'SimpleClass',
-                  description: 'A simple class'
-                }
+                  description: 'A simple class',
+                },
               ],
-              relationships: []
-            })
+              relationships: [],
+            }),
           }),
-          parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-        })
+          parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
       const result = await testGenerator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.classes).toHaveLength(1);
@@ -908,7 +910,7 @@ describe('VisualizationGenerator', () => {
       expect(simpleClass.type).toBe('class'); // Default value
       expect(simpleClass.attributes).toEqual([]); // Default empty array
       expect(simpleClass.methods).toEqual([]); // Default empty array
-      
+
       vi.doUnmock('../../llm/openRouterClient');
     });
 
@@ -919,31 +921,31 @@ describe('VisualizationGenerator', () => {
           callWithFallback: vi.fn().mockResolvedValue({
             content: JSON.stringify({
               classes: [
-                { name: 'ClassA', description: 'Class A' }
+                { name: 'ClassA', description: 'Class A' },
               ],
               relationships: [
                 {
                   source: 'ClassA',
                   target: 'NonExistentClass',
-                  type: 'dependency'
-                }
-              ]
-            })
+                  type: 'dependency',
+                },
+              ],
+            }),
           }),
-          parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-        })
+          parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
       const result = await testGenerator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       expect(result.classes).toHaveLength(1);
       expect(result.relationships).toHaveLength(0); // Invalid relationship filtered out
-      
+
       vi.doUnmock('../../llm/openRouterClient');
     });
 
@@ -952,8 +954,8 @@ describe('VisualizationGenerator', () => {
       vi.doMock('../../llm/openRouterClient', () => ({
         getOpenRouterClient: () => ({
           callWithFallback: vi.fn().mockRejectedValue(new Error('LLM failed')),
-          parseJSONResponse: vi.fn()
-        })
+          parseJSONResponse: vi.fn(),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
@@ -962,8 +964,8 @@ describe('VisualizationGenerator', () => {
         testGenerator.generateVisualization(
           'uml-class-diagram',
           mockDocument,
-          mockAnalysis
-        )
+          mockAnalysis,
+        ),
       ).rejects.toThrow('LLM failed');
 
       vi.doUnmock('../../llm/openRouterClient');
@@ -974,11 +976,11 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
       // Property 1: Class extraction completeness
-      // For any document containing class descriptions, the extraction process should produce 
+      // For any document containing class descriptions, the extraction process should produce
       // ClassEntity objects with all required fields
       result.classes.forEach(classEntity => {
         expect(classEntity.id).toBeDefined();
@@ -997,7 +999,7 @@ describe('VisualizationGenerator', () => {
       // Mock document with inheritance phrases
       const inheritanceDoc = {
         ...mockDocument,
-        content: 'The UserService extends BaseService and implements IUserService'
+        content: 'The UserService extends BaseService and implements IUserService',
       };
 
       vi.doMock('../../llm/openRouterClient', () => ({
@@ -1007,33 +1009,33 @@ describe('VisualizationGenerator', () => {
               classes: [
                 { name: 'UserService', type: 'class' },
                 { name: 'BaseService', type: 'class' },
-                { name: 'IUserService', type: 'interface' }
+                { name: 'IUserService', type: 'interface' },
               ],
               relationships: [
                 { source: 'UserService', target: 'BaseService', type: 'inheritance' },
-                { source: 'UserService', target: 'IUserService', type: 'realization' }
-              ]
-            })
+                { source: 'UserService', target: 'IUserService', type: 'realization' },
+              ],
+            }),
           }),
-          parseJSONResponse: vi.fn((response) => JSON.parse(response.content))
-        })
+          parseJSONResponse: vi.fn((response) => JSON.parse(response.content)),
+        }),
       }));
 
       const testGenerator = new VisualizationGenerator();
       const result = await testGenerator.generateVisualization(
         'uml-class-diagram',
         inheritanceDoc,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
-      // Property 4: For any text containing inheritance phrases, 
+      // Property 4: For any text containing inheritance phrases,
       // the system should detect inheritance relationships
       const inheritanceRel = result.relationships.find(r => r.type === 'inheritance');
       const realizationRel = result.relationships.find(r => r.type === 'realization');
-      
+
       expect(inheritanceRel).toBeDefined();
       expect(realizationRel).toBeDefined();
-      
+
       vi.doUnmock('../../llm/openRouterClient');
     });
 
@@ -1042,10 +1044,10 @@ describe('VisualizationGenerator', () => {
       const result = await generator.generateVisualization(
         'uml-class-diagram',
         mockDocument,
-        mockAnalysis
+        mockAnalysis,
       ) as UMLDiagramData;
 
-      // Property 10: For any document, the number of extracted classes should be 
+      // Property 10: For any document, the number of extracted classes should be
       // between 5 and 30 (or 0 if no classes found)
       const classCount = result.classes.length;
       expect(classCount === 0 || (classCount >= 5 && classCount <= 30) || classCount === 2).toBe(true);

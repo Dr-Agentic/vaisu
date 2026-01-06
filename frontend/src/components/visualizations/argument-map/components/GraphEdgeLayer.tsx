@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+
 import { GraphEdgeLayerProps } from '../types';
 
 interface PathData {
@@ -13,7 +14,7 @@ interface PathData {
 export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
   nodes,
   edges,
-  theme
+  theme,
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [paths, setPaths] = useState<PathData[]>([]);
@@ -27,12 +28,12 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
       SUPPORTS: 'rgba(0, 255, 200, 0.6)',
       CONTRADICTS: 'rgba(255, 50, 50, 0.6)',
       ELABORATES: 'rgba(100, 200, 255, 0.5)',
-      DEPENDS_ON: 'rgba(255, 215, 0, 0.6)'
+      DEPENDS_ON: 'rgba(255, 215, 0, 0.6)',
     } : {
       SUPPORTS: '#059669',
       CONTRADICTS: '#dc2626',
       ELABORATES: '#2563eb',
-      DEPENDS_ON: '#d97706'
+      DEPENDS_ON: '#d97706',
     };
 
     return colors[type as keyof typeof colors] || '#ccc';
@@ -43,7 +44,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
       SUPPORTS: { curve: 0.3, width: 2, opacity: 0.8, dashArray: 'none' },
       CONTRADICTS: { curve: 0.5, width: 3, opacity: 0.9, dashArray: '5,5' },
       ELABORATES: { curve: 0, width: 1, opacity: 0.6, dashArray: '2,4' },
-      DEPENDS_ON: { curve: 0.2, width: 2, opacity: 0.7, dashArray: 'none' }
+      DEPENDS_ON: { curve: 0.2, width: 2, opacity: 0.7, dashArray: 'none' },
     };
 
     return styles[edgeType as keyof typeof styles] || styles.SUPPORTS;
@@ -52,7 +53,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
   const calculateControlPoint = (
     x1: number, y1: number,
     x2: number, y2: number,
-    edgeType: string
+    edgeType: string,
   ) => {
     const style = getEdgeStyle(edgeType);
     const mx = (x1 + x2) / 2;
@@ -72,7 +73,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
       x1: mx + nx * curveHeight,
       y1: my + ny * curveHeight,
       x2: mx - nx * curveHeight,
-      y2: my - ny * curveHeight
+      y2: my - ny * curveHeight,
     };
   };
 
@@ -93,7 +94,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
         const targetY = targetRect.top + targetRect.height / 2;
 
         const controlPoints = calculateControlPoint(
-          sourceX, sourceY, targetX, targetY, edge.type
+          sourceX, sourceY, targetX, targetY, edge.type,
         );
 
         const path = `M ${sourceX} ${sourceY} C ${controlPoints.x1} ${controlPoints.y1}, ${controlPoints.x2} ${controlPoints.y2}, ${targetX} ${targetY}`;
@@ -107,7 +108,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
           color,
           width: style.width + (edge.strength * 2),
           opacity: style.opacity * edge.strength,
-          dashArray: style.dashArray
+          dashArray: style.dashArray,
         });
       }
     });
@@ -161,7 +162,7 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({
           className="transition-all duration-300"
           style={{
             filter: theme === 'dark' ? 'url(#glow)' : 'none',
-            strokeLinecap: 'round'
+            strokeLinecap: 'round',
           }}
         />
       ))}

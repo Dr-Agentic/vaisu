@@ -1,9 +1,9 @@
 /**
  * useClickOutside Hook
- * 
+ *
  * React hook to detect clicks outside of a referenced element.
  * Useful for dropdowns, modals, and popovers.
- * 
+ *
  * @example
  * ```tsx
  * const ref = useRef<HTMLDivElement>(null);
@@ -15,7 +15,7 @@ import { useEffect, RefObject } from 'react';
 
 /**
  * Hook to detect clicks outside of an element
- * 
+ *
  * @param ref - React ref to the element
  * @param handler - Callback function to execute when click outside is detected
  * @param enabled - Whether the hook is enabled (default: true)
@@ -23,7 +23,7 @@ import { useEffect, RefObject } from 'react';
 export function useClickOutside<T extends HTMLElement>(
   ref: RefObject<T>,
   handler: (event: MouseEvent | TouchEvent) => void,
-  enabled: boolean = true
+  enabled: boolean = true,
 ): void {
   useEffect(() => {
     if (!enabled) return;

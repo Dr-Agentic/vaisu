@@ -1,5 +1,7 @@
 import { useEffect, useCallback } from 'react';
+
 import { useKnowledgeGraphStore } from '../stores/knowledgeGraphStore';
+
 import type { KnowledgeNode } from '../types';
 
 /**
@@ -10,7 +12,7 @@ export const useKnowledgeGraphLayout = () => {
     layout,
     calculateGridLayout,
     calculateForceLayout,
-    calculateHierarchicalLayout
+    calculateHierarchicalLayout,
   } = useKnowledgeGraphStore();
 
   /**
@@ -40,7 +42,7 @@ export const useKnowledgeGraphLayout = () => {
   }, [layout, calculateLayout]);
 
   return {
-    calculateLayout
+    calculateLayout,
   };
 };
 
@@ -54,7 +56,7 @@ export const useKnowledgeGraphInteractions = () => {
     hoveredEdgeId,
     setSelectedNodeId,
     setHoveredNodeId,
-    setHoveredEdgeId
+    setHoveredEdgeId,
   } = useKnowledgeGraphStore();
 
   const handleNodeClick = useCallback((nodeId: string) => {
@@ -82,7 +84,7 @@ export const useKnowledgeGraphInteractions = () => {
     handleNodeClick,
     handleNodeHover,
     handleEdgeHover,
-    handleClearSelection
+    handleClearSelection,
   };
 };
 
@@ -122,7 +124,7 @@ export const useSectorTitles = () => {
     }, {} as Record<string, number>);
 
     const dominantType = Object.entries(typeCounts)
-      .sort(([,a], [,b]) => b - a)[0]?.[0] || 'Entities';
+      .sort(([, a], [, b]) => b - a)[0]?.[0] || 'Entities';
 
     return `${dominantType} (${columnNodes.length})`;
   }, []);
@@ -145,7 +147,7 @@ export const useSectorTitles = () => {
       .map(([columnId, columnNodes]) => ({
         id: columnId,
         nodes: columnNodes,
-        title: getSectorTitle(columnId, columnNodes)
+        title: getSectorTitle(columnId, columnNodes),
       }));
 
     return sortedColumns;
@@ -153,6 +155,6 @@ export const useSectorTitles = () => {
 
   return {
     getColumnData,
-    getSectorTitle
+    getSectorTitle,
   };
 };

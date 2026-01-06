@@ -5,8 +5,8 @@ const LEGEND_ITEMS: { category: string; items: { symbol: string; label: string; 
       { symbol: '🔷', label: 'Class', color: 'blue', note: 'Regular class' },
       { symbol: '🔷', label: 'Interface', color: 'green', note: '«interface»' },
       { symbol: '🔶', label: 'Abstract Class', color: 'purple', note: 'Italic name' },
-      { symbol: '🔸', label: 'Enum', color: 'orange', note: '«enumeration»' }
-    ]
+      { symbol: '🔸', label: 'Enum', color: 'orange', note: '«enumeration»' },
+    ],
   },
   {
     category: 'Relationships',
@@ -16,8 +16,8 @@ const LEGEND_ITEMS: { category: string; items: { symbol: string; label: string; 
       { symbol: '───◆', label: 'Composition', color: 'red', note: 'Filled diamond' },
       { symbol: '───◇', label: 'Aggregation', color: 'orange', note: 'Hollow diamond' },
       { symbol: '───→', label: 'Association', color: 'gray', note: 'Solid line' },
-      { symbol: '┄┄→', label: 'Dependency', color: 'lightgray', note: 'Dashed arrow' }
-    ]
+      { symbol: '┄┄→', label: 'Dependency', color: 'lightgray', note: 'Dashed arrow' },
+    ],
   },
   {
     category: 'Visibility',
@@ -25,9 +25,9 @@ const LEGEND_ITEMS: { category: string; items: { symbol: string; label: string; 
       { symbol: '+', label: 'Public', color: 'green' },
       { symbol: '-', label: 'Private', color: 'red' },
       { symbol: '#', label: 'Protected', color: 'orange' },
-      { symbol: '~', label: 'Package', color: 'blue' }
-    ]
-  }
+      { symbol: '~', label: 'Package', color: 'blue' },
+    ],
+  },
 ];
 
 export function LegendPanel() {

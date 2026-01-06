@@ -7,7 +7,7 @@ export const LLM_MODELS = {
   GPT_4O: 'openai/gpt-4o',
   GPT_45_MINI: 'openai/gpt-4.5-mini',
   GEMINI_FLASH: 'google/gemini-2.0-flash-exp:free',
-  MIMO_FLASH: 'xiaomi/mimo-v2-flash:free'
+  MIMO_FLASH: 'xiaomi/mimo-v2-flash:free',
 } as const;
 
 // LLM Selection Constants - easily switch between different model configurations
@@ -21,7 +21,7 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
-    systemPrompt: 'Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.'
+    systemPrompt: 'Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
   },
   executiveSummary: {
     primary: LLM_PRIMARY,
@@ -36,7 +36,7 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
 5. Top 3 Opportunities: Potential benefits or advantages
 6. Call to Action: What should be done next
 
-Return as JSON matching the ExecutiveSummary interface.`
+Return as JSON matching the ExecutiveSummary interface.`,
   },
   entityExtraction: {
     primary: LLM_PRIMARY,
@@ -75,7 +75,7 @@ Return ONLY valid JSON in this exact format:
   ]
 }
 
-Extract at least 10-30 entities if the document is substantial. Be thorough.`
+Extract at least 10-30 entities if the document is substantial. Be thorough.`,
   },
   relationshipDetection: {
     primary: LLM_PRIMARY,
@@ -110,14 +110,20 @@ Return ONLY valid JSON in this exact format:
 
 REMEMBER: Use entity IDs (entity-1, entity-2, etc.) NOT entity names (AWS, Machine Learning, etc.) in source and target fields!
 
-Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`
+Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`,
   },
   sectionSummary: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
-    systemPrompt: 'Summarize this section in 2-3 sentences. Extract key highlights and important keywords. Be concise and informative.'
+    systemPrompt: `Analyze the section and provide a structured summary.
+Return ONLY valid JSON in this exact format:
+{
+  "summary": "Concise summary in 2-3 sentences.",
+  "keywords": ["keyword1", "keyword2", "keyword3"]
+}
+Extract 3-5 important keywords.`,
   },
   signalAnalysis: {
     primary: LLM_PRIMARY,
@@ -131,7 +137,7 @@ Extract at least 5-20 relationships if entities are connected. Focus on meaningf
 - technical: code, APIs, technical terminology
 - argumentative: claims, evidence, reasoning
 - temporal: dates, timelines, chronological information
-Return as JSON object with these six scores.`
+Return as JSON object with these six scores.`,
   },
   vizRecommendation: {
     primary: LLM_PRIMARY,
@@ -141,7 +147,7 @@ Return as JSON object with these six scores.`
     systemPrompt: `Recommend the top 3-5 most appropriate visualizations for this document.
 Available types: structured-view, mind-map, flowchart, knowledge-graph, executive-dashboard, timeline.
 For each recommendation include: type, score (0-1), and rationale (one sentence).
-Return as JSON array.`
+Return as JSON array.`,
   },
   kpiExtraction: {
     primary: LLM_PRIMARY,
@@ -150,7 +156,7 @@ Return as JSON array.`
     temperature: 0.1,
     systemPrompt: `Extract key performance indicators (KPIs) from the text.
 For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), and confidence (0-1).
-Deduplicate similar metrics. Return as JSON array.`
+Deduplicate similar metrics. Return as JSON array.`,
   },
   glossary: {
     primary: LLM_PRIMARY,
@@ -159,14 +165,14 @@ Deduplicate similar metrics. Return as JSON array.`
     temperature: 0.3,
     systemPrompt: `Extract keywords and acronyms with context-aware definitions.
 Analyze the domain and provide definitions appropriate to that context.
-Return as JSON array with: term, definition, domain, confidence.`
+Return as JSON array with: term, definition, domain, confidence.`,
   },
   qa: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.6,
-    systemPrompt: 'Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.'
+    systemPrompt: 'Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.',
   },
   mindMapGeneration: {
     primary: LLM_PRIMARY,
@@ -226,7 +232,7 @@ Return ONLY valid JSON matching this structure:
   ]
 }
 
-    Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`
+    Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`,
   },
   argumentMapGeneration: {
     primary: LLM_PRIMARY,
@@ -294,7 +300,7 @@ Return ONLY valid JSON in this exact format:
     "totalClaims": 1,
     "totalEvidence": 0
   }
-}`
+}`,
   },
   'uml-extraction': {
     primary: LLM_PRIMARY,
@@ -388,7 +394,7 @@ Return as JSON with this structure:
   ]
 }
 
-Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`
+Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`,
   },
   'knowledge-graph-generation': {
     primary: LLM_PRIMARY,
@@ -471,8 +477,8 @@ Return as JSON with this exact structure:
   }
 }
 
-Extract 10-50 entities and 15-40 relationships based on document complexity. Focus on meaningful connections that reveal the document's knowledge structure.`
-  }
+Extract 10-50 entities and 15-40 relationships based on document complexity. Focus on meaningful connections that reveal the document's knowledge structure.`,
+  },
 };
 
 export function getModelForTask(task: TaskType): ModelConfig {

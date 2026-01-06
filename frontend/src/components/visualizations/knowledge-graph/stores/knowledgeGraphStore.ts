@@ -151,7 +151,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
       updateNode: (nodeId: string, updates: Partial<KnowledgeNode>) => {
         set((state) => ({
           nodes: state.nodes.map(node =>
-            node.id === nodeId ? { ...node, ...updates } : node
+            node.id === nodeId ? { ...node, ...updates } : node,
           ),
         }), false, 'knowledgeGraph/updateNode');
 
@@ -164,7 +164,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
       updateEdge: (edgeId: string, updates: Partial<KnowledgeEdge>) => {
         set((state) => ({
           edges: state.edges.map(edge =>
-            edge.id === edgeId ? { ...edge, ...updates } : edge
+            edge.id === edgeId ? { ...edge, ...updates } : edge,
           ),
         }), false, 'knowledgeGraph/updateEdge');
       },
@@ -209,8 +209,8 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
 
         // Step 2: Tiered Column Assignment
         const columns: KnowledgeNode[][] = [];
-        let processedNodes = new Set<string>();
-        
+        const processedNodes = new Set<string>();
+
         // Column 0: Roots
         const roots = nodes.filter(node => (inDegree.get(node.id) || 0) === 0);
         if (roots.length > 0) {
@@ -228,7 +228,7 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
           for (const node of remainingNodes) {
             // Node belongs to this tier if any of its parents are already processed
             const hasParentInProcessed = edges.some(edge =>
-              edge.target === node.id && processedNodes.has(edge.source)
+              edge.target === node.id && processedNodes.has(edge.source),
             );
 
             if (hasParentInProcessed) {
@@ -312,6 +312,6 @@ export const useKnowledgeGraphStore = create<KnowledgeGraphState>()(
     {
       name: 'knowledge-graph-store',
       enabled: process.env.NODE_ENV === 'development',
-    }
-  )
+    },
+  ),
 );

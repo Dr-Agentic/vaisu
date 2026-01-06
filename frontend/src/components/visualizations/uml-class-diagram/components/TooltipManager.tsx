@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, ExternalLink, Package, Users, Code, Database } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
+
 import type { ClassEntity, UMLRelationship, Position } from '@shared/types';
 
 interface TooltipManagerProps {
@@ -23,12 +24,12 @@ export function TooltipManager({
   element,
   position,
   relationships = [],
-  hoverDelay = 400
+  hoverDelay = 400,
 }: TooltipManagerProps) {
   const [tooltipState, setTooltipState] = useState<TooltipState>({
     isVisible: false,
     element: null,
-    position: { x: 0, y: 0 }
+    position: { x: 0, y: 0 },
   });
 
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -44,14 +45,14 @@ export function TooltipManager({
         setTooltipState({
           isVisible: true,
           element,
-          position
+          position,
         });
       }, hoverDelay);
     } else {
       setTooltipState({
         isVisible: false,
         element: null,
-        position: { x: 0, y: 0 }
+        position: { x: 0, y: 0 },
       });
     }
 
@@ -68,14 +69,14 @@ export function TooltipManager({
 
   // Calculate tooltip position with viewport clamping
   const tooltipWidth = 380;
-  // Use a safer approximate height or dynamic measurement if needed, 
+  // Use a safer approximate height or dynamic measurement if needed,
   // but clamping against window.innerHeight helps preventing overflow.
   const tooltipHeight = 400;
   const padding = 20;
 
   const clampedPosition = {
     x: Math.max(padding, Math.min(tooltipState.position.x + 20, window.innerWidth - tooltipWidth - padding)),
-    y: Math.max(padding, Math.min(tooltipState.position.y + 20, window.innerHeight - tooltipHeight - padding))
+    y: Math.max(padding, Math.min(tooltipState.position.y + 20, window.innerHeight - tooltipHeight - padding)),
   };
 
   const tooltipContent = (
@@ -89,7 +90,7 @@ export function TooltipManager({
         style={{
           left: clampedPosition.x,
           top: clampedPosition.y,
-          width: tooltipWidth
+          width: tooltipWidth,
         }}
       >
         {isClass ? (
@@ -110,7 +111,7 @@ export function TooltipManager({
 
 function ClassTooltip({
   classEntity,
-  relationships = []
+  relationships = [],
 }: {
   classEntity: ClassEntity;
   relationships?: Array<{ source: string; target: string; type: string }>;

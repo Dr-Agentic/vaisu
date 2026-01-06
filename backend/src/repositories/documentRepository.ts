@@ -1,5 +1,7 @@
 import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+
 import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from '../config/aws.js';
+
 import type { DocumentRecord } from './types.js';
 
 /**
@@ -7,7 +9,7 @@ import type { DocumentRecord } from './types.js';
  */
 export async function findByHashAndFilename(
   hash: string,
-  filename: string
+  filename: string,
 ): Promise<DocumentRecord | null> {
   const command = new QueryCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
@@ -109,10 +111,10 @@ export async function deleteDocument(documentId: string): Promise<void> {
 export async function listByUserId(
   userId: string,
   limit: number = 50,
-  lastEvaluatedKey?: Record<string, any>
+  lastEvaluatedKey?: Record<string, any>,
 ): Promise<{ documents: DocumentRecord[]; lastEvaluatedKey?: Record<string, any> }> {
   const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
-  
+
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     FilterExpression: 'userId = :userId AND SK = :sk',

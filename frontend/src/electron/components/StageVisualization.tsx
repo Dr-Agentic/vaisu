@@ -14,17 +14,19 @@
  * ```
  */
 
-import { useEffect, useState, forwardRef, useCallback } from 'react';
 import {
   ArrowLeft,
-  Menu
+  Menu,
 } from 'lucide-react';
+import { useEffect, useState, forwardRef, useCallback } from 'react';
+
 import { Button } from '../../design-system/components/Button';
 import { ThemeToggle } from '../../design-system/components/ThemeToggle';
-import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 import { cn } from '../../lib/utils';
-import { VisualizationRenderer } from './VisualizationRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
+
+import { VisualizationRenderer } from './VisualizationRenderer';
+import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 
 export interface StageVisualizationProps {
   /**
@@ -72,10 +74,10 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
       }
 
       // Sidebar toggle: S or s (only when not in input fields)
-      if ((e.key === 's' || e.key === 'S') &&
-          !(e.target instanceof HTMLInputElement ||
-            e.target instanceof HTMLTextAreaElement ||
-            e.target instanceof HTMLSelectElement)) {
+      if ((e.key === 's' || e.key === 'S')
+          && !(e.target instanceof HTMLInputElement
+            || e.target instanceof HTMLTextAreaElement
+            || e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
         setSidebarCollapsed(!sidebarCollapsed);
       }
@@ -103,7 +105,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'flex',
             'flex-col',
             'items-center',
-            'justify-center'
+            'justify-center',
           )}
           style={{
             backgroundColor: 'var(--color-background-primary)',
@@ -132,7 +134,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'border-b',
             'flex',
             'items-center',
-            'justify-between'
+            'justify-between',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -211,7 +213,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               'flex-1',
               'relative',
               'overflow-hidden',
-              'mesh-glow'
+              'mesh-glow',
             )}
             style={{
               backgroundColor: 'var(--color-background-primary)',
@@ -227,7 +229,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         {/* Keyboard Shortcuts Hint - Removed as requested */}
       </div>
     );
-  }
+  },
 );
 
 StageVisualization.displayName = 'StageVisualization';

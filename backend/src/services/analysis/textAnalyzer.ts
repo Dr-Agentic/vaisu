@@ -1,3 +1,5 @@
+import { getOpenRouterClient, OpenRouterClient } from '../llm/openRouterClient.js';
+
 import type {
   Document,
   DocumentAnalysis,
@@ -7,9 +9,8 @@ import type {
   SignalAnalysis,
   VisualizationRecommendation,
   KPI,
-  Metric
+  Metric,
 } from '../../../../shared/src/types.js';
-import { getOpenRouterClient, OpenRouterClient } from '../llm/openRouterClient.js';
 
 export type ProgressCallback = (
   step: string,
@@ -31,7 +32,7 @@ export class TextAnalyzer {
 
   async analyzeDocument(
     document: Document,
-    onProgress?: ProgressCallback
+    onProgress?: ProgressCallback,
   ): Promise<DocumentAnalysis> {
     console.log(`Analyzing document: ${document.id}`);
 
@@ -42,13 +43,13 @@ export class TextAnalyzer {
 
     const [tldr, executiveSummary] = await Promise.all([
       this.generateTLDR(document.content),
-      this.generateExecutiveSummary(document.content)
+      this.generateExecutiveSummary(document.content),
     ]);
 
     // Provide early results to user immediately
     onProgress?.('early-results', 30, 'TLDR and summary ready! Continuing analysis...', {
       tldr,
-      executiveSummary
+      executiveSummary,
     });
 
     // Priority 2: Run remaining analyses in parallel
@@ -56,7 +57,7 @@ export class TextAnalyzer {
 
     const [entities, signals] = await Promise.all([
       this.extractEntities(document.content),
-      this.analyzeSignals(document.content)
+      this.analyzeSignals(document.content),
     ]);
 
     onProgress?.('relationships', 50, 'Detecting relationships between entities...');
@@ -76,7 +77,7 @@ export class TextAnalyzer {
       document,
       signals,
       entities.length,
-      relationships.length
+      relationships.length,
     );
 
     onProgress?.('complete', 100, 'Analysis complete!');
@@ -88,7 +89,7 @@ export class TextAnalyzer {
       relationships,
       metrics: [], // KPIs are in executiveSummary, metrics would need separate extraction
       signals,
-      recommendations
+      recommendations,
     };
   }
 
@@ -102,7 +103,7 @@ export class TextAnalyzer {
           text: response.content.trim(),
           confidence: 0.85,
           generatedAt: new Date().toISOString(),
-          model: response.model
+          model: response.model,
         };
       } catch (error: any) {
         if (attempt === retries) {
@@ -125,11 +126,11 @@ export class TextAnalyzer {
 
       // Validate and filter KPIs to ensure they have valid numeric values
       const validKpis = (parsed.kpis || []).filter(kpi =>
-        kpi &&
-        typeof kpi.value === 'number' &&
-        !isNaN(kpi.value) &&
-        kpi.label &&
-        kpi.unit
+        kpi
+        && typeof kpi.value === 'number'
+        && !isNaN(kpi.value)
+        && kpi.label
+        && kpi.unit,
       );
 
       // Ensure all required fields exist
@@ -139,7 +140,7 @@ export class TextAnalyzer {
         kpis: validKpis,
         risks: parsed.risks || [],
         opportunities: parsed.opportunities || [],
-        callToAction: parsed.callToAction || 'Review the document for details'
+        callToAction: parsed.callToAction || 'Review the document for details',
       };
     } catch (error) {
       console.error('Failed to parse executive summary, using fallback');
@@ -149,7 +150,7 @@ export class TextAnalyzer {
         kpis: [],
         risks: [],
         opportunities: [],
-        callToAction: 'Review the document for details'
+        callToAction: 'Review the document for details',
       };
     }
   }
@@ -192,7 +193,7 @@ export class TextAnalyzer {
       const entityIds = new Set(entities.map((e: Entity) => e.id));
       const entityTexts = new Set(entities.map((e: Entity) => e.text));
       const mismatches = relationships.filter((r: Relationship) =>
-        !entityIds.has(r.source) || !entityIds.has(r.target)
+        !entityIds.has(r.source) || !entityIds.has(r.target),
       );
 
       if (mismatches.length > 0) {
@@ -201,7 +202,7 @@ export class TextAnalyzer {
         console.warn('Checking if using text instead of ID...');
 
         const usingText = mismatches.filter((r: Relationship) =>
-          entityTexts.has(r.source) || entityTexts.has(r.target)
+          entityTexts.has(r.source) || entityTexts.has(r.target),
         );
 
         if (usingText.length > 0) {
@@ -233,45 +234,60 @@ export class TextAnalyzer {
         quantitative: 0.3,
         technical: 0.2,
         argumentative: 0.3,
-        temporal: 0.2
+        temporal: 0.2,
       };
     }
   }
 
   async generateSectionSummaries(document: Document): Promise<void> {
-    // Generate summaries for each section
-    const summaryPromises = document.structure.sections.map(async (section) => {
-      if (section.content.length > 100) {
+    const processSection = async (section: any) => {
+      // Process current section
+      if (section.content.length > 50) {
         try {
           const response = await this.llmClient.callWithFallback(
             'sectionSummary',
-            section.content.substring(0, 2000)
+            section.content.substring(0, 2000),
           );
-          section.summary = response.content.trim();
+
+          try {
+            const parsed = this.llmClient.parseJSONResponse<{ summary: string; keywords: string[] }>(response);
+            section.summary = parsed.summary || section.summary;
+            section.keywords = parsed.keywords || [];
+          } catch (jsonError) {
+            // Fallback to plain text if JSON parsing fails
+            section.summary = response.content.trim();
+            section.keywords = [];
+          }
         } catch (error) {
-          console.error(`Failed to summarize section ${section.id}`);
-          section.summary = section.content.substring(0, 200) + '...';
+          console.error(`Failed to summarize section ${section.id}`, error);
+          section.summary = `${section.content.substring(0, 150)}...`;
         }
       } else {
         section.summary = section.content;
       }
-    });
 
-    await Promise.all(summaryPromises);
+      // Recursively process children
+      if (section.children && section.children.length > 0) {
+        await Promise.all(section.children.map((child: any) => processSection(child)));
+      }
+    };
+
+    // Start processing from root sections
+    await Promise.all(document.structure.sections.map(section => processSection(section)));
   }
 
   async recommendVisualizations(
     document: Document,
     signals: SignalAnalysis,
     entityCount: number,
-    relationshipCount: number
+    relationshipCount: number,
   ): Promise<VisualizationRecommendation[]> {
     const context = {
       wordCount: document.metadata.wordCount,
       sectionCount: document.structure.sections.length,
       entityCount,
       relationshipCount,
-      signals
+      signals,
     };
 
     const prompt = `Document analysis:
@@ -295,7 +311,7 @@ ${document.content.substring(0, 1000)}`;
         recommendations.unshift({
           type: 'structured-view',
           score: 1.0,
-          rationale: 'Default view showing document structure with summaries'
+          rationale: 'Default view showing document structure with summaries',
         });
       }
 
@@ -306,13 +322,13 @@ ${document.content.substring(0, 1000)}`;
         {
           type: 'structured-view',
           score: 1.0,
-          rationale: 'Default view showing document structure'
+          rationale: 'Default view showing document structure',
         },
         {
           type: 'mind-map',
           score: 0.8,
-          rationale: 'Good for hierarchical content'
-        }
+          rationale: 'Good for hierarchical content',
+        },
       ];
     }
   }

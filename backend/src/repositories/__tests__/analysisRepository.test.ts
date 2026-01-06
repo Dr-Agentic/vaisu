@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { mockClient } from 'aws-sdk-client-mock';
+import { describe, it, expect, beforeEach } from 'vitest';
+
 import * as analysisRepository from '../analysisRepository.js';
+
 import type { AnalysisRecord } from '../types.js';
 
 const dynamoMock = mockClient(DynamoDBDocumentClient);
@@ -137,7 +139,7 @@ describe('analysisRepository', () => {
       dynamoMock.on(GetCommand).rejects(new Error('Query failed'));
 
       await expect(
-        analysisRepository.findByDocumentId('test-id')
+        analysisRepository.findByDocumentId('test-id'),
       ).rejects.toThrow('Query failed');
     });
   });
@@ -167,7 +169,7 @@ describe('analysisRepository', () => {
       dynamoMock.on(UpdateCommand).rejects(new Error('Update failed'));
 
       await expect(
-        analysisRepository.update('test-id', { analysisVersion: 'v2.0' })
+        analysisRepository.update('test-id', { analysisVersion: 'v2.0' }),
       ).rejects.toThrow('Update failed');
     });
   });
@@ -190,7 +192,7 @@ describe('analysisRepository', () => {
       dynamoMock.on(DeleteCommand).rejects(new Error('Deletion failed'));
 
       await expect(
-        analysisRepository.deleteAnalysis('test-id')
+        analysisRepository.deleteAnalysis('test-id'),
       ).rejects.toThrow('Deletion failed');
     });
   });

@@ -1,18 +1,20 @@
 /**
  * ProgressiveDisclosure Tests
- * 
+ *
  * These tests focus on the logic for zoom-based visibility and progressive disclosure.
  */
 
 import { describe, it, expect } from 'vitest';
+
 import {
   getVisibilityConfig,
   getFontSize,
   getLineThickness,
   shouldUseScrollableCompartment,
   formatMethodSignature,
-  formatAttributeSignature
+  formatAttributeSignature,
 } from '../ProgressiveDisclosure';
+
 import type { ClassEntity } from '@shared/types';
 
 describe('ProgressiveDisclosure Logic Tests', () => {
@@ -25,8 +27,8 @@ describe('ProgressiveDisclosure Logic Tests', () => {
     isAbstract: false,
     parameters: [
       { name: 'username', type: 'String' },
-      { name: 'password', type: 'String' }
-    ]
+      { name: 'password', type: 'String' },
+    ],
   };
 
   const mockAttribute: ClassEntity['attributes'][0] = {
@@ -35,7 +37,7 @@ describe('ProgressiveDisclosure Logic Tests', () => {
     type: 'UserRepository',
     visibility: 'private' as const,
     isStatic: false,
-    defaultValue: 'new UserRepository()'
+    defaultValue: 'new UserRepository()',
   };
 
   // Property Test 24: Zoom-based attribute visibility
@@ -114,7 +116,6 @@ describe('ProgressiveDisclosure Logic Tests', () => {
   });
 
   it('validates method signature formatting without parameter names', () => {
-
     const config = { showParameterNames: false, showAttributes: true, showMethods: true, showDetails: false, showEdgeLabels: false };
     const signature = formatMethodSignature(mockMethod, config);
 

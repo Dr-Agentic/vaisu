@@ -1,8 +1,8 @@
 /**
  * Textarea Component
- * 
+ *
  * Accessible textarea component with proper labeling and error states.
- * 
+ *
  * @example
  * ```tsx
  * <Textarea
@@ -15,6 +15,7 @@
  */
 
 import { TextareaHTMLAttributes, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type TextareaSize = 'sm' | 'md' | 'lg';
@@ -90,7 +91,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       id,
       ...props
     },
-    ref
+    ref,
   ) => {
     const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
     const helperId = helperText ? `${textareaId}-helper` : undefined;
@@ -109,7 +110,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               'font-[var(--font-weight-medium)]',
               'text-[var(--color-text-primary)]',
               sizeStyles[size].label,
-              'leading-[var(--line-height-tight)]'
+              'leading-[var(--line-height-tight)]',
             )}
           >
             {label}
@@ -138,29 +139,29 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             'outline-none',
             'disabled:opacity-60',
             'disabled:cursor-not-allowed',
-            
+
             // Size styles
             sizeStyles[size].textarea,
-            
+
             // Border styles
             ...(hasError
               ? [
-                  'border-[var(--color-border-error)]',
-                  'focus-visible:border-[var(--color-border-error)]',
-                  'focus-visible:ring-2',
-                  'focus-visible:ring-[var(--color-semantic-error-base)]',
-                  'focus-visible:ring-offset-2',
-                ]
+                'border-[var(--color-border-error)]',
+                'focus-visible:border-[var(--color-border-error)]',
+                'focus-visible:ring-2',
+                'focus-visible:ring-[var(--color-semantic-error-base)]',
+                'focus-visible:ring-offset-2',
+              ]
               : [
-                  'border-[var(--color-border-base)]',
-                  'hover:border-[var(--color-border-strong)]',
-                  'focus-visible:border-[var(--color-border-focus)]',
-                  'focus-visible:ring-2',
-                  'focus-visible:ring-[var(--color-border-focus)]',
-                  'focus-visible:ring-offset-2',
-                ]),
-            
-            className
+                'border-[var(--color-border-base)]',
+                'hover:border-[var(--color-border-strong)]',
+                'focus-visible:border-[var(--color-border-focus)]',
+                'focus-visible:ring-2',
+                'focus-visible:ring-[var(--color-border-focus)]',
+                'focus-visible:ring-offset-2',
+              ]),
+
+            className,
           )}
           aria-invalid={hasError}
           aria-required={required}
@@ -174,7 +175,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             className={cn(
               'text-[var(--font-size-sm)]',
               'text-[var(--color-text-secondary)]',
-              'leading-[var(--line-height-normal)]'
+              'leading-[var(--line-height-normal)]',
             )}
           >
             {helperText}
@@ -191,7 +192,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
               'leading-[var(--line-height-normal)]',
               'flex',
               'items-center',
-              'gap-[var(--spacing-xs)]'
+              'gap-[var(--spacing-xs)]',
             )}
           >
             <span aria-hidden="true">⚠</span>
@@ -200,7 +201,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = 'Textarea';

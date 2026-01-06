@@ -16,6 +16,7 @@
  */
 
 import { HTMLAttributes, ReactNode, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type CardVariant = 'base' | 'elevated' | 'outlined' | 'filled' | 'mesh-glow' | 'mesh-glow-strong' | 'gradient-border-animated' | 'gradient-border-static' | 'gradient-border-animated-fast' | 'aurora' | 'nova';
@@ -103,7 +104,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
@@ -115,22 +116,22 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
           paddingStyles[padding],
           ...(interactive
             ? [
-                'transition-all',
-                'duration-[var(--motion-duration-base)]',
-                'ease-[var(--motion-easing-ease-out)]',
-                'hover:shadow-[var(--elevation-lg)]',
-                'hover:-translate-y-0.5',
-                'cursor-pointer',
-              ]
+              'transition-all',
+              'duration-[var(--motion-duration-base)]',
+              'ease-[var(--motion-easing-ease-out)]',
+              'hover:shadow-[var(--elevation-lg)]',
+              'hover:-translate-y-0.5',
+              'cursor-pointer',
+            ]
             : []),
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 Card.displayName = 'Card';
@@ -150,14 +151,14 @@ export const CardHeader = forwardRef<HTMLDivElement, CardHeaderProps>(
           'flex-col',
           'space-y-[var(--spacing-sm)]',
           'pb-[var(--spacing-base)]',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 CardHeader.displayName = 'CardHeader';
@@ -177,14 +178,14 @@ export const CardTitle = forwardRef<HTMLHeadingElement, CardTitleProps>(
           'font-[var(--font-weight-semibold)]',
           'leading-[var(--line-height-tight)]',
           'text-[var(--color-text-primary)]',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </Component>
     );
-  }
+  },
 );
 
 CardTitle.displayName = 'CardTitle';
@@ -202,14 +203,14 @@ export const CardDescription = forwardRef<HTMLParagraphElement, CardDescriptionP
           'text-[var(--font-size-sm)]',
           'text-[var(--color-text-secondary)]',
           'leading-[var(--line-height-normal)]',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </p>
     );
-  }
+  },
 );
 
 CardDescription.displayName = 'CardDescription';
@@ -229,14 +230,14 @@ export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
           // Font consistency
           'font-[var(--font-family-sans)]',
           'design-system-card-content', // Add specific class to avoid Electron UI conflicts
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 CardContent.displayName = 'CardContent';
@@ -256,14 +257,14 @@ export const CardFooter = forwardRef<HTMLDivElement, CardFooterProps>(
           'pt-[var(--spacing-base)]',
           'border-t',
           'border-[var(--color-border-subtle)]',
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </div>
     );
-  }
+  },
 );
 
 CardFooter.displayName = 'CardFooter';

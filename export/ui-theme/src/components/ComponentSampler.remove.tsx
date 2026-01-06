@@ -11,19 +11,20 @@
  * ```
  */
 
-import { forwardRef, useState, useCallback, useEffect } from 'react';
 import { ArrowLeft, Upload, ChevronDown, Eye, EyeOff, Monitor, Smartphone, Tablet } from 'lucide-react';
-import { Button } from '../../design-system/components/Button';
+import { forwardRef, useState, useCallback, useEffect } from 'react';
+
 import { Badge } from '../../design-system/components/Badge';
+import { Button } from '../../design-system/components/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../../design-system/components/Card';
 import { Input } from '../../design-system/components/Input';
-import { Textarea } from '../../design-system/components/Textarea';
 import { Select } from '../../design-system/components/Select';
+import { Spinner } from '../../design-system/components/Spinner';
+import { Textarea } from '../../design-system/components/Textarea';
 import { ThemeToggle } from '../../design-system/components/ThemeToggle';
 import { Tooltip } from '../../design-system/components/Tooltip';
-import { Spinner } from '../../design-system/components/Spinner';
-import { useDocumentStore } from '../../stores/documentStore';
 import { cn } from '../../lib/utils';
+import { useDocumentStore } from '../../stores/documentStore';
 
 export interface ComponentSamplerProps {
   /**
@@ -96,7 +97,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
       componentId: string,
       element: React.ReactNode,
       description?: string,
-      qualifiers?: string[]
+      qualifiers?: string[],
     ) => (
       <div className="component-sample">
         {/* Title Section - Top of Card */}
@@ -157,7 +158,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
           `device-${deviceMode}`,
           'flex-1',
           'flex',
-          'flex-col'
+          'flex-col',
         )}
         style={{
           backgroundColor: 'var(--color-background-primary)',
@@ -172,7 +173,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
             'border-b',
             'flex',
             'items-center',
-            'justify-between'
+            'justify-between',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -191,7 +192,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 'transition-all',
                 'duration-[var(--duration-fast)]',
                 'outline-none',
-                'hover:bg-white/5'
+                'hover:bg-white/5',
               )}
               style={{
                 color: 'var(--color-text-secondary)',
@@ -246,7 +247,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     onClick={() => selectDeviceMode(mode)}
                     className={cn(
                       'device-btn',
-                      deviceMode === mode && 'active'
+                      deviceMode === mode && 'active',
                     )}
                     style={{
                       backgroundColor: deviceMode === mode ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
@@ -271,7 +272,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 onClick={toggleLabels}
                 className={cn(
                   'visibility-btn',
-                  isLabelsVisible && 'active'
+                  isLabelsVisible && 'active',
                 )}
                 style={{
                   backgroundColor: isLabelsVisible ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
@@ -290,7 +291,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 onClick={toggleClassIds}
                 className={cn(
                   'visibility-btn',
-                  isClassIdsVisible && 'active'
+                  isClassIdsVisible && 'active',
                 )}
                 style={{
                   backgroundColor: isClassIdsVisible ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
@@ -314,7 +315,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
             'flex-1',
             'overflow-auto',
             'p-8',
-            'space-y-8'
+            'space-y-8',
           )}
         >
           {/* Buttons Section */}
@@ -342,7 +343,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   Gradient Action
                 </Button>,
                 'Primary button with animated aurora gradient background',
-                ['Interactive', 'Primary']
+                ['Interactive', 'Primary'],
               )}
 
               {renderComponentSample(
@@ -356,7 +357,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   Secondary Action
                 </Button>,
                 'Supporting action with static blue-cyan gradient',
-                ['Supporting', 'Secondary']
+                ['Supporting', 'Secondary'],
               )}
 
               {renderComponentSample(
@@ -369,7 +370,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Ghost Action
                 </Button>,
-                'Minimal styling for subtle interactions'
+                'Minimal styling for subtle interactions',
               )}
 
               {renderComponentSample(
@@ -382,7 +383,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Outline Action
                 </Button>,
-                'Border-focused design for light emphasis'
+                'Border-focused design for light emphasis',
               )}
 
               {renderComponentSample(
@@ -395,7 +396,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Aurora Effect
                 </Button>,
-                'Animated gradient border with slow rotation'
+                'Animated gradient border with slow rotation',
               )}
 
               {renderComponentSample(
@@ -408,7 +409,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Nova Effect
                 </Button>,
-                'Animated gradient border with cyan/purple scheme'
+                'Animated gradient border with cyan/purple scheme',
               )}
 
               {renderComponentSample(
@@ -421,7 +422,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Delete Item
                 </Button>,
-                'Destructive action with error styling'
+                'Destructive action with error styling',
               )}
 
               {renderComponentSample(
@@ -435,7 +436,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   Small
                 </Button>,
                 'Compact button for tight spaces',
-                ['Compact', 'Small', 'Space-saving']
+                ['Compact', 'Small', 'Space-saving'],
               )}
 
               {renderComponentSample(
@@ -448,7 +449,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Large Action
                 </Button>,
-                'Prominent call-to-action button'
+                'Prominent call-to-action button',
               )}
 
               {renderComponentSample(
@@ -457,12 +458,12 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 <Button
                   variant="primary"
                   size="md"
-                  loading={true}
+                  loading
                   onClick={() => console.log('Loading clicked')}
                 >
                   Processing...
                 </Button>,
-                'Button with loading spinner and disabled state'
+                'Button with loading spinner and disabled state',
               )}
 
               {renderComponentSample(
@@ -477,7 +478,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 >
                   Upload Document
                 </Button>,
-                'Button with left and right icon placement'
+                'Button with left and right icon placement',
               )}
 
               {renderComponentSample(
@@ -486,12 +487,12 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 <Button
                   variant="primary"
                   size="md"
-                  fullWidth={true}
+                  fullWidth
                   onClick={() => console.log('Full width clicked')}
                 >
                   Full Width Action
                 </Button>,
-                'Button that spans entire container width'
+                'Button that spans entire container width',
               )}
             </div>
           </section>
@@ -514,70 +515,70 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 'Primary Badge',
                 'badge-primary',
                 <Badge variant="primary">Primary</Badge>,
-                'Standard primary badge'
+                'Standard primary badge',
               )}
 
               {renderComponentSample(
                 'Secondary Badge',
                 'badge-secondary',
                 <Badge variant="secondary">Secondary</Badge>,
-                'Secondary color scheme'
+                'Secondary color scheme',
               )}
 
               {renderComponentSample(
                 'Success Badge',
                 'badge-success',
                 <Badge variant="success">Success</Badge>,
-                'Positive status indicator'
+                'Positive status indicator',
               )}
 
               {renderComponentSample(
                 'Error Badge',
                 'badge-error',
                 <Badge variant="error">Error</Badge>,
-                'Error or warning state'
+                'Error or warning state',
               )}
 
               {renderComponentSample(
                 'Warning Badge',
                 'badge-warning',
                 <Badge variant="warning">Warning</Badge>,
-                'Caution or warning state'
+                'Caution or warning state',
               )}
 
               {renderComponentSample(
                 'Info Badge',
                 'badge-info',
                 <Badge variant="info">Info</Badge>,
-                'Informational status'
+                'Informational status',
               )}
 
               {renderComponentSample(
                 'Aurora Badge',
                 'badge-aurora',
                 <Badge variant="aurora">Aurora</Badge>,
-                'Gradient-themed badge'
+                'Gradient-themed badge',
               )}
 
               {renderComponentSample(
                 'Nova Badge',
                 'badge-nova',
                 <Badge variant="nova">Nova</Badge>,
-                'Cyan gradient badge'
+                'Cyan gradient badge',
               )}
 
               {renderComponentSample(
                 'Small Badge',
                 'badge-small',
                 <Badge variant="primary" size="sm">Small</Badge>,
-                'Compact badge size'
+                'Compact badge size',
               )}
 
               {renderComponentSample(
                 'Large Badge',
                 'badge-large',
                 <Badge variant="primary" size="lg">Large Badge</Badge>,
-                'Prominent badge display'
+                'Prominent badge display',
               )}
             </div>
           </section>
@@ -612,7 +613,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   </CardFooter>
                 </Card>,
                 'Default card styling with base variant',
-                ['Standard', 'Base', 'Clean']
+                ['Standard', 'Base', 'Clean'],
               )}
 
               {renderComponentSample(
@@ -630,7 +631,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <Button variant="primary" size="sm">Confirm</Button>
                   </CardFooter>
                 </Card>,
-                'Card with shadow for visual hierarchy'
+                'Card with shadow for visual hierarchy',
               )}
 
               {renderComponentSample(
@@ -648,7 +649,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <Button variant="secondary" size="sm">Details</Button>
                   </CardFooter>
                 </Card>,
-                'Card with prominent borders'
+                'Card with prominent borders',
               )}
 
               {renderComponentSample(
@@ -666,7 +667,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <Button variant="aurora" size="sm">Explore</Button>
                   </CardFooter>
                 </Card>,
-                'Electron UI specific gradient effect'
+                'Electron UI specific gradient effect',
               )}
 
               {renderComponentSample(
@@ -684,13 +685,13 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <Button variant="aurora" size="sm">Activate</Button>
                   </CardFooter>
                 </Card>,
-                'Card with animated gradient border'
+                'Card with animated gradient border',
               )}
 
               {renderComponentSample(
                 'Interactive Card',
                 'card-interactive',
-                <Card variant="elevated" padding="md" interactive={true}>
+                <Card variant="elevated" padding="md" interactive>
                   <CardHeader>
                     <CardTitle>Interactive Card</CardTitle>
                     <CardDescription>Hover effects enabled</CardDescription>
@@ -702,7 +703,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <Button variant="ghost" size="sm">Hover Me</Button>
                   </CardFooter>
                 </Card>,
-                'Card with hover interaction effects'
+                'Card with hover interaction effects',
               )}
             </div>
           </section>
@@ -732,7 +733,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   label="Text Input"
                   helperText="Standard text input field"
                 />,
-                'Primary text input with label and description'
+                'Primary text input with label and description',
               )}
 
               {renderComponentSample(
@@ -744,7 +745,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   label="Email Address"
                   size="lg"
                 />,
-                'Email-specific input with filled styling'
+                'Email-specific input with filled styling',
               )}
 
               {renderComponentSample(
@@ -756,7 +757,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   label="Password"
                   size="md"
                 />,
-                'Password input with secure masking'
+                'Password input with secure masking',
               )}
 
               {renderComponentSample(
@@ -770,7 +771,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   helperText="Multi-line text input"
                   rows={4}
                 />,
-                'Multi-line text input with auto-sizing'
+                'Multi-line text input with auto-sizing',
               )}
 
               {renderComponentSample(
@@ -784,7 +785,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   options={selectOptions}
                   size="md"
                 />,
-                'Dropdown selection with multiple options'
+                'Dropdown selection with multiple options',
               )}
 
               {renderComponentSample(
@@ -794,10 +795,10 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   type="text"
                   placeholder="Disabled input"
                   label="Disabled State"
-                  disabled={true}
+                  disabled
                   value="Cannot edit this"
                 />,
-                'Input in disabled state for read-only scenarios'
+                'Input in disabled state for read-only scenarios',
               )}
 
               {renderComponentSample(
@@ -810,7 +811,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   error="This field has an error"
                   value="Invalid input"
                 />,
-                'Input displaying error state and message'
+                'Input displaying error state and message',
               )}
 
               {renderComponentSample(
@@ -823,7 +824,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   helperText="This field is valid"
                   value="Valid value"
                 />,
-                'Input displaying success state and message'
+                'Input displaying success state and message',
               )}
 
               {renderComponentSample(
@@ -835,7 +836,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   label="Search"
                   leftIcon={<Upload className="w-4 h-4" />}
                 />,
-                'Search input with icon'
+                'Search input with icon',
               )}
             </div>
           </section>
@@ -864,7 +865,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <div className="spinner-sublabel">Primary spinner variant</div>
                   </div>
                 </div>,
-                'Circular loading indicator'
+                'Circular loading indicator',
               )}
 
               {renderComponentSample(
@@ -877,7 +878,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <div className="spinner-sublabel">Secondary spinner variant</div>
                   </div>
                 </div>,
-                'Secondary loading animation'
+                'Secondary loading animation',
               )}
 
               {renderComponentSample(
@@ -887,7 +888,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   <div className="progress-ring" />
                   <div className="progress-label">Progress</div>
                 </div>,
-                'Circular progress indicator from Electron UI'
+                'Circular progress indicator from Electron UI',
               )}
 
               {renderComponentSample(
@@ -900,7 +901,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     </Button>
                   </Tooltip>
                 </div>,
-                'Interactive tooltip component'
+                'Interactive tooltip component',
               )}
 
               {renderComponentSample(
@@ -911,7 +912,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   <Badge variant="warning">Pending</Badge>
                   <Badge variant="error">Error</Badge>
                 </div>,
-                'Status badges for different states'
+                'Status badges for different states',
               )}
 
               {renderComponentSample(
@@ -929,7 +930,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <span>Visualization</span>
                   </div>
                 </div>,
-                'Multi-step progress indicators'
+                'Multi-step progress indicators',
               )}
             </div>
           </section>
@@ -952,7 +953,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                 'Theme Toggle',
                 'theme-toggle',
                 <ThemeToggle />,
-                'System theme switching component'
+                'System theme switching component',
               )}
 
               {renderComponentSample(
@@ -1002,7 +1003,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   </CardFooter>
                 </Card>,
                 'Complex card with nested components and layout',
-                ['Complex', 'Technical', 'Advanced', 'Multi-section']
+                ['Complex', 'Technical', 'Advanced', 'Multi-section'],
               )}
 
               {renderComponentSample(
@@ -1013,7 +1014,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                   <Button variant="primary" size="md">Middle</Button>
                   <Button variant="ghost" size="md">Last</Button>
                 </div>,
-                'Grouped buttons for related actions'
+                'Grouped buttons for related actions',
               )}
 
               {renderComponentSample(
@@ -1033,7 +1034,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <CardContent>Responsive item</CardContent>
                   </Card>
                 </div>,
-                'Grid layout demonstrating responsive behavior'
+                'Grid layout demonstrating responsive behavior',
               )}
             </div>
           </section>
@@ -1069,7 +1070,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     <p>Secondary text on surface</p>
                   </div>
                 </div>,
-                'Contrast testing for accessibility compliance'
+                'Contrast testing for accessibility compliance',
               )}
 
               {renderComponentSample(
@@ -1087,7 +1088,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
                     placeholder="Focus dropdown"
                   />
                 </div>,
-                'Components with proper focus indicators'
+                'Components with proper focus indicators',
               )}
             </div>
           </section>
@@ -1099,7 +1100,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
             'px-8',
             'py-6',
             'border-t',
-            'text-center'
+            'text-center',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -1112,7 +1113,7 @@ export const ComponentSampler = forwardRef<HTMLDivElement, ComponentSamplerProps
         </div>
       </div>
     );
-  }
+  },
 );
 
 ComponentSampler.displayName = 'ComponentSampler';

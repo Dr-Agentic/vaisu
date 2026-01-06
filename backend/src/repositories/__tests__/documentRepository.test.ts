@@ -1,7 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { mockClient } from 'aws-sdk-client-mock';
 import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import { mockClient } from 'aws-sdk-client-mock';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import * as documentRepository from '../documentRepository.js';
+
 import type { DocumentRecord } from '../types.js';
 
 // Mock AWS config
@@ -63,7 +65,7 @@ describe('documentRepository', () => {
       dynamoMock.on(QueryCommand).rejects(new Error('DynamoDB error'));
 
       await expect(
-        documentRepository.findByHashAndFilename('abc123', 'test.txt')
+        documentRepository.findByHashAndFilename('abc123', 'test.txt'),
       ).rejects.toThrow('DynamoDB error');
     });
   });
@@ -169,7 +171,7 @@ describe('documentRepository', () => {
       dynamoMock.on(UpdateCommand).rejects(new Error('Update failed'));
 
       await expect(
-        documentRepository.updateAccessMetadata('test-id')
+        documentRepository.updateAccessMetadata('test-id'),
       ).rejects.toThrow('Update failed');
     });
   });
@@ -192,7 +194,7 @@ describe('documentRepository', () => {
       dynamoMock.on(DeleteCommand).rejects(new Error('Deletion failed'));
 
       await expect(
-        documentRepository.deleteDocument('test-id')
+        documentRepository.deleteDocument('test-id'),
       ).rejects.toThrow('Deletion failed');
     });
   });

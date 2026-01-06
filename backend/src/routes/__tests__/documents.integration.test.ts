@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
-import request from 'supertest';
 import express from 'express';
-import { documentsRouter } from '../documents';
+import request from 'supertest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
 import { SMALL_BUSINESS_REPORT } from '../../../../test/fixtures/documents';
-import { textAnalyzer } from '../../services/analysis/textAnalyzer';
 import { createMockOpenRouterClient } from '../../../../test/mocks/openRouterMock';
+import { textAnalyzer } from '../../services/analysis/textAnalyzer';
+import { documentsRouter } from '../documents';
 
 describe('Documents API Integration Tests', () => {
   let app: express.Application;
@@ -13,12 +14,12 @@ describe('Documents API Integration Tests', () => {
     // Mock the LLM client for integration tests
     const mockClient = createMockOpenRouterClient();
     (textAnalyzer as any)._llmClient = mockClient;
-    
+
     app = express();
-    
+
     // JSON parsing with error handling
     app.use(express.json());
-    
+
     // Error handler for JSON parsing
     app.use((err: any, req: any, res: any, next: any) => {
       if (err instanceof SyntaxError && 'body' in err) {
@@ -26,7 +27,7 @@ describe('Documents API Integration Tests', () => {
       }
       next();
     });
-    
+
     app.use('/api/documents', documentsRouter);
   });
 
@@ -63,7 +64,7 @@ describe('Documents API Integration Tests', () => {
 
     it('should complete within 10 seconds', async () => {
       const start = Date.now();
-      
+
       await request(app)
         .post('/api/documents/analyze')
         .send({ text: SMALL_BUSINESS_REPORT })
@@ -75,7 +76,7 @@ describe('Documents API Integration Tests', () => {
 
     it('should handle large documents', async () => {
       const largeText = 'word '.repeat(5000); // 5k words
-      
+
       const response = await request(app)
         .post('/api/documents/analyze')
         .send({ text: largeText })
@@ -106,7 +107,7 @@ describe('Documents API Integration Tests', () => {
 
     it('should reject oversized files', async () => {
       const largeBuffer = Buffer.alloc(1100 * 1024 * 1024); // 1.1GB (exceeds 1GB limit)
-      
+
       const response = await request(app)
         .post('/api/documents/upload')
         .attach('file', largeBuffer, 'large.txt')
@@ -185,14 +186,14 @@ describe('Documents API Integration Tests', () => {
       const requests = Array(20).fill(null).map(() =>
         request(app)
           .post('/api/documents/analyze')
-          .send({ text: 'test' })
+          .send({ text: 'test' }),
       );
 
       const responses = await Promise.all(requests);
-      
+
       // At least some should be rate limited
       const rateLimited = responses.some(r => r.status === 429);
-      
+
       // This depends on rate limit configuration
       // For now, just verify the endpoint works
       expect(responses.length).toBe(20);

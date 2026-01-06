@@ -4,16 +4,16 @@ export function SkeletonCard() {
       <div className="space-y-[var(--spacing-lg)]">
         {/* Title */}
         <div className="h-[var(--spacing-12)] bg-shimmer rounded w-3/4 animate-shimmer"
-             style={{ backgroundSize: '200% 100%' }} />
+          style={{ backgroundSize: '200% 100%' }} />
 
         {/* Lines */}
         <div className="space-y-[var(--spacing-md)]">
           <div className="h-[var(--spacing-10)] bg-shimmer rounded animate-shimmer"
-               style={{ backgroundSize: '200% 100%' }} />
+            style={{ backgroundSize: '200% 100%' }} />
           <div className="h-[var(--spacing-10)] bg-shimmer rounded w-5/6 animate-shimmer"
-               style={{ backgroundSize: '200% 100%' }} />
+            style={{ backgroundSize: '200% 100%' }} />
           <div className="h-[var(--spacing-10)] bg-shimmer rounded w-4/6 animate-shimmer"
-               style={{ backgroundSize: '200% 100%' }} />
+            style={{ backgroundSize: '200% 100%' }} />
         </div>
       </div>
     </div>

@@ -1,11 +1,13 @@
 /**
  * LayoutEngine Tests
- * 
+ *
  * These tests focus on the logic and algorithms for UML diagram layout computation.
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { layoutEngine } from '../layoutEngine';
+
 import type { ClassEntity, UMLRelationship } from '@shared/types';
 
 describe('LayoutEngine Logic Tests', () => {
@@ -19,7 +21,7 @@ describe('LayoutEngine Logic Tests', () => {
       description: 'Base service class',
       sourceQuote: 'BaseService provides common functionality',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-2',
@@ -30,7 +32,7 @@ describe('LayoutEngine Logic Tests', () => {
       description: 'User management service',
       sourceQuote: 'UserService handles user operations',
       sourceSpan: null,
-      documentLink: '#doc-1'
+      documentLink: '#doc-1',
     },
     {
       id: 'class-3',
@@ -41,8 +43,8 @@ describe('LayoutEngine Logic Tests', () => {
       description: 'Admin management service',
       sourceQuote: 'AdminService handles admin operations',
       sourceSpan: null,
-      documentLink: '#doc-1'
-    }
+      documentLink: '#doc-1',
+    },
   ];
 
   const mockRelationships: UMLRelationship[] = [
@@ -53,7 +55,7 @@ describe('LayoutEngine Logic Tests', () => {
       type: 'inheritance',
       description: 'UserService extends BaseService',
       sourceQuote: 'quote',
-      evidence: []
+      evidence: [],
     },
     {
       id: 'rel-2',
@@ -62,8 +64,8 @@ describe('LayoutEngine Logic Tests', () => {
       type: 'inheritance',
       description: 'AdminService extends BaseService',
       sourceQuote: 'quote',
-      evidence: []
-    }
+      evidence: [],
+    },
   ];
 
   beforeEach(() => {
@@ -73,7 +75,7 @@ describe('LayoutEngine Logic Tests', () => {
   it('validates layout computation with hierarchical algorithm', async () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
       algorithm: 'hierarchical',
-      direction: 'TB'
+      direction: 'TB',
     });
 
     expect(result.positions.size).toBe(3);
@@ -84,7 +86,7 @@ describe('LayoutEngine Logic Tests', () => {
 
   it('validates grid layout fallback', async () => {
     const result = await layoutEngine.compute(mockClasses, [], {
-      algorithm: 'force-directed' // Will fallback to grid
+      algorithm: 'force-directed', // Will fallback to grid
     });
 
     expect(result.positions.size).toBe(3);
@@ -96,7 +98,7 @@ describe('LayoutEngine Logic Tests', () => {
   it('property test: hierarchical layout maintains top-to-bottom ordering (Property 19)', async () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
       algorithm: 'hierarchical',
-      direction: 'TB'
+      direction: 'TB',
     });
 
     const baseServicePos = result.positions.get('class-1');
@@ -118,7 +120,7 @@ describe('LayoutEngine Logic Tests', () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
       algorithm: 'hierarchical',
       direction: 'TB',
-      rankSeparation: minTierSpacing
+      rankSeparation: minTierSpacing,
     });
 
     const baseServicePos = result.positions.get('class-1');
@@ -137,7 +139,7 @@ describe('LayoutEngine Logic Tests', () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
       algorithm: 'hierarchical',
       direction: 'TB',
-      nodeSeparation: minSiblingSpacing
+      nodeSeparation: minSiblingSpacing,
     });
 
     const userServicePos = result.positions.get('class-2');
@@ -156,7 +158,7 @@ describe('LayoutEngine Logic Tests', () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
       algorithm: 'hierarchical',
       nodeWidth: 200,
-      nodeHeight: 120
+      nodeHeight: 120,
     });
 
     const positions = Array.from(result.positions.values());
@@ -187,7 +189,7 @@ describe('LayoutEngine Logic Tests', () => {
         type: 'inheritance',
         description: 'Class1 extends Class2',
         sourceQuote: 'quote',
-        evidence: []
+        evidence: [],
       },
       {
         id: 'rel-2',
@@ -196,13 +198,13 @@ describe('LayoutEngine Logic Tests', () => {
         type: 'inheritance',
         description: 'Class2 extends Class1', // Creates cycle
         sourceQuote: 'quote',
-        evidence: []
-      }
+        evidence: [],
+      },
     ];
 
     // Should not throw error and should handle cycle gracefully
     const result = await layoutEngine.compute(mockClasses, cyclicRelationships, {
-      algorithm: 'hierarchical'
+      algorithm: 'hierarchical',
     });
 
     expect(result.positions.size).toBe(3);
@@ -225,7 +227,7 @@ describe('LayoutEngine Logic Tests', () => {
 
   it('validates performance monitoring', async () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
-      algorithm: 'hierarchical'
+      algorithm: 'hierarchical',
     });
 
     expect(typeof result.computationTime).toBe('number');
@@ -234,7 +236,7 @@ describe('LayoutEngine Logic Tests', () => {
 
   it('validates bounds calculation', async () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
-      algorithm: 'hierarchical'
+      algorithm: 'hierarchical',
     });
 
     // Bounds should encompass all positions
@@ -265,7 +267,7 @@ describe('LayoutEngine Logic Tests', () => {
 
   it('validates edge routing with orthogonal connectors', async () => {
     const result = await layoutEngine.compute(mockClasses, mockRelationships, {
-      algorithm: 'hierarchical'
+      algorithm: 'hierarchical',
     });
 
     // Should have edges for relationships

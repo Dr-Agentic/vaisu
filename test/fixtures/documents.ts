@@ -141,7 +141,7 @@ React component hierarchy.
 ### 3.2 State Management
 Zustand for global state.`;
 
-export const EMPTY_DOCUMENT = ``;
+export const EMPTY_DOCUMENT = '';
 
 export const MALFORMED_DOCUMENT = `# Heading without content
 
@@ -157,8 +157,8 @@ More random text...`;
 // Binary-like content that should be rejected
 export const INVALID_CONTENT = Buffer.from([0xFF, 0xFE, 0x00, 0x01, 0x02]);
 
-export const LARGE_DOCUMENT = `# Large Document\n\n` + 
-  Array(1000).fill('## Section\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. '.repeat(10)).join('\n\n');
+export const LARGE_DOCUMENT = `# Large Document\n\n${
+  Array(1000).fill('## Section\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. '.repeat(10)).join('\n\n')}`;
 
 /**
  * Helper to create test documents with specific characteristics
@@ -170,22 +170,22 @@ export function createTestDocument(options: {
   hasProcessLanguage?: boolean;
   hasTechnicalTerms?: boolean;
 }): string {
-  const { 
-    wordCount = 100, 
+  const {
+    wordCount = 100,
     headingCount = 3,
     hasNumbers = false,
     hasProcessLanguage = false,
-    hasTechnicalTerms = false
+    hasTechnicalTerms = false,
   } = options;
 
   let content = '# Test Document\n\n';
-  
+
   for (let i = 0; i < headingCount; i++) {
     content += `## Section ${i + 1}\n\n`;
-    
+
     const wordsPerSection = Math.floor(wordCount / headingCount);
     const words = [];
-    
+
     for (let j = 0; j < wordsPerSection; j++) {
       if (hasNumbers && j % 10 === 0) {
         words.push(`${Math.floor(Math.random() * 1000)}`);
@@ -197,9 +197,9 @@ export function createTestDocument(options: {
         words.push('word');
       }
     }
-    
-    content += words.join(' ') + '.\n\n';
+
+    content += `${words.join(' ')}.\n\n`;
   }
-  
+
   return content;
 }

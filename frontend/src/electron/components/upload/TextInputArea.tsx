@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Send, X } from 'lucide-react';
+import { useState } from 'react';
+
 import { useDocumentStore } from '../../../stores/documentStore';
 
 export function TextInputArea() {

@@ -1,14 +1,15 @@
+import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
-import { useDocumentStore } from '../../stores/documentStore';
-import { StructuredViewRenderer } from '../../components/visualizations/StructuredViewRenderer';
-import { MindMap } from '../../components/visualizations/MindMap';
-import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
-import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
-import { UMLClassDiagram } from '../../components/visualizations/uml-class-diagram/UMLClassDiagram';
-import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
+
 import { ArgumentMap } from '../../components/visualizations/argument-map/ArgumentMap';
 import { ExecutiveDashboard } from '../../components/visualizations/executive-dashboard/ExecutiveDashboard';
-import { Loader2 } from 'lucide-react';
+import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
+import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
+import { MindMap } from '../../components/visualizations/MindMap';
+import { StructuredViewRenderer } from '../../components/visualizations/StructuredViewRenderer';
+import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
+import { UMLClassDiagram } from '../../components/visualizations/uml-class-diagram/UMLClassDiagram';
+import { useDocumentStore } from '../../stores/documentStore';
 
 export function VisualizationRenderer() {
   const { currentVisualization, visualizationData, document, loadVisualization } = useDocumentStore();

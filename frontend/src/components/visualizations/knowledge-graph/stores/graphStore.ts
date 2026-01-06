@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 import type {
   EnhancedGraphNode,
   GraphEdge,
@@ -7,7 +8,7 @@ import type {
   EntityType,
   RelationType,
   BreadcrumbItem,
-  GraphSnapshot
+  GraphSnapshot,
 } from '../../../../../../shared/src/types';
 
 interface GraphState {
@@ -138,7 +139,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   selectNode: (id, multi) => {
     const { selectedNodeIds } = get();
     const newSelection = new Set(multi ? selectedNodeIds : []);
-    
+
     if (newSelection.has(id)) {
       newSelection.delete(id);
     } else {
@@ -151,7 +152,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
   selectEdge: (id) => {
     const { selectedEdgeIds } = get();
     const newSelection = new Set<string>();
-    
+
     if (selectedEdgeIds.has(id)) {
       // Deselect
     } else {
@@ -163,7 +164,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
   clearSelection: () => set({
     selectedNodeIds: new Set(),
-    selectedEdgeIds: new Set()
+    selectedEdgeIds: new Set(),
   }),
 
   setHoveredNode: (id) => set({ hoveredNodeId: id }),
@@ -193,15 +194,15 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
     // Filter by entity type
     if (updates.visibleEntityTypes && updates.visibleEntityTypes.size > 0) {
-      filteredNodes = filteredNodes.filter(n => 
-        updates.visibleEntityTypes!.has(n.type)
+      filteredNodes = filteredNodes.filter(n =>
+        updates.visibleEntityTypes!.has(n.type),
       );
     }
 
     // Filter by importance
     if (updates.importanceThreshold !== undefined && updates.importanceThreshold > 0) {
-      filteredNodes = filteredNodes.filter(n => 
-        n.metadata.centrality >= (updates.importanceThreshold! / 100)
+      filteredNodes = filteredNodes.filter(n =>
+        n.metadata.centrality >= (updates.importanceThreshold! / 100),
       );
     }
 
@@ -209,9 +210,9 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     if (updates.searchQuery && updates.searchQuery.trim()) {
       const query = updates.searchQuery.toLowerCase();
       matchedNodeIds = filteredNodes
-        .filter(n => 
-          n.label.toLowerCase().includes(query) ||
-          n.metadata.description?.toLowerCase().includes(query)
+        .filter(n =>
+          n.label.toLowerCase().includes(query)
+          || n.metadata.description?.toLowerCase().includes(query),
         )
         .map(n => n.id);
     }
@@ -219,13 +220,13 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     // Filter edges to only include those between visible nodes
     const visibleNodeIds = new Set(filteredNodes.map(n => n.id));
     filteredEdges = filteredEdges.filter(e =>
-      visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target)
+      visibleNodeIds.has(e.source) && visibleNodeIds.has(e.target),
     );
 
     // Filter by relationship type
     if (updates.visibleRelationTypes && updates.visibleRelationTypes.size > 0) {
       filteredEdges = filteredEdges.filter(e =>
-        updates.visibleRelationTypes!.has(e.type)
+        updates.visibleRelationTypes!.has(e.type),
       );
     }
 
@@ -233,16 +234,16 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       ...updates,
       nodes: filteredNodes,
       edges: filteredEdges,
-      matchedNodeIds
+      matchedNodeIds,
     });
   },
 
   resetFilters: () => {
     const { originalNodes, originalEdges } = get();
-    
+
     // Get all unique entity types
     const allEntityTypes = new Set(originalNodes.map(n => n.type));
-    
+
     // Get all unique relation types
     const allRelationTypes = new Set(originalEdges.map(e => e.type));
 
@@ -253,14 +254,14 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       importanceThreshold: 0,
       searchQuery: '',
       visibleRelationTypes: allRelationTypes,
-      matchedNodeIds: []
+      matchedNodeIds: [],
     });
   },
 
   expandNode: (id) => {
     const { nodes, expandedNodeIds, breadcrumbs, explorationDepth } = get();
     const node = nodes.find(n => n.id === id);
-    
+
     if (!node || !node.isExpandable) return;
 
     // Mark node as expanded
@@ -273,8 +274,8 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       {
         nodeId: id,
         label: node.label,
-        depth: explorationDepth + 1
-      }
+        depth: explorationDepth + 1,
+      },
     ];
 
     // In a real implementation, we would fetch/reveal child nodes here
@@ -282,36 +283,36 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     set({
       expandedNodeIds: newExpandedIds,
       breadcrumbs: newBreadcrumbs,
-      explorationDepth: explorationDepth + 1
+      explorationDepth: explorationDepth + 1,
     });
   },
 
   collapseNode: (id) => {
     const { expandedNodeIds, breadcrumbs } = get();
-    
+
     // Remove from expanded set
     const newExpandedIds = new Set(expandedNodeIds);
     newExpandedIds.delete(id);
 
     // Remove from breadcrumbs
     const nodeIndex = breadcrumbs.findIndex(b => b.nodeId === id);
-    const newBreadcrumbs = nodeIndex >= 0 
+    const newBreadcrumbs = nodeIndex >= 0
       ? breadcrumbs.slice(0, nodeIndex)
       : breadcrumbs;
 
     set({
       expandedNodeIds: newExpandedIds,
       breadcrumbs: newBreadcrumbs,
-      explorationDepth: newBreadcrumbs.length
+      explorationDepth: newBreadcrumbs.length,
     });
   },
 
   navigateToBreadcrumb: (depth) => {
     const { breadcrumbs } = get();
-    
+
     // Remove breadcrumbs after this depth
     const newBreadcrumbs = breadcrumbs.slice(0, depth);
-    
+
     // Remove expanded nodes that are deeper than this level
     const newExpandedIds = new Set<string>();
     newBreadcrumbs.forEach(b => newExpandedIds.add(b.nodeId));
@@ -319,7 +320,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
     set({
       breadcrumbs: newBreadcrumbs,
       expandedNodeIds: newExpandedIds,
-      explorationDepth: depth
+      explorationDepth: depth,
     });
   },
 
@@ -335,14 +336,14 @@ export const useGraphStore = create<GraphState>((set, get) => ({
         visibleEntityTypes: new Set(state.visibleEntityTypes),
         importanceThreshold: state.importanceThreshold,
         searchQuery: state.searchQuery,
-        visibleRelationTypes: new Set(state.visibleRelationTypes)
+        visibleRelationTypes: new Set(state.visibleRelationTypes),
       },
       selectedNodeIds: Array.from(state.selectedNodeIds),
-      expandedNodeIds: Array.from(state.expandedNodeIds)
+      expandedNodeIds: Array.from(state.expandedNodeIds),
     };
 
     const newSnapshots = [...state.snapshots, snapshot];
-    
+
     // Keep only last 10 snapshots
     if (newSnapshots.length > 10) {
       newSnapshots.shift();
@@ -357,8 +358,8 @@ export const useGraphStore = create<GraphState>((set, get) => ({
           visibleEntityTypes: Array.from(s.filters.visibleEntityTypes),
           importanceThreshold: s.filters.importanceThreshold,
           searchQuery: s.filters.searchQuery,
-          visibleRelationTypes: Array.from(s.filters.visibleRelationTypes)
-        }
+          visibleRelationTypes: Array.from(s.filters.visibleRelationTypes),
+        },
       }));
       localStorage.setItem('graph-snapshots', JSON.stringify(snapshotsToStore));
     } catch (error) {
@@ -367,14 +368,14 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
     set({
       snapshots: newSnapshots,
-      currentSnapshotIndex: newSnapshots.length - 1
+      currentSnapshotIndex: newSnapshots.length - 1,
     });
   },
 
   restoreSnapshot: (index) => {
     const { snapshots } = get();
     const snapshot = snapshots[index];
-    
+
     if (!snapshot) return;
 
     set({
@@ -387,7 +388,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       visibleRelationTypes: new Set(snapshot.filters.visibleRelationTypes),
       selectedNodeIds: new Set(snapshot.selectedNodeIds),
       expandedNodeIds: new Set(snapshot.expandedNodeIds),
-      currentSnapshotIndex: index
+      currentSnapshotIndex: index,
     });
 
     // Reapply filters
@@ -395,7 +396,7 @@ export const useGraphStore = create<GraphState>((set, get) => ({
       visibleEntityTypes: new Set(snapshot.filters.visibleEntityTypes),
       importanceThreshold: snapshot.filters.importanceThreshold,
       searchQuery: snapshot.filters.searchQuery,
-      visibleRelationTypes: new Set(snapshot.filters.visibleRelationTypes)
+      visibleRelationTypes: new Set(snapshot.filters.visibleRelationTypes),
     });
   },
 
@@ -412,8 +413,8 @@ export const useGraphStore = create<GraphState>((set, get) => ({
           visibleEntityTypes: Array.from(s.filters.visibleEntityTypes),
           importanceThreshold: s.filters.importanceThreshold,
           searchQuery: s.filters.searchQuery,
-          visibleRelationTypes: Array.from(s.filters.visibleRelationTypes)
-        }
+          visibleRelationTypes: Array.from(s.filters.visibleRelationTypes),
+        },
       }));
       localStorage.setItem('graph-snapshots', JSON.stringify(snapshotsToStore));
     } catch (error) {
@@ -432,11 +433,11 @@ export const useGraphStore = create<GraphState>((set, get) => ({
 
     set({
       snapshots: [],
-      currentSnapshotIndex: -1
+      currentSnapshotIndex: -1,
     });
   },
 
   setPerformanceMode: (enabled) => set({ performanceMode: enabled }),
 
-  setMode: (mode) => set({ currentMode: mode })
+  setMode: (mode) => set({ currentMode: mode }),
 }));

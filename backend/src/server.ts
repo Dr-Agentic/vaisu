@@ -4,11 +4,13 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import documentsRouter from './routes/documents.js';
+
 import { validateAWSConfig } from './config/aws.js';
+import documentsRouter from './routes/documents.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,7 +22,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Middleware
 app.use(cors({
   origin: process.env.APP_URL || 'http://localhost:5173',
-  credentials: true
+  credentials: true,
 }));
 
 app.use(express.json({ limit: '1gb' }));
@@ -34,7 +36,7 @@ app.all('/api/health', (req: any, res: any) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
   });
 });
 
@@ -51,7 +53,7 @@ if (isProduction) {
     path.resolve(__dirname, '../../../../frontend/dist'),
     path.resolve(process.cwd(), 'frontend/dist'),
     '/opt/render/project/src/frontend/dist', // Absolute path on Render
-    '/opt/render/project/frontend/dist'      // Alternative absolute path
+    '/opt/render/project/frontend/dist',      // Alternative absolute path
   ];
 
   console.log('🔍 Searching for frontend build in:', possiblePaths);
@@ -97,7 +99,7 @@ app.use('*', (req: any, res: any) => {
     error: 'Route not found',
     path: req.originalUrl,
     environment: process.env.NODE_ENV || 'development',
-    message: 'The requested resource was not found on this server.'
+    message: 'The requested resource was not found on this server.',
   });
 });
 
@@ -105,7 +107,7 @@ app.use('*', (req: any, res: any) => {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
   res.status(err.status || 500).json({
-    error: err.message || 'Internal server error'
+    error: err.message || 'Internal server error',
   });
 });
 

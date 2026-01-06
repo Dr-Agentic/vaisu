@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react';
+
 import type { ClassEntity, Position } from '@shared/types';
 
 interface InteractionManagerProps {
@@ -25,13 +26,13 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
   pan,
   onZoomChange,
   onPanChange,
-  children
+  children,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const panZoomState = useRef<PanZoomState>({
     isDragging: false,
     lastMousePos: { x: 0, y: 0 },
-    momentum: { x: 0, y: 0 }
+    momentum: { x: 0, y: 0 },
   });
 
   // Handle mouse wheel zoom
@@ -53,7 +54,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
     const zoomRatio = newZoom / zoom;
     const newPan = {
       x: mouseX - (mouseX - pan.x) * zoomRatio,
-      y: mouseY - (mouseY - pan.y) * zoomRatio
+      y: mouseY - (mouseY - pan.y) * zoomRatio,
     };
 
     onZoomChange(newZoom);
@@ -83,7 +84,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
 
     const newPan = {
       x: pan.x + deltaX,
-      y: pan.y + deltaY
+      y: pan.y + deltaY,
     };
 
     onPanChange(newPan);
@@ -105,14 +106,14 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
       if (Math.abs(momentum.x) > 0.1 || Math.abs(momentum.y) > 0.1) {
         const newPan = {
           x: pan.x + momentum.x,
-          y: pan.y + momentum.y
+          y: pan.y + momentum.y,
         };
 
         onPanChange(newPan);
 
         panZoomState.current.momentum = {
           x: momentum.x * friction,
-          y: momentum.y * friction
+          y: momentum.y * friction,
         };
 
         requestAnimationFrame(applyMomentum);
@@ -146,7 +147,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
 
       const newPan = {
         x: pan.x + deltaX,
-        y: pan.y + deltaY
+        y: pan.y + deltaY,
       };
 
       onPanChange(newPan);
@@ -157,8 +158,8 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
       const touch2 = event.touches[1];
 
       const distance = Math.sqrt(
-        Math.pow(touch2.clientX - touch1.clientX, 2) +
-        Math.pow(touch2.clientY - touch1.clientY, 2)
+        Math.pow(touch2.clientX - touch1.clientX, 2)
+        + Math.pow(touch2.clientY - touch1.clientY, 2),
       );
 
       // Store initial distance on first pinch
@@ -253,7 +254,7 @@ export const InteractionManager: React.FC<InteractionManagerProps> = ({
       style={{
         transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
         transformOrigin: '0 0',
-        transition: panZoomState.current.isDragging ? 'none' : 'transform 0.2s ease-out'
+        transition: panZoomState.current.isDragging ? 'none' : 'transform 0.2s ease-out',
       }}
     >
       {children}
@@ -276,7 +277,7 @@ export const SelectionManager = ({
   selectedClassIds,
   classes,
   relationships,
-  onSelectionChange
+  onSelectionChange,
 }: SelectionManagerProps) => {
   // Get connected classes for a given class
   const getConnectedClasses = useCallback((classId: string): Set<string> => {
@@ -369,7 +370,7 @@ export const SelectionManager = ({
     handleTraceInheritance,
     getConnectedClasses,
     getInheritanceChain,
-    getDimmedClasses: getDimmedClasses()
+    getDimmedClasses: getDimmedClasses(),
   };
 };
 
@@ -387,7 +388,7 @@ export const HoverEffects: React.FC<HoverEffectsProps> = ({
   classId,
   isHovered,
   isSelected,
-  isDimmed
+  isDimmed,
 }) => {
   const getClassStyle = () => {
     let transform = 'scale(1)';
@@ -411,7 +412,7 @@ export const HoverEffects: React.FC<HoverEffectsProps> = ({
       transform,
       opacity,
       filter,
-      transition: 'all 0.15s ease-out'
+      transition: 'all 0.15s ease-out',
     };
   };
 
@@ -446,7 +447,7 @@ export const zoomToFit = (
   bounds: { x: number; y: number; width: number; height: number },
   viewportWidth: number,
   viewportHeight: number,
-  padding: number = 50
+  padding: number = 50,
 ): { zoom: number; pan: Position } => {
   const scaleX = (viewportWidth - 2 * padding) / bounds.width;
   const scaleY = (viewportHeight - 2 * padding) / bounds.height;
@@ -454,7 +455,7 @@ export const zoomToFit = (
 
   const pan = {
     x: (viewportWidth - bounds.width * zoom) / 2 - bounds.x * zoom,
-    y: (viewportHeight - bounds.height * zoom) / 2 - bounds.y * zoom
+    y: (viewportHeight - bounds.height * zoom) / 2 - bounds.y * zoom,
   };
 
   return { zoom, pan };
@@ -469,7 +470,7 @@ export const zoomToSelection = (
   viewportHeight: number,
   nodeWidth: number = 200,
   nodeHeight: number = 120,
-  padding: number = 50
+  padding: number = 50,
 ): { zoom: number; pan: Position } => {
   if (selectedPositions.length === 0) {
     return { zoom: 1.0, pan: { x: 0, y: 0 } };
@@ -485,7 +486,7 @@ export const zoomToSelection = (
     x: minX,
     y: minY,
     width: maxX - minX,
-    height: maxY - minY
+    height: maxY - minY,
   };
 
   return zoomToFit(bounds, viewportWidth, viewportHeight, padding);

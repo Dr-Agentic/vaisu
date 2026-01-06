@@ -1,4 +1,5 @@
 import { Handle, Position } from 'reactflow';
+
 import type { EnhancedGraphNode } from '../../../../../../shared/src/types';
 
 interface EntityNodeProps {
@@ -17,7 +18,7 @@ export function EntityNode({ data }: EntityNodeProps) {
   const baseWidth = 120;
   const maxWidth = 200;
   const width = baseWidth + (node.metadata.centrality * (maxWidth - baseWidth));
-  
+
   const baseHeight = 60;
   const maxHeight = 80;
   const height = baseHeight + (node.metadata.centrality * (maxHeight - baseHeight));
@@ -35,12 +36,12 @@ export function EntityNode({ data }: EntityNodeProps) {
   // Truncate label if too long
   const maxLabelLength = Math.floor(width / 8);
   const displayLabel = node.label.length > maxLabelLength
-    ? node.label.substring(0, maxLabelLength - 3) + '...'
+    ? `${node.label.substring(0, maxLabelLength - 3)}...`
     : node.label;
 
   // Truncate subtitle
   const subtitle = node.metadata.description?.substring(0, 40) || '';
-  const displaySubtitle = subtitle.length > 40 ? subtitle.substring(0, 37) + '...' : subtitle;
+  const displaySubtitle = subtitle.length > 40 ? `${subtitle.substring(0, 37)}...` : subtitle;
 
   return (
     <div
@@ -60,7 +61,7 @@ export function EntityNode({ data }: EntityNodeProps) {
         cursor: 'pointer',
         transition: 'all 0.15s ease',
         boxShadow: isSelected ? '0 4px 12px rgba(0, 0, 0, 0.3)' : 'none',
-        transform: isHighlighted ? 'scale(1.1)' : 'scale(1)'
+        transform: isHighlighted ? 'scale(1.1)' : 'scale(1)',
       }}
     >
       {/* Handles for connections */}
@@ -73,7 +74,7 @@ export function EntityNode({ data }: EntityNodeProps) {
       <div
         style={{
           fontSize: '16px',
-          marginBottom: '4px'
+          marginBottom: '4px',
         }}
       >
         {icon}
@@ -87,7 +88,7 @@ export function EntityNode({ data }: EntityNodeProps) {
           color: '#FFFFFF',
           textAlign: 'center',
           lineHeight: '1.2',
-          marginBottom: '2px'
+          marginBottom: '2px',
         }}
       >
         {displayLabel}
@@ -101,7 +102,7 @@ export function EntityNode({ data }: EntityNodeProps) {
             fontWeight: 400,
             color: 'rgba(255, 255, 255, 0.85)',
             textAlign: 'center',
-            lineHeight: '1.2'
+            lineHeight: '1.2',
           }}
         >
           {displaySubtitle}

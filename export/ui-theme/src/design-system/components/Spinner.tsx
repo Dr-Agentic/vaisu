@@ -1,8 +1,8 @@
 /**
  * Spinner Component
- * 
+ *
  * Loading spinner component with multiple sizes and variants.
- * 
+ *
  * @example
  * ```tsx
  * <Spinner size="md" />
@@ -11,6 +11,7 @@
  */
 
 import { HTMLAttributes, forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type SpinnerSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -50,7 +51,7 @@ const variantStyles: Record<SpinnerVariant, string> = {
 
 /**
  * Spinner Component
- * 
+ *
  * Accessible loading spinner with multiple sizes and variants.
  */
 export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
@@ -62,7 +63,7 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
       className,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <div
@@ -78,14 +79,14 @@ export const Spinner = forwardRef<HTMLDivElement, SpinnerProps>(
             'border-t-transparent',
             'animate-spin',
             sizeStyles[size],
-            variantStyles[variant]
+            variantStyles[variant],
           )}
           aria-hidden="true"
         />
         <span className="sr-only">{label}</span>
       </div>
     );
-  }
+  },
 );
 
 Spinner.displayName = 'Spinner';

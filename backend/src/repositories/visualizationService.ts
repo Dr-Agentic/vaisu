@@ -1,13 +1,14 @@
-import type { VisualizationRecord } from './types.js';
 import * as analysisRepository from './analysisRepository.js';
 import * as argumentMapRepository from './argumentMapRepository.js';
 import * as depthGraphRepository from './depthGraphRepository.js';
-import * as umlClassRepository from './umlClassRepository.js';
-import * as mindMapRepository from './mindMapRepository.js';
-import * as flowchartRepository from './flowchartRepository.js';
 import * as executiveDashboardRepository from './executiveDashboardRepository.js';
-import * as timelineRepository from './timelineRepository.js';
+import * as flowchartRepository from './flowchartRepository.js';
 import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
+import * as mindMapRepository from './mindMapRepository.js';
+import * as timelineRepository from './timelineRepository.js';
+import * as umlClassRepository from './umlClassRepository.js';
+
+import type { VisualizationRecord } from './types.js';
 
 /**
  * Visualization service that coordinates between individual repository types
@@ -26,7 +27,7 @@ export class VisualizationService {
    */
   async findByDocumentIdAndType(
     documentId: string,
-    visualizationType: string
+    visualizationType: string,
   ): Promise<VisualizationRecord | null> {
     const repository = this.getRepositoryForType(visualizationType);
     return await repository.findByDocumentId(documentId);
@@ -53,7 +54,7 @@ export class VisualizationService {
       'gantt',
       'comparison-matrix',
       'priority-matrix',
-      'raci-matrix'
+      'raci-matrix',
     ];
 
     const results: VisualizationRecord[] = [];
@@ -80,7 +81,7 @@ export class VisualizationService {
   async update(
     documentId: string,
     visualizationType: string,
-    updates: Partial<VisualizationRecord>
+    updates: Partial<VisualizationRecord>,
   ): Promise<void> {
     const repository = this.getRepositoryForType(visualizationType);
     await repository.update(documentId, updates);

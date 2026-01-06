@@ -1,6 +1,6 @@
 /**
  * Theme System
- * 
+ *
  * Semantic color tokens mapped to light and dark themes.
  * Uses CSS custom properties for runtime theme switching.
  */

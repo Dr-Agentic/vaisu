@@ -1,22 +1,24 @@
-import React from 'react';
 import { DashboardData } from '@shared/types';
-import { GraphViewerLayout } from '../toolkit/GraphViewerLayout';
-import { 
-  Radar, 
-  RadarChart, 
-  PolarGrid, 
-  PolarAngleAxis, 
-  PolarRadiusAxis, 
-  ResponsiveContainer,
-  Tooltip
-} from 'recharts';
-import { 
-  AlertTriangle, 
-  Lightbulb, 
-  Target, 
-  TrendingUp, 
-  CheckCircle2
+import {
+  AlertTriangle,
+  Lightbulb,
+  Target,
+  TrendingUp,
+  CheckCircle2,
 } from 'lucide-react';
+import React from 'react';
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from 'recharts';
+
+import { GraphViewerLayout } from '../toolkit/GraphViewerLayout';
+
 
 interface ExecutiveDashboardProps {
   data: DashboardData;
@@ -34,15 +36,15 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ data }) 
       title="Executive Dashboard"
       description="High-level summary and strategic insights."
     >
-      <div className="h-full bg-gray-50 dark:bg-gray-900 p-8">
+      <div className="absolute inset-0 bg-gray-50 dark:bg-gray-900 p-8 overflow-y-auto custom-scrollbar">
         <div className="max-w-7xl mx-auto space-y-8">
-          
+
           {/* Headline Section */}
           <div className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-sm border border-gray-100 dark:border-gray-700">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
               {headline}
             </h2>
-            
+
             {/* Call to Action */}
             {callToAction && (
               <div className="mt-6 flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">

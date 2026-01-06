@@ -8,8 +8,8 @@
  */
 
 import { useEffect } from 'react';
+
 import { ThemeProvider } from './design-system/ThemeProvider';
-import { useDocumentStore } from './stores/documentStore';
 import {
   StageContainer,
   Stage,
@@ -17,8 +17,8 @@ import {
   StageInput,
   StageAnalysis,
   StageVisualization,
-} from './electron/components';
-import { ToastContainer } from './electron/components';
+  ToastContainer } from './electron/components';
+import { useDocumentStore } from './stores/documentStore';
 
 /**
  * App
@@ -32,7 +32,7 @@ export default function App() {
     document,
     isAnalyzing,
     toasts,
-    removeToast
+    removeToast,
   } = useDocumentStore();
 
   // Auto-transition to analysis stage when document is uploaded and analysis starts

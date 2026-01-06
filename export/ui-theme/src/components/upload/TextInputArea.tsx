@@ -1,5 +1,6 @@
-import { useState } from 'react';
 import { Send, X } from 'lucide-react';
+import { useState } from 'react';
+
 import { useDocumentStore } from '../../../stores/documentStore';
 
 export function TextInputArea() {
@@ -43,7 +44,7 @@ export function TextInputArea() {
         <span className="text-sm text-gray-500">
           {wordCount} {wordCount === 1 ? 'word' : 'words'}
         </span>
-        
+
         <button
           onClick={handleSubmit}
           disabled={!text.trim() || isLoading}
@@ -51,7 +52,7 @@ export function TextInputArea() {
         >
           {isLoading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
               Analyzing...
             </>
           ) : (

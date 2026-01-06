@@ -6,7 +6,7 @@ interface GraphEdgeLayerProps {
 
 export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({ children }) => {
   return (
-    <svg 
+    <svg
       className="absolute inset-0 w-full h-full pointer-events-none z-0"
       style={{ overflow: 'visible' }}
     >
@@ -20,13 +20,13 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({ children }) => {
           refY="3.5"
           orient="auto"
         >
-          <polygon 
-            points="0 0, 10 3.5, 0 7" 
+          <polygon
+            points="0 0, 10 3.5, 0 7"
             fill="var(--color-border-strong)"
-            className="dark:fill-gray-500" 
+            className="dark:fill-gray-500"
           />
         </marker>
-        
+
         {/* Active/Highlight Marker */}
         <marker
           id="arrowhead-active"
@@ -36,13 +36,13 @@ export const GraphEdgeLayer: React.FC<GraphEdgeLayerProps> = ({ children }) => {
           refY="3.5"
           orient="auto"
         >
-          <polygon 
-            points="0 0, 10 3.5, 0 7" 
-            fill="var(--color-primary)" 
+          <polygon
+            points="0 0, 10 3.5, 0 7"
+            fill="var(--color-primary)"
           />
         </marker>
       </defs>
-      
+
       {children}
     </svg>
   );

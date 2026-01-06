@@ -1,5 +1,5 @@
-import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
 // Environment variables (evaluated lazily to ensure dotenv has loaded)
@@ -37,7 +37,6 @@ export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRA
  * Throws error if persistence is enabled but configuration is invalid
  */
 export function validateAWSConfig(): void {
-
   const accessKeyId = getAWSAccessKeyId();
   const secretAccessKey = getAWSSecretAccessKey();
 
@@ -154,11 +153,11 @@ export function getDynamoDBClient(): DynamoDBDocumentClient {
 export const s3Client = new Proxy({} as S3Client, {
   get(target, prop) {
     return (getS3Client() as any)[prop];
-  }
+  },
 });
 
 export const dynamoDBClient = new Proxy({} as DynamoDBDocumentClient, {
   get(target, prop) {
     return (getDynamoDBClient() as any)[prop];
-  }
+  },
 });

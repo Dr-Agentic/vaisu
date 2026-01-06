@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
+
 import { ForceDirectedLayout } from '../forceDirectedLayout';
+
 import type { GraphNode, GraphEdge } from '../../../../../../../../shared/src/types';
 
 describe('ForceDirectedLayout', () => {
@@ -14,8 +16,8 @@ describe('ForceDirectedLayout', () => {
       color: '#4F46E5',
       metadata: {
         centrality: 0.5,
-        connections: 0
-      }
+        connections: 0,
+      },
     }));
   };
 
@@ -27,7 +29,7 @@ describe('ForceDirectedLayout', () => {
         source: nodeIds[i],
         target: nodeIds[i + 1],
         type: 'relates-to',
-        strength: 0.5
+        strength: 0.5,
       });
     }
     return edges;
@@ -70,7 +72,7 @@ describe('ForceDirectedLayout', () => {
 
     const positions = await layout.compute(nodes, edges, {
       width: 800,
-      height: 600
+      height: 600,
     });
 
     positions.forEach(pos => {
@@ -84,7 +86,7 @@ describe('ForceDirectedLayout', () => {
   it('should filter out edges with invalid node references', async () => {
     const nodes = createMockNodes(3);
     const validEdges = createMockEdges(nodes.map(n => n.id));
-    
+
     // Add edges with invalid node references
     const invalidEdges: GraphEdge[] = [
       {
@@ -92,15 +94,15 @@ describe('ForceDirectedLayout', () => {
         source: 'non-existent-node',
         target: nodes[0].id,
         type: 'relates-to',
-        strength: 0.5
+        strength: 0.5,
       },
       {
         id: 'invalid-2',
         source: nodes[0].id,
         target: 'another-missing-node',
         type: 'relates-to',
-        strength: 0.5
-      }
+        strength: 0.5,
+      },
     ];
 
     const allEdges = [...validEdges, ...invalidEdges];
@@ -120,8 +122,8 @@ describe('ForceDirectedLayout', () => {
         source: 'missing-1',
         target: 'missing-2',
         type: 'relates-to',
-        strength: 0.5
-      }
+        strength: 0.5,
+      },
     ];
 
     // Should not throw error

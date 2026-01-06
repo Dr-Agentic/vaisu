@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
+
 import { CentralityService } from '../centralityService';
+
 import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
 
 describe('CentralityService', () => {
@@ -14,8 +16,8 @@ describe('CentralityService', () => {
       color: '#4F46E5',
       metadata: {
         centrality: 0.5,
-        connections: 0
-      }
+        connections: 0,
+      },
     }));
   };
 
@@ -27,7 +29,7 @@ describe('CentralityService', () => {
         source: nodeIds[i],
         target: nodeIds[i + 1],
         type: 'relates-to',
-        strength: 0.5
+        strength: 0.5,
       });
     }
     return edges;
@@ -57,7 +59,7 @@ describe('CentralityService', () => {
       { id: 'e1', source: 'node-0', target: 'node-1', type: 'relates-to', strength: 1 },
       { id: 'e2', source: 'node-0', target: 'node-2', type: 'relates-to', strength: 1 },
       { id: 'e3', source: 'node-0', target: 'node-3', type: 'relates-to', strength: 1 },
-      { id: 'e4', source: 'node-0', target: 'node-4', type: 'relates-to', strength: 1 }
+      { id: 'e4', source: 'node-0', target: 'node-4', type: 'relates-to', strength: 1 },
     ];
 
     const scores = service.calculateCentrality(nodes, edges);

@@ -1,10 +1,11 @@
 /**
  * TooltipManager Tests
- * 
+ *
  * These tests focus on the logic for hover tooltip delay, positioning, and content.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import type { ClassEntity, UMLRelationship } from '@shared/types';
 
 describe('TooltipManager Logic Tests', () => {
@@ -20,8 +21,8 @@ describe('TooltipManager Logic Tests', () => {
         name: 'userRepository',
         type: 'UserRepository',
         visibility: 'private',
-        isStatic: false
-      }
+        isStatic: false,
+      },
     ],
     methods: [
       {
@@ -33,14 +34,14 @@ describe('TooltipManager Logic Tests', () => {
         isAbstract: false,
         parameters: [
           { name: 'username', type: 'String' },
-          { name: 'password', type: 'String' }
-        ]
-      }
+          { name: 'password', type: 'String' },
+        ],
+      },
     ],
     description: 'Handles user authentication and management',
     sourceQuote: 'The UserService class manages user operations including authentication and user data management',
     sourceSpan: null,
-    documentLink: '#document-1'
+    documentLink: '#document-1',
   };
 
   const mockRelationship: UMLRelationship = {
@@ -54,12 +55,12 @@ describe('TooltipManager Logic Tests', () => {
     sourceRole: 'child',
     targetRole: 'parent',
     sourceQuote: 'UserService extends BaseService to inherit common functionality',
-    evidence: []
+    evidence: [],
   };
 
   const mockRelationships = [
     { source: 'class-1', target: 'class-2', type: 'inheritance' },
-    { source: 'class-3', target: 'class-1', type: 'association' }
+    { source: 'class-3', target: 'class-1', type: 'association' },
   ];
 
   beforeEach(() => {
@@ -118,7 +119,7 @@ describe('TooltipManager Logic Tests', () => {
         relationshipCount: true,
         packageInfo: entity.package ? true : false,
         sourceQuote: entity.sourceQuote ? true : false,
-        documentLink: entity.documentLink ? true : false
+        documentLink: entity.documentLink ? true : false,
       };
 
       return requiredSections;
@@ -148,7 +149,7 @@ describe('TooltipManager Logic Tests', () => {
       mousePos: { x: number; y: number },
       tooltipSize: { width: number; height: number },
       viewport: { width: number; height: number },
-      padding: number = 20
+      padding: number = 20,
     ) => {
       const offset = 20;
 
@@ -157,16 +158,16 @@ describe('TooltipManager Logic Tests', () => {
           padding,
           Math.min(
             mousePos.x + offset,
-            viewport.width - tooltipSize.width - padding
-          )
+            viewport.width - tooltipSize.width - padding,
+          ),
         ),
         y: Math.max(
           padding,
           Math.min(
             mousePos.y + offset,
-            viewport.height - tooltipSize.height - padding
-          )
-        )
+            viewport.height - tooltipSize.height - padding,
+          ),
+        ),
       };
     };
 
@@ -177,7 +178,7 @@ describe('TooltipManager Logic Tests', () => {
     const normalPos = calculateTooltipPosition(
       { x: 100, y: 100 },
       tooltipSize,
-      viewport
+      viewport,
     );
     expect(normalPos.x).toBe(120); // 100 + 20 offset
     expect(normalPos.y).toBe(120); // 100 + 20 offset
@@ -186,7 +187,7 @@ describe('TooltipManager Logic Tests', () => {
     const rightEdgePos = calculateTooltipPosition(
       { x: 900, y: 100 },
       tooltipSize,
-      viewport
+      viewport,
     );
     expect(rightEdgePos.x).toBe(600); // 1000 - 380 - 20 padding
 
@@ -194,7 +195,7 @@ describe('TooltipManager Logic Tests', () => {
     const bottomEdgePos = calculateTooltipPosition(
       { x: 100, y: 700 },
       tooltipSize,
-      viewport
+      viewport,
     );
     expect(bottomEdgePos.y).toBe(380); // 800 - 400 - 20 padding
   });
@@ -202,7 +203,7 @@ describe('TooltipManager Logic Tests', () => {
   it('validates relationship statistics calculation', () => {
     const calculateRelationshipStats = (
       classId: string,
-      relationships: Array<{ source: string; target: string; type: string }>
+      relationships: Array<{ source: string; target: string; type: string }>,
     ) => {
       return relationships.reduce((stats, rel) => {
         if (rel.source === classId || rel.target === classId) {
@@ -251,7 +252,7 @@ describe('TooltipManager Logic Tests', () => {
         'interface': 'Code',
         'abstract': 'Database',
         'enum': 'Package',
-        'class': 'Users'
+        'class': 'Users',
       };
       return iconMap[type as keyof typeof iconMap] || 'Users';
     };
@@ -271,7 +272,7 @@ describe('TooltipManager Logic Tests', () => {
         'composition': 'Strong ownership - part cannot exist without whole',
         'aggregation': 'Weak ownership - part can exist independently',
         'association': 'General relationship between classes',
-        'dependency': 'One class depends on another'
+        'dependency': 'One class depends on another',
       };
       return descriptions[type as keyof typeof descriptions] || 'Relationship between classes';
     };
@@ -320,7 +321,7 @@ describe('TooltipManager Logic Tests', () => {
       return {
         attributes: entity.attributes.length,
         methods: entity.methods.length,
-        total: entity.attributes.length + entity.methods.length
+        total: entity.attributes.length + entity.methods.length,
       };
     };
 
@@ -335,14 +336,14 @@ describe('TooltipManager Logic Tests', () => {
     const interfaceEntity: ClassEntity = {
       ...mockClassEntity,
       type: 'interface',
-      stereotype: undefined
+      stereotype: undefined,
     };
 
     const validateClassTypeContent = (entity: ClassEntity) => {
       return {
         hasStereotype: !!entity.stereotype,
         typeSpecificStyling: true, // Would be determined by type
-        iconType: entity.type
+        iconType: entity.type,
       };
     };
 
@@ -364,7 +365,7 @@ describe('TooltipManager Logic Tests', () => {
         hasMultiplicity: !!(relationship.sourceMultiplicity || relationship.targetMultiplicity),
         hasRoles: !!(relationship.sourceRole || relationship.targetRole),
         hasDescription: !!relationship.description,
-        hasSourceQuote: !!relationship.sourceQuote
+        hasSourceQuote: !!relationship.sourceQuote,
       };
     };
 

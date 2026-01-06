@@ -1,7 +1,9 @@
-import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GraphNode, GraphEdge } from './types';
 import { X } from 'lucide-react';
+import React from 'react';
+
+import { GraphNode, GraphEdge } from './types';
+
 
 interface GraphConnectionModalProps {
   edge: GraphEdge | null;
@@ -16,24 +18,24 @@ export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({
   sourceNode,
   targetNode,
   isOpen,
-  onClose
+  onClose,
 }) => {
   if (!isOpen || !edge || !sourceNode || !targetNode) return null;
 
   const strength = edge.strength ?? 0.5;
-  const rationale = edge.rationale || "No rationale provided for this relationship.";
+  const rationale = edge.rationale || 'No rationale provided for this relationship.';
 
   return (
     <AnimatePresence>
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-sm"
         onClick={onClose}
       >
-        <motion.div 
-          initial={{ scale: 0.9, y: 20 }} 
+        <motion.div
+          initial={{ scale: 0.9, y: 20 }}
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0 }}
           className="w-full max-w-2xl bg-white/85 backdrop-blur-xl rounded-[40px] shadow-2xl overflow-hidden border border-white/50"
@@ -47,8 +49,8 @@ export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({
                 </span>
                 <h2 className="text-3xl font-black tracking-tighter text-slate-900">Relational Logic</h2>
               </div>
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors text-slate-600"
               >
                 <X size={20} />
@@ -84,10 +86,10 @@ export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({
                   <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest mb-2">Signal Strength</h3>
                   <div className="flex items-end gap-1 h-6">
                     {[...Array(10)].map((_, i) => (
-                      <div 
-                        key={i} 
-                        className={`w-1.5 rounded-full ${i < strength * 10 ? 'bg-blue-500' : 'bg-slate-100'}`} 
-                        style={{ height: `${(i+1)*10}%` }} 
+                      <div
+                        key={i}
+                        className={`w-1.5 rounded-full ${i < strength * 10 ? 'bg-blue-500' : 'bg-slate-100'}`}
+                        style={{ height: `${(i + 1) * 10}%` }}
                       />
                     ))}
                   </div>

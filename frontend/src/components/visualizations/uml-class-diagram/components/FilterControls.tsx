@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
 import { Search, Filter, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+
 import type { ClassEntity } from '@shared/types';
 
 interface FilterControlsProps {
@@ -21,14 +22,14 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   classes,
   onFilterChange,
   onSearchChange,
-  onFocusMode
+  onFocusMode,
 }) => {
   const [filters, setFilters] = useState<FilterState>({
     classTypes: new Set(['class', 'interface', 'abstract', 'enum']),
     stereotypes: new Set(),
     packages: new Set(),
     relationshipTypes: new Set(),
-    searchTerm: ''
+    searchTerm: '',
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -38,7 +39,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   const filterOptions = React.useMemo(() => {
     const stereotypes = new Set<string>();
     const packages = new Set<string>();
-    
+
     classes.forEach(cls => {
       if (cls.stereotype) stereotypes.add(cls.stereotype);
       if (cls.package) packages.add(cls.package);
@@ -48,7 +49,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
       classTypes: ['class', 'interface', 'abstract', 'enum'],
       stereotypes: Array.from(stereotypes),
       packages: Array.from(packages),
-      relationshipTypes: ['inheritance', 'interface', 'composition', 'aggregation', 'association', 'dependency']
+      relationshipTypes: ['inheritance', 'interface', 'composition', 'aggregation', 'association', 'dependency'],
     };
   }, [classes]);
 
@@ -63,15 +64,15 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
 
     // Apply stereotype filters
     if (filters.stereotypes.size > 0) {
-      filteredClasses = filteredClasses.filter(cls => 
-        cls.stereotype && filters.stereotypes.has(cls.stereotype)
+      filteredClasses = filteredClasses.filter(cls =>
+        cls.stereotype && filters.stereotypes.has(cls.stereotype),
       );
     }
 
     // Apply package filters
     if (filters.packages.size > 0) {
-      filteredClasses = filteredClasses.filter(cls => 
-        cls.package && filters.packages.has(cls.package)
+      filteredClasses = filteredClasses.filter(cls =>
+        cls.package && filters.packages.has(cls.package),
       );
     }
 
@@ -79,9 +80,9 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
     if (filters.searchTerm.trim()) {
       const searchLower = filters.searchTerm.toLowerCase();
       filteredClasses = filteredClasses.filter(cls =>
-        cls.name.toLowerCase().includes(searchLower) ||
-        cls.description?.toLowerCase().includes(searchLower) ||
-        cls.package?.toLowerCase().includes(searchLower)
+        cls.name.toLowerCase().includes(searchLower)
+        || cls.description?.toLowerCase().includes(searchLower)
+        || cls.package?.toLowerCase().includes(searchLower),
       );
     }
 
@@ -93,18 +94,18 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   const updateFilter = useCallback((
     category: keyof FilterState,
     value: string,
-    checked: boolean
+    checked: boolean,
   ) => {
     setFilters(prev => {
       const newFilters = { ...prev };
       const filterSet = newFilters[category] as Set<string>;
-      
+
       if (checked) {
         filterSet.add(value);
       } else {
         filterSet.delete(value);
       }
-      
+
       return newFilters;
     });
   }, []);
@@ -122,7 +123,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
       stereotypes: new Set(),
       packages: new Set(),
       relationshipTypes: new Set(),
-      searchTerm: ''
+      searchTerm: '',
     };
     setFilters(resetState);
     setFocusedClass(null);
@@ -143,20 +144,20 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
   // Calculate visible count
   const visibleCount = React.useMemo(() => {
     let count = classes.length;
-    
+
     if (filters.classTypes.size > 0) {
       count = classes.filter(cls => filters.classTypes.has(cls.type)).length;
     }
-    
+
     if (filters.searchTerm.trim()) {
       const searchLower = filters.searchTerm.toLowerCase();
       count = classes.filter(cls =>
-        cls.name.toLowerCase().includes(searchLower) ||
-        cls.description?.toLowerCase().includes(searchLower) ||
-        cls.package?.toLowerCase().includes(searchLower)
+        cls.name.toLowerCase().includes(searchLower)
+        || cls.description?.toLowerCase().includes(searchLower)
+        || cls.package?.toLowerCase().includes(searchLower),
       ).length;
     }
-    
+
     return count;
   }, [classes, filters]);
 
@@ -182,7 +183,7 @@ export const FilterControls: React.FC<FilterControlsProps> = ({
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 text-gray-500 hover:text-gray-700 transition-colors"
-            title={isExpanded ? "Collapse" : "Expand"}
+            title={isExpanded ? 'Collapse' : 'Expand'}
           >
             {isExpanded ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>

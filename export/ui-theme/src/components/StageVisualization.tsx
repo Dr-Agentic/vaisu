@@ -13,20 +13,22 @@
  * ```
  */
 
-import { useEffect, useState, forwardRef, useCallback } from 'react';
 import {
   ArrowLeft,
   X,
   Menu,
   Info,
   Maximize,
-  Minimize
+  Minimize,
 } from 'lucide-react';
+import { useEffect, useState, forwardRef, useCallback } from 'react';
+
 import { Button } from '../../design-system/components/Button';
-import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 import { cn } from '../../lib/utils';
-import { VisualizationRenderer } from './VisualizationRenderer';
 import { useDocumentStore } from '../../stores/documentStore';
+
+import { VisualizationRenderer } from './VisualizationRenderer';
+import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
 
 export interface StageVisualizationProps {
   /**
@@ -76,10 +78,10 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
       }
 
       // Fullscreen: F or f (only when not in input fields)
-      if ((e.key === 'f' || e.key === 'F') &&
-          !(e.target instanceof HTMLInputElement ||
-            e.target instanceof HTMLTextAreaElement ||
-            e.target instanceof HTMLSelectElement)) {
+      if ((e.key === 'f' || e.key === 'F')
+          && !(e.target instanceof HTMLInputElement
+            || e.target instanceof HTMLTextAreaElement
+            || e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
         toggleCanvasFullscreen();
       }
@@ -92,10 +94,10 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
       }
 
       // Sidebar toggle: S or s (only when not in input fields)
-      if ((e.key === 's' || e.key === 'S') &&
-          !(e.target instanceof HTMLInputElement ||
-            e.target instanceof HTMLTextAreaElement ||
-            e.target instanceof HTMLSelectElement)) {
+      if ((e.key === 's' || e.key === 'S')
+          && !(e.target instanceof HTMLInputElement
+            || e.target instanceof HTMLTextAreaElement
+            || e.target instanceof HTMLSelectElement)) {
         e.preventDefault();
         setSidebarCollapsed(!sidebarCollapsed);
       }
@@ -138,7 +140,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'flex',
             'flex-col',
             'items-center',
-            'justify-center'
+            'justify-center',
           )}
           style={{
             backgroundColor: 'var(--color-background-primary)',
@@ -167,7 +169,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             'border-b',
             'flex',
             'items-center',
-            'justify-between'
+            'justify-between',
           )}
           style={{
             borderColor: 'var(--color-border-subtle)',
@@ -187,7 +189,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               >
                 {document.title || 'Untitled Document'}
               </h3>
-              <span 
+              <span
                 className="font-mono opacity-50"
                 style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}
               >
@@ -272,7 +274,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
                 'fixed',
                 'inset-0',
                 'z-[50]',
-              ]
+              ],
             )}
             style={{
               backgroundColor: 'var(--color-background-primary)',
@@ -302,7 +304,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         {/* Keyboard Shortcuts Hint - Removed as requested */}
       </div>
     );
-  }
+  },
 );
 
 StageVisualization.displayName = 'StageVisualization';

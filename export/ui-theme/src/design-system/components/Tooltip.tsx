@@ -1,9 +1,9 @@
 /**
  * Tooltip Component
- * 
+ *
  * Accessible tooltip that appears on hover or focus.
  * Follows WAI-ARIA tooltip pattern.
- * 
+ *
  * @example
  * ```tsx
  * <Tooltip content="This is a tooltip">
@@ -14,6 +14,7 @@
 
 import { useState, useRef, useEffect, ReactNode, cloneElement, isValidElement } from 'react';
 import { createPortal } from 'react-dom';
+
 import { cn } from '../../lib/utils';
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
@@ -57,7 +58,7 @@ const arrowStyles: Record<TooltipPosition, string> = {
 
 /**
  * Tooltip Component
- * 
+ *
  * Accessible tooltip with proper ARIA attributes and keyboard support.
  */
 export function Tooltip({
@@ -151,24 +152,24 @@ export function Tooltip({
   // Clone child to add event handlers
   const childWithHandlers = isValidElement(children)
     ? cloneElement(children as React.ReactElement, {
-        onMouseEnter: showTooltip,
-        onMouseLeave: hideTooltip,
-        onFocus: showOnFocus ? showTooltip : undefined,
-        onBlur: showOnFocus ? hideTooltip : undefined,
-        'aria-describedby': isVisible ? 'tooltip' : undefined,
-      })
+      onMouseEnter: showTooltip,
+      onMouseLeave: hideTooltip,
+      onFocus: showOnFocus ? showTooltip : undefined,
+      onBlur: showOnFocus ? hideTooltip : undefined,
+      'aria-describedby': isVisible ? 'tooltip' : undefined,
+    })
     : (
-        <span
-          onMouseEnter={showTooltip}
-          onMouseLeave={hideTooltip}
-          onFocus={showOnFocus ? showTooltip : undefined}
-          onBlur={showOnFocus ? hideTooltip : undefined}
-          tabIndex={0}
-          aria-describedby={isVisible ? 'tooltip' : undefined}
-        >
-          {children}
-        </span>
-      );
+      <span
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={showOnFocus ? showTooltip : undefined}
+        onBlur={showOnFocus ? hideTooltip : undefined}
+        tabIndex={0}
+        aria-describedby={isVisible ? 'tooltip' : undefined}
+      >
+        {children}
+      </span>
+    );
 
   return (
     <>
@@ -176,8 +177,8 @@ export function Tooltip({
         {childWithHandlers}
       </div>
 
-      {isVisible &&
-        createPortal(
+      {isVisible
+        && createPortal(
           <div
             ref={tooltipRef}
             id="tooltip"
@@ -194,7 +195,7 @@ export function Tooltip({
               'pointer-events-none',
               'max-w-xs',
               'animate-fade-in',
-              className
+              className,
             )}
             style={{
               top: `${tooltipPosition.top}px`,
@@ -202,8 +203,8 @@ export function Tooltip({
               transform: position === 'top' || position === 'bottom'
                 ? 'translateX(-50%)'
                 : position === 'left' || position === 'right'
-                ? 'translateY(-50%)'
-                : 'none',
+                  ? 'translateY(-50%)'
+                  : 'none',
             }}
           >
             {content}
@@ -211,12 +212,12 @@ export function Tooltip({
             <div
               className={cn(
                 'absolute w-0 h-0 border-4',
-                arrowStyles[position]
+                arrowStyles[position],
               )}
               aria-hidden="true"
             />
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );

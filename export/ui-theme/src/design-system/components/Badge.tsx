@@ -1,8 +1,8 @@
 /**
  * Badge Component
- * 
+ *
  * Small status indicator or label component.
- * 
+ *
  * @example
  * ```tsx
  * <Badge variant="success">Active</Badge>
@@ -11,6 +11,7 @@
  */
 
 import { HTMLAttributes, forwardRef, ReactNode } from 'react';
+
 import { cn } from '../../lib/utils';
 
 export type BadgeVariant = 'primary' | 'secondary' | 'accent' | 'success' | 'error' | 'warning' | 'info' | 'neutral' | 'aurora' | 'nova' | 'solar' | 'ember';
@@ -150,7 +151,7 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     return (
       <span
@@ -163,14 +164,14 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           'whitespace-nowrap',
           variantStyles[variant],
           sizeStyles[size],
-          className
+          className,
         )}
         {...props}
       >
         {children}
       </span>
     );
-  }
+  },
 );
 
 Badge.displayName = 'Badge';

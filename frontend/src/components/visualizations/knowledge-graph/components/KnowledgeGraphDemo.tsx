@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+
+import { KnowledgeGraph } from '../KnowledgeGraph';
 import { useKnowledgeGraphStore } from '../stores/knowledgeGraphStore';
 import { loadAiRegulationPolicyDemo, getGraphSummary, validateGraph, clearSeedData } from '../utils/seedData';
-import { KnowledgeGraph } from '../KnowledgeGraph';
 import './KnowledgeGraphDemo.css';
 
 /**

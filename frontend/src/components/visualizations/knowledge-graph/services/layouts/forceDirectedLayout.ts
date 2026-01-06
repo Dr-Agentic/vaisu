@@ -1,17 +1,19 @@
 import * as d3Force from 'd3-force';
-import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
+
 import { LayoutEngine, type LayoutOptions, type NodePositions } from '../layoutEngine';
+
+import type { GraphNode, GraphEdge } from '../../../../../../../shared/src/types';
 
 export class ForceDirectedLayout extends LayoutEngine {
   async compute(
     nodes: GraphNode[],
     edges: GraphEdge[],
-    options: LayoutOptions = {}
+    options: LayoutOptions = {},
   ): Promise<NodePositions> {
     const {
       width = 1200,
       height = 800,
-      iterations = 300
+      iterations = 300,
     } = options;
 
     if (nodes.length === 0) {
@@ -26,7 +28,7 @@ export class ForceDirectedLayout extends LayoutEngine {
       id: node.id,
       x: Math.random() * width,
       y: Math.random() * height,
-      size: node.size
+      size: node.size,
     }));
 
     // Filter out edges with invalid node references
@@ -41,7 +43,7 @@ export class ForceDirectedLayout extends LayoutEngine {
     const simLinks = validEdges.map(edge => ({
       source: edge.source,
       target: edge.target,
-      strength: edge.strength
+      strength: edge.strength,
     }));
 
     // Create force simulation
@@ -49,16 +51,16 @@ export class ForceDirectedLayout extends LayoutEngine {
       .force('link', d3Force.forceLink(simLinks as any)
         .id((d: any) => d.id)
         .distance(100)
-        .strength((link: any) => link.strength || 0.5)
+        .strength((link: any) => link.strength || 0.5),
       )
       .force('charge', d3Force.forceManyBody()
         .strength(-300)
-        .distanceMax(500)
+        .distanceMax(500),
       )
       .force('center', d3Force.forceCenter(width / 2, height / 2))
       .force('collision', d3Force.forceCollide()
         .radius((d: any) => (d.size || 30) + 10)
-        .strength(0.7)
+        .strength(0.7),
       )
       .alphaDecay(0.0228)
       .velocityDecay(0.4);
@@ -70,17 +72,17 @@ export class ForceDirectedLayout extends LayoutEngine {
 
       simulation.on('tick', () => {
         const elapsed = Date.now() - startTime;
-        
+
         // Stop if max time or iterations reached
         if (elapsed > maxTime || simulation.alpha() < 0.001) {
           simulation.stop();
-          
+
           // Extract positions
           const positions = new Map<string, { x: number; y: number }>();
           simNodes.forEach(node => {
             positions.set(node.id, {
               x: node.x || 0,
-              y: node.y || 0
+              y: node.y || 0,
             });
           });
 
@@ -91,7 +93,7 @@ export class ForceDirectedLayout extends LayoutEngine {
       // Manually tick for specified iterations
       for (let i = 0; i < iterations; i++) {
         simulation.tick();
-        
+
         if (simulation.alpha() < 0.001) {
           break;
         }
@@ -104,7 +106,7 @@ export class ForceDirectedLayout extends LayoutEngine {
       simNodes.forEach(node => {
         positions.set(node.id, {
           x: node.x || 0,
-          y: node.y || 0
+          y: node.y || 0,
         });
       });
 

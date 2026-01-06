@@ -11,15 +11,15 @@ export function useUMLKeyboard({
   onFocusMode,
   onResetView,
   onExport,
-  onToggleLegend
+  onToggleLegend,
 }: KeyboardHandlers) {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Only handle if not in an input field
       if (
-        event.target instanceof HTMLInputElement ||
-        event.target instanceof HTMLTextAreaElement ||
-        event.target instanceof HTMLSelectElement
+        event.target instanceof HTMLInputElement
+        || event.target instanceof HTMLTextAreaElement
+        || event.target instanceof HTMLSelectElement
       ) {
         return;
       }
@@ -49,7 +49,7 @@ export function useUMLKeyboard({
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    
+
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };

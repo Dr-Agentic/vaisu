@@ -1,6 +1,7 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { OpenRouterClient } from '../openRouterClient';
 import axios from 'axios';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+
+import { OpenRouterClient } from '../openRouterClient';
 
 vi.mock('axios');
 const mockedAxios = axios as any;
@@ -17,9 +18,9 @@ describe('OpenRouterClient', () => {
         headers: {
           'Authorization': 'Bearer test-api-key',
           'HTTP-Referer': 'http://localhost:5173',
-          'X-Title': 'Vaisu'
-        }
-      }
+          'X-Title': 'Vaisu',
+        },
+      },
     };
 
     // Mock axios.create to return our mock instance
@@ -42,16 +43,16 @@ describe('OpenRouterClient', () => {
           choices: [{
             message: {
               role: 'assistant',
-              content: 'Test response'
+              content: 'Test response',
             },
-            finish_reason: 'stop'
+            finish_reason: 'stop',
           }],
           usage: {
             prompt_tokens: 100,
             completion_tokens: 50,
-            total_tokens: 150
-          }
-        }
+            total_tokens: 150,
+          },
+        },
       };
 
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
@@ -60,7 +61,7 @@ describe('OpenRouterClient', () => {
         model: 'x-ai/grok-4.1-fast',
         messages: [{ role: 'user', content: 'Test prompt' }],
         maxTokens: 500,
-        temperature: 0.3
+        temperature: 0.3,
       });
 
       expect(result.content).toBe('Test response');
@@ -71,13 +72,13 @@ describe('OpenRouterClient', () => {
           model: 'x-ai/grok-4.1-fast',
           messages: [{ role: 'user', content: 'Test prompt' }],
           max_tokens: 500,
-          temperature: 0.3
+          temperature: 0.3,
         }),
         expect.objectContaining({
           headers: expect.objectContaining({
-            'Content-Type': 'application/json'
-          })
-        })
+            'Content-Type': 'application/json',
+          }),
+        }),
       );
     });
 
@@ -85,13 +86,13 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue({
         data: {
           choices: [{ message: { content: 'Test' } }],
-          usage: { total_tokens: 100 }
-        }
+          usage: { total_tokens: 100 },
+        },
       });
 
       await client.call({
         model: 'x-ai/grok-4.1-fast',
-        messages: [{ role: 'user', content: 'Test' }]
+        messages: [{ role: 'user', content: 'Test' }],
       });
 
       // Headers are set on the axios instance, not per-request
@@ -105,8 +106,8 @@ describe('OpenRouterClient', () => {
       await expect(
         client.call({
           model: 'x-ai/grok-4.1-fast',
-          messages: [{ role: 'user', content: 'Test' }]
-        })
+          messages: [{ role: 'user', content: 'Test' }],
+        }),
       ).rejects.toThrow('LLM call failed');
     });
 
@@ -114,15 +115,15 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockRejectedValue({
         response: {
           status: 429,
-          data: { error: 'Rate limit exceeded' }
-        }
+          data: { error: 'Rate limit exceeded' },
+        },
       });
 
       await expect(
         client.call({
           model: 'x-ai/grok-4.1-fast',
-          messages: [{ role: 'user', content: 'Test' }]
-        })
+          messages: [{ role: 'user', content: 'Test' }],
+        }),
       ).rejects.toThrow();
     });
   });
@@ -132,10 +133,10 @@ describe('OpenRouterClient', () => {
       const mockResponse = {
         data: {
           choices: [{
-            message: { content: 'Primary model response' }
+            message: { content: 'Primary model response' },
           }],
-          usage: { total_tokens: 100 }
-        }
+          usage: { total_tokens: 100 },
+        },
       };
 
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
@@ -148,9 +149,9 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok') // Primary for TLDR
+          model: expect.stringContaining('grok'), // Primary for TLDR
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
 
@@ -160,10 +161,10 @@ describe('OpenRouterClient', () => {
         .mockResolvedValueOnce({
           data: {
             choices: [{
-              message: { content: 'Fallback model response' }
+              message: { content: 'Fallback model response' },
             }],
-            usage: { total_tokens: 100 }
-          }
+            usage: { total_tokens: 100 },
+          },
         });
 
       const result = await client.callWithFallback('tldr', 'Test prompt');
@@ -177,7 +178,7 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockRejectedValue(new Error('All models failed'));
 
       await expect(
-        client.callWithFallback('tldr', 'Test prompt')
+        client.callWithFallback('tldr', 'Test prompt'),
       ).rejects.toThrow();
 
       // callWithFallback tries primary, then fallback, then retries once more (2 retries default)
@@ -190,8 +191,8 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue({
         data: {
           choices: [{ message: { content: 'Response' } }],
-          usage: { total_tokens: 100 }
-        }
+          usage: { total_tokens: 100 },
+        },
       });
 
       // Test TLDR (should use Grok)
@@ -199,9 +200,9 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok')
+          model: expect.stringContaining('grok'),
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
 
       vi.clearAllMocks();
@@ -211,9 +212,9 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok')
+          model: expect.stringContaining('grok'),
         }),
-        expect.any(Object)
+        expect.any(Object),
       );
     });
   });
@@ -227,8 +228,8 @@ describe('OpenRouterClient', () => {
       await expect(
         client.call({
           model: 'x-ai/grok-4.1-fast',
-          messages: [{ role: 'user', content: 'Test' }]
-        })
+          messages: [{ role: 'user', content: 'Test' }],
+        }),
       ).rejects.toThrow();
 
       expect(mockAxiosInstance.post).toHaveBeenCalledTimes(1);
@@ -238,15 +239,15 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockRejectedValue({
         response: {
           status: 400,
-          data: { error: 'Bad request' }
-        }
+          data: { error: 'Bad request' },
+        },
       });
 
       await expect(
         client.call({
           model: 'x-ai/grok-4.1-fast',
-          messages: [{ role: 'user', content: 'Test' }]
-        })
+          messages: [{ role: 'user', content: 'Test' }],
+        }),
       ).rejects.toThrow();
 
       expect(mockAxiosInstance.post).toHaveBeenCalledTimes(1);
@@ -261,16 +262,16 @@ describe('OpenRouterClient', () => {
           usage: {
             prompt_tokens: 100,
             completion_tokens: 50,
-            total_tokens: 150
-          }
-        }
+            total_tokens: 150,
+          },
+        },
       };
 
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await client.call({
         model: 'x-ai/grok-4.1-fast',
-        messages: [{ role: 'user', content: 'Test' }]
+        messages: [{ role: 'user', content: 'Test' }],
       });
 
       expect(result.tokensUsed).toBeDefined();
@@ -285,18 +286,18 @@ describe('OpenRouterClient', () => {
           resolve({
             data: {
               choices: [{ message: { content: 'Response' } }],
-              usage: { total_tokens: 100 }
-            }
+              usage: { total_tokens: 100 },
+            },
           }),
-          10
-        ))
+        10,
+        )),
       );
 
       const promises = Array(10).fill(null).map(() =>
         client.call({
           model: 'x-ai/grok-4.1-fast',
-          messages: [{ role: 'user', content: 'Test' }]
-        })
+          messages: [{ role: 'user', content: 'Test' }],
+        }),
       );
 
       await Promise.all(promises);

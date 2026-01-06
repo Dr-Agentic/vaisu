@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
+
 import {
   GraphViewerLayout,
   GraphCanvas,
@@ -8,8 +9,9 @@ import {
   GraphEntityCard,
   GraphConnectionModal,
   GraphNode,
-  GraphEdge
+  GraphEdge,
 } from '../../visualizations/toolkit';
+
 import { useArgumentMapStore } from './stores/argumentMapStore';
 import { ArgumentMapProps, ArgumentNode, ArgumentEdge, transformBackendDataToArgumentMap } from './types';
 
@@ -31,7 +33,7 @@ const mapNodeToGraphNode = (node: ArgumentNode, x: number, y: number): GraphNode
   mentions: [node.metadata?.source].filter(Boolean) as string[],
   metadata: node.metadata,
   x,
-  y
+  y,
 });
 
 const mapEdgeToGraphEdge = (edge: ArgumentEdge): GraphEdge => ({
@@ -40,7 +42,7 @@ const mapEdgeToGraphEdge = (edge: ArgumentEdge): GraphEdge => ({
   target: edge.target,
   type: edge.type,
   strength: edge.strength,
-  rationale: edge.metadata?.description
+  rationale: edge.metadata?.description,
 });
 
 export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
@@ -63,7 +65,7 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
     const columns: Record<string, ArgumentNode[]> = {
       'CLAIM': [],
       'EVIDENCE': [],
-      'CONCLUSION': []
+      'CONCLUSION': [],
     };
 
     store.nodes.forEach(node => {
@@ -78,7 +80,7 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
 
     // 2. Define visual columns order
     const colOrder = ['CLAIM', 'EVIDENCE', 'OTHER', 'CONCLUSION'];
-    
+
     // 3. Calculate Positions
     const calculatedNodes: GraphNode[] = [];
     let currentX = START_X;
@@ -88,15 +90,15 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
       if (nodesInCol.length === 0) return;
 
       let currentY = START_Y;
-      
+
       nodesInCol.forEach(node => {
-        // Center the card: X is center, Y is center? 
-        // GraphEntityCard usually positions top-left if we use simple divs, 
+        // Center the card: X is center, Y is center?
+        // GraphEntityCard usually positions top-left if we use simple divs,
         // but DynamicBezierPath expects centers usually.
-        // Let's assume (x,y) is the CENTER of the card for edges, 
+        // Let's assume (x,y) is the CENTER of the card for edges,
         // but for rendering the card div we subtract width/2.
-        
-        calculatedNodes.push(mapNodeToGraphNode(node, currentX + COL_WIDTH/2, currentY));
+
+        calculatedNodes.push(mapNodeToGraphNode(node, currentX + COL_WIDTH / 2, currentY));
         currentY += 400; // Height of card + gap
       });
 
@@ -106,19 +108,19 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
     return calculatedNodes;
   }, [store.nodes]);
 
-  const graphEdges = useMemo(() => 
-    store.edges.map(mapEdgeToGraphEdge), 
+  const graphEdges = useMemo(() =>
+    store.edges.map(mapEdgeToGraphEdge),
   [store.edges]);
 
-  const activeEdge = useMemo(() => 
+  const activeEdge = useMemo(() =>
     activeEdgeId ? graphEdges.find(e => e.id === activeEdgeId) || null : null,
   [activeEdgeId, graphEdges]);
 
-  const activeSourceNode = useMemo(() => 
+  const activeSourceNode = useMemo(() =>
     activeEdge ? graphNodes.find(n => n.id === activeEdge.source) : undefined,
   [activeEdge, graphNodes]);
 
-  const activeTargetNode = useMemo(() => 
+  const activeTargetNode = useMemo(() =>
     activeEdge ? graphNodes.find(n => n.id === activeEdge.target) : undefined,
   [activeEdge, graphNodes]);
 
@@ -143,20 +145,20 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
     >
       <div ref={containerRef} className="relative w-full h-full overflow-auto bg-slate-50 blueprint-grid" onClick={handleBackgroundClick}>
         <GraphBackground />
-        
+
         {/* Render Column Headers */}
         <div className="absolute top-12 left-[100px] flex gap-[100px] pointer-events-none">
-           {['Claims', 'Evidence', 'Conclusion'].map((title, i) => (
-             <div key={title} style={{ width: COL_WIDTH }} className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
-                   <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-blue-600' : i === 1 ? 'bg-purple-600' : 'bg-pink-600 shadow-[0_0_10px_rgba(236,72,153,0.5)]'}`} />
-                   <span className={`text-[11px] font-black uppercase tracking-[0.5em] ${i === 1 ? 'text-gradient nova' : 'text-gradient'}`}>
-                     {title}
-                   </span>
-                </div>
-                <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
-             </div>
-           ))}
+          {['Claims', 'Evidence', 'Conclusion'].map((title, i) => (
+            <div key={title} style={{ width: COL_WIDTH }} className="flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-2 h-2 rounded-full ${i === 0 ? 'bg-blue-600' : i === 1 ? 'bg-purple-600' : 'bg-pink-600 shadow-[0_0_10px_rgba(236,72,153,0.5)]'}`} />
+                <span className={`text-[11px] font-black uppercase tracking-[0.5em] ${i === 1 ? 'text-gradient nova' : 'text-gradient'}`}>
+                  {title}
+                </span>
+              </div>
+              <div className="h-px w-full bg-slate-200 dark:bg-slate-800" />
+            </div>
+          ))}
         </div>
 
         <GraphCanvas>
@@ -165,14 +167,14 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
             {store.edges.map(edge => {
               const source = graphNodes.find(n => n.id === edge.source);
               const target = graphNodes.find(n => n.id === edge.target);
-              
+
               if (!source || !target) return null;
-              
+
               const isSelected = activeEdgeId === edge.id;
 
               return (
                 <g key={edge.id} onClick={(e) => { e.stopPropagation(); setActiveEdgeId(edge.id); }} className="cursor-pointer">
-                   <DynamicBezierPath
+                  <DynamicBezierPath
                     x1={source.x!}
                     y1={source.y!}
                     x2={target.x!}
@@ -181,12 +183,12 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
                     isActive={isSelected}
                   />
                   {/* Invisible hit area */}
-                  <path 
-                     d={`M ${source.x} ${source.y} L ${target.x} ${target.y}`} 
-                     stroke="transparent" 
-                     strokeWidth="20" 
-                     fill="none" 
-                     className="pointer-events-auto"
+                  <path
+                    d={`M ${source.x} ${source.y} L ${target.x} ${target.y}`}
+                    stroke="transparent"
+                    strokeWidth="20"
+                    fill="none"
+                    className="pointer-events-auto"
                   />
                 </g>
               );
@@ -204,7 +206,7 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
                 <GraphEntityCard
                   node={node}
                   isSelected={store.selectedNodeId === node.id}
-                  isRelated={false} 
+                  isRelated={false}
                   isDimmed={store.selectedNodeId !== null && store.selectedNodeId !== node.id}
                   onClick={handleNodeClick}
                 />

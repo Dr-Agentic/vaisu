@@ -3,8 +3,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { CreateTableCommand } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, CreateTableCommand } from '@aws-sdk/client-dynamodb';
+
 import {
   DYNAMODB_DOCUMENTS_TABLE,
   DYNAMODB_ANALYSES_TABLE,
@@ -32,61 +32,61 @@ const tables: TableConfig[] = [
   {
     name: DYNAMODB_DOCUMENTS_TABLE,
     primaryKey: 'id',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_ANALYSES_TABLE,
     primaryKey: 'id',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_ARGUMENT_MAP_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_DEPTH_GRAPH_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_UML_CLASS_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_MIND_MAP_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_FLOWCHART_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_TIMELINE_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
-    billingMode: 'PAY_PER_REQUEST'
-  }
+    billingMode: 'PAY_PER_REQUEST',
+  },
 ];
 
 async function createTable(client: DynamoDBClient, config: TableConfig) {
@@ -97,27 +97,27 @@ async function createTable(client: DynamoDBClient, config: TableConfig) {
     KeySchema: [
       {
         AttributeName: config.primaryKey,
-        KeyType: 'HASH'
-      }
+        KeyType: 'HASH',
+      },
     ],
     AttributeDefinitions: [
       {
         AttributeName: config.primaryKey,
-        AttributeType: 'S'
-      }
+        AttributeType: 'S',
+      },
     ],
-    BillingMode: config.billingMode || 'PAY_PER_REQUEST'
+    BillingMode: config.billingMode || 'PAY_PER_REQUEST',
   });
 
   // Add sort key if specified
   if (config.sortKey) {
     command.input.KeySchema!.push({
       AttributeName: config.sortKey,
-      KeyType: 'RANGE'
+      KeyType: 'RANGE',
     });
     command.input.AttributeDefinitions!.push({
       AttributeName: config.sortKey,
-      AttributeType: 'S'
+      AttributeType: 'S',
     });
   }
 

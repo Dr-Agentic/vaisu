@@ -1,19 +1,20 @@
 /**
  * UMLClassDiagram Component Tests
- * 
+ *
  * These tests focus on the logic and data structure validation for UML diagrams.
  * DOM testing requires additional setup with @testing-library/react and jsdom.
  */
 
 import { describe, it, expect, vi } from 'vitest';
+
 import type { UMLDiagramData } from '@shared/types';
 
 // Mock framer-motion
 vi.mock('framer-motion', () => ({
   motion: {
-    div: ({ children, ...props }: any) => <div {...props}>{children}</div>
+    div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
   },
-  AnimatePresence: ({ children }: any) => children
+  AnimatePresence: ({ children }: any) => children,
 }));
 
 const mockUMLData: UMLDiagramData = {
@@ -30,8 +31,8 @@ const mockUMLData: UMLDiagramData = {
           name: 'userRepository',
           type: 'UserRepository',
           visibility: 'private',
-          isStatic: false
-        }
+          isStatic: false,
+        },
       ],
       methods: [
         {
@@ -43,14 +44,14 @@ const mockUMLData: UMLDiagramData = {
           isAbstract: false,
           parameters: [
             { name: 'username', type: 'String' },
-            { name: 'password', type: 'String' }
-          ]
-        }
+            { name: 'password', type: 'String' },
+          ],
+        },
       ],
       description: 'Handles user authentication and management',
       sourceQuote: 'The UserService class manages user operations',
       sourceSpan: null,
-      documentLink: '#document-1'
+      documentLink: '#document-1',
     },
     {
       id: 'class-2',
@@ -65,14 +66,14 @@ const mockUMLData: UMLDiagramData = {
           visibility: 'public',
           isStatic: false,
           isAbstract: true,
-          parameters: [{ name: 'id', type: 'String' }]
-        }
+          parameters: [{ name: 'id', type: 'String' }],
+        },
       ],
       description: 'Repository interface for user data access',
       sourceQuote: 'IUserRepository defines the contract for user data operations',
       sourceSpan: null,
-      documentLink: '#document-1'
-    }
+      documentLink: '#document-1',
+    },
   ],
   relationships: [
     {
@@ -82,24 +83,24 @@ const mockUMLData: UMLDiagramData = {
       type: 'dependency',
       description: 'UserService depends on IUserRepository',
       sourceQuote: 'UserService uses IUserRepository for data access',
-      evidence: ['UserService uses IUserRepository for data access']
-    }
+      evidence: ['UserService uses IUserRepository for data access'],
+    },
   ],
   packages: [
     {
       id: 'pkg-1',
       name: 'com.example.service',
       classes: ['class-1'],
-      color: '#DBEAFE'
-    }
+      color: '#DBEAFE',
+    },
   ],
   metadata: {
     totalClasses: 2,
     totalRelationships: 1,
     extractionConfidence: 0.85,
     documentDomain: 'software',
-    generatedAt: '2024-01-01T00:00:00Z'
-  }
+    generatedAt: '2024-01-01T00:00:00Z',
+  },
 };
 
 describe('UMLClassDiagram Data Structure Tests', () => {
@@ -108,7 +109,7 @@ describe('UMLClassDiagram Data Structure Tests', () => {
     expect(mockUMLData.relationships).toBeDefined();
     expect(mockUMLData.packages).toBeDefined();
     expect(mockUMLData.metadata).toBeDefined();
-    
+
     expect(Array.isArray(mockUMLData.classes)).toBe(true);
     expect(Array.isArray(mockUMLData.relationships)).toBe(true);
     expect(Array.isArray(mockUMLData.packages)).toBe(true);
@@ -124,7 +125,7 @@ describe('UMLClassDiagram Data Structure Tests', () => {
       expect(classEntity.description).toBeDefined();
       expect(classEntity.sourceQuote).toBeDefined();
       expect(classEntity.documentLink).toBeDefined();
-      
+
       expect(typeof classEntity.id).toBe('string');
       expect(typeof classEntity.name).toBe('string');
       expect(['class', 'interface', 'abstract', 'enum']).toContain(classEntity.type);
@@ -139,7 +140,7 @@ describe('UMLClassDiagram Data Structure Tests', () => {
       expect(relationship.source).toBeDefined();
       expect(relationship.target).toBeDefined();
       expect(relationship.type).toBeDefined();
-      
+
       expect(typeof relationship.id).toBe('string');
       expect(typeof relationship.source).toBe('string');
       expect(typeof relationship.target).toBeDefined();
@@ -150,13 +151,13 @@ describe('UMLClassDiagram Data Structure Tests', () => {
 
   it('should validate metadata structure', () => {
     const metadata = mockUMLData.metadata;
-    
+
     expect(typeof metadata.totalClasses).toBe('number');
     expect(typeof metadata.totalRelationships).toBe('number');
     expect(typeof metadata.extractionConfidence).toBe('number');
     expect(typeof metadata.documentDomain).toBe('string');
     expect(typeof metadata.generatedAt).toBe('string');
-    
+
     expect(metadata.totalClasses).toBeGreaterThanOrEqual(0);
     expect(metadata.totalRelationships).toBeGreaterThanOrEqual(0);
     expect(metadata.extractionConfidence).toBeGreaterThanOrEqual(0);
@@ -173,8 +174,8 @@ describe('UMLClassDiagram Data Structure Tests', () => {
         totalRelationships: 0,
         extractionConfidence: 0,
         documentDomain: 'general',
-        generatedAt: '2024-01-01T00:00:00Z'
-      }
+        generatedAt: '2024-01-01T00:00:00Z',
+      },
     };
 
     expect(emptyData.classes.length).toBe(0);
@@ -188,7 +189,7 @@ describe('UMLClassDiagram Data Structure Tests', () => {
       visibleStereotypes: new Set(['service', 'repository']),
       visiblePackages: new Set(['com.example.service']),
       visibleRelationships: new Set(['inheritance', 'dependency']),
-      searchQuery: ''
+      searchQuery: '',
     };
 
     expect(mockFilters.visibleTypes instanceof Set).toBe(true);
@@ -212,7 +213,7 @@ describe('UMLClassDiagram Data Structure Tests', () => {
 
   it('should validate position structure', () => {
     const mockPosition = { x: 100, y: 200 };
-    
+
     expect(typeof mockPosition.x).toBe('number');
     expect(typeof mockPosition.y).toBe('number');
     expect(mockPosition.x).toBeGreaterThanOrEqual(0);
@@ -222,12 +223,12 @@ describe('UMLClassDiagram Data Structure Tests', () => {
   it('should validate callback function types', () => {
     const mockCallbacks = {
       onClassSelect: vi.fn(),
-      onExport: vi.fn()
+      onExport: vi.fn(),
     };
 
     expect(typeof mockCallbacks.onClassSelect).toBe('function');
     expect(typeof mockCallbacks.onExport).toBe('function');
-    
+
     // Test callback execution
     const mockClass = mockUMLData.classes[0];
     mockCallbacks.onClassSelect(mockClass);

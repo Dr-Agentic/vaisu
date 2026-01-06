@@ -14,6 +14,7 @@
  */
 
 import { forwardRef } from 'react';
+
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
 
@@ -42,7 +43,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
       message = 'Analyzing document...',
       subMessage = 'Extracting structure and relationships',
     },
-    ref
+    ref,
   ) => {
     const { progressMessage, progressPercent, document } = useDocumentStore();
 
@@ -59,11 +60,11 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
           'flex-col',
           'items-center',
           'justify-center',
-          'text-center'
+          'text-center',
         )}
       >
         {document && (
-          <div 
+          <div
             className="mb-4 font-mono opacity-50 text-xs"
             style={{ color: 'var(--color-text-tertiary)' }}
           >
@@ -131,7 +132,7 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 StageAnalysis.displayName = 'StageAnalysis';

@@ -217,21 +217,21 @@ export interface BackendArgumentMapData {
  * Transform backend data format to frontend format
  */
 export const transformBackendDataToArgumentMap = (
-  backendData: BackendArgumentMapData
+  backendData: BackendArgumentMapData,
 ): ArgumentMapData => {
   // Map lowercase types to uppercase
   const typeMap: Record<string, ArgumentNodeType> = {
     'claim': 'CLAIM',
     'argument': 'EVIDENCE', // Arguments support claims, treat as evidence
     'evidence': 'EVIDENCE',
-    'conclusion': 'CONCLUSION'
+    'conclusion': 'CONCLUSION',
   };
 
   const relationshipMap: Record<string, RelationshipType> = {
     'supports': 'SUPPORTS',
     'contradicts': 'CONTRADICTS',
     'elaborates': 'ELABORATES',
-    'depends_on': 'DEPENDS_ON'
+    'depends_on': 'DEPENDS_ON',
   };
 
   const nodes: ArgumentNode[] = backendData.nodes.map(node => ({
@@ -243,7 +243,7 @@ export const transformBackendDataToArgumentMap = (
       ...node.metadata,
       source: node.metadata?.source || node.label,
       category: node.impact,
-      description: node.summary
+      description: node.summary,
     },
     // position is calculated dynamically during rendering; not copying from backend data
   }));
@@ -256,8 +256,8 @@ export const transformBackendDataToArgumentMap = (
     strength: edge.strength,
     metadata: {
       ...edge.metadata,
-      description: edge.rationale
-    }
+      description: edge.rationale,
+    },
   }));
 
   return {
@@ -266,7 +266,7 @@ export const transformBackendDataToArgumentMap = (
     config: {
       layout: 'HIERARCHICAL',
       clustering: false,
-      semanticGrouping: false
-    }
+      semanticGrouping: false,
+    },
   };
 };

@@ -1,9 +1,10 @@
+import { Upload, FileText } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { Upload, FileText } from 'lucide-react';
-import { useDocumentStore } from '../../../stores/documentStore';
+
 import { Card } from '../../../design-system/components/Card';
 import { cn } from '../../../lib/utils';
+import { useDocumentStore } from '../../../stores/documentStore';
 
 export function FileUploader() {
   const { uploadDocument, isLoading, progressMessage, progressPercent, addToast } = useDocumentStore();
@@ -26,21 +27,21 @@ export function FileUploader() {
           type: 'error',
           title: 'File too large',
           message: `The file "${rejection.file.name}" is ${fileSizeMB}MB. Maximum size is 1GB.`,
-          duration: 0
+          duration: 0,
         });
       } else if (errors.some((e: any) => e.code === 'file-invalid-type')) {
         addToast({
           type: 'error',
           title: 'Invalid file type',
           message: `The file "${rejection.file.name}" is not supported. Please upload .txt, .pdf, or .md files.`,
-          duration: 0
+          duration: 0,
         });
       } else {
         addToast({
           type: 'error',
           title: 'Upload rejected',
           message: errors[0]?.message || 'File could not be uploaded',
-          duration: 0
+          duration: 0,
         });
       }
     }
@@ -53,11 +54,11 @@ export function FileUploader() {
     accept: {
       'text/plain': ['.txt'],
       'application/pdf': ['.pdf'],
-      'text/markdown': ['.md']
+      'text/markdown': ['.md'],
     },
     maxFiles: 1,
     maxSize: 1024 * 1024 * 1024, // 1GB
-    disabled: isLoading
+    disabled: isLoading,
   });
 
   return (
@@ -70,7 +71,7 @@ export function FileUploader() {
         'border-2 border-dashed cursor-pointer text-center transition-all duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)]',
         isDragActive && 'scale-[1.01] shadow-[var(--elevation-lg)]',
         isLoading && 'opacity-50 cursor-not-allowed',
-        'hover:border-[var(--color-border-strong)]'
+        'hover:border-[var(--color-border-strong)]',
       )}
       style={{
         borderColor: isDragActive

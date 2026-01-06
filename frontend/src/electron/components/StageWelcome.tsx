@@ -11,6 +11,7 @@
  */
 
 import { forwardRef } from 'react';
+
 import { Button } from '../../design-system/components/Button';
 import { cn } from '../../lib/utils';
 
@@ -50,7 +51,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
       subtitle = 'Transform text into intelligent visual representations',
       buttonText = 'Get Started',
     },
-    ref
+    ref,
   ) => {
     return (
       <div
@@ -62,7 +63,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
           'items-center',
           'justify-center',
           'text-center',
-          'hero-bg'
+          'hero-bg',
         )}
         style={{
           backgroundColor: 'var(--color-background-primary)',
@@ -75,7 +76,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
               'mb-4',
               'text-gradient-glow',
               'font-bold',
-              'leading-tight'
+              'leading-tight',
             )}
             style={{
               fontSize: 'var(--font-size-6xl)',
@@ -110,7 +111,7 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 StageWelcome.displayName = 'StageWelcome';

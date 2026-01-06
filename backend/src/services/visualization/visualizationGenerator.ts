@@ -1,3 +1,5 @@
+import { visualizationService } from '../../repositories/visualizationService.js';
+
 import type {
   Document,
   DocumentAnalysis,
@@ -18,9 +20,8 @@ import type {
   ArgumentMapData,
   ArgumentNode,
   ArgumentEdge,
-  ArgumentPolarity
+  ArgumentPolarity,
 } from '../../../../shared/src/types.js';
-import { visualizationService } from '../../repositories/visualizationService.js';
 
 // Internal types for LLM extraction
 interface UMLExtractionResult {
@@ -69,7 +70,7 @@ export class VisualizationGenerator {
   async generateVisualization(
     type: VisualizationType,
     document: Document,
-    analysis: DocumentAnalysis
+    analysis: DocumentAnalysis,
   ): Promise<any> {
     try {
       // First, check if visualization already exists in DynamoDB (skip for structured-view as it's stored in analyses table)
@@ -77,7 +78,7 @@ export class VisualizationGenerator {
       if (type !== 'structured-view') {
         existingVisualization = await visualizationService.findByDocumentIdAndType(
           document.id,
-          type
+          type,
         );
       }
 
@@ -93,11 +94,11 @@ export class VisualizationGenerator {
 
       // Generate visualization based on type
       let visualizationData: any;
-      let llmMetadata = {
+      const llmMetadata = {
         model: 'unknown',
         tokensUsed: 0,
         processingTime: 0,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const startTime = Date.now();
@@ -106,7 +107,7 @@ export class VisualizationGenerator {
         case 'structured-view':
           console.log(`🎯 Generating structured-view visualization for document ${document.id}`);
           visualizationData = this.generateStructuredView(document);
-          console.log(`✅ Structured-view generation completed`);
+          console.log('✅ Structured-view generation completed');
           break;
 
         case 'mind-map':
@@ -166,7 +167,7 @@ export class VisualizationGenerator {
           visualizationData,
           llmMetadata,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
 
         await visualizationService.create(visualizationRecord);
@@ -174,7 +175,6 @@ export class VisualizationGenerator {
       }
 
       return visualizationData;
-
     } catch (error) {
       console.error(`❌ Failed to generate ${type} visualization for document ${document.id}:`, error);
       throw new Error(`Failed to generate ${type} visualization: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -183,31 +183,31 @@ export class VisualizationGenerator {
 
   private generateStructuredView(document: Document) {
     console.log(`🏗️ generateStructuredView called for document: ${document.title}`);
-    console.log(`📊 Document structure:`, {
+    console.log('📊 Document structure:', {
       sectionsCount: document.structure.sections.length,
       hierarchyLength: document.structure.hierarchy.length,
-      totalLines: document.content.split('\\n').length
+      totalLines: document.content.split('\\n').length,
     });
 
     // Debug document structure content
-    console.log(`📋 First 3 sections:`, document.structure.sections.slice(0, 3).map(s => ({
+    console.log('📋 First 3 sections:', document.structure.sections.slice(0, 3).map(s => ({
       id: s.id,
       title: s.title,
       childrenCount: s.children?.length || 0,
-      contentLength: s.content.length
+      contentLength: s.content.length,
     })));
 
     // Return the document structure with sections
     const result = {
       type: 'structured-view',
       sections: document.structure.sections,
-      hierarchy: document.structure.hierarchy
+      hierarchy: document.structure.hierarchy,
     };
 
-    console.log(`✅ generateStructuredView returning:`, {
+    console.log('✅ generateStructuredView returning:', {
       type: result.type,
       sectionsCount: result.sections.length,
-      hierarchyLength: result.hierarchy.length
+      hierarchyLength: result.hierarchy.length,
     });
 
     return result;
@@ -240,8 +240,8 @@ export class VisualizationGenerator {
             secondary: '#7C3AED',
             accent: '#10B981',
             background: '#FFFFFF',
-            text: '#1F2937'
-          }
+            text: '#1F2937',
+          },
         };
       }
     } catch (error) {
@@ -269,47 +269,47 @@ export class VisualizationGenerator {
       detailedExplanation: node.detailedExplanation || node.summary || 'No additional details available.',
       sourceTextExcerpt: node.sourceTextExcerpt,
       children: (node.children || []).map((child: any) =>
-        this.convertLLMNodeToMindMapNode(child, level + 1)
+        this.convertLLMNodeToMindMapNode(child, level + 1),
       ),
-      level: level,
+      level,
       color: colors[colorIndex],
       sourceRef: { start: 0, end: 0, text: '' },
       metadata: {
         importance: node.importance || Math.max(0.3, 0.9 - (level * 0.15)),
-        confidence: 0.85
-      }
+        confidence: 0.85,
+      },
     };
   }
 
-  
+
   private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
     const colors = ['#4F46E5', '#7C3AED', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#06B6D4'];
     const fallbackEmojis = ['📊', '🔧', '💡', '🌐', '📈', '⚙️', '🏗️'];
 
     return sections.map((section, index) => {
       const colorIndex = level % colors.length;
-      const summary = section.summary || section.content.substring(0, 100) + '...';
+      const summary = section.summary || `${section.content.substring(0, 100)}...`;
 
       return {
         id: section.id,
         label: section.title,
         subtitle: summary.substring(0, 40),
         icon: fallbackEmojis[index % fallbackEmojis.length],
-        summary: summary,
+        summary,
         detailedExplanation: section.summary || section.content.substring(0, 300),
         sourceTextExcerpt: section.content.substring(0, 200),
         children: section.children ? this.convertSectionsToMindMapNodes(section.children, level + 1) : [],
-        level: level,
+        level,
         color: colors[colorIndex],
         sourceRef: {
           start: section.startIndex || 0,
           end: section.endIndex || 0,
-          text: section.content.substring(0, 50)
+          text: section.content.substring(0, 50),
         },
         metadata: {
           importance: Math.max(0.3, 0.9 - (level * 0.15)),
-          confidence: 0.85
-        }
+          confidence: 0.85,
+        },
       };
     });
   }
@@ -318,12 +318,12 @@ export class VisualizationGenerator {
     // Simple flowchart from sections
     const nodes = document.structure.sections.map((section, index) => ({
       id: section.id,
-      type: index === 0 ? 'start' :
-        index === document.structure.sections.length - 1 ? 'end' :
-          'process' as any,
+      type: index === 0 ? 'start'
+        : index === document.structure.sections.length - 1 ? 'end'
+          : 'process' as any,
       label: section.title,
       description: section.summary || '',
-      position: { x: 100, y: 100 + (index * 150) }
+      position: { x: 100, y: 100 + (index * 150) },
     }));
 
     const edges = [];
@@ -332,14 +332,14 @@ export class VisualizationGenerator {
         id: `edge-${i}`,
         source: nodes[i].id,
         target: nodes[i + 1].id,
-        type: 'solid' as any
+        type: 'solid' as any,
       });
     }
 
     return {
       nodes,
       edges,
-      layout: 'topToBottom'
+      layout: 'topToBottom',
     };
   }
 
@@ -378,8 +378,8 @@ export class VisualizationGenerator {
             connections: 0,
             description: node.description || '',
             sourceQuote: node.sourceQuote || '',
-            sourceSpan: node.sourceSpan || undefined
-          }
+            sourceSpan: node.sourceSpan || undefined,
+          },
         }));
 
         // Convert LLM edges to knowledge graph structure
@@ -391,7 +391,7 @@ export class VisualizationGenerator {
             type: rel.type || 'relates-to',
             strength: rel.strength || 0.5,
             label: rel.label || rel.type || 'relates-to',
-            evidence: rel.evidence || []
+            evidence: rel.evidence || [],
           }))
           .filter((edge: any) => edge.source && edge.target);
 
@@ -415,7 +415,7 @@ export class VisualizationGenerator {
         const hierarchy = parsed.hierarchy || {
           rootNodes: nodes.filter(n => !validEdges.some(e => e.target === n.id)).map(n => n.id),
           maxDepth: 0,
-          nodeDepths: nodes.reduce((acc, node) => ({ ...acc, [node.id]: 0 }), {})
+          nodeDepths: nodes.reduce((acc, node) => ({ ...acc, [node.id]: 0 }), {}),
         };
 
         console.log(`✅ Knowledge graph generated: ${nodes.length} nodes, ${validEdges.length} edges`);
@@ -424,7 +424,7 @@ export class VisualizationGenerator {
           nodes,
           edges: validEdges,
           clusters: parsed.clusters || [], // Computed on frontend if not provided
-          hierarchy
+          hierarchy,
         };
       }
     } catch (error) {
@@ -448,7 +448,7 @@ export class VisualizationGenerator {
 
   private buildHierarchy(
     nodes: any[],
-    hierarchicalEdges: any[]
+    hierarchicalEdges: any[],
   ): HierarchyInfo {
     const nodeDepths = new Map<string, number>();
     const parentMap = new Map<string, string>();
@@ -493,7 +493,7 @@ export class VisualizationGenerator {
     return {
       rootNodes,
       maxDepth,
-      nodeDepths
+      nodeDepths,
     };
   }
 
@@ -504,9 +504,9 @@ export class VisualizationGenerator {
         title: 'Key Metrics',
         data: analysis.executiveSummary.kpis.map(kpi => ({
           name: kpi.label,
-          value: kpi.value
-        }))
-      }
+          value: kpi.value,
+        })),
+      },
     ];
 
     // Add Signals Chart if available
@@ -517,15 +517,15 @@ export class VisualizationGenerator {
         data: Object.entries(analysis.signals).map(([key, value]) => ({
           subject: key.charAt(0).toUpperCase() + key.slice(1),
           A: value,
-          fullMark: 1
-        }))
+          fullMark: 1,
+        })),
       });
     }
 
     return {
       executiveCard: analysis.executiveSummary,
       kpiTiles: analysis.executiveSummary.kpis,
-      charts
+      charts,
     };
   }
 
@@ -539,18 +539,18 @@ export class VisualizationGenerator {
       description: entity.context || '',
       date: new Date(), // TODO: parse actual date
       category: 'general',
-      color: '#4F46E5'
+      color: '#4F46E5',
     }));
 
     return {
       events,
-      scale: 'month'
+      scale: 'month',
     };
   }
 
   private async generateTermsDefinitions(
     document: Document,
-    analysis: DocumentAnalysis
+    analysis: DocumentAnalysis,
   ): Promise<TermsDefinitionsData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
@@ -573,7 +573,7 @@ export class VisualizationGenerator {
             type: t.type || 'concept',
             confidence: t.confidence || 0.8,
             mentions: t.mentions || 1,
-            context: t.context
+            context: t.context,
           }))
           .sort((a, b) => a.term.localeCompare(b.term));
 
@@ -582,8 +582,8 @@ export class VisualizationGenerator {
           metadata: {
             totalTerms: sortedTerms.length,
             extractionConfidence: 0.85,
-            documentDomain: parsed.domain || 'general'
-          }
+            documentDomain: parsed.domain || 'general',
+          },
         };
       }
     } catch (error) {
@@ -595,10 +595,10 @@ export class VisualizationGenerator {
     throw new Error('Unable to generate terms and definitions visualization. Please check your document content and try again. The document may not contain enough technical terms for extraction.');
   }
 
-  
+
   private async generateUMLClassDiagram(
     document: Document,
-    analysis: DocumentAnalysis
+    analysis: DocumentAnalysis,
   ): Promise<UMLDiagramData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
@@ -627,7 +627,7 @@ export class VisualizationGenerator {
   private buildUMLExtractionPrompt(
     document: Document,
     analysis: DocumentAnalysis,
-    content: string
+    content: string,
   ): string {
     const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
@@ -651,7 +651,7 @@ Output the result as a JSON object matching the defined schema.`;
 
   private processUMLExtraction(
     parsed: UMLExtractionResult,
-    document: Document
+    document: Document,
   ): UMLDiagramData {
     // Process classes
     const classes: ClassEntity[] = parsed.classes.map((cls, index) => ({
@@ -662,16 +662,16 @@ Output the result as a JSON object matching the defined schema.`;
       package: cls.package,
       attributes: (cls.attributes || []).map((attr, attrIndex) => ({
         ...attr,
-        id: `attr-${index}-${attrIndex}`
+        id: `attr-${index}-${attrIndex}`,
       })),
       methods: (cls.methods || []).map((method, methodIndex) => ({
         ...method,
-        id: `method-${index}-${methodIndex}`
+        id: `method-${index}-${methodIndex}`,
       })),
       description: cls.description || '',
       sourceQuote: cls.sourceQuote || '',
       sourceSpan: this.findTextSpan(document.content, cls.sourceQuote || ''),
-      documentLink: `#document-${document.id}`
+      documentLink: `#document-${document.id}`,
     }));
 
     // Create class name to ID mapping
@@ -700,7 +700,7 @@ Output the result as a JSON object matching the defined schema.`;
           label: rel.label,
           description: rel.description || '',
           sourceQuote: rel.evidence || '',
-          evidence: [rel.evidence || '']
+          evidence: [rel.evidence || ''],
         };
       })
       .filter((rel): rel is UMLRelationship => rel !== null);
@@ -710,7 +710,7 @@ Output the result as a JSON object matching the defined schema.`;
       id: `pkg-${index}`,
       name: pkg.name,
       classes: pkg.classes.map(name => nameToId.get(name)).filter(Boolean) as string[],
-      color: this.getPackageColor(index)
+      color: this.getPackageColor(index),
     })) || [];
 
     return {
@@ -722,8 +722,8 @@ Output the result as a JSON object matching the defined schema.`;
         totalRelationships: relationships.length,
         extractionConfidence: 0.85,
         documentDomain: this.detectDomain(document.content),
-        generatedAt: new Date().toISOString()
-      }
+        generatedAt: new Date().toISOString(),
+      },
     };
   }
 
@@ -736,7 +736,7 @@ Output the result as a JSON object matching the defined schema.`;
     return {
       start: index,
       end: index + quote.length,
-      text: quote
+      text: quote,
     };
   }
 
@@ -750,20 +750,20 @@ Output the result as a JSON object matching the defined schema.`;
       'web': ['http', 'api', 'rest', 'endpoint', 'controller'],
       'database': ['table', 'query', 'repository', 'entity', 'orm'],
       'business': ['service', 'transaction', 'workflow', 'process'],
-      'ui': ['component', 'view', 'render', 'template', 'widget']
+      'ui': ['component', 'view', 'render', 'template', 'widget'],
     };
 
     const lowerContent = content.toLowerCase();
     const scores = Object.entries(keywords).map(([domain, words]) => ({
       domain,
-      score: words.filter(word => lowerContent.includes(word)).length
+      score: words.filter(word => lowerContent.includes(word)).length,
     }));
 
     scores.sort((a, b) => b.score - a.score);
     return scores[0]?.domain || 'general';
   }
 
-  
+
   private mapRelationshipType(type: string): UMLRelationship['type'] {
     const mapping: Record<string, UMLRelationship['type']> = {
       'extends': 'inheritance',
@@ -771,7 +771,7 @@ Output the result as a JSON object matching the defined schema.`;
       'contains': 'composition',
       'has': 'aggregation',
       'uses': 'dependency',
-      'relates-to': 'association'
+      'relates-to': 'association',
     };
 
     return mapping[type] || 'association';
@@ -779,7 +779,7 @@ Output the result as a JSON object matching the defined schema.`;
 
   private async generateArgumentMap(
     document: Document,
-    analysis: DocumentAnalysis
+    analysis: DocumentAnalysis,
   ): Promise<ArgumentMapData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
@@ -852,7 +852,7 @@ Node Schema:
           depthMetrics: node.depthMetrics,
           source: node.source,
           parentId: node.parentId,
-          isCollapsed: node.isCollapsed ?? false
+          isCollapsed: node.isCollapsed ?? false,
         }));
 
         // Ensure all edges have required fields
@@ -862,7 +862,7 @@ Node Schema:
           target: edge.target,
           type: edge.type || 'supports',
           strength: edge.strength ?? 0.8,
-          rationale: edge.rationale
+          rationale: edge.rationale,
         }));
 
         return {
@@ -871,8 +871,8 @@ Node Schema:
           metadata: parsed.metadata || {
             mainClaimId: nodes.length > 0 ? nodes[0].id : '',
             totalClaims: nodes.filter(n => n.type === 'claim').length,
-            totalEvidence: nodes.filter(n => n.type === 'evidence').length
-          }
+            totalEvidence: nodes.filter(n => n.type === 'evidence').length,
+          },
         };
       }
     } catch (error) {
@@ -884,7 +884,7 @@ Node Schema:
     throw new Error('Unable to generate argument map visualization. Please check your document content and try again. The document may not contain sufficient argumentative structure for analysis.');
   }
 
-  
+
   private getEntityColor(type: string): string {
     const colors: Record<string, string> = {
       person: '#3B82F6',
@@ -894,7 +894,7 @@ Node Schema:
       product: '#EF4444',
       metric: '#06B6D4',
       date: '#EC4899',
-      technical: '#6366F1'
+      technical: '#6366F1',
     };
     return colors[type] || '#6B7280';
   }

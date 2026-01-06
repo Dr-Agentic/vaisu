@@ -1,9 +1,10 @@
 import { create } from 'zustand';
+
 import type {
   UMLDiagramData,
   ClassEntity,
   UMLRelationship,
-  Position
+  Position,
 } from '@shared/types';
 
 export interface FilterState {
@@ -69,7 +70,7 @@ const defaultFilters: FilterState = {
   visibleStereotypes: new Set(),
   visiblePackages: new Set(),
   visibleRelationships: new Set(['inheritance', 'realization', 'composition', 'aggregation', 'association', 'dependency']),
-  searchQuery: ''
+  searchQuery: '',
 };
 
 export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
@@ -97,21 +98,21 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
     const availableStereotypes = new Set(
       data.classes
         .map(c => c.stereotype)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[],
     );
 
     const availablePackages = new Set(
       data.classes
         .map(c => c.package)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[],
     );
 
     set(state => ({
       filters: {
         ...state.filters,
         visibleStereotypes: availableStereotypes,
-        visiblePackages: availablePackages
-      }
+        visiblePackages: availablePackages,
+      },
     }));
   },
 
@@ -137,7 +138,7 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
 
       return {
         selectedClassIds: newSelection,
-        selectedRelationshipIds: new Set() // Clear relationship selection
+        selectedRelationshipIds: new Set(), // Clear relationship selection
       };
     });
   },
@@ -145,14 +146,14 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
   selectRelationship: (id) => {
     set({
       selectedRelationshipIds: new Set([id]),
-      selectedClassIds: new Set() // Clear class selection
+      selectedClassIds: new Set(), // Clear class selection
     });
   },
 
   clearSelection: () => {
     set({
       selectedClassIds: new Set(),
-      selectedRelationshipIds: new Set()
+      selectedRelationshipIds: new Set(),
     });
   },
 
@@ -161,19 +162,19 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
       set({
         hoveredElement: element,
         tooltipVisible: true,
-        tooltipPosition: position
+        tooltipPosition: position,
       });
     } else {
       set({
         hoveredElement: null,
-        tooltipVisible: false
+        tooltipVisible: false,
       });
     }
   },
 
   applyFilters: (newFilters) => {
     set(state => ({
-      filters: { ...state.filters, ...newFilters }
+      filters: { ...state.filters, ...newFilters },
     }));
   },
 
@@ -184,21 +185,21 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
     const availableStereotypes = new Set(
       data.classes
         .map(c => c.stereotype)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[],
     );
 
     const availablePackages = new Set(
       data.classes
         .map(c => c.package)
-        .filter(Boolean) as string[]
+        .filter(Boolean) as string[],
     );
 
     set({
       filters: {
         ...defaultFilters,
         visibleStereotypes: availableStereotypes,
-        visiblePackages: availablePackages
-      }
+        visiblePackages: availablePackages,
+      },
     });
   },
 
@@ -213,7 +214,7 @@ export const useUMLDiagramStore = create<UMLDiagramState>((set, get) => ({
       zoom: 1.0,
       pan: { x: 0, y: 0 },
       selectedClassIds: new Set(),
-      selectedRelationshipIds: new Set()
+      selectedRelationshipIds: new Set(),
     });
-  }
+  },
 }));
