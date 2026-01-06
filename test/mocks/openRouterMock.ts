@@ -399,7 +399,7 @@ export function createMockOpenRouterClient() {
       };
     }),
 
-    parseJSONResponse: vi.fn().mockImplementation(async (response: any) => {
+    parseJSONResponse: vi.fn((response: any) => {
       return JSON.parse(response.content);
     })
   };

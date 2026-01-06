@@ -14,6 +14,8 @@ describe('TextAnalyzer', () => {
 
   beforeEach(() => {
     mockLLMClient = createMockOpenRouterClient();
+    // Explicitly set the implementation to ensure it works as expected with spies
+    mockLLMClient.parseJSONResponse = vi.fn((response: any) => JSON.parse(response.content));
     analyzer = new TextAnalyzer(mockLLMClient);
   });
 

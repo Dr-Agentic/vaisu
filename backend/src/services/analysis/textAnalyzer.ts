@@ -121,7 +121,7 @@ export class TextAnalyzer {
     const response = await this.llmClient.callWithFallback('executiveSummary', sample);
 
     try {
-      const parsed = JSON.parse(response.content) as ExecutiveSummary;
+      const parsed = this.llmClient.parseJSONResponse<ExecutiveSummary>(response);
 
       // Validate and filter KPIs to ensure they have valid numeric values
       const validKpis = (parsed.kpis || []).filter(kpi =>
@@ -223,7 +223,7 @@ export class TextAnalyzer {
     const response = await this.llmClient.callWithFallback('signalAnalysis', sample);
 
     try {
-      const parsed = JSON.parse(response.content) as SignalAnalysis;
+      const parsed = this.llmClient.parseJSONResponse<SignalAnalysis>(response);
       return parsed;
     } catch (error) {
       console.error('Failed to parse signals, using defaults');
@@ -287,7 +287,7 @@ ${document.content.substring(0, 1000)}`;
     const response = await this.llmClient.callWithFallback('vizRecommendation', prompt);
 
     try {
-      const parsed = JSON.parse(response.content) as { recommendations: VisualizationRecommendation[] };
+      const parsed = this.llmClient.parseJSONResponse<{ recommendations: VisualizationRecommendation[] }>(response);
 
       // Always include structured-view as default
       const recommendations = parsed.recommendations || [];

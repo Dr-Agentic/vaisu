@@ -120,13 +120,33 @@ export class OpenRouterClient {
 
   parseJSONResponse<T>(response: LLMResponse): T {
     try {
-      // Try to extract JSON from markdown code blocks if present
       let content = response.content.trim();
 
-      // Remove markdown code blocks
-      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\}|\[[\s\S]*\])\s*```/);
-      if (jsonMatch) {
-        content = jsonMatch[1];
+      // 1. Try to extract from markdown code blocks
+      // Match ```json ... ``` or just ``` ... ```
+      const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+      if (codeBlockMatch) {
+        content = codeBlockMatch[1];
+      }
+
+      // 2. Find the JSON object/array boundaries
+      // This handles cases where there's text outside the code block or no code block at all
+      const firstCurly = content.indexOf('{');
+      const firstSquare = content.indexOf('[');
+      let startIndex = -1;
+      let endIndex = -1;
+
+      // Determine if it's likely an object or an array
+      if (firstCurly !== -1 && (firstSquare === -1 || firstCurly < firstSquare)) {
+        startIndex = firstCurly;
+        endIndex = content.lastIndexOf('}') + 1;
+      } else if (firstSquare !== -1) {
+        startIndex = firstSquare;
+        endIndex = content.lastIndexOf(']') + 1;
+      }
+
+      if (startIndex !== -1 && endIndex > startIndex) {
+        content = content.substring(startIndex, endIndex);
       }
 
       return JSON.parse(content) as T;
