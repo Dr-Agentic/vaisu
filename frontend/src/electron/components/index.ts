@@ -32,6 +32,7 @@ export {
   type VisualizationSidebarProps,
   type VisualizationType,
   type VisualizationOption,
+  type DocumentSummary,
 } from './VisualizationSidebar';
 export { VisualizationRenderer } from './VisualizationRenderer';
 

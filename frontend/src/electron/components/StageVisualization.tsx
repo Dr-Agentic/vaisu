@@ -3,7 +3,6 @@
  *
  * Full visualization stage with sidebar, canvas, and toolbar.
  * Supports keyboard shortcuts and fullscreen mode.
- * Updated: ThemeToggle added, unused buttons removed.
  *
  * @example
  * ```tsx
@@ -16,12 +15,15 @@
 
 import {
   ArrowLeft,
+  X,
   Menu,
+  Info,
+  Maximize,
+  Minimize,
 } from 'lucide-react';
 import { useEffect, useState, forwardRef, useCallback } from 'react';
 
 import { Button } from '../../design-system/components/Button';
-import { ThemeToggle } from '../../design-system/components/ThemeToggle';
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
 
@@ -39,7 +41,7 @@ export interface StageVisualizationProps {
  * StageVisualization
  *
  * Full visualization workspace with header, sidebar, canvas, and toolbar.
- * Includes keyboard shortcuts (1-6 for viz, Esc to exit).
+ * Includes keyboard shortcuts (1-6 for viz, F for fullscreen, Esc to exit).
  * Uses SOTA void background colors and mesh-glow effects.
  */
 export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationProps>(
@@ -52,6 +54,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
     } = useDocumentStore();
 
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [summaryVisible, setSummaryVisible] = useState(true);
+    const [canvasFullscreen, setCanvasFullscreen] = useState(false);
 
     // Keyboard shortcuts
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -73,6 +77,22 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         }
       }
 
+      // Fullscreen: F or f (only when not in input fields)
+      if ((e.key === 'f' || e.key === 'F')
+          && !(e.target instanceof HTMLInputElement
+            || e.target instanceof HTMLTextAreaElement
+            || e.target instanceof HTMLSelectElement)) {
+        e.preventDefault();
+        toggleCanvasFullscreen();
+      }
+
+      // Esc: exit fullscreen or go back
+      if (e.key === 'Escape') {
+        if (canvasFullscreen) {
+          toggleCanvasFullscreen();
+        }
+      }
+
       // Sidebar toggle: S or s (only when not in input fields)
       if ((e.key === 's' || e.key === 'S')
           && !(e.target instanceof HTMLInputElement
@@ -81,7 +101,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         e.preventDefault();
         setSidebarCollapsed(!sidebarCollapsed);
       }
-    }, [currentVisualization, sidebarCollapsed, setCurrentVisualization]);
+    }, [currentVisualization, canvasFullscreen, sidebarCollapsed, setCurrentVisualization]);
 
     useEffect(() => {
       window.addEventListener('keydown', handleKeyDown);
@@ -92,9 +112,24 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
       setSidebarCollapsed(!sidebarCollapsed);
     };
 
+    const toggleSummary = () => {
+      setSummaryVisible(!summaryVisible);
+    };
+
+    const toggleCanvasFullscreen = () => {
+      setCanvasFullscreen(!canvasFullscreen);
+    };
+
     const handleVizChange = (viz: VisualizationType) => {
       setCurrentVisualization(viz);
     };
+
+    // Summary data for sidebar
+    const summary = document ? {
+      tlrd: document.analysis?.tldr ? (typeof document.analysis.tldr === 'string' ? document.analysis.tldr : document.analysis.tldr.text) : '',
+      keyEntities: document.analysis?.entities?.slice(0, 5).map(e => e.text) || [],
+      wordCount: document.metadata.wordCount,
+    } : undefined;
 
     if (!document) {
       return (
@@ -129,8 +164,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         {/* Header */}
         <header
           className={cn(
-            'h-[var(--spacing-16)]',
-            'px-[var(--spacing-lg)]',
+            'h-[60px]',
+            'px-6',
             'border-b',
             'flex',
             'items-center',
@@ -156,7 +191,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               </h3>
               <span
                 className="font-mono opacity-50"
-                style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-tertiary)' }}
+                style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}
               >
                 ID: {document.id}
               </span>
@@ -194,7 +229,24 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             >
               <span />
             </Button>
-            <ThemeToggle variant="outline" />
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={<Info className="w-4 h-4" />}
+              onClick={toggleSummary}
+              title="Toggle Summary"
+            >
+              <span />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              leftIcon={canvasFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+              onClick={toggleCanvasFullscreen}
+              title="Fullscreen (F)"
+            >
+              <span />
+            </Button>
           </div>
         </header>
 
@@ -204,7 +256,11 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
           <VisualizationSidebar
             currentViz={currentVisualization}
             onVizChange={handleVizChange}
+            summary={summary}
+            summaryVisible={summaryVisible}
+            onToggleSummary={toggleSummary}
             collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebar}
           />
 
           {/* Visualization Canvas */}
@@ -212,17 +268,36 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             className={cn(
               'flex-1',
               'relative',
-              'overflow-hidden',
+              'overflow-auto',
               'mesh-glow',
+              canvasFullscreen && [
+                'fixed',
+                'inset-0',
+                'z-[50]',
+              ],
             )}
             style={{
               backgroundColor: 'var(--color-background-primary)',
             }}
           >
             {/* Visualization Renderer */}
-            <div className="w-full h-full flex flex-col">
+            <div className="w-full h-full">
               <VisualizationRenderer />
             </div>
+
+            {/* Close fullscreen button */}
+            {canvasFullscreen && (
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<X className="w-4 h-4" />}
+                onClick={toggleCanvasFullscreen}
+                className="absolute top-4 right-4 z-[51]"
+                title="Exit Fullscreen (Esc)"
+              >
+                <span />
+              </Button>
+            )}
           </div>
         </div>
 

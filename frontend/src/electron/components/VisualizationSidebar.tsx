@@ -9,10 +9,14 @@
  * <VisualizationSidebar
  *   currentViz="mind-map"
  *   onVizChange={(viz) => setCurrentViz(viz)}
+ *   summary={{ tlrd: '...', keyEntities: [...] }}
+ *   summaryVisible={true}
+ *   onToggleSummary={() => setSummaryVisible(!summaryVisible)}
  * />
  * ```
  */
 
+import { ChevronLeft } from 'lucide-react';
 import { forwardRef } from 'react';
 
 import { Badge } from '../../design-system/components/Badge';
@@ -50,6 +54,25 @@ export interface VisualizationOption {
   shortcut?: number;
 }
 
+export interface DocumentSummary {
+  /**
+   * TL;DR summary
+   */
+  tlrd?: string;
+  /**
+   * Key entities
+   */
+  keyEntities?: string[];
+  /**
+   * Word count
+   */
+  wordCount?: number;
+  /**
+   * Analysis time
+   */
+  analysisTime?: string;
+}
+
 export interface VisualizationSidebarProps {
   /**
    * Currently selected visualization
@@ -60,9 +83,25 @@ export interface VisualizationSidebarProps {
    */
   onVizChange: (viz: VisualizationType) => void;
   /**
+   * Document summary data
+   */
+  summary?: DocumentSummary;
+  /**
+   * Whether summary panel is visible
+   */
+  summaryVisible?: boolean;
+  /**
+   * Callback to toggle summary visibility
+   */
+  onToggleSummary?: () => void;
+  /**
    * Whether sidebar is collapsed
    */
   collapsed?: boolean;
+  /**
+   * Callback to toggle sidebar collapse
+   */
+  onToggleCollapse?: () => void;
   /**
    * Custom visualization options
    */
@@ -105,7 +144,8 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   {
     id: 'argument-map',
     name: 'Argument Map',
-    description: 'Depth Graph of argument structure',    icon: '🏔️',
+    description: 'Depth Graph of argument structure',
+    icon: '🏔️',
     shortcut: 5,
   },
   {
@@ -150,6 +190,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
       currentViz,
       onVizChange,
       collapsed = false,
+      onToggleCollapse,
       visualizations = DEFAULT_VISUALIZATIONS,
     },
     ref,
@@ -173,11 +214,52 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           borderRightStyle: 'solid',
         }}
       >
+        {/* Collapse Button (shown when not collapsed) */}
+        {!collapsed && onToggleCollapse && (
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className={cn(
+              'absolute',
+              'top-4',
+              'right-4',
+              'p-1',
+              'rounded-md',
+              'transition-all',
+              'duration-[var(--duration-fast)]',
+            )}
+            style={{
+              backgroundColor: 'var(--color-surface-elevated)',
+              border: '1px solid var(--color-border-subtle)',
+              color: 'var(--color-text-secondary)',
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.color = 'var(--color-text-primary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.color = 'var(--color-text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
+            }}
+            aria-label="Collapse sidebar"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Header */}
         <div
           className={cn(
-            'px-[var(--spacing-lg)]',
-            'py-[var(--spacing-md)]',
+            'px-4',
+            'py-3',
             'border-b',
             'text-xs',
             'uppercase',
@@ -195,7 +277,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
         </div>
 
         {/* Visualization List */}
-        <div className="flex-1 p-[var(--spacing-sm)] space-y-[var(--spacing-xs)]">
+        <div className="flex-1 p-2 space-y-1">
           {visualizations.map((viz) => (
             <button
               key={viz.id}
@@ -226,7 +308,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                       </Badge>
                     )}
                   </div>
-                  <div className="text-[var(--font-size-xs)] text-[var(--color-text-tertiary)] truncate mt-[var(--spacing-sm)]">
+                  <div className="text-xs text-gray-600 truncate mt-1">
                     {viz.description}
                   </div>
                 </div>

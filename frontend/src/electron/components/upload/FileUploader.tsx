@@ -90,8 +90,8 @@ export function FileUploader() {
             <div
               className="inline-block animate-spin rounded-full border-4 border-current border-t-transparent"
               style={{
-                width: 'var(--spacing-12xl)',
-                height: 'var(--spacing-12xl)',
+                width: '48px',
+                height: '48px',
                 color: 'var(--aurora-1)',
                 borderColor: 'var(--aurora-1) transparent var(--aurora-1) transparent',
               }}
@@ -99,7 +99,10 @@ export function FileUploader() {
             />
             <div className="text-center space-y-[var(--spacing-sm)]">
               <p
-                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)] text-[var(--color-text-primary)]"
+                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)]"
+                style={{
+                  color: 'var(--color-text-primary)',
+                }}
               >
                 Processing document...
               </p>
@@ -121,7 +124,10 @@ export function FileUploader() {
                     />
                   </div>
                   <p
-                    className="text-[var(--font-size-sm)] text-[var(--color-text-secondary)]"
+                    className="text-[var(--font-size-sm)]"
+                    style={{
+                      color: 'var(--color-text-secondary)',
+                    }}
                   >
                     {progressMessage}
                   </p>
@@ -132,19 +138,25 @@ export function FileUploader() {
         ) : (
           <>
             <Upload
-              className="w-[var(--spacing-12xl)] h-[var(--spacing-12xl)]"
+              className="w-12 h-12"
               style={{
                 color: 'var(--aurora-1)',
               }}
             />
             <div className="text-center">
               <p
-                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)] text-[var(--color-text-primary)]"
+                className="text-[var(--font-size-lg)] font-[var(--font-weight-semibold)]"
+                style={{
+                  color: 'var(--color-text-primary)',
+                }}
               >
                 {isDragActive ? 'Drop your file here' : 'Drag & drop a document'}
               </p>
               <p
-                className="text-[var(--font-size-sm)] mt-[var(--spacing-xs)] text-[var(--color-text-secondary)]"
+                className="text-[var(--font-size-sm)] mt-[var(--spacing-xs)]"
+                style={{
+                  color: 'var(--color-text-secondary)',
+                }}
               >
                 or click to browse
               </p>
@@ -164,7 +176,10 @@ export function FileUploader() {
               </span>
             </div>
             <p
-              className="text-[var(--font-size-xs)] text-[var(--color-text-tertiary)]"
+              className="text-[var(--font-size-xs)]"
+              style={{
+                color: 'var(--color-text-tertiary)',
+              }}
             >
               Maximum file size: 1GB
             </p>

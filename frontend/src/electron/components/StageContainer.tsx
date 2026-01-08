@@ -39,7 +39,7 @@ export interface StageContainerProps extends HTMLAttributes<HTMLDivElement> {
  * Uses absolute positioning for all stages with CSS transitions.
  */
 export const StageContainer = forwardRef<HTMLDivElement, StageContainerProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ currentStage, children, className, ...props }, ref) => {
     return (
       <div
         ref={ref}

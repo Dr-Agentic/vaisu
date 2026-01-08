@@ -62,7 +62,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
   return (
     <div
       className={cn(
-        'border-l-4 rounded-xl p-[var(--spacing-lg)] shadow-strong animate-slide-in-right flex items-start gap-[var(--spacing-md)] min-w-[320px] max-w-md',
+        'border-l-4 rounded-xl p-4 shadow-strong animate-slide-in-right flex items-start gap-3 min-w-[320px] max-w-md',
         'transition-all duration-200',
       )}
       style={{
@@ -72,7 +72,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
       }}
     >
       <Icon
-        className="w-[var(--spacing-12)] h-[var(--spacing-12)] flex-shrink-0 mt-[var(--spacing-xs)]"
+        className="w-5 h-5 flex-shrink-0 mt-0.5"
         style={{ color: config.colorVar }}
       />
 
@@ -85,7 +85,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
         </h4>
         {message && (
           <p
-            className="text-sm mt-[var(--spacing-xs)]"
+            className="text-sm mt-1"
             style={{ color: 'var(--color-text-secondary)' }}
           >
             {message}
@@ -105,7 +105,7 @@ export function Toast({ id, type, title, message, duration = 5000, onClose }: To
           e.currentTarget.style.color = 'var(--color-text-tertiary)';
         }}
       >
-        <X className="w-[var(--spacing-12)] h-[var(--spacing-12)]" />
+        <X className="w-5 h-5" />
       </button>
     </div>
   );

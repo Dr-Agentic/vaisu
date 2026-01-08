@@ -1,15 +1,12 @@
 /**
  * StageInput Component
  *
- * Input stage for file upload, text input, and document browsing with back navigation.
- * Uses a 3-tab layout with SOTA void theme styling and aurora gradients.
+ * Clean input stage for document upload with elegant tabbed interface.
+ * Matches visual style of StageWelcome with gradient text and aurora effects.
  *
  * @example
  * ```tsx
- * <StageInput
- *   onBack={() => setStage('welcome')}
- *   onUpload={() => setStage('analysis')}
- * />
+ * <StageInput onBack={() => setStage('welcome')} />
  * ```
  */
 
@@ -31,14 +28,12 @@ export interface StageInputProps {
   onBack: () => void;
 }
 
-/**
- * Tab configuration
- */
 type InputTab = 'upload' | 'text' | 'browse';
 
 interface TabConfig {
   id: InputTab;
   label: string;
+  description: string;
   icon: React.ReactNode;
 }
 
@@ -46,25 +41,28 @@ const TABS: TabConfig[] = [
   {
     id: 'upload',
     label: 'Upload',
-    icon: <Upload className="w-4 h-4" />,
+    description: 'Drag & drop files (PDF, TXT, MD)',
+    icon: <Upload className="w-5 h-5" />,
   },
   {
     id: 'text',
     label: 'Paste Text',
-    icon: <FileText className="w-4 h-4" />,
+    description: 'Direct input with preview',
+    icon: <FileText className="w-5 h-5" />,
   },
   {
     id: 'browse',
-    label: 'Browse Documents',
-    icon: <FolderOpen className="w-4 h-4" />,
+    label: 'Your Documents',
+    description: 'Access saved content',
+    icon: <FolderOpen className="w-5 h-5" />,
   },
 ];
 
 /**
  * StageInput
  *
- * Input stage with header, 3-tab navigation, and content panels.
- * Uses void background colors, aurora gradients, and SOTA styling.
+ * Clean, elegant input stage with minimal header and tabbed content.
+ * Uses hero styling with subtle aurora backgrounds matching StageWelcome.
  */
 export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
   ({ onBack }, ref) => {
@@ -88,31 +86,26 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
           'flex-1',
           'flex',
           'flex-col',
+          'items-center',
+          'justify-start',
+          'pt-12',
           'bg-[var(--color-background-primary)]',
           'text-[var(--color-text-primary)]',
+          'hero-bg',
         )}
       >
         {/* Header */}
-        <header
-          className={cn(
-            'px-[var(--spacing-lg)]',
-            'py-[var(--spacing-lg)]',
-            'border-b',
-            'flex',
-            'items-center',
-            'justify-between',
-          )}
-          style={{
-            borderColor: 'var(--color-border-subtle)',
-          }}
-        >
+        <div className="max-w-3xl mx-auto w-full px-8 flex items-center justify-between mb-8">
           <h2
             className={cn(
-              'text-[var(--font-size-2xl)]',
-              'font-[var(--font-weight-semibold)]',
-              'text-[var(--color-text-primary)]',
-              'leading-[var(--line-height-tight)]',
+              'text-gradient-glow',
+              'font-bold',
+              'leading-tight',
             )}
+            style={{
+              fontSize: 'var(--font-size-3xl)',
+              fontWeight: 'var(--font-weight-bold)',
+            }}
           >
             Upload Document
           </h2>
@@ -121,291 +114,183 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             size="sm"
             leftIcon={<ArrowLeft className="w-4 h-4" />}
             onClick={onBack}
-            title="Back"
-            className="gap-[var(--spacing-sm)]"
-          >
-            <span />
-          </Button>
-        </header>
+            className="opacity-70 hover:opacity-100 transition-opacity"
+          />
+        </div>
 
         {/* Tab Navigation */}
-        <nav
-          className={cn(
-            'px-[var(--spacing-lg)]',
-            'pt-[var(--spacing-lg)]',
-            'flex',
-            'gap-[var(--spacing-md)]',
-            'items-center',
-            'bg-gradient-to-b',
-            'from-transparent',
-            'to-[rgba(99,102,241,0.05)]',
-            'backdrop-blur-sm',
-            'relative',
-            'overflow-hidden',
-            'rounded-[var(--radius-xl)]',
-            'border',
-            'border-[var(--color-border-subtle)]',
-          )}
-          role="tablist"
-          aria-label="Input options"
-        >
-          {/* Background gradient overlay */}
+        <div className="max-w-3xl mx-auto w-full px-8 mb-8">
           <div
             className={cn(
-              'absolute',
-              'inset-0',
-              'bg-gradient-to-r',
-              'from-transparent',
-              'via-[rgba(99,102,241,0.1)]',
-              'to-transparent',
-              'pointer-events-none',
+              'flex',
+              'gap-3',
+              'p-2',
+              'rounded-2xl',
+              'bg-[var(--color-surface-base)]',
+              'border',
+              'border-[var(--color-border-subtle)]',
+              'backdrop-blur-sm',
+              'shadow-lg',
             )}
-          />
+            role="tablist"
+            aria-label="Input methods"
+          >
+            {TABS.map((tab) => {
+              const isActive = activeTab === tab.id;
 
-          {TABS.map((tab) => {
-            const isActive = activeTab === tab.id;
-
-            return (
-              <button
-                key={tab.id}
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`panel-${tab.id}`}
-                onClick={() => handleTabChange(tab.id)}
-                className={cn(
-                  'flex',
-                  'items-center',
-                  'gap-[var(--spacing-sm)]',
-                  'px-[var(--spacing-lg)]',
-                  'py-[var(--spacing-base)]',
-                  'rounded-[var(--radius-xl)]',
-                  'transition-all',
-                  'duration-[var(--motion-duration-base)]',
-                  'ease-[var(--motion-easing-ease-out)]',
-                  'outline-none',
-                  'relative',
-                  'group',
-                  'hover:scale-105',
-                  'hover:shadow-[var(--elevation-lg)]',
-                  isActive ? 'gradient-border-animated' : '',
-                  isActive ? 'bg-[var(--color-surface-base)]' : 'bg-transparent',
-                  isActive ? 'border-[var(--color-border-focus)]' : 'border-[var(--color-border-subtle)]',
-                  isActive ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]',
-                  'backdrop-blur-sm',
-                  'hover:bg-[var(--color-surface-base)]',
-                )}
-              >
-                {/* Icon container with enhanced styling */}
-                <div
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={`panel-${tab.id}`}
+                  onClick={() => handleTabChange(tab.id)}
                   className={cn(
+                    'flex-1',
                     'flex',
+                    'flex-col',
                     'items-center',
                     'justify-center',
-                    'w-[var(--spacing-3xl)]',
-                    'h-[var(--spacing-3xl)]',
-                    'rounded-[var(--radius-lg)]',
+                    'gap-2',
+                    'p-4',
+                    'rounded-xl',
                     'transition-all',
-                    'duration-[var(--motion-duration-base)]',
-                    'ease-[var(--motion-easing-ease-out)]',
-                    'group-hover:scale-110',
-                    'bg-[var(--color-surface-base)]',
-                    'border',
-                    'border-[var(--color-border-subtle)]',
-                    'hover:bg-[var(--color-surface-elevated)]',
-                    'hover:border-[var(--color-border-strong)]',
+                    'duration-300',
+                    'ease-out',
+                    'min-w-[140px]',
+                    'relative',
+                    'group',
+                    isActive ? 'bg-[var(--color-surface-elevated)]' : 'hover:bg-[var(--color-surface-tertiary)]',
+                    isActive && 'ring-2 ring-purple-500/30 ring-offset-2 ring-offset-[var(--color-background-primary)]',
                   )}
+                  style={{
+                    outline: 'none',
+                  }}
                 >
-                  {tab.icon}
-                </div>
-
-                {/* Label with enhanced typography */}
-                <div className="flex flex-col items-start">
-                  <span
+                  {/* Icon */}
+                  <div
                     className={cn(
-                      'font-[var(--font-weight-medium)]',
-                      'transition-colors',
-                      'duration-[var(--motion-duration-base)]',
-                      'ease-[var(--motion-easing-ease-out)]',
-                      'text-[var(--color-text-primary)]',
-                      'leading-[var(--line-height-tight)]',
-                    )}
-                  >
-                    {tab.label}
-                  </span>
-                  <span
-                    className={cn(
-                      'text-[var(--font-size-sm)]',
-                      'opacity-0',
-                      'group-hover:opacity-100',
+                      'p-3',
+                      'rounded-lg',
                       'transition-all',
-                      'duration-[var(--motion-duration-base)]',
-                      'ease-[var(--motion-easing-ease-out)]',
-                      'mt-[var(--spacing-xs)]',
-                      'text-[var(--color-text-tertiary)]',
+                      'duration-300',
+                      isActive ? 'bg-purple-500/20 scale-110' : 'bg-[var(--color-surface-base)]',
+                      'border',
+                      isActive ? 'border-purple-400/50' : 'border-[var(--color-border-subtle)]',
                     )}
                   >
-                    {tab.id === 'upload' && 'Drag & drop supported'}
-                    {tab.id === 'text' && 'Real-time preview'}
-                    {tab.id === 'browse' && 'Your documents'}
-                  </span>
-                </div>
+                    {tab.icon}
+                  </div>
 
-                {/* Active state enhancements */}
-                {isActive && (
-                  <>
-                    {/* Outer glow effect */}
-                    <div
+                  {/* Text */}
+                  <div className="flex flex-col items-center gap-1">
+                    <span
                       className={cn(
-                        'absolute',
-                        'inset-0',
-                        'rounded-[var(--radius-xl)]',
-                        'opacity-60',
-                        'blur-xl',
-                        'pointer-events-none',
-                        'bg-gradient-to-r',
-                        'from-[var(--aurora-1)]',
-                        'via-[var(--aurora-2)]',
-                        'to-[var(--aurora-3)]',
+                        'font-semibold',
+                        'text-sm',
+                        'transition-colors',
+                        'duration-300',
+                        isActive ? 'text-[var(--color-text-primary)]' : 'text-[var(--color-text-secondary)]',
                       )}
-                    />
-                    {/* Inner highlight */}
-                    <div
+                    >
+                      {tab.label}
+                    </span>
+                    <span
                       className={cn(
-                        'absolute',
-                        'top-0',
-                        'left-0',
-                        'right-0',
-                        'h-[var(--spacing-xs)]',
-                        'rounded-t-[var(--radius-xl)]',
-                        'opacity-80',
-                        'bg-gradient-to-r',
-                        'from-[var(--aurora-1)]',
-                        'via-[var(--aurora-2)]',
-                        'to-[var(--aurora-1)]',
+                        'text-xs',
+                        'text-center',
+                        'transition-all',
+                        'duration-300',
+                        'leading-tight',
+                        isActive ? 'opacity-90 text-[var(--color-text-primary)]' : 'opacity-0 text-[var(--color-text-tertiary)]',
+                        'h-0',
+                        'group-hover:h-auto',
+                        'group-hover:opacity-100',
                       )}
-                    />
-                  </>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+                    >
+                      {tab.description}
+                    </span>
+                  </div>
 
-        {/* Tab Content */}
-        <div
-          className={cn(
-            'flex-1',
-            'flex',
-            'flex-col',
-            'px-8',
-            'py-6',
-            'overflow-hidden',
-          )}
-        >
-          <div
-            className={cn(
-              'w-full',
-              'max-w-2xl',
-              'mx-auto',
-              'h-full',
-              'flex',
-              'flex-col',
-            )}
-          >
-            {/* Upload Panel */}
-            <div
-              role="tabpanel"
-              id="panel-upload"
-              aria-labelledby="tab-upload"
-              className={cn(
-                'transition-all',
-                'duration-[var(--duration-normal)]',
-                'h-full',
-                'flex',
-                'flex-col',
-                'items-center',
-                'justify-center',
-              )}
-              style={{
-                display: activeTab === 'upload' ? 'flex' : 'none',
-                opacity: activeTab === 'upload' ? 1 : 0,
-              }}
-            >
-              <FileUploader />
-            </div>
-
-            {/* Text Input Panel */}
-            <div
-              role="tabpanel"
-              id="panel-text"
-              aria-labelledby="tab-text"
-              className={cn(
-                'transition-all',
-                'duration-[var(--motion-duration-normal)]',
-                'ease-[var(--motion-easing-ease-out)]',
-                'h-full',
-                'flex',
-                'flex-col',
-              )}
-              style={{
-                display: activeTab === 'text' ? 'flex' : 'none',
-                opacity: activeTab === 'text' ? 1 : 0,
-              }}
-            >
-              <div
-                className={cn(
-                  'h-full',
-                  'p-[var(--spacing-lg)]',
-                  'rounded-[var(--radius-lg)]',
-                  'transition-all',
-                  'duration-[var(--motion-duration-base)]',
-                  'ease-[var(--motion-easing-ease-out)]',
-                  'bg-[var(--color-surface-base)]',
-                  'border',
-                  'border-[var(--color-border-subtle)]',
-                )}
-              >
-                <TextInputArea />
-              </div>
-            </div>
-
-            {/* Browse Documents Panel */}
-            <div
-              role="tabpanel"
-              id="panel-browse"
-              aria-labelledby="tab-browse"
-              className={cn(
-                'transition-all',
-                'duration-[var(--duration-normal)]',
-                'h-full',
-                'flex',
-                'flex-col',
-              )}
-              style={{
-                display: activeTab === 'browse' ? 'flex' : 'none',
-                opacity: activeTab === 'browse' ? 1 : 0,
-              }}
-            >
-              <DocumentBrowserPanel onDocumentLoad={handleDocumentLoad} />
-            </div>
+                  {/* Active indicator */}
+                  {isActive && (
+                    <div className={cn(
+                      'absolute',
+                      'bottom-0',
+                      'left-0',
+                      'right-0',
+                      'h-0.5',
+                      'bg-gradient-to-r',
+                      'from-purple-400',
+                      'via-pink-400',
+                      'to-purple-400',
+                      'animate-pulse',
+                    )} />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Bottom hint */}
-        <div
-          className={cn(
-            'px-[var(--spacing-lg)]',
-            'pb-[var(--spacing-lg)]',
-            'text-center',
-          )}
-          style={{
-            color: 'var(--color-text-tertiary)',
-            fontSize: 'var(--font-size-xs)',
-          }}
-        >
-          {activeTab === 'upload' && 'Upload a .txt, .pdf, or .md file to get started'}
-          {activeTab === 'text' && 'Paste your text content directly'}
-          {activeTab === 'browse' && 'Select from your previously uploaded documents'}
+        {/* Content Area */}
+        <div className="max-w-2xl mx-auto w-full px-8 flex-1 flex flex-col min-h-[400px]">
+          <div
+            className={cn(
+              'flex-1',
+              'rounded-2xl',
+              'overflow-hidden',
+              'bg-[var(--color-surface-base)]',
+              'border',
+              'border-[var(--color-border-subtle)]',
+              'backdrop-blur-sm',
+              'relative',
+            )}
+          >
+            {/* Upload Panel */}
+            {activeTab === 'upload' && (
+              <div
+                role="tabpanel"
+                id="panel-upload"
+                className="w-full h-full flex items-center justify-center p-8"
+              >
+                <FileUploader />
+              </div>
+            )}
+
+            {/* Text Panel */}
+            {activeTab === 'text' && (
+              <div
+                role="tabpanel"
+                id="panel-text"
+                className="w-full h-full"
+              >
+                <div className="h-full p-6">
+                  <TextInputArea />
+                </div>
+              </div>
+            )}
+
+            {/* Browse Panel */}
+            {activeTab === 'browse' && (
+              <div
+                role="tabpanel"
+                id="panel-browse"
+                className="w-full h-full"
+              >
+                <DocumentBrowserPanel onDocumentLoad={handleDocumentLoad} />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Help Text */}
+        <div className="max-w-3xl mx-auto w-full px-8 py-6">
+          <p className="text-center text-sm text-[var(--color-text-tertiary)]">
+            {activeTab === 'upload' && 'Supports PDF, TXT, MD • Max 10MB'}
+            {activeTab === 'text' && 'Paste or type your content • Auto-saved'}
+            {activeTab === 'browse' && 'Select from your saved documents'}
+          </p>
         </div>
       </div>
     );
