@@ -175,6 +175,37 @@ This document lists all supported API endpoints for the Vaisu backend server. Al
 
 *Uses same repository as uml-class-diagram
 
+### ⚠️ IMPORTANT: Accessing Graph Data
+The API returns a wrapped response object. The actual visualization data is nested within the `data` property.
+
+**Response Structure:**
+```json
+{
+  "type": "knowledge-graph",
+  "data": { 
+    // THIS IS THE ACTUAL PAYLOAD NEEDED BY UI COMPONENTS
+    "nodes": [...],
+    "edges": [...],
+    "clusters": [...],
+    "hierarchy": { ... }
+  },
+  "cached": false
+}
+```
+
+**Client Implementation Guideline:**
+When consuming this API in the frontend store or components, you **MUST unwrap** the response to access the inner data payload.
+
+```typescript
+// Example Store Implementation
+const response = await apiClient.generateVisualization(docId, type);
+// Unwrap: use response.data if it exists, otherwise fallback (for safety)
+const visualizationPayload = response.data || response;
+
+// Pass 'visualizationPayload' to your React components
+return <KnowledgeGraph data={visualizationPayload} />;
+```
+
 **Response:**
 ```json
 {

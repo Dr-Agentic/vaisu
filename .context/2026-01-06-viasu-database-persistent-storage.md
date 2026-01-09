@@ -21,7 +21,7 @@ Vaisu implements a dual-storage architecture combining AWS S3 for document stora
 2. **AWS DynamoDB (NoSQL Database)**
    - **Purpose**: Metadata, analysis results, and visualization data
    - **Tables**: 10 specialized tables
-   - **Billing Mode**: PAY_PER_REQUEST (serverless)
+   - **Billing Mode**: PAY_PER_REQUEST (On-Demand)
    - **Design Pattern**: Document-centric partitioning
 
 ## Database Schema Analysis
@@ -29,11 +29,12 @@ Vaisu implements a dual-storage architecture combining AWS S3 for document stora
 ### Core Tables Structure
 
 #### 1. Documents Table (`vaisu-documents`)
-**Primary Key**: `id` (Partition Key)
+**Primary Key**: `documentId` (Partition Key) + `SK` (Sort Key, usually 'METADATA')
 **Purpose**: Document metadata and S3 reference information
 
 **Key Fields:**
-- `id`: UUID string (document identifier)
+- `documentId`: UUID string (document identifier)
+- `SK`: Sort key (e.g., 'METADATA')
 - `userId`: User who uploaded document (currently '1' for anonymous)
 - `contentHash`: SHA-256 hash for deduplication
 - `filename`: Original filename
@@ -44,14 +45,16 @@ Vaisu implements a dual-storage architecture combining AWS S3 for document stora
 - `lastAccessedAt`: Last access timestamp
 - `accessCount`: Access counter
 
-**Note**: This table uses simple PK without sort key (not documentId + SK as previously documented)
+**Global Secondary Indexes (GSI):**
+- **GSI1**: `contentHash` (PK) + `filename` (SK) - Used for deduplication.
 
 #### 2. Analyses Table (`vaisu-analyses`)
-**Primary Key**: `id` (Partition Key)
+**Primary Key**: `documentId` (Partition Key) + `SK` (Sort Key, usually 'ANALYSIS')
 **Purpose**: LLM analysis results and structured document data
 
 **Key Fields:**
-- `id`: UUID string (matches document id)
+- `documentId`: UUID string (matches document id)
+- `SK`: Sort key (e.g., 'ANALYSIS')
 - `analysisVersion`: Version identifier
 - `analysis`: Complete analysis object (DocumentAnalysis type from shared/types.ts)
 - `llmMetadata`: Processing information
@@ -63,7 +66,7 @@ Vaisu implements a dual-storage architecture combining AWS S3 for document stora
 
 **Note**: Stores structured-view data inline with analysis
 
-#### 3. Visualization Tables (8 specialized tables)
+#### 3. Visualization Tables (9 specialized tables)
 
 Each visualization type has its own table with consistent structure:
 
@@ -76,22 +79,23 @@ Each visualization type has its own table with consistent structure:
 - `vaisu-executive-dashboard`
 - `vaisu-timeline`
 - `vaisu-knowledge-graph`
+- `vaisu-terms-definitions`
 
 **Common Structure:**
-- **Primary Key**: `documentId` (PK) + `type` (Sort Key)
+- **Primary Key**: `documentId` (PK) + `SK` (Sort Key)
 - **Fields:**
   - `documentId`: Foreign key to documents table
-  - `type`: Visualization type identifier
+  - `SK`: Visualization type identifier or constant (e.g., 'ARGUMENT_MAP', 'TERMS_DEFINITIONS')
   - `visualizationData`: Generated visualization data (JSON)
   - `llmMetadata`: Generation metadata
   - `createdAt`, `updatedAt`: Timestamps
 
 **Aggregation Pattern**: The `visualizationService` aggregates data across these tables. **Important**: Some visualization types share repositories:
 - `structured-view` → stored in `analyses` table
-- `terms-definitions` → stored in `analyses` table
 - `gantt`, `comparison-matrix`, `priority-matrix`, `raci-matrix` → stored in `analyses` table
 - `uml-class-diagram`, `uml-sequence`, `uml-activity` → all use `uml-class` repository
 - `depth-graph` → uses `depth-graph` repository
+- `terms-definitions` → uses `terms-definitions` repository (dedicated table)
 
 ### Data Relationships
 
@@ -372,7 +376,7 @@ throw new Error('Unable to generate mind map visualization...');
 # S3 Configuration
 S3_BUCKET_NAME=vaisu-documents-dev
 
-# DynamoDB Table Names (10 tables)
+# DynamoDB Table Names (11 tables)
 DYNAMODB_DOCUMENTS_TABLE=vaisu-documents
 DYNAMODB_ANALYSES_TABLE=vaisu-analyses
 DYNAMODB_ARGUMENT_MAP_TABLE=vaisu-argument-map
@@ -383,6 +387,7 @@ DYNAMODB_FLOWCHART_TABLE=vaisu-flowchart
 DYNAMODB_EXECUTIVE_DASHBOARD_TABLE=vaisu-executive-dashboard
 DYNAMODB_TIMELINE_TABLE=vaisu-timeline
 DYNAMODB_KNOWLEDGE_GRAPH_TABLE=vaisu-knowledge-graph
+DYNAMODB_TERMS_DEFINITIONS_TABLE=vaisu-terms-definitions
 
 # AWS Configuration
 AWS_REGION=us-east-1

@@ -145,11 +145,11 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) 
       description="Hierarchical view of document sections and subsections."
     >
       <div className="absolute inset-0 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
-        <div 
-          className="relative min-w-full p-8" 
-          style={{ 
-            height: totalHeight ? Math.max(totalHeight + 200, 800) : '100%', 
-            minHeight: '100%' 
+        <div
+          className="relative min-w-full p-8"
+          style={{
+            height: totalHeight ? Math.max(totalHeight + 200, 800) : '100%',
+            minHeight: '100%',
           }}
         >
           {/* Render Edges First */}

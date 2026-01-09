@@ -26,7 +26,6 @@ import { useEffect, useState, forwardRef, useCallback } from 'react';
 import { Button } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
-
 import { VisualizationRenderer } from '../visualization/VisualizationRenderer';
 import { VisualizationSidebar, type VisualizationType } from '../visualization/VisualizationSidebar';
 

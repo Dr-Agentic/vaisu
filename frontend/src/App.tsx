@@ -9,8 +9,8 @@
 
 import { useEffect } from 'react';
 
-import { ThemeProvider } from './design-system/ThemeProvider';
 import { StageContainer, Stage } from './components/patterns';
+import { ThemeProvider } from './design-system/ThemeProvider';
 import {
   StageWelcome,
   StageInput,

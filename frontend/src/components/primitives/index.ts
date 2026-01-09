@@ -3,7 +3,7 @@
  *
  * Foundation components for the design system.
  * These are reusable, atomic building blocks.
- * 
+ *
  * All components use CSS custom properties for theming.
  */
 

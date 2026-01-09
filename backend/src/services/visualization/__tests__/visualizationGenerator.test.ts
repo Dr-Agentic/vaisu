@@ -9,7 +9,7 @@ const mocks = vi.hoisted(() => ({
   // LLM mocks
   callWithFallback: vi.fn(),
   parseJSONResponse: vi.fn(),
-  
+
   // Service mocks
   findByDocumentIdAndType: vi.fn(),
   create: vi.fn(),
@@ -212,16 +212,16 @@ describe('VisualizationGenerator', () => {
       const kgResponse = {
         nodes: [
           { id: 'n1', label: 'Node 1', type: 'concept', importance: 0.8 },
-          { id: 'n2', label: 'Node 2', type: 'concept', importance: 0.7 }
+          { id: 'n2', label: 'Node 2', type: 'concept', importance: 0.7 },
         ],
         edges: [
-          { source: 'n1', target: 'n2', type: 'relates-to', strength: 0.5 }
+          { source: 'n1', target: 'n2', type: 'relates-to', strength: 0.5 },
         ],
         clusters: [],
-        hierarchy: {}
+        hierarchy: {},
       };
       mocks.callWithFallback.mockResolvedValue({
-        content: JSON.stringify(kgResponse)
+        content: JSON.stringify(kgResponse),
       });
 
       const result = await generator.generateVisualization(
@@ -238,16 +238,16 @@ describe('VisualizationGenerator', () => {
     it('should force regeneration when force flag is true', async () => {
       // Override cache to return something
       mocks.findByDocumentIdAndType.mockResolvedValue({
-        visualizationData: { some: 'cached data' }
+        visualizationData: { some: 'cached data' },
       } as any);
 
       await generator.generateVisualization(
         'mind-map',
         mockDocument,
         mockAnalysis,
-        true // force=true
+        true, // force=true
       );
-      
+
       // If force=true, it should NOT call findByDocumentIdAndType
       expect(mocks.findByDocumentIdAndType).not.toHaveBeenCalled();
     });
@@ -311,7 +311,7 @@ describe('VisualizationGenerator', () => {
         domain: 'software',
       };
       mocks.callWithFallback.mockResolvedValue({
-        content: JSON.stringify(termsResponse)
+        content: JSON.stringify(termsResponse),
       });
     });
 
@@ -336,7 +336,7 @@ describe('VisualizationGenerator', () => {
         ],
       };
       mocks.callWithFallback.mockResolvedValue({
-        content: JSON.stringify(termsResponse)
+        content: JSON.stringify(termsResponse),
       });
 
       const result = await generator.generateVisualization(
@@ -371,12 +371,12 @@ describe('VisualizationGenerator', () => {
           { name: 'Order', type: 'class', attributes: [], methods: [] },
         ],
         relationships: [
-          { source: 'Order', target: 'User', type: 'association' }
+          { source: 'Order', target: 'User', type: 'association' },
         ],
-        packages: []
+        packages: [],
       };
       mocks.callWithFallback.mockResolvedValue({
-        content: JSON.stringify(umlResponse)
+        content: JSON.stringify(umlResponse),
       });
     });
 
@@ -395,14 +395,14 @@ describe('VisualizationGenerator', () => {
     it('should filter out invalid relationships', async () => {
       const umlResponse = {
         classes: [
-          { name: 'User', type: 'class', attributes: [], methods: [] }
+          { name: 'User', type: 'class', attributes: [], methods: [] },
         ],
         relationships: [
-          { source: 'User', target: 'Unknown', type: 'association' }
+          { source: 'User', target: 'Unknown', type: 'association' },
         ],
       };
       mocks.callWithFallback.mockResolvedValue({
-        content: JSON.stringify(umlResponse)
+        content: JSON.stringify(umlResponse),
       });
 
       const result = await generator.generateVisualization(

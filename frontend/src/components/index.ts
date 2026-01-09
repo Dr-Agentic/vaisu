@@ -3,7 +3,7 @@
  *
  * Central export for all reusable components.
  * Import from this file to access the component library.
- * 
+ *
  * @example
  * ```tsx
  * import { Button, Card, TabGroup, StageContainer } from '@/components';

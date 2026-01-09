@@ -150,18 +150,18 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(
                 'ease-out',
                 'relative',
                 'group',
-                
+
                 // State-based backgrounds
-                isActive 
-                  ? 'bg-[var(--color-surface-elevated)]' 
+                isActive
+                  ? 'bg-[var(--color-surface-elevated)]'
                   : 'hover:bg-[var(--color-surface-tertiary)]',
-                
+
                 // Focus and active states
                 isActive && 'ring-2 ring-purple-500/30 ring-offset-2 ring-offset-[var(--color-background-primary)]',
-                
+
                 // Cards variant
                 isCards && 'bg-transparent hover:bg-[var(--color-surface-base)]',
-                
+
                 // Size-specific padding
                 size === 'sm' && 'p-3 min-w-[100px]',
                 size === 'md' && 'p-4 min-w-[140px]',
@@ -178,8 +178,8 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(
                     'transition-all',
                     'duration-300',
                     'border',
-                    isActive 
-                      ? 'bg-purple-500/20 scale-110 border-purple-400/50' 
+                    isActive
+                      ? 'bg-purple-500/20 scale-110 border-purple-400/50'
                       : 'bg-[var(--color-surface-base)] border-[var(--color-border-subtle)]',
                     isCards && 'bg-transparent border-none',
                   )}
@@ -195,8 +195,8 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(
                     'font-semibold',
                     'transition-colors',
                     'duration-300',
-                    isActive 
-                      ? 'text-[var(--color-text-primary)]' 
+                    isActive
+                      ? 'text-[var(--color-text-primary)]'
                       : 'text-[var(--color-text-secondary)]',
                     size === 'sm' && 'text-xs',
                     size === 'md' && 'text-sm',
@@ -215,8 +215,8 @@ export const TabGroup = forwardRef<HTMLDivElement, TabGroupProps>(
                       'duration-300',
                       'leading-tight',
                       'overflow-hidden',
-                      isActive 
-                        ? 'opacity-90 text-[var(--color-text-primary)]' 
+                      isActive
+                        ? 'opacity-90 text-[var(--color-text-primary)]'
                         : 'opacity-0 text-[var(--color-text-tertiary)]',
                       'h-0',
                       'group-hover:h-auto',

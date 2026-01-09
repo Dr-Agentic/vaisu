@@ -12,7 +12,7 @@ export async function create(termsDefinitions: VisualizationRecord): Promise<voi
     TableName: DYNAMODB_TERMS_DEFINITIONS_TABLE,
     Item: {
       ...termsDefinitions,
-      type: termsDefinitions.visualizationType, // Map to Sort Key 'type'
+      SK: 'TERMS_DEFINITIONS',
     },
   });
 
@@ -27,7 +27,7 @@ export async function findByDocumentId(documentId: string): Promise<Visualizatio
     TableName: DYNAMODB_TERMS_DEFINITIONS_TABLE,
     Key: {
       documentId,
-      type: 'terms-definitions', // Sort Key
+      SK: 'TERMS_DEFINITIONS',
     },
   });
 
@@ -59,7 +59,7 @@ export async function update(
 
   Object.entries(updates).forEach(([key, value], index) => {
     // Skip keys that are part of the Primary Key
-    if (key !== 'documentId' && key !== 'type' && key !== 'visualizationType') {
+    if (key !== 'documentId' && key !== 'SK' && key !== 'visualizationType') {
       const attrName = `#attr${index}`;
       const attrValue = `:val${index}`;
       updateExpressions.push(`${attrName} = ${attrValue}`);
@@ -76,7 +76,7 @@ export async function update(
     TableName: DYNAMODB_TERMS_DEFINITIONS_TABLE,
     Key: {
       documentId,
-      type: 'terms-definitions',
+      SK: 'TERMS_DEFINITIONS',
     },
     UpdateExpression: `SET ${updateExpressions.join(', ')}`,
     ExpressionAttributeNames: expressionAttributeNames,
@@ -94,7 +94,7 @@ export async function deleteTermsDefinitions(documentId: string): Promise<void> 
     TableName: DYNAMODB_TERMS_DEFINITIONS_TABLE,
     Key: {
       documentId,
-      type: 'terms-definitions',
+      SK: 'TERMS_DEFINITIONS',
     },
   });
 

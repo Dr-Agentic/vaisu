@@ -16,7 +16,6 @@ import { forwardRef, useState, useCallback } from 'react';
 import { Button } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
-
 import { DocumentBrowserPanel } from '../document/DocumentBrowserPanel';
 import { FileUploader } from '../document/FileUploader';
 import { TextInputArea } from '../document/TextInputArea';

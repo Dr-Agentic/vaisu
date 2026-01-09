@@ -218,7 +218,7 @@ export const mockOpenRouterResponses = {
  */
 export function createMockOpenRouterClient() {
   return {
-    call: vi.fn().mockImplementation(async (config: any) => {
+    call: vi.fn().mockImplementation(async (_config: any) => {
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 10));
 

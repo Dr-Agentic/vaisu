@@ -5,9 +5,9 @@ import * as executiveDashboardRepository from './executiveDashboardRepository.js
 import * as flowchartRepository from './flowchartRepository.js';
 import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
 import * as mindMapRepository from './mindMapRepository.js';
+import * as termsDefinitionsRepository from './termsDefinitionsRepository.js';
 import * as timelineRepository from './timelineRepository.js';
 import * as umlClassRepository from './umlClassRepository.js';
-import * as termsDefinitionsRepository from './termsDefinitionsRepository.js';
 
 import type { VisualizationRecord } from './types.js';
 

@@ -137,11 +137,11 @@ describe('TextAnalyzer', () => {
                   id: 's1-1',
                   content: 'Subsection 1.1 content with enough length...'.repeat(5),
                   children: [],
-                }
-              ]
-            }
+                },
+              ],
+            },
           ],
-          hierarchy: []
+          hierarchy: [],
         },
       } as any;
 
