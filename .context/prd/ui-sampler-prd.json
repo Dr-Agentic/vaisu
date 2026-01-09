@@ -1,0 +1,399 @@
+{
+  "userStories": [
+    {
+      "id": "1",
+      "title": "Create new route for UI Sampler page",
+      "description": "Set up routing infrastructure for the UI sampler page at /ui-sampler. Integrate with existing React Router configuration in the app.",
+      "acceptanceCriteria": [
+        "New route exists at /ui-sampler",
+        "Route is accessible from main navigation (add nav link in appropriate location)",
+        "Page component structure is created with proper TypeScript types",
+        "Route integrates with existing ThemeProvider",
+        "Empty page renders with basic layout container",
+        "Follows existing project routing patterns"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Need to check existing Router configuration in App.tsx and determine where to add the sampler route. May need to extend routing structure."
+    },
+    {
+      "id": "2",
+      "title": "Implement sidebar navigation with collapsible sections",
+      "description": "Create responsive sidebar navigation with collapsible sections for each component category. Must support mobile/responsive behavior.",
+      "acceptanceCriteria": [
+        "Sidebar component created with proper TypeScript types",
+        "Collapsible sections for: Typography, Colors, Primitives, Patterns, Visualizations",
+        "Active section highlighting based on scroll position",
+        "Smooth expand/collapse animations",
+        "Mobile: Hamburger menu with slide-out sidebar",
+        "Desktop: Persistent left sidebar (250px width)",
+        "Keyboard accessible (Tab, Enter, Space for collapse/expand)",
+        "WCAG AA compliant (contrast ratios, focus indicators)"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Consider using the existing TabGroup pattern for section navigation if it fits, or build custom collapsible nav. Must handle 5 main categories."
+    },
+    {
+      "id": "3",
+      "title": "Set up live interactive preview infrastructure",
+      "description": "Create a reusable preview component that renders live, interactive component examples. This will be the foundation for all component demonstrations.",
+      "acceptanceCriteria": [
+        "PreviewContainer component with TypeScript interfaces",
+        "Live rendering of components (not static screenshots)",
+        "Component is fully interactive (clicks, inputs work)",
+        "Visual separation between preview and code examples",
+        "Support for multiple examples per component",
+        "Copy-to-clipboard button for each code example",
+        "Responsive preview that works on all screen sizes",
+        "Preview has visual boundary/border for clarity"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "This is the core infrastructure component. All other stories will depend on this. Must ensure it can handle any component type passed to it."
+    },
+    {
+      "id": "4",
+      "title": "Typography sampler implementation",
+      "description": "Display all typography styles available in the design system with live examples and usage guidelines.",
+      "acceptanceCriteria": [
+        "Shows all font sizes (xs through 7xl) from design tokens",
+        "Shows all font weights (normal, medium, semibold, bold)",
+        "Shows all line-height values",
+        "Live examples of each text style",
+        "Copyable code snippet for each typography class",
+        "WCAG AA contrast verification for all examples",
+        "Responsive text scaling examples"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Reference tokens.ts for complete typography scale. Should include semantic text roles (primary, secondary, disabled, etc.)"
+    },
+    {
+      "id": "5",
+      "title": "Color palette visualization",
+      "description": "Visual display of all color tokens including primary, secondary, accent, semantic colors, and gradients with copyable hex/rgb values.",
+      "acceptanceCriteria": [
+        "Primary color palette (all shades 50-900)",
+        "Secondary color palette (all shades 50-900)",
+        "Accent color palette (all shades 400-600)",
+        "Semantic colors (success, error, warning, info)",
+        "Background and surface colors",
+        "Text and border colors",
+        "Gradient examples (hero, panel, radial)",
+        "Click to copy hex/RGB values",
+        "Contrast ratio information for accessibility",
+        "Dark mode color variants displayed"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Must reference tailwind.config.js for complete color definitions. Include both light and dark mode variants."
+    },
+    {
+      "id": "6",
+      "title": "Button component sampler",
+      "description": "Complete Button component examples showing all variants, sizes, states, and accessibility features.",
+      "acceptanceCriteria": [
+        "All variants: primary, secondary, accent, outline, ghost, danger, aurora, nova, aurora-fast, aurora-static, gradient-primary",
+        "All sizes: sm, md, lg",
+        "States: default, hover, active, focus, disabled, loading",
+        "With icons (leftIcon, rightIcon)",
+        "Full width examples",
+        "Interactive: clicking buttons demonstrates functionality",
+        "Copyable code for each variation",
+        "Keyboard navigation testing (Tab, Enter, Space)",
+        "Focus indicators visible and WCAG compliant",
+        "ARIA attributes demonstrated"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Leverage existing Button.tsx component. Include visual examples of all 11 variants defined in the codebase."
+    },
+    {
+      "id": "7",
+      "title": "Card component sampler",
+      "description": "Card component examples showing all variants, padding options, and layout patterns.",
+      "acceptanceCriteria": [
+        "All variants: base, elevated, outlined, filled",
+        "All padding options: none, sm, md, lg, xl",
+        "Card with CardHeader, CardTitle, CardDescription, CardContent, CardFooter",
+        "Interactive cards (clickable examples)",
+        "Nested card examples",
+        "WCAG compliance for card structure",
+        "Copyable code patterns"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Reference existing Card.tsx component structure. Show complete card composition patterns."
+    },
+    {
+      "id": "8",
+      "title": "Input component sampler",
+      "description": "Input field examples with all states, icons, error handling, and accessibility features.",
+      "acceptanceCriteria": [
+        "Basic input examples",
+        "Input with icons (leftIcon)",
+        "Error state examples",
+        "Helper text examples",
+        "Required field indicators",
+        "All input types (text, email, password, number)",
+        "Size variations (sm, md, lg)",
+        "Interactive: typing in inputs works",
+        "WCAG AA: proper labels, error announcements",
+        "Copyable code for each pattern"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Include form validation patterns and ARIA live regions for errors."
+    },
+    {
+      "id": "9",
+      "title": "Textarea component sampler",
+      "description": "Textarea examples with rows, error states, and helper text.",
+      "acceptanceCriteria": [
+        "Basic textarea with rows (3, 4, 5, 6)",
+        "With label and placeholder",
+        "Error state with message",
+        "Helper text examples",
+        "Interactive: typing works",
+        "WCAG AA compliance",
+        "Copyable code examples"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Similar patterns to Input but for multi-line text entry."
+    },
+    {
+      "id": "10",
+      "title": "Select component sampler",
+      "description": "Select dropdown examples with all features including error states and placeholder.",
+      "acceptanceCriteria": [
+        "Basic select with options",
+        "With placeholder",
+        "Error state examples",
+        "Required field indicators",
+        "Interactive: can select options",
+        "Size variations",
+        "WCAG AA compliance",
+        "Copyable code patterns"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Ensure keyboard navigation works (arrow keys, Enter, Escape)."
+    },
+    {
+      "id": "11",
+      "title": "Modal component sampler",
+      "description": "Modal dialog examples with different sizes, content structures, and interaction patterns.",
+      "acceptanceCriteria": [
+        "Modal trigger buttons",
+        "Modal sizes: sm, md, lg",
+        "Modal with header, content, and footer",
+        "Close functionality (X button, backdrop click, Escape key)",
+        "Focus trap demonstration",
+        "WCAG AA: focus management, ARIA attributes",
+        "Interactive: can open/close modals",
+        "Copyable code for implementation"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Critical to test keyboard trapping and focus restoration. Must reference existing Modal.tsx implementation."
+    },
+    {
+      "id": "12",
+      "title": "Tooltip component sampler",
+      "description": "Tooltip examples showing all positions, delays, and accessibility features.",
+      "acceptanceCriteria": [
+        "All positions: top, bottom, left, right",
+        "Custom delay examples",
+        "WCAG AA compliance (keyboard accessible)",
+        "Hover and focus trigger examples",
+        "Interactive: hovering shows tooltips",
+        "Copyable code for each position",
+        "Screen reader compatible"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Must ensure tooltips work on keyboard focus, not just hover."
+    },
+    {
+      "id": "13",
+      "title": "Badge, Spinner, ThemeToggle component sampler",
+      "description": "Examples for remaining primitive components: Badge variants/sizes, Spinner variants/sizes, ThemeToggle functionality.",
+      "acceptanceCriteria": [
+        "Badge: all variants (primary, secondary, accent, success, error, warning, info, neutral)",
+        "Badge: all sizes (sm, md, lg)",
+        "Spinner: all sizes (sm, md, lg, xl)",
+        "Spinner: all variants (primary, secondary, accent, neutral)",
+        "Spinner: with and without labels",
+        "ThemeToggle: light, dark, system modes",
+        "ThemeToggle: immediate visual feedback",
+        "Interactive: ThemeToggle actually changes theme",
+        "Copyable code for each component",
+        "WCAG AA compliance verified"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "ThemeToggle is interactive - clicking must change theme. Use existing ThemeProvider integration."
+    },
+    {
+      "id": "14",
+      "title": "Pattern components sampler",
+      "description": "Display reusable patterns: StageContainer, StageIndicators, TabGroup with usage examples.",
+      "acceptanceCriteria": [
+        "StageContainer: show active/inactive stage behavior",
+        "StageContainer: transition examples",
+        "StageIndicators: all visual states",
+        "TabGroup: interactive tab switching",
+        "TabGroup: all variants and sizes",
+        "Copyable code for each pattern",
+        "WCAG AA compliance for all patterns",
+        "Real-world usage examples"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "These are higher-level patterns. Show how they compose primitives."
+    },
+    {
+      "id": "15",
+      "title": "Visualization components overview",
+      "description": "Overview page of available visualization components with links to detailed examples.",
+      "acceptanceCriteria": [
+        "List of all visualization components",
+        "Brief description of each visualization type",
+        "Screenshots or thumbnails of each visualization",
+        "Link to live examples if applicable",
+        "Code import examples",
+        "WCAG compliance for visualization accessibility"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Visualizations are complex - this is an overview. May need separate detailed pages for each visualization type if full examples are needed."
+    },
+    {
+      "id": "16",
+      "title": "Category landing pages and documentation",
+      "description": "Each category section (Typography, Colors, etc.) should have an introductory landing with usage guidelines and best practices.",
+      "acceptanceCriteria": [
+        "Each category has a landing page/section header",
+        "Usage guidelines for each category",
+        "Best practices for implementation",
+        "Accessibility considerations per category",
+        "Link to related components",
+        "Consistent layout across all categories"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Helps developers understand not just HOW to use components, but WHEN and WHY."
+    },
+    {
+      "id": "17",
+      "title": "WCAG AA compliance audit and verification",
+      "description": "Systematic verification that all sampler components meet WCAG 2.2 AA standards.",
+      "acceptanceCriteria": [
+        "Color contrast ratios verified (4.5:1 for text, 3:1 for UI)",
+        "Keyboard navigation works for all interactive elements",
+        "Focus indicators visible and clear",
+        "ARIA attributes properly implemented",
+        "Screen reader announcements tested",
+        "Error identification and description for form elements",
+        "No keyboard traps",
+        "Bypass blocks (skip links) for navigation",
+        "Status messages announced",
+        "All components tested with keyboard-only navigation"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "This is a critical requirement. Each component example must be verified before launch. May need automated testing tools."
+    },
+    {
+      "id": "18",
+      "title": "Copy-to-clipboard functionality for all code examples",
+      "description": "Add copy button to all code snippets with visual feedback and error handling.",
+      "acceptanceCriteria": [
+        "Copy button appears on all code blocks",
+        "Visual feedback on successful copy (toast, button state change)",
+        "Error handling if clipboard API fails",
+        "Keyboard accessible (Enter/Space)",
+        "ARIA labels for screen readers",
+        "WCAG compliant (visible focus, good contrast)",
+        "Maintains code formatting on paste"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Uses browser Clipboard API. Must handle older browsers gracefully."
+    },
+    {
+      "id": "19",
+      "title": "Search and filter functionality",
+      "description": "Real-time search across all component categories to quickly find specific components or styles.",
+      "acceptanceCriteria": [
+        "Search input in sidebar or header",
+        "Real-time filtering as user types",
+        "Searches component names, descriptions, and keywords",
+        "Shows result count",
+        "Clear search button",
+        "Keyboard navigation of results",
+        "Mobile: accessible search interface",
+        "WCAG compliant: labels, announcements"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Nice-to-have for large component library. Can be Phase 2 if needed."
+    },
+    {
+      "id": "20",
+      "title": "Performance optimization and testing",
+      "description": "Ensure sampler page loads quickly and performs well with all live components.",
+      "acceptanceCriteria": [
+        "Page loads in under 3 seconds",
+        "Lazy load non-visible components",
+        "Bundle size analysis completed",
+        "No console errors",
+        "Smooth animations (60fps)",
+        "Responsive on mobile devices",
+        "Tested on Chrome, Firefox, Safari, Edge",
+        "Code splitting implemented if needed"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "With many interactive components, performance is important. May need code splitting by category."
+    },
+    {
+      "id": "21",
+      "title": "Final QA and accessibility audit",
+      "description": "Comprehensive testing across devices, browsers, and assistive technologies.",
+      "acceptanceCriteria": [
+        "All user stories marked as passes",
+        "Cross-browser testing completed",
+        "Mobile responsive testing on iOS and Android",
+        "Screen reader testing (NVDA, JAWS, VoiceOver)",
+        "Keyboard-only navigation verified",
+        "Lighthouse accessibility score >90",
+        "No broken links or references",
+        "All code examples copy-paste correctly"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Gate for production deployment. Must have sign-off on accessibility."
+    },
+    {
+      "id": "22",
+      "title": "Documentation and deployment preparation",
+      "description": "Create developer documentation and prepare for production deployment.",
+      "acceptanceCriteria": [
+        "README for sampler page added to project docs",
+        "Contribution guide for adding new components",
+        "Deployment instructions",
+        "Environment variable requirements documented",
+        "Route added to navigation menu",
+        "Build process verified",
+        "Production deployment tested on staging",
+        "Analytics tracking (if needed)"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Documentation helps future developers maintain and extend the sampler."
+    }
+  ]
+}
