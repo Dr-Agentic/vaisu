@@ -1,7 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
-
 import * as analysisRepository from '../repositories/analysisRepository.js';
 import * as documentRepository from '../repositories/documentRepository.js';
 import { visualizationService } from '../repositories/visualizationService.js';
@@ -10,7 +9,6 @@ import { documentParser } from '../services/documentParser.js';
 import * as s3Storage from '../services/storage/s3Storage.js';
 import { visualizationGenerator } from '../services/visualization/visualizationGenerator.js';
 import { calculateContentHash } from '../utils/hash.js';
-
 import type { Document, DocumentAnalysis } from '../../shared/src/types.js';
 import type { DocumentRecord, AnalysisRecord } from '../repositories/types.js';
 

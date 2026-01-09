@@ -780,17 +780,17 @@ Output the result as a JSON object matching the defined schema.`;
   }
 
   private async generateArgumentMap(
-    document: Document,
-    analysis: DocumentAnalysis,
+    _document: Document,
+    _analysis: DocumentAnalysis,
   ): Promise<ArgumentMapData> {
     const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     // Prepare context
-    const contentSample = document.content.substring(0, 12000);
-    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
+    const contentSample = _document.content.substring(0, 12000);
+    const tldrText = typeof _analysis.tldr === 'string' ? _analysis.tldr : _analysis.tldr.text;
 
-    const prompt = `Document Title: ${document.title}
+    const prompt = `Document Title: ${_document.title}
 TLDR: ${tldrText}
 
 Content:
