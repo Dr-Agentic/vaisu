@@ -28,6 +28,13 @@ app.use(cors({
 app.use(express.json({ limit: '1gb' }));
 app.use(express.urlencoded({ extended: true, limit: '1gb' }));
 
+// Logging Middleware
+app.use((req, res, next) => {
+  const fullUrl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  console.log(`[${new Date().toISOString()}] ${req.method} ${fullUrl}`);
+  next();
+});
+
 // API Routes
 app.use('/api/documents', documentsRouter);
 

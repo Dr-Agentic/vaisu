@@ -2,10 +2,10 @@ import { Search, Filter, BookOpen, Hash, Tag } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 
 import { TermsDefinitionsData, GlossaryTerm } from '../../../../shared/src/types';
-import { Badge, BadgeVariant } from '../../design-system/components/Badge';
-import { Button } from '../../design-system/components/Button';
-import { Card, CardHeader, CardTitle, CardContent } from '../../design-system/components/Card';
-import { Input } from '../../design-system/components/Input';
+import { Badge, BadgeVariant } from '../primitives/Badge';
+import { Button } from '../primitives/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '../primitives/Card';
+import { Input } from '../primitives/Input';
 
 import { GraphViewerLayout } from './toolkit/GraphViewerLayout';
 

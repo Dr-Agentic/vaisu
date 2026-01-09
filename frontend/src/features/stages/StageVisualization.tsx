@@ -23,12 +23,12 @@ import {
 } from 'lucide-react';
 import { useEffect, useState, forwardRef, useCallback } from 'react';
 
-import { Button } from '../../design-system/components/Button';
+import { Button } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
 
-import { VisualizationRenderer } from './VisualizationRenderer';
-import { VisualizationSidebar, type VisualizationType } from './VisualizationSidebar';
+import { VisualizationRenderer } from '../visualization/VisualizationRenderer';
+import { VisualizationSidebar, type VisualizationType } from '../visualization/VisualizationSidebar';
 
 export interface StageVisualizationProps {
   /**

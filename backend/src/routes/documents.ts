@@ -335,7 +335,9 @@ router.get('/:id', (req: Request, res: Response) => {
 router.post('/:id/visualizations/:type', async (req: Request, res: Response) => {
   try {
     const { id, type } = req.params;
-    console.log(`📊 Visualization request: type=${type}, documentId=${id}`);
+    const force = req.query.force === 'true';
+
+    console.log(`📊 Visualization request: type=${type}, documentId=${id}, force=${force}`);
     console.log(`📦 In-memory documents: ${documents.size} items`);
 
     let document = documents.get(id);
@@ -403,6 +405,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
       type as any,
       document,
       analysis as any,
+      force,
     );
 
     console.log(`✅ Visualization generation completed for ${type}`);

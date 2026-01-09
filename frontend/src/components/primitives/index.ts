@@ -1,7 +1,10 @@
 /**
- * Design System Components
+ * Component Library - Primitives
  *
- * Central export for all design system components.
+ * Foundation components for the design system.
+ * These are reusable, atomic building blocks.
+ * 
+ * All components use CSS custom properties for theming.
  */
 
 export { Button, type ButtonProps, type ButtonVariant, type ButtonSize } from './Button';
@@ -31,5 +34,3 @@ export {
 export { Select, type SelectProps, type SelectOption, type SelectSize } from './Select';
 export { Tooltip, type TooltipProps, type TooltipPosition } from './Tooltip';
 export { Spinner, type SpinnerProps, type SpinnerSize, type SpinnerVariant } from './Spinner';
-export { ThemeProvider, useTheme, type ThemeMode } from '../ThemeProvider';
-

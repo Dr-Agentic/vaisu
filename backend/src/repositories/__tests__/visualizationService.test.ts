@@ -54,6 +54,25 @@ vi.mock('../timelineRepository.js', () => ({
   deleteTimeline: vi.fn(),
 }));
 
+vi.mock('../termsDefinitionsRepository.js', () => ({
+  create: vi.fn(),
+  findByDocumentId: vi.fn(),
+  update: vi.fn(),
+  deleteTermsDefinitions: vi.fn(),
+}));
+
+vi.mock('../analysisRepository.js', () => ({
+  create: vi.fn(),
+  findByDocumentId: vi.fn(),
+  update: vi.fn(),
+  deleteStructuredView: vi.fn(),
+  deleteAnalysis: vi.fn(),
+  deleteGantt: vi.fn(),
+  deleteComparisonMatrix: vi.fn(),
+  deletePriorityMatrix: vi.fn(),
+  deleteRaciMatrix: vi.fn(),
+}));
+
 describe('visualizationService', () => {
   beforeEach(() => {
     // Reset all mocked functions
@@ -132,6 +151,30 @@ describe('visualizationService', () => {
 
       expect(mockCreate).toHaveBeenCalledWith(visualization);
     });
+
+    it('should create terms definitions visualization', async () => {
+      const mockCreate = vi.fn();
+      const { create } = await import('../termsDefinitionsRepository.js');
+      vi.mocked(create).mockImplementation(mockCreate);
+
+      const visualization: VisualizationRecord = {
+        documentId: 'test-doc-id',
+        visualizationType: 'terms-definitions',
+        visualizationData: { terms: [] },
+        llmMetadata: {
+          model: 'gpt-4',
+          tokensUsed: 1200,
+          processingTime: 6000,
+          timestamp: new Date().toISOString(),
+        },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      await visualizationService.create(visualization);
+
+      expect(mockCreate).toHaveBeenCalledWith(visualization);
+    });
   });
 
   describe('findByDocumentIdAndType', () => {
@@ -176,6 +219,34 @@ describe('visualizationService', () => {
       expect(result).toBeNull();
       expect(mockFindByDocumentId).toHaveBeenCalledWith('test-doc-id');
     });
+
+    it('should find terms definitions visualization', async () => {
+      const mockVisualization: VisualizationRecord = {
+        documentId: 'test-doc-id',
+        visualizationType: 'terms-definitions',
+        visualizationData: { terms: [] },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        llmMetadata: {
+          model: 'gpt-4',
+          tokensUsed: 1000,
+          processingTime: 5000,
+          timestamp: new Date().toISOString(),
+        },
+      };
+
+      const mockFindByDocumentId = vi.fn().mockResolvedValue(mockVisualization);
+      const { findByDocumentId } = await import('../termsDefinitionsRepository.js');
+      vi.mocked(findByDocumentId).mockImplementation(mockFindByDocumentId);
+
+      const result = await visualizationService.findByDocumentIdAndType(
+        'test-doc-id',
+        'terms-definitions',
+      );
+
+      expect(result).toEqual(mockVisualization);
+      expect(mockFindByDocumentId).toHaveBeenCalledWith('test-doc-id');
+    });
   });
 
   describe('findByDocumentId', () => {
@@ -215,6 +286,7 @@ describe('visualizationService', () => {
       const { findByDocumentId: findByDocumentIdFlowchart } = await import('../flowchartRepository.js');
       const { findByDocumentId: findByDocumentIdExecutiveDashboard } = await import('../executiveDashboardRepository.js');
       const { findByDocumentId: findByDocumentIdTimeline } = await import('../timelineRepository.js');
+      const { findByDocumentId: findByDocumentIdTermsDefinitions } = await import('../termsDefinitionsRepository.js');
 
       vi.mocked(findByDocumentIdArgMap).mockResolvedValue(mockArgumentMap);
       vi.mocked(findByDocumentIdMindMap).mockResolvedValue(mockMindMap);
@@ -223,6 +295,7 @@ describe('visualizationService', () => {
       vi.mocked(findByDocumentIdFlowchart).mockResolvedValue(null);
       vi.mocked(findByDocumentIdExecutiveDashboard).mockResolvedValue(null);
       vi.mocked(findByDocumentIdTimeline).mockResolvedValue(null);
+      vi.mocked(findByDocumentIdTermsDefinitions).mockResolvedValue(null);
 
       const result = await visualizationService.findByDocumentId('test-doc-id');
 
@@ -292,6 +365,16 @@ describe('visualizationService', () => {
       vi.mocked(deleteArgumentMap).mockImplementation(mockDelete);
 
       await visualizationService.deleteVisualization('test-doc-id', 'argument-map');
+
+      expect(mockDelete).toHaveBeenCalledWith('test-doc-id');
+    });
+
+    it('should delete terms definitions visualization', async () => {
+      const mockDelete = vi.fn();
+      const { deleteTermsDefinitions } = await import('../termsDefinitionsRepository.js');
+      vi.mocked(deleteTermsDefinitions).mockImplementation(mockDelete);
+
+      await visualizationService.deleteVisualization('test-doc-id', 'terms-definitions');
 
       expect(mockDelete).toHaveBeenCalledWith('test-doc-id');
     });

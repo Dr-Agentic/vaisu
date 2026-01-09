@@ -30,6 +30,7 @@ export const DYNAMODB_MIND_MAP_TABLE = process.env.DYNAMODB_MIND_MAP_TABLE || 'v
 export const DYNAMODB_FLOWCHART_TABLE = process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart';
 export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard';
 export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
+export const DYNAMODB_TERMS_DEFINITIONS_TABLE = process.env.DYNAMODB_TERMS_DEFINITIONS_TABLE || 'vaisu-terms-definitions';
 export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
 
 /**
@@ -61,6 +62,7 @@ export function validateAWSConfig(): void {
     DYNAMODB_FLOWCHART_TABLE,
     DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
     DYNAMODB_TIMELINE_TABLE,
+    DYNAMODB_TERMS_DEFINITIONS_TABLE,
     DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
   ];
 
@@ -82,6 +84,7 @@ export function validateAWSConfig(): void {
       flowchart: DYNAMODB_FLOWCHART_TABLE,
       executiveDashboard: DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
       timeline: DYNAMODB_TIMELINE_TABLE,
+      termsDefinitions: DYNAMODB_TERMS_DEFINITIONS_TABLE,
       knowledgeGraph: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     },
   });

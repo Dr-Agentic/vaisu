@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { apiClient } from '../services/apiClient';
 
 import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
-import type { ToastType } from '../electron/components/feedback/Toast';
+import type { ToastType } from '../features/feedback/Toast';
 
 export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
 
@@ -254,7 +254,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         }
       }, 300);
 
-      const data = await apiClient.generateVisualization(document.id, type);
+      const response = await apiClient.generateVisualization(document.id, type);
+      const data = response.data || response; // Handle wrapped response { type, data, cached }
 
       clearInterval(progressInterval);
 

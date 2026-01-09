@@ -16,6 +16,7 @@ import {
   DYNAMODB_EXECUTIVE_DASHBOARD_TABLE,
   DYNAMODB_TIMELINE_TABLE,
   DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
+  DYNAMODB_TERMS_DEFINITIONS_TABLE,
   getAWSRegion,
   getAWSAccessKeyId,
   getAWSSecretAccessKey,
@@ -83,6 +84,12 @@ const tables: TableConfig[] = [
   },
   {
     name: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
+    primaryKey: 'documentId',
+    sortKey: 'type',
+    billingMode: 'PAY_PER_REQUEST',
+  },
+  {
+    name: DYNAMODB_TERMS_DEFINITIONS_TABLE,
     primaryKey: 'documentId',
     sortKey: 'type',
     billingMode: 'PAY_PER_REQUEST',

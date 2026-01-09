@@ -12,7 +12,7 @@
 
 import { forwardRef } from 'react';
 
-import { Button } from '../../design-system/components/Button';
+import { Button } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 
 export interface StageWelcomeProps {

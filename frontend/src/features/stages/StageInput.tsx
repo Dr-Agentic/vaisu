@@ -13,20 +13,15 @@
 import { ArrowLeft, Upload, FileText, FolderOpen } from 'lucide-react';
 import { forwardRef, useState, useCallback } from 'react';
 
-import { Button } from '../../design-system/components';
+import { Button } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
 
-import { DocumentBrowserPanel } from './DocumentBrowserPanel';
-import { FileUploader } from './upload/FileUploader';
-import { TextInputArea } from './upload/TextInputArea';
+import { DocumentBrowserPanel } from '../document/DocumentBrowserPanel';
+import { FileUploader } from '../document/FileUploader';
+import { TextInputArea } from '../document/TextInputArea';
 
-export interface StageInputProps {
-  /**
-   * Callback when back button is clicked
-   */
-  onBack: () => void;
-}
+export interface StageInputProps {}
 
 type InputTab = 'upload' | 'text' | 'browse';
 
@@ -65,7 +60,7 @@ const TABS: TabConfig[] = [
  * Uses hero styling with subtle aurora backgrounds matching StageWelcome.
  */
 export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
-  ({ onBack }, ref) => {
+  (_, ref) => {
     const [activeTab, setActiveTab] = useState<InputTab>('upload');
     const { setStage } = useDocumentStore();
 
@@ -113,9 +108,11 @@ export const StageInput = forwardRef<HTMLDivElement, StageInputProps>(
             variant="outline"
             size="sm"
             leftIcon={<ArrowLeft className="w-4 h-4" />}
-            onClick={onBack}
-            className="opacity-70 hover:opacity-100 transition-opacity"
-          />
+            onClick={() => setStage('welcome')}
+            className="text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+          >
+            Back
+          </Button>
         </div>
 
         {/* Tab Navigation */}

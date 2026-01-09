@@ -2,9 +2,9 @@ import { Upload, FileText } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 
-import { Card } from '../../../design-system/components/Card';
-import { cn } from '../../../lib/utils';
-import { useDocumentStore } from '../../../stores/documentStore';
+import { Card } from '../../components/primitives';
+import { cn } from '../../lib/utils';
+import { useDocumentStore } from '../../stores/documentStore';
 
 export function FileUploader() {
   const { uploadDocument, isLoading, progressMessage, progressPercent, addToast } = useDocumentStore();

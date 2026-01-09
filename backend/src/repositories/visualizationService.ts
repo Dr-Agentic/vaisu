@@ -7,6 +7,7 @@ import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
 import * as mindMapRepository from './mindMapRepository.js';
 import * as timelineRepository from './timelineRepository.js';
 import * as umlClassRepository from './umlClassRepository.js';
+import * as termsDefinitionsRepository from './termsDefinitionsRepository.js';
 
 import type { VisualizationRecord } from './types.js';
 
@@ -179,7 +180,7 @@ export class VisualizationService {
       case 'timeline':
         return timelineRepository;
       case 'terms-definitions':
-        return analysisRepository; // Use analysis repository for terms-definitions
+        return termsDefinitionsRepository;
       case 'gantt':
         return analysisRepository; // Use analysis repository for gantt
       case 'comparison-matrix':

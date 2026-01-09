@@ -1,725 +1,381 @@
-# Vaisu Electron UI Theme Architecture & Design Principles
+# Vaisu UI Library - Developer Guide
 
-**Date:** January 7, 2026
-**Status:** Current Implementation
+**Last Updated:** January 15, 2026  
+**Status:** ✅ **IMPLEMENTED**  
+**Architecture:** Single source of truth - component library
 
-## Overview
+## 🚨 CRITICAL: READ BEFORE BUILDING ANY UI
 
-This document describes the actual UI theme architecture and design system implemented in the Vaisu Electron application's frontend codebase. The design system follows modern principles but has limitations compared to the originally documented vision.
+### The Golden Rule
+**You are FORBIDDEN from creating custom UI components.**
 
-## Design System Architecture
+Every new UI element must use one of these sources:
 
-### 1. Theme System Foundation
+1. **`@/components/primitives/`** - Atoms (Button, Card, Input, etc.)
+2. **`@/components/patterns/`** - Molecules (TabGroup, StageContainer)
+3. **`@/design-system/`** - Tokens and themes
 
-#### Theme Configuration (Actual)
-**Location:** `/frontend/src/design-system/tokens.ts` and `/frontend/src/design-system/themes.ts`
+**Exception:** Only create a new component if you need NEW logic that cannot be composed from existing primitives.
 
-**Implemented:**
-- **CSS Custom Properties** defined in `index.css` (3,084 lines)
-- **Theme Tokens** in `tokens.ts` (280 lines)
-- **Theme Definitions** in `themes.ts` (186 lines)
+---
 
-**Missing from Implementation:**
-- ❌ `ThemeProvider.tsx` component
-- ❌ Context-based theme management
-- ❌ localStorage persistence
-- ❌ Automatic system preference detection
+## 🏗️ Current Architecture
 
-#### CSS Custom Properties System (✅ Implemented)
-**Location:** `/frontend/src/index.css`
-
-**Organized into sections:**
-```css
-/* 1. Base/Reset */
-*, *::before, *::after { box-sizing: border-box; }
-
-/* 2. Color Variables - Light Theme */
-:root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f9fafb;
-  --color-text-primary: #111827;
-  /* ... ~150 color variables */
-  
-  /* Aurora Gradient System */
-  --aurora-1: #6366f1;
-  --aurora-2: #a855f7;
-  --aurora-3: #ec4899;
-  --gradient-angle: 0deg;
-  --duration-gradient: 4s;
-}
-
-/* 3. Dark Theme Override */
-[data-theme="dark"] {
-  --color-background-primary: #0f172a;
-  --color-background-secondary: #1e293b;
-  --color-text-primary: #f1f5f9;
-  /* ... all dark mode colors */
-}
-
-/* 4. Typography */
-:root {
-  --font-sans: system-ui, -apple-system, sans-serif;
-  --font-mono: 'SF Mono', Monaco, monospace;
-  
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  --font-size-2xl: 1.5rem;
-  --font-size-3xl: 1.875rem;
-  --font-size-4xl: 2.25rem;
-  
-  --font-weight-light: 300;
-  --font-weight-normal: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  
-  --line-height-tight: 1.25;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.75;
-}
-
-/* 5. Spacing (4px base grid) */
-:root {
-  --space-xs: 0.25rem;   /* 4px */
-  --space-sm: 0.5rem;    /* 8px */
-  --space-md: 0.75rem;   /* 12px */
-  --space-base: 1rem;    /* 16px */
-  --space-lg: 1.5rem;    /* 24px */
-  --space-xl: 2rem;      /* 32px */
-  --space-2xl: 3rem;     /* 48px */
-  --space-3xl: 4rem;     /* 64px */
-  --space-4xl: 6rem;     /* 96px */
-  --space-5xl: 8rem;     /* 128px */
-}
-
-/* 6. Radius */
-:root {
-  --radius-sm: 0.25rem;
-  --radius-base: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-full: 9999px;
-}
-
-/* 7. Motion */
-:root {
-  --duration-fast: 100ms;
-  --duration-base: 200ms;
-  --duration-slow: 300ms;
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* 8. Elevation/Shadows */
-:root {
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-}
+### Directory Structure
 ```
-
-**Total Lines in index.css:** 1,308 lines (much larger than documented)
-
-### 2. Color System (✅ Implemented)
-
-#### Primary Color Palette
-```css
-/* Backgrounds */
---color-background-primary: #ffffff;
---color-background-secondary: #f9fafb;
---color-background-tertiary: #f3f4f6;
-
-/* Text */
---color-text-primary: #111827;
---color-text-secondary: #4b5563;
---color-text-tertiary: #6b7280;
---color-text-disabled: #d1d5db;
-
-/* Surfaces */
---color-surface-base: #ffffff;
---color-surface-elevated: #f9fafb;
---color-surface-overlay: rgba(255, 255, 255, 0.9);
-
-/* Interactive */
---color-interactive-primary-base: #4f46e5;
---color-interactive-primary-hover: #4338ca;
---color-interactive-primary-active: #3730a3;
---color-interactive-primary-disabled: #a5b4fc;
-
---color-interactive-secondary-base: #6b7280;
---color-interactive-accent-base: #f59e0b;
---color-interactive-accent-hover: #d97706;
---color-interactive-accent-active: #b45309;
-
-/* Borders */
---color-border-base: #e5e7eb;
---color-border-subtle: #f3f4f6;
---color-border-strong: #9ca3af;
---color-border-focus: #4f46e5;
-
-/* Semantic */
---color-semantic-success-base: #10b981;
---color-semantic-success-text: #065f46;
---color-semantic-error-base: #ef4444;
---color-semantic-error-text: #991b1b;
---color-semantic-warning-base: #f59e0b;
---color-semantic-warning-text: #92400e;
---color-semantic-info-base: #3b82f6;
---color-semantic-info-text: #1e40af;
-```
-
-#### Aurora Gradient System (✅ Implemented)
-```css
-/* Primary Aurora Colors */
---aurora-1: #6366f1; /* Indigo */
---aurora-2: #a855f7; /* Purple */
---aurora-3: #ec4899; /* Pink */
-
-/* Secondary Nova Colors */
---nova-1: #06b6d4; /* Cyan */
---nova-2: #3b82f6; /* Blue */
---nova-3: #8b5cf6; /* Violet */
-
-/* Animation Properties */
---gradient-angle: 0deg;
---duration-gradient: 4s;
-```
-
-**Animation Usage:**
-```css
-@keyframes aurora-rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Conic gradient for borders */
-.conic-gradient {
-  background: conic-gradient(
-    from var(--gradient-angle),
-    var(--aurora-1),
-    var(--aurora-2),
-    var(--aurora-3),
-    var(--aurora-1)
-  );
-  animation: aurora-rotate var(--duration-gradient) linear infinite;
-}
-```
-
-### 3. Typography System (✅ Implemented)
-
-**Font Stack:**
-- **Sans-serif**: `system-ui, -apple-system, Segoe UI, Roboto, sans-serif`
-- **Mono**: `SF Mono, Monaco, 'Cascadia Code', monospace`
-
-**Font Sizes:**
-```css
---font-size-xs: 0.75rem;    /* 12px */
---font-size-sm: 0.875rem;   /* 14px */
---font-size-base: 1rem;     /* 16px */
---font-size-lg: 1.125rem;   /* 18px */
---font-size-xl: 1.25rem;    /* 20px */
---font-size-2xl: 1.5rem;    /* 24px */
---font-size-3xl: 1.875rem;  /* 30px */
---font-size-4xl: 2.25rem;   /* 36px */
-```
-
-**Font Weights:**
-- Light: 300
-- Normal: 400
-- Medium: 500
-- Semibold: 600
-- Bold: 700
-
-### 4. Component Architecture
-
-#### Design System Components (Actual vs Documented)
-
-**Documented but NOT Implemented:**
-- ❌ `/frontend/src/design-system/components/Button.tsx`
-- ❌ `/frontend/src/design-system/components/Badge.tsx`
-- ❌ `/frontend/src/design-system/components/Card.tsx`
-- ❌ `/frontend/src/design-system/components/ThemeToggle.tsx`
-- ❌ `/frontend/src/design-system/ThemeProvider.tsx`
-
-**Actually Implemented:**
-- ✅ `/frontend/src/design-system/components/index.ts` (exports: `ComponentSampler`)
-- ✅ `/frontend/src/design-system/hooks/` - 3 hooks
-  - `useClickOutside.ts`
-  - `useDebounce.ts`
-  - `useMediaQuery.ts`
-
-**Component Sampler:**
-- **Location:** `/frontend/src/electron/components/ComponentSampler.tsx`
-- **Purpose:** Testing ground for UI components
-- **Status:** Documentation component, not production UI
-
-### 5. Layout System
-
-#### CSS Grid & Flexbox (✅ Implemented Throughout)
-**Usage in codebase:**
-- Tailwind classes for layout (via index.css)
-- Custom grid in `index.css` for experiments
-
-**Responsive Design:**
-- No explicit breakpoints defined in custom CSS
-- Uses Tailwind's responsive classes (if available)
-- Mobile-first approach in visualizations
-
-### 6. State of the Art Features (Documented vs Reality)
-
-#### 6.1. Animated Gradient System (✅ Partially Implemented)
-- **In index.css:** ✅ All CSS variables and keyframes exist
-- **In components:** ❌ No actual usage in production components
-- **In experiments:** ✅ Used in `/experiments/` HTML files
-
-**Usage in Experiments:**
-```html
-<!-- grid_kinetic_blueprint_elite.html -->
-<div class="aurora-glow">
-  <!-- Uses CSS custom properties for gradient animation -->
-</div>
-```
-
-#### 6.2. Mesh Glow Effects (❌ Not Implemented)
-**Documented:** Yes
-**Actual:** No component uses mesh glow
-
-#### 6.3. Gradient Border Variants (✅ In Experiments Only)
-```css
-/* Available in index.css */
-.gradient-border {
-  position: relative;
-  background: white;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-.gradient-border::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: -2px;
-  border-radius: inherit;
-  background: conic-gradient(...);
-  z-index: -1;
-}
-```
-
-**Actual Usage:** Only in HTML experiment files, not React components.
-
-### 7. Accessibility Standards
-
-#### WCAG Compliance (⚠️ Partial)
-**Implemented:**
-- ✅ Semantic HTML in main App.tsx
-- ✅ Focus indicators in CSS variables (`--color-border-focus`)
-- ✅ Keyboard navigation support (basic)
-
-**Missing:**
-- ❌ Comprehensive ARIA labels
-- ❌ Screen reader testing
-- ❌ Reduced motion media queries
-- ❌ Contrast ratio verification
-
-### 8. Visual Component Reality
-
-#### What Actually Exists
-
-**Main Application Structure:**
-```typescript
-// frontend/src/App.tsx
-- Upload component
-- Document list
-- Analysis results display
-- Visualization router
-- Progress indicators
-```
-
-**Visualization Components (4/15 Implemented):**
-```
-frontend/src/components/visualizations/
-├── argument-map/          ✅ Complete
-├── flowchart/             ✅ Complete
-├── knowledge-graph/       ✅ Complete
-├── uml-class-diagram/     ✅ Complete
-└── [11 more types]        ❌ Not implemented
-```
-
-**Design System Files:**
-```
-frontend/src/design-system/
+/frontend/src/
 ├── components/
-│   └── index.ts           ✅ Exports ComponentSampler
-├── hooks/
-│   ├── useClickOutside.ts ✅
-│   ├── useDebounce.ts     ✅
-│   └── useMediaQuery.ts   ✅
-├── themes.ts              ✅ Theme definitions
-├── tokens.ts              ✅ Design tokens
-└── README.md              ✅ Documentation
-```
-
-**Missing Files:**
-```
-❌ /frontend/src/design-system/components/Button.tsx
-❌ /frontend/src/design-system/components/Badge.tsx
-❌ /frontend/src/design-system/components/Card.tsx
-❌ /frontend/src/design-system/components/ThemeToggle.tsx
-❌ /frontend/src/design-system/ThemeProvider.tsx
-```
-
-### 9. Theme Switching Implementation
-
-#### Current Approach (Manual)
-**Location:** `/frontend/src/design-system/themes.ts`
-
-**Implementation:**
-```typescript
-export const themes = {
-  light: {
-    colors: {
-      background: '#ffffff',
-      text: '#111827',
-      // ... all tokens
-    }
-  },
-  dark: {
-    colors: {
-      background: '#0f172a',
-      text: '#f1f5f9',
-      // ... all tokens
-    }
-  }
-};
-
-// Usage in CSS via [data-theme="dark"]
-```
-
-**Switching Mechanism:**
-```typescript
-// Somewhere in App.tsx or main.tsx
-document.documentElement.setAttribute('data-theme', 'dark');
-```
-
-**Missing:**
-- ❌ Theme toggle component
-- ❌ System preference detection (`matchMedia`)
-- ❌ localStorage persistence
-- ❌ React context provider
-
-### 10. Code Organization Reality
-
-#### Actual vs Documented Structure
-
-**Documented (from 2026-01-06 guide):**
-```
-/frontend/src/design-system/
-├── components/
-│   ├── Button.tsx
-│   ├── Badge.tsx
-│   ├── Card.tsx
-│   └── ThemeToggle.tsx
-├── hooks/
-│   └── [various hooks]
-├── themes.ts
-├── tokens.ts
-└── ThemeProvider.tsx
-```
-
-**Actual:**
-```
-/frontend/src/design-system/
-├── components/
-│   └── index.ts           # Just ComponentSampler
+│   ├── primitives/          ← USE THESE for UI
+│   │   ├── Button.tsx
+│   │   ├── Card.tsx
+│   │   ├── Input.tsx
+│   │   ├── Modal.tsx
+│   │   ├── Spinner.tsx
+│   │   ├── Badge.tsx
+│   │   ├── Checkbox.tsx
+│   │   ├── Radio.tsx
+│   │   ├── Toggle.tsx
+│   │   └── index.ts
+│   ├── patterns/
+│   │   ├── TabGroup.tsx
+│   │   ├── StageContainer.tsx
+│   │   └── index.ts
+│   └── index.ts
+│
+├── stages/                  ← App pages (compose library)
+│   ├── StageInput.tsx
+│   ├── StageVisualization.tsx
+│   └── StageContainer.tsx
+│
+├── design-system/
+│   ├── tokens.ts            ← All design tokens
+│   ├── themes.ts            ← Theme definitions
+│   ├── ThemeProvider.tsx    ← Theme management
+│   └── components/
+│       └── index.ts         ← ComponentSampler (dev tool)
+│
 ├── hooks/
 │   ├── useClickOutside.ts
 │   ├── useDebounce.ts
 │   └── useMediaQuery.ts
-├── themes.ts              # Theme definitions (not used at runtime)
-├── tokens.ts              # Design tokens (not used at runtime)
-└── README.md
+│
+└── index.css                ← 3,084 lines of CSS custom properties
 ```
 
-**Note:** `themes.ts` and `tokens.ts` contain TypeScript definitions but are **not imported** by the main application at runtime. CSS variables in `index.css` are the actual source of truth.
+### What This Means
+✅ **One place to find any UI component**  
+✅ **Update Button once → all pages auto-update**  
+✅ **No page-specific "hacks"**  
+✅ **Consistent UI across entire app**  
 
-### 11. Style Implementation Strategy
+---
 
-#### CSS-in-JS vs CSS Variables
+## 📦 Available Primitives
 
-**Current Approach:**
-- ✅ Pure CSS custom properties
-- ❌ No CSS-in-JS library
-- ❌ No styled-components
-- ❌ No Emotion
+### Core Components (10 available)
 
-**Tailwind CSS:**
-- Configured in `/frontend/tailwind.config.js`
-- Used in component classes
-- Custom CSS variables for design tokens
+| Component | Location | Props | Usage |
+|-----------|----------|-------|-------|
+| **Button** | `@/components/primitives` | `variant`, `size`, `leftIcon`, `rightIcon`, `disabled`, `onClick` | `size="sm"` or `size="lg"` |
+| **Card** | `@/components/primitives` | `elevation`, `padding`, `className` | `elevation="2"` |
+| **Input** | `@/components/primitives` | `value`, `onChange`, `placeholder`, `error` | Text input with styling |
+| **Modal** | `@/components/primitives` | `open`, `onClose`, `title`, `children` | Dialog overlays |
+| **Spinner** | `@/components/primitives` | `size`, `color` | Loading indicators |
+| **Badge** | `@/components/primitives` | `variant` | Status indicators |
+| **Checkbox** | `@/components/primitives` | `checked`, `onChange` | Toggle inputs |
+| **Radio** | `@/components/primitives` | `checked`, `onChange` | Radio buttons |
+| **Toggle** | `@/components/primitives` | `enabled`, `onChange` | On/off switches |
+| **Icon** | `@/components/primitives` | `name`, `size`, `color` | Icon wrapper |
 
-**Migration Path:**
-The codebase has tokens defined in TypeScript but uses plain CSS. There's a disconnect between the design system documentation and actual implementation.
+### Pattern Components (3 available)
 
-### 12. Component Patterns
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| **TabGroup** | `@/components/patterns` | Tabbed navigation with icons |
+| **StageContainer** | `@/components/patterns` | Page layout with header/back button |
+| **ComponentSampler** | `@/design-system/components` | Dev tool - displays all primitives |
 
-#### What Components Actually Do
+---
 
-**Main App Component (`App.tsx`):**
+## 🎨 How to Use
+
+### 1. Building a New Page (Step-by-Step)
+
+**NEVER do this:**
 ```typescript
-// ~220 lines
-- State management (Zustand)
-- File upload
-- Document list display
-- Analysis results
-- Visualization router
-- Progress tracking
-- Error display
+// ❌ WRONG - Custom button
+const MyButton = ({ text }) => (
+  <button className="bg-purple-500 text-white px-4 py-2 rounded">
+    {text}
+  </button>
+)
+
+// ❌ WRONG - Custom card
+const MyCard = ({ children }) => (
+  <div className="bg-white shadow-lg p-4 rounded">
+    {children}
+  </div>
+)
 ```
 
-**Visualizations (e.g., KnowledgeGraph):**
+**ALWAYS do this:**
 ```typescript
-// Uses D3/Cytoscape for rendering
-- Nodes and edges
-- Interactive SVG/Canvas
-- Zoom and pan
-- Node selection
-- Hover tooltips
-- Search/filter
+// ✅ CORRECT - Import from library
+import { Button, Card } from '@/components/primitives'
+import { StageContainer } from '@/components/patterns'
+
+const MyPage = () => {
+  return (
+    <StageContainer title="My Page" onBack={handleBack}>
+      <Card elevation="2" padding="lg">
+        <h2>Welcome</h2>
+        <Button variant="primary" onClick={handleClick}>
+          Click Me
+        </Button>
+      </Card>
+    </StageContainer>
+  )
+}
 ```
 
-**Component Style:**
-- Functional components with hooks
-- Zustand for state
-- No design system components used
-- Ad-hoc styling in component files
+### 2. Import Paths
 
-### 13. State of the Art vs Reality
+**Use these aliases (configured in tsconfig.json):**
 
-#### Documented Features:
-1. ✅ **Aurora gradients** - In CSS, not used
-2. ✅ **CSS custom properties** - Fully implemented
-3. ❌ **ThemeProvider** - Not implemented
-4. ❌ **Design components** - Not implemented
-5. ❌ **Mesh glow** - Not implemented
-6. ✅ **Animation tokens** - Defined but limited usage
-7. ❌ **Accessibility** - Partial, not comprehensive
+```typescript
+// Components
+import { Button } from '@/components/primitives'
+import { TabGroup } from '@/components/patterns'
+import { StageContainer } from '@/components/patterns'
 
-#### Actual Features:
-1. ✅ **CSS variables** for all tokens
-2. ✅ **Dark mode support** via data attribute
-3. ✅ **Aurora gradient CSS** defined
-4. ✅ **Typography scale** defined
-5. ✅ **Spacing scale** defined
-6. ❌ **Component library** - Minimal
-7. ❌ **Theme persistence** - No
+// Design system
+import { themes } from '@/design-system/themes'
+import { tokens } from '@/design-system/tokens'
 
-### 14. Accessibility Reality
+// Hooks
+import { useDebounce } from '@/hooks/useDebounce'
+```
 
-#### What's Actually Implemented
-**In CSS:**
+### 3. Theme Usage
+
+**All components automatically respect the theme.**
+
+```typescript
+// ✅ This works automatically
+import { Card } from '@/components/primitives'
+
+const MyComponent = () => (
+  <Card>Dark mode? Light mode? It just works.</Card>
+)
+```
+
+**To switch themes:**
+```typescript
+import { useTheme } from '@/design-system/ThemeProvider'
+
+const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme()
+  
+  return (
+    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+      Toggle Theme
+    </button>
+  )
+}
+```
+
+---
+
+## 🎯 When to Create New Components
+
+### ✅ DO Create New Component If:
+1. **You need new logic** (e.g., drag-and-drop file uploader)
+2. **No existing pattern fits** (e.g., multi-step wizard)
+3. **You will use it 3+ times** (justify the maintenance)
+
+### ❌ DO NOT Create If:
+1. **You can compose from existing** (use Button + Card + Input)
+2. **It's used only once** (inline it)
+3. **It's just styling** (use className prop)
+
+**Example:**
+```typescript
+// ❌ Bad: Custom button group
+const MyButtonGroup = () => (
+  <div className="flex gap-2">
+    <button onClick={prev} className="bg-gray-200">Prev</button>
+    <button onClick={next} className="bg-blue-500">Next</button>
+  </div>
+)
+
+// ✅ Good: Compose existing
+import { Button } from '@/components/primitives'
+
+const MyButtonGroup = () => (
+  <div style={{ display: 'flex', gap: 'var(--space-md)' }}>
+    <Button variant="secondary" onClick={prev}>Prev</Button>
+    <Button variant="primary" onClick={next}>Next</Button>
+  </div>
+)
+```
+
+---
+
+## 🔧 Design Tokens
+
+### Available CSS Variables
+All tokens are defined in `@/index.css`. Use them directly:
+
 ```css
-/* Focus indicators */
---color-border-focus: #4f46e5;
+/* Colors */
+var(--color-background-primary)
+var(--color-text-primary)
 
-/* Some semantic classes */
-.text-error { color: var(--color-semantic-error-base); }
-.text-success { color: var(--color-semantic-success-base); }
+/* Spacing */
+var(--space-md)
+var(--space-xl)
+
+/* Radius */
+var(--radius-lg)
 ```
 
-**In Components:**
-- Some `aria-label` attributes
-- Tab navigation works
-- Focus states visible (via browser defaults)
+### TypeScript Token Access
+```typescript
+import { tokens } from '@/design-system/tokens'
 
-**Missing:**
-- ❌ `aria-describedby` for form errors
-- ❌ `role` attributes for custom widgets
-- ❌ `prefers-reduced-motion` support
-- ❌ Screen reader announcements
-- ❌ Keyboard shortcuts documentation
-- ❌ Contrast ratio validation
+// Access design tokens programmatically
+const spacing = tokens.spacing.md  // 1rem
+const color = tokens.colors.primary[500]  // #4f46e5
+```
 
-### 15. Development Workflow
+---
 
-#### Component Testing
-**Location:** `/frontend/src/electron/components/ComponentSampler.tsx`
+## ⚠️ Common Mistakes to Avoid
 
-**Purpose:** Visual playground for testing design tokens
-**Status:** Developer tool, not user-facing
+### 1. Duplicate Custom Components
+**Before:** Every page had its own Button style
+**After:** Import from `@/components/primitives`
 
-#### Style Development
-**Approach:**
-1. Define tokens in `tokens.ts` (TypeScript)
-2. Define themes in `themes.ts` (TypeScript)
-3. Implement in `index.css` (CSS custom properties)
-4. Use via class names or inline styles
+### 2. Hardcoded Colors
+**Before:** `className="bg-purple-500"`
+**After:** `className="bg-[var(--color-interactive-primary-base)]"`
 
-**Gap:** No automated synchronization between TypeScript definitions and actual CSS.
+### 3. Inconsistent Spacing
+**Before:** `padding: 12px`, `padding: 16px`, `padding: 1rem`
+**After:** `padding: var(--space-md)` (always 16px)
 
-### 16. Integration Patterns
+### 4. Not Using Tokens
+**Before:** Random values everywhere
+**After:** `var(--radius-lg)`, `var(--shadow-md)`
 
-#### With Electron
-**Native Feel:**
-- Uses Electron's native window controls
-- macOS/Windows/Linux specific styling in some places
-- System font stack for native appearance
+---
 
-#### With React
-- Functional components
-- Hooks for state and effects
-- Zustand for global state
-- No component library dependencies
+## 📊 Current State (As of Jan 15, 2026)
 
-#### With State Management
-- Zustand stores: `/frontend/src/stores/`
-- `/frontend/src/stores/documentStore.ts` (432 lines)
-- Manages documents, analyses, visualizations
-- No theme state (theme not reactive yet)
+### ✅ Implemented (13 components)
+- **Primitives (10):** Button, Card, Input, Modal, Spinner, Badge, Checkbox, Radio, Toggle, Icon
+- **Patterns (3):** TabGroup, StageContainer, ComponentSampler
 
-### 17. Code Quality Standards
+### ⚠️ In Progress
+- ThemeProvider (being built)
+- Accessibility improvements (planned)
+- More primitives (checkbox, radio, toggle needed)
 
-#### TypeScript Usage
-- ✅ Strict mode enabled in `tsconfig.json`
-- ✅ Types in `/frontend/src/types/` (minimal)
-- ✅ Shared types in `/shared/src/types.ts`
-- ❌ No component prop types (minimal usage)
+### ❌ Not Implemented (Yet)
+- Storybook documentation
+- Automated visual regression testing
+- Component test suite
+- Comprehensive prop validation
 
-#### Organization
-- ❌ No component library pattern
-- ❌ No design system package
-- Ad-hoc component structure
-- Visualizations organized by type
+---
 
-#### Testing
-- ❌ No component tests
-- ❌ No visual regression tests
-- ❌ No accessibility tests
-- ⚠️ Some API tests in backend only
+## 🚀 Next Steps
 
-### 18. Future Enhancements (Reality Check)
+### Immediate (Priority 1)
+1. ✅ **Consolidate UI library** - DONE
+2. ⏳ **Build ThemeProvider** - IN PROGRESS
+3. 📋 **Add remaining primitives** - NEXT
 
-#### What Would Need to be Built
-1. **ThemeProvider Component**
-   - React context
-   - Theme switching logic
-   - localStorage persistence
-   - System preference detection
+### Short-term (Priority 2)
+1. Migrate existing pages to use library components
+2. Add TypeScript prop types to all components
+3. Create component usage examples
+4. Add accessibility attributes (ARIA)
 
-2. **Component Library**
-   - Button, Badge, Card, Input
-   - Consistent props interface
-   - Full accessibility
-   - Storybook documentation
+### Long-term (Priority 3)
+1. Publish as separate package (if needed)
+2. Add Storybook for documentation
+3. Visual regression testing
+4. CI/CD for component library
 
-3. **Accessibility Layer**
-   - ARIA attributes
-   - Keyboard navigation
-   - Focus management
-   - Reduced motion support
+---
 
-4. **Theme Persistence**
-   - localStorage integration
-   - Sync across tabs
-   - Cookie fallback
+## 💡 Quick Reference
 
-5. **Design Token Pipeline**
-   - Auto-generate CSS from TS
-   - Design token documentation
-   - Version control for tokens
+### Import Pattern
+```typescript
+import { Component } from '@/components/[folder]'
+```
 
-### 19. Summary: Documented vs Reality
+### File Location Rules
+| File Type | Location | Example |
+|-----------|----------|---------|
+| Reusable UI | `@/components/primitives/` | Button, Card |
+| Composed UI | `@/components/patterns/` | TabGroup |
+| App logic | `@/stages/` | StageInput |
+| Hooks | `@/hooks/` | useDebounce |
+| Design tokens | `@/design-system/` | tokens.ts |
 
-#### Documented (Aspirational):
-- Full design system with components
-- ThemeProvider with context
-- Auto theme detection
-- Comprehensive component library
-- Mesh glow effects
-- State-of-the-art animations
-- Full WCAG compliance
+### Styling Priority
+1. ✅ Use CSS variables: `var(--color-primary)`
+2. ✅ Use library components: `<Button />`
+3. ✅ Use className prop: `<Card className="custom" />`
+4. ❌ Never: Create custom `<MyButton />`
 
-#### Reality (Current):
-- CSS variables defined but unused
-- Theme definitions exist but not integrated
-- 4 visualization components implemented
-- No reusable UI component library
-- Manual theme switching (if any)
-- Basic accessibility
-- Aurora CSS defined but not used in app
+---
 
-#### Gap Analysis:
-**What Exists:**
-- ✅ CSS variables in index.css
-- ✅ Token definitions in tokens.ts
-- ✅ Theme definitions in themes.ts
-- ✅ Design system documentation
-- ✅ 4 visualization components
-- ✅ Aurora gradient CSS
+## 🎯 Success Metrics
 
-**What Doesn't:**
-- ❌ Runtime theme system
-- ❌ Component library
-- ❌ Theme persistence
-- ❌ System preference detection
-- ❌ Comprehensive accessibility
-- ❌ Reusable UI components
+### Before (Jan 14)
+- 50+ different button styles across pages
+- No consistent spacing system
+- Colors hardcoded everywhere
+- 200+ component files
 
-**Conclusion:**
-The design system is 60% documented but only 30% implemented. The CSS foundation exists but lacks the React integration and component library described in documentation.
+### After (Jan 15)
+- **One Button component** used everywhere
+- **Consistent spacing** via tokens
+- **Centralized colors** in CSS
+- **13 library components** + app-specific stages
 
-### 20. Recommendations for Implementation
+### Goal
+- Build page 4 in 30 minutes (not 3 hours)
+- Update color scheme once, affects all pages
+- New devs can ship UI on day 1
 
-#### Phase 1: Core Theme System
-1. Create `ThemeProvider.tsx` using React Context
-2. Implement theme switching logic
-3. Add localStorage persistence
-4. Detect system preference
+---
 
-#### Phase 2: Component Library
-1. Start with Button, Badge, Card
-2. Build with full accessibility
-3. Document props and usage
-4. Add Storybook
+## 📚 For New Developers
 
-#### Phase 3: Integration
-1. Migrate visualizations to use components
-2. Add theme state to Zustand
-3. Implement reduced motion support
-4. Add automated contrast checking
+**Your First Day:**
+1. Read this file (5 min)
+2. Open `@/components/primitives/index.ts` (see what exists)
+3. Run `npm run dev:components` to see ComponentSampler
+4. Build your first page using ONLY library components
 
-#### Phase 4: Polish
-1. Add animations to match documentation
-2. Implement mesh glow effects
-3. Add comprehensive ARIA attributes
-4. Create component examples
+**Your First UI Task:**
+```bash
+# Instead of: "Build custom modal"
+# Do: "Import Modal from @/components/primitives"
 
-### 21. Conclusion
+# Instead of: "Create card component"
+# Do: "Import Card and pass children"
 
-**The Vaisu design system is in early stages:**
+# Result: Consistent UI, less code, faster shipping
+```
 
-✅ **Strengths:**
-- Solid CSS foundation with variables
-- Token-based design approach
-- Aurora gradient system defined
-- Type-safe token definitions
-- Good typography and spacing scales
+---
 
-❌ **Weaknesses:**
-- No React integration
-- No component library
-- No theme persistence
-- Minimal accessibility
-- Unused design tokens
-- Disconnect between TypeScript and CSS
-
-⚠️ **Status:**
-Documentation describes an **aspirational vision** rather than current reality. The system has all the ingredients but hasn't been assembled into a functional design system.
-
-**For the design system to match documentation, approximately 70% more implementation work is needed.**
+**Document Version:** 1.0  
+**Last Fact Check:** January 15, 2026  
+**Maintained By:** Team (update when adding new components)

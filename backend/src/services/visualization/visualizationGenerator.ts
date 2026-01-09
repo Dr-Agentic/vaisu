@@ -71,11 +71,13 @@ export class VisualizationGenerator {
     type: VisualizationType,
     document: Document,
     analysis: DocumentAnalysis,
+    force: boolean = false,
   ): Promise<any> {
     try {
       // First, check if visualization already exists in DynamoDB (skip for structured-view as it's stored in analyses table)
+      // If force is true, skip this check to regenerate
       let existingVisualization = null;
-      if (type !== 'structured-view') {
+      if (!force && type !== 'structured-view') {
         existingVisualization = await visualizationService.findByDocumentIdAndType(
           document.id,
           type,

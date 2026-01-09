@@ -19,7 +19,7 @@
 import { ChevronLeft } from 'lucide-react';
 import { forwardRef } from 'react';
 
-import { Badge } from '../../design-system/components/Badge';
+import { Badge } from '../../components/primitives';
 import { cn } from '../../lib/utils';
 
 import type { VisualizationType as SharedVisualizationType } from '@shared/types';

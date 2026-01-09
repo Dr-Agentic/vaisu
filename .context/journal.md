@@ -131,4 +131,74 @@ frontend/src/electron/components/
 ### Next Steps
 - Monitor for any runtime issues in development
 - Update any remaining documentation that references old paths
-- Consider updating CI/CD pipelines if they reference the old structure
+- Consider updating CI/CD pipelines if they reference the old paths
+
+## 2026-01-06 - Backend Storage Migration & Regeneration Logic
+
+### Summary
+Implemented a dedicated storage strategy for "Terms & Definitions" data and added a standardized "force regeneration" capability for all visualization types. This ensures data persistence scalability and allows users to explicitly request fresh AI analysis.
+
+### Feature Details
+- **Feature**: Terms & Definitions Storage Migration + Visualization Force Regeneration
+- **Started**: 2026-01-06
+- **Finished**: 2026-01-06
+
+### Files Modified
+- `backend/src/config/aws.ts` (Added table constant & validation)
+- `backend/.env.example` (Added env var)
+- `backend/src/scripts/setupTables.ts` (Added table creation logic)
+- `backend/src/repositories/termsDefinitionsRepository.ts` (New file)
+- `backend/src/repositories/visualizationService.ts` (Routing logic)
+- `backend/src/services/visualization/visualizationGenerator.ts` (Added `force` logic)
+- `backend/src/routes/documents.ts` (Added `force` query param handling)
+
+### Design Implementation
+1.  **Dedicated Repository Pattern**:
+    - Created `vaisu-terms-definitions` DynamoDB table.
+    - Implemented `TermsDefinitionsRepository` following strict isolation rules.
+    - Used `UpdateCommand` instead of `PutCommand` to support partial updates safely.
+
+2.  **Force Regeneration Logic**:
+    - Modified `VisualizationGenerator` to accept a `force` boolean.
+    - If `force=true`, the system bypasses the DynamoDB cache lookup.
+    - Updated API endpoint `POST /api/documents/:id/visualizations/:type` to accept `?force=true`.
+    - This allows the UI to trigger a re-run of the LLM prompt without deleting data manually.
+
+### Difficulties Encountered & Solutions
+-   **Partial Updates**: The initial repository implementation used `PutCommand` which replaces the entire item.
+    -   *Solution*: Refactored to use `UpdateCommand` with dynamic expression building to ensure only specific fields are modified while preserving keys.
+-   **Routing Complexity**: `VisualizationService` acts as a central router.
+    -   *Solution*: Updated the switch-case logic to explicitly route `terms-definitions` to its new dedicated repository instead of the shared `AnalysisRepository`.
+
+## 2026-01-08 - Frontend Data Handling & Build Fixes
+
+### Summary
+Resolved a critical crash in the Executive Dashboard visualization caused by a mismatch between the backend response structure and the frontend store's data handling. Also fixed several TypeScript errors preventing a clean frontend build.
+
+### Feature Details
+- **Feature**: Frontend API Response Unwrapping & Build Stabilization
+- **Started**: 2026-01-08
+- **Finished**: 2026-01-08
+
+### Files Modified
+- `frontend/src/stores/documentStore.ts` (Added unwrapping logic)
+- `frontend/src/features/visualization/VisualizationRenderer.tsx` (Fixed component props)
+- `frontend/src/features/stages/StageInput.tsx` (Fixed button children and unused props)
+- `frontend/src/App.tsx` (Removed unused handler)
+- `backend/src/server.ts` (Added request logging middleware)
+
+### Design Implementation
+1.  **API Response Unwrapping**:
+    - The backend returns `{ type, data, cached }`.
+    - The frontend store was saving this whole object.
+    - Updated `loadVisualization` in `documentStore.ts` to unwrap `response.data || response` before storing it.
+    - This ensures components like `ExecutiveDashboard` receive the actual data payload (`{ executiveCard, ... }`) instead of the wrapper.
+
+2.  **Build Fixes**:
+    - Fixed `KnowledgeGraph` usage in `VisualizationRenderer` (removed `data` prop as it uses internal store).
+    - Fixed `ArgumentMap` usage (passed `data={data}` instead of `documentId=""`).
+    - Cleaned up unused props in `StageInput` and `App`.
+
+### Difficulties Encountered & Solutions
+-   **Debug Complexity**: The crash was obscure (`Cannot destructure property 'headline'`).
+    -   *Solution*: Added backend request logging and used `curl` to verify the exact JSON structure, proving the wrapper existed. Created a reproduction script to confirm the fix logic.

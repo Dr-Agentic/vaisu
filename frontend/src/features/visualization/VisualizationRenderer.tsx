@@ -56,15 +56,16 @@ export function VisualizationRenderer() {
     case 'flowchart':
       return <Flowchart data={data} />;
     case 'knowledge-graph':
-      return <KnowledgeGraph data={data} />;
+      // KnowledgeGraph manages its own data via store for now
+      return <KnowledgeGraph />;
     case 'terms-definitions':
       return <TermsDefinitions data={data} />;
     case 'uml-class-diagram':
       return <UMLClassDiagram data={data} />;
     case 'argument-map':
-      return <ArgumentMap documentId="" />;
+      return <ArgumentMap data={data} />;
     case 'depth-graph':
-      return <ArgumentMap documentId="" />;
+      return <ArgumentMap data={data} />;
     case 'executive-dashboard':
       return <ExecutiveDashboard data={data} />;
     default:

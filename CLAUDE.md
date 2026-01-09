@@ -202,12 +202,14 @@ npm run type-check        # TypeScript type checking
 ```
 
 ### Testing Commands
+- **Non-Interactive Mode**: Always run tests in non-interactive mode using the `--run` flag (e.g., `npm test -- --run` or `vitest run`) to prevent the process from waiting for user input to quit.
+
 ```bash
 # Run all tests
-npm test
+npm test -- --run
 
 # Run tests with coverage report
-npm run test:coverage
+npm run test:coverage -- --run
 
 # Run tests in watch mode
 npm run test:watch

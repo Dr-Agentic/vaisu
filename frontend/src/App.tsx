@@ -10,14 +10,14 @@
 import { useEffect } from 'react';
 
 import { ThemeProvider } from './design-system/ThemeProvider';
+import { StageContainer, Stage } from './components/patterns';
 import {
-  StageContainer,
-  Stage,
   StageWelcome,
   StageInput,
   StageAnalysis,
   StageVisualization,
-  ToastContainer } from './electron/components';
+  ToastContainer,
+} from './features';
 import { useDocumentStore } from './stores/documentStore';
 
 /**
@@ -54,10 +54,6 @@ export default function App() {
     setStage('input');
   };
 
-  const handleBackFromInput = () => {
-    setStage('welcome');
-  };
-
   const handleBackFromVisualization = () => {
     // Clear document and return to welcome
     useDocumentStore.getState().clearDocument();
@@ -77,7 +73,7 @@ export default function App() {
 
         {/* Input Stage */}
         <Stage active={currentStage === 'input'}>
-          <StageInput onBack={handleBackFromInput} />
+          <StageInput />
         </Stage>
 
         {/* Analysis Stage */}

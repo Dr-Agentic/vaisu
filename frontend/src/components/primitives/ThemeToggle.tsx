@@ -12,7 +12,7 @@
 import { Moon, Sun, Monitor } from 'lucide-react';
 
 import { cn } from '../../lib/utils';
-import { useTheme } from '../ThemeProvider';
+import { useTheme } from '../../design-system/ThemeProvider';
 
 import { Button, type ButtonVariant } from './Button';
 
