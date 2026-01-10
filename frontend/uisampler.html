@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaisu UI Sampler</title>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-tertiary: #64748b;
+            --border-subtle: #334155;
+            --primary-500: #3b82f6;
+            --success-500: #10b981;
+            --warning-500: #f59e0b;
+            --error-500: #ef4444;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-color: rgba(96, 165, 250, 0.5);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .category-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .category-badge {
+            background: rgba(96, 165, 250, 0.2);
+            color: #93c5fd;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .category-description {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .components-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .component-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            width: 100%;
+        }
+
+        .component-btn:hover {
+            background: rgba(96, 165, 250, 0.2);
+            border-color: rgba(96, 165, 250, 0.5);
+            transform: translateX(4px);
+        }
+
+        .component-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .component-desc {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--success-500);
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>UI Sampler</h1>
+            <p class="subtitle">Interactive design system components and patterns</p>
+            <div style="margin-top: 1rem;">
+                <span class="status-indicator"></span>
+                <span>Frontend running on Vite development server</span>
+            </div>
+        </header>
+
+        <div class="categories">
+            <!-- Typography Category -->
+            <div class="category-card" onclick="navigateTo('typography')">
+                <div class="category-header">
+                    <h3 class="category-title">Typography</h3>
+                    <span class="category-badge">Text & Fonts</span>
+                </div>
+                <p class="category-description">
+                    Complete typography scale with all heading levels, body text, and semantic text elements.
+                    Demonstrates font hierarchy, spacing, and accessibility features.
+                </p>
+                <div class="components-grid">
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('typography/heading-h1')">
+                        <div class="component-name">Heading H1</div>
+                        <div class="component-desc">Main page title</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('typography/heading-h2')">
+                        <div class="component-name">Heading H2</div>
+                        <div class="component-desc">Section headers</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('typography/body-text')">
+                        <div class="component-name">Body Text</div>
+                        <div class="component-desc">Paragraph content</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('typography/caption')">
+                        <div class="component-name">Caption</div>
+                        <div class="component-desc">Small text</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Colors Category -->
+            <div class="category-card" onclick="navigateTo('colors')">
+                <div class="category-header">
+                    <h3 class="category-title">Colors</h3>
+                    <span class="category-badge">Palette & Themes</span>
+                </div>
+                <p class="category-description">
+                    Complete color palette with semantic naming, theme variants, and accessibility compliance.
+                    Shows all available colors and their usage contexts.
+                </p>
+                <div class="components-grid">
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('colors/primary')">
+                        <div class="component-name">Primary Colors</div>
+                        <div class="component-desc">Brand palette</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('colors/secondary')">
+                        <div class="component-name">Secondary Colors</div>
+                        <div class="component-desc">Supporting palette</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('colors/surface')">
+                        <div class="component-name">Surface Colors</div>
+                        <div class="component-desc">Backgrounds</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('colors/interactive')">
+                        <div class="component-name">Interactive Colors</div>
+                        <div class="component-desc">States & actions</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Primitives Category -->
+            <div class="category-card" onclick="navigateTo('primitives')">
+                <div class="category-header">
+                    <h3 class="category-title">Primitives</h3>
+                    <span class="category-badge">Core Components</span>
+                </div>
+                <p class="category-description">
+                    Fundamental building blocks for your interface. All primitive components with comprehensive examples.
+                </p>
+                <div class="components-grid">
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/button')">
+                        <div class="component-name">Button</div>
+                        <div class="component-desc">All variants & states</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/card')">
+                        <div class="component-name">Card</div>
+                        <div class="component-desc">All variants & sizes</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/input')">
+                        <div class="component-name">Input</div>
+                        <div class="component-desc">Forms & validation</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/modal')">
+                        <div class="component-name">Modal</div>
+                        <div class="component-desc">Dialog & overlays</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/tooltip')">
+                        <div class="component-name">Tooltip</div>
+                        <div class="component-desc">Hover information</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('primitives/badge-spinner')">
+                        <div class="component-name">Badge & Spinner</div>
+                        <div class="component-desc">Status & loading</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Patterns Category -->
+            <div class="category-card" onclick="navigateTo('patterns')">
+                <div class="category-header">
+                    <h3 class="category-title">Patterns</h3>
+                    <span class="category-badge">Design Patterns</span>
+                </div>
+                <p class="category-description">
+                    Reusable design patterns and layout examples. Common UI patterns with best practices.
+                </p>
+                <div class="components-grid">
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('patterns/form-layout')">
+                        <div class="component-name">Form Layouts</div>
+                        <div class="component-desc">Form patterns</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('patterns/navigation')">
+                        <div class="component-name">Navigation</div>
+                        <div class="component-desc">Menu patterns</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('patterns/list-display')">
+                        <div class="component-name">List Display</div>
+                        <div class="component-desc">Data presentation</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('patterns/error-states')">
+                        <div class="component-name">Error States</div>
+                        <div class="component-desc">Empty & error</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visualizations Category -->
+            <div class="category-card" onclick="navigateTo('visualizations')">
+                <div class="category-header">
+                    <h3 class="category-title">Visualizations</h3>
+                    <span class="category-badge">Data & Charts</span>
+                </div>
+                <p class="category-description">
+                    Complete visualization examples showing all 6 visualization types available in Vaisu.
+                    Interactive data visualization components.
+                </p>
+                <div class="components-grid">
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/structured-view')">
+                        <div class="component-name">Structured View</div>
+                        <div class="component-desc">Document structure</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/mind-map')">
+                        <div class="component-name">Mind Map</div>
+                        <div class="component-desc">Idea mapping</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/flowchart')">
+                        <div class="component-name">Flowchart</div>
+                        <div class="component-desc">Process flow</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/knowledge-graph')">
+                        <div class="component-name">Knowledge Graph</div>
+                        <div class="component-desc">Entity relationships</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/executive-dashboard')">
+                        <div class="component-name">Executive Dashboard</div>
+                        <div class="component-desc">KPI metrics</div>
+                    </button>
+                    <button class="component-btn" onclick="event.stopPropagation(); navigateTo('visualizations/timeline')">
+                        <div class="component-name">Timeline</div>
+                        <div class="component-desc">Chronological events</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                Direct access to components available through the React application at the main URL.<br>
+                This HTML interface provides navigation to the full interactive UI Sampler.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(path) {
+            // Navigate to the main app with the hash
+            const baseUrl = window.location.origin;
+            const appUrl = baseUrl + '/#' + path;
+            window.location.href = appUrl;
+        }
+
+        // Auto-scroll to top when page loads
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 0);
+        });
+    </script>
+</body>
+</html>

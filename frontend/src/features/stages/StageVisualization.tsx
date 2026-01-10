@@ -15,11 +15,8 @@
 
 import {
   ArrowLeft,
-  X,
   Menu,
   Info,
-  Maximize,
-  Minimize,
 } from 'lucide-react';
 import { useEffect, useState, forwardRef, useCallback } from 'react';
 
@@ -54,7 +51,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
 
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [summaryVisible, setSummaryVisible] = useState(true);
-    const [canvasFullscreen, setCanvasFullscreen] = useState(false);
 
     // Keyboard shortcuts
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -76,22 +72,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         }
       }
 
-      // Fullscreen: F or f (only when not in input fields)
-      if ((e.key === 'f' || e.key === 'F')
-          && !(e.target instanceof HTMLInputElement
-            || e.target instanceof HTMLTextAreaElement
-            || e.target instanceof HTMLSelectElement)) {
-        e.preventDefault();
-        toggleCanvasFullscreen();
-      }
-
-      // Esc: exit fullscreen or go back
-      if (e.key === 'Escape') {
-        if (canvasFullscreen) {
-          toggleCanvasFullscreen();
-        }
-      }
-
       // Sidebar toggle: S or s (only when not in input fields)
       if ((e.key === 's' || e.key === 'S')
           && !(e.target instanceof HTMLInputElement
@@ -100,7 +80,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
         e.preventDefault();
         setSidebarCollapsed(!sidebarCollapsed);
       }
-    }, [currentVisualization, canvasFullscreen, sidebarCollapsed, setCurrentVisualization]);
+    }, [currentVisualization, sidebarCollapsed, setCurrentVisualization]);
 
     useEffect(() => {
       window.addEventListener('keydown', handleKeyDown);
@@ -113,10 +93,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
 
     const toggleSummary = () => {
       setSummaryVisible(!summaryVisible);
-    };
-
-    const toggleCanvasFullscreen = () => {
-      setCanvasFullscreen(!canvasFullscreen);
     };
 
     const handleVizChange = (viz: VisualizationType) => {
@@ -237,15 +213,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             >
               <span />
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={canvasFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-              onClick={toggleCanvasFullscreen}
-              title="Fullscreen (F)"
-            >
-              <span />
-            </Button>
           </div>
         </header>
 
@@ -269,11 +236,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
               'relative',
               'overflow-auto',
               'mesh-glow',
-              canvasFullscreen && [
-                'fixed',
-                'inset-0',
-                'z-[50]',
-              ],
             )}
             style={{
               backgroundColor: 'var(--color-background-primary)',
@@ -283,20 +245,6 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
             <div className="w-full h-full">
               <VisualizationRenderer />
             </div>
-
-            {/* Close fullscreen button */}
-            {canvasFullscreen && (
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<X className="w-4 h-4" />}
-                onClick={toggleCanvasFullscreen}
-                className="absolute top-4 right-4 z-[51]"
-                title="Exit Fullscreen (Esc)"
-              >
-                <span />
-              </Button>
-            )}
           </div>
         </div>
 
