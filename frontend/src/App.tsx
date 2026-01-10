@@ -13,6 +13,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 import { StageContainer, Stage } from './components/patterns';
 import { ThemeProvider } from './design-system/ThemeProvider';
+import { ThemeSwitcher } from './components/UISampler/ThemeSwitcher';
 import {
   StageWelcome,
   StageInput,
@@ -66,41 +67,48 @@ export default function App() {
   return (
     <Router>
       <ThemeProvider>
-        <Routes>
-          {/* Main application routes */}
-          <Route path="/" element={
-            <StageContainer currentStage={currentStage}>
-              {/* Toast Notifications */}
-              <ToastContainer toasts={toasts} onClose={removeToast} />
+        <div className="relative min-h-screen">
+          {/* Floating Theme Switcher for Main App */}
+          <div className="hidden lg:block fixed top-6 right-6 z-50">
+            <ThemeSwitcher />
+          </div>
 
-              {/* Welcome Stage */}
-              <Stage active={currentStage === 'welcome'}>
-                <StageWelcome onGetStarted={handleGetStarted} />
-              </Stage>
+          <Routes>
+            {/* Main application routes */}
+            <Route path="/" element={
+              <StageContainer currentStage={currentStage}>
+                {/* Toast Notifications */}
+                <ToastContainer toasts={toasts} onClose={removeToast} />
 
-              {/* Input Stage */}
-              <Stage active={currentStage === 'input'}>
-                <StageInput />
-              </Stage>
+                {/* Welcome Stage */}
+                <Stage active={currentStage === 'welcome'}>
+                  <StageWelcome onGetStarted={handleGetStarted} />
+                </Stage>
 
-              {/* Analysis Stage */}
-              <Stage active={currentStage === 'analysis'}>
-                <StageAnalysis />
-              </Stage>
+                {/* Input Stage */}
+                <Stage active={currentStage === 'input'}>
+                  <StageInput />
+                </Stage>
 
-              {/* Visualization Stage */}
-              <Stage active={currentStage === 'visualization'}>
-                <StageVisualization onBack={handleBackFromVisualization} />
-              </Stage>
-            </StageContainer>
-          } />
+                {/* Analysis Stage */}
+                <Stage active={currentStage === 'analysis'}>
+                  <StageAnalysis />
+                </Stage>
 
-          {/* UI Sampler route */}
-          <Route path="/ui-sampler" element={<UISamplerPage />} />
+                {/* Visualization Stage */}
+                <Stage active={currentStage === 'visualization'}>
+                  <StageVisualization onBack={handleBackFromVisualization} />
+                </Stage>
+              </StageContainer>
+            } />
 
-          {/* Redirect unknown routes to main app */}
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            {/* UI Sampler route */}
+            <Route path="/ui-sampler" element={<UISamplerPage />} />
+
+            {/* Redirect unknown routes to main app */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
       </ThemeProvider>
     </Router>
   );

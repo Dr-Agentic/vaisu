@@ -17,6 +17,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ThemeProvider } from '../design-system/ThemeProvider';
 import { SidebarNavigation, type CategoryKey } from '../components/UISampler/SidebarNavigation';
+import { ThemeSwitcher } from '../components/UISampler/ThemeSwitcher';
 import { PreviewContainer } from '../components/UISampler/PreviewContainer';
 import { TypographySampler } from '../components/UISampler/TypographySampler';
 import { ColorPaletteSampler } from '../components/UISampler/ColorPaletteSampler';
@@ -162,8 +163,13 @@ export default function UISamplerPage() {
                 <h1 className="text-lg font-semibold text-[var(--color-text-primary)]">
                   UI Sampler
                 </h1>
-                <div className="w-6" />
+                <ThemeSwitcher />
               </div>
+            </div>
+
+            {/* Floating Theme Switcher for Desktop */}
+            <div className="hidden lg:block fixed top-6 right-6 z-50">
+              <ThemeSwitcher />
             </div>
 
             {/* Content */}
