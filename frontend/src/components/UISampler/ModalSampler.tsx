@@ -22,8 +22,6 @@ import { Button } from '../primitives/Button';
 import { Input } from '../primitives/Input';
 import { Badge } from '../primitives/Badge';
 import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
-import { CodeBlock } from './CodeBlock';
 
 export function ModalSampler() {
   const [activeModal, setActiveModal] = useState<string | null>(null);

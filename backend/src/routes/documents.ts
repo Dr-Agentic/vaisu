@@ -114,7 +114,8 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
 // POST /api/documents/analyze
 router.post('/analyze', async (req: Request, res: Response) => {
   try {
-    const { documentId, text } = req.body;
+    const { documentId, text, force } = req.body;
+    const isForce = force === true || force === 'true';
 
     let document: Document | undefined;
     let buffer: Buffer | undefined;
@@ -139,8 +140,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
 
     const startTime = Date.now();
 
-    // Check cache (S3 and DynamoDB)
-    if (buffer) {
+    // Check cache (S3 and DynamoDB) unless force is true
+    if (buffer && !isForce) {
       try {
         const contentHash = calculateContentHash(buffer.toString('utf-8'));
         console.log(`🔍 Checking cache for hash: ${contentHash.substring(0, 8)}... filename: ${filename}`);

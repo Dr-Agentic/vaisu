@@ -14,7 +14,7 @@
  * - Responsive text scaling examples
  */
 
-import { useState } from 'react';
+const buttonText = "Click me";
 
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
@@ -24,8 +24,6 @@ import { CopyToClipboard } from './CopyToClipboard';
 import { CodeBlock } from './CodeBlock';
 
 export function TypographySampler() {
-  const [activeTheme, setActiveTheme] = useState<'light' | 'dark'>('light');
-  const { checkContrast, isAACompliant } = useAccessibility();
 
   // Typography scale from design tokens
   const fontSizes = [
@@ -76,8 +74,6 @@ export function TypographySampler() {
 
   // Sample text for typography examples
   const sampleText = "The quick brown fox jumps over the lazy dog.";
-  const headingText = "Typography Scale Example";
-  const buttonText = "Click Me";
 
   const getContrastStatus = (fontSize: string) => {
     // Check contrast for different text sizes

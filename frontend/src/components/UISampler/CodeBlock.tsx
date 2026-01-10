@@ -240,7 +240,7 @@ export function CodeBlock({
 
   const isBoolean = (word: string) => word === 'true' || word === 'false';
 
-  const isJSXTag = (text: string, index: number, word: string) => {
+  const isJSXTag = (_text: string, _index: number, word: string) => {
     return word[0] === '<' || word.includes('<') || word.includes('>') || word.includes('className') || word.includes('style');
   };
 

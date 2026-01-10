@@ -22,8 +22,6 @@ import { Button } from '../primitives/Button';
 import { Badge } from '../primitives/Badge';
 import { Input } from '../primitives/Input';
 import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
-import { CodeBlock } from './CodeBlock';
 
 export function TooltipSampler() {
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);

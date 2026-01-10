@@ -14,7 +14,6 @@
  * - WCAG AA compliant with proper contrast ratios
  */
 
-import { useState } from 'react';
 
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../primitives/Card';
 import { Button } from '../primitives/Button';
@@ -25,13 +24,8 @@ import { CopyToClipboard } from './CopyToClipboard';
 import { CodeBlock } from './CodeBlock';
 
 export function CardSampler() {
-  const [copiedCard, setCopiedCard] = useState<string | null>(null);
-
   const handleCopyCard = (cardCode: string) => {
-    navigator.clipboard.writeText(cardCode).then(() => {
-      setCopiedCard(cardCode);
-      setTimeout(() => setCopiedCard(null), 2000);
-    });
+    navigator.clipboard.writeText(cardCode);
   };
 
   // Card variants and their properties

@@ -14,8 +14,7 @@
  * - WCAG AA compliant (contrast ratios, focus indicators)
  */
 
-import { useState, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useState, useRef, useEffect } from 'react';
 
 import { Button } from '../primitives/Button';
 
@@ -66,6 +65,7 @@ export function SidebarNavigation({
   onSidebarToggle,
   className,
 }: SidebarNavigationProps) {
+  const sidebarRef = useRef<HTMLDivElement>(null);
   const [expandedSections, setExpandedSections] = useState<Record<CategoryKey, boolean>>({
     typography: true,
     colors: true,
@@ -74,9 +74,13 @@ export function SidebarNavigation({
     visualizations: true,
   });
 
-  const [activeSection, setActiveSection] = useState<CategoryKey | null>(null);
-  const location = useLocation();
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  // Auto-expand active category
+  useEffect(() => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [activeCategory]: true,
+    }));
+  }, [activeCategory]);
 
   // Category definitions
   const categories = [

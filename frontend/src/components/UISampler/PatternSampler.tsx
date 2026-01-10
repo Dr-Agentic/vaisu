@@ -16,7 +16,7 @@
 
 import { useState } from 'react';
 
-import { StageContainer, Stage } from '../patterns/StageContainer';
+import { StageContainer, Stage, type StageName } from '../patterns/StageContainer';
 import { TabGroup } from '../patterns/TabGroup';
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
@@ -26,11 +26,11 @@ import { CopyToClipboard } from './CopyToClipboard';
 import { CodeBlock } from './CodeBlock';
 
 export function PatternSampler() {
-  const [activeStage, setActiveStage] = useState<string | null>(null);
+  const [activeStage, setActiveStage] = useState<StageName | null>(null);
   const [activeTab, setActiveTab] = useState<string>('tab1');
 
-  const handleStageClick = (stageName: string) => {
-    setActiveStage(activeStage === stageName ? null : stageName);
+  const handleStageClick = (stageName: StageName | string) => {
+    setActiveStage(activeStage === stageName ? null : (stageName as StageName));
   };
 
   // StageContainer examples with their properties
@@ -373,28 +373,28 @@ export function PatternSampler() {
                 <Button
                   variant="primary"
                   size="sm"
-                  onClick={() => handleStageClick('demo-welcome')}
+                  onClick={() => handleStageClick('welcome')}
                 >
                   Welcome
                 </Button>
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => handleStageClick('demo-input')}
+                  onClick={() => handleStageClick('input')}
                 >
                   Input
                 </Button>
                 <Button
                   variant="accent"
                   size="sm"
-                  onClick={() => handleStageClick('demo-analysis')}
+                  onClick={() => handleStageClick('analysis')}
                 >
                   Analysis
                 </Button>
               </div>
               <div className="border border-[var(--color-border-subtle)] rounded-lg p-4 bg-[var(--color-surface-base)]">
-                <StageContainer currentStage={activeStage || 'welcome'}>
-                  <Stage active={activeStage === 'demo-welcome'}>
+                <StageContainer currentStage="welcome">
+                  <Stage active={activeStage === 'welcome'}>
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
                         Welcome Stage
@@ -414,7 +414,7 @@ export function PatternSampler() {
                       </div>
                     </div>
                   </Stage>
-                  <Stage active={activeStage === 'demo-input'}>
+                  <Stage active={activeStage === 'input'}>
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
                         Input Stage
@@ -434,7 +434,7 @@ export function PatternSampler() {
                       </div>
                     </div>
                   </Stage>
-                  <Stage active={activeStage === 'demo-analysis'}>
+                  <Stage active={activeStage === 'analysis'}>
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
                         Analysis Stage
@@ -495,17 +495,17 @@ export function PatternSampler() {
                     { id: 'tab2', label: 'Cards Demo', description: 'Card tab style' },
                     { id: 'tab3', label: 'Pill Demo', description: 'Pill tab style' },
                   ]}
-                  activeTab={activeTab}
-                  onTabChange={setActiveTab}
+                  activeTab="tab1"
+                  onTabChange={() => {}}
                   size="md"
-                  variant={activeTab === 'tab1' ? 'default' : activeTab === 'tab2' ? 'cards' : 'pill'}
+                  variant="default"
                 />
                 <div className="mt-4 p-4 bg-[var(--color-surface-secondary)] rounded-lg">
                   <h4 className="font-medium text-[var(--color-text-primary)] mb-2">
-                    {activeTab === 'tab1' ? 'Default' : activeTab === 'tab2' ? 'Cards' : 'Pill'} Tab Content
+                    Default Tab Content
                   </h4>
                   <p className="text-sm text-[var(--color-text-secondary)]">
-                    This is the content area for the {activeTab === 'tab1' ? 'default' : activeTab === 'tab2' ? 'cards' : 'pill'} tab variant.
+                    This is the content area for the default tab variant.
                   </p>
                 </div>
               </div>

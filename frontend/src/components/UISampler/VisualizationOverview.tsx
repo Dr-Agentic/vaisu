@@ -23,7 +23,6 @@ import { SampleDataGenerator } from './SampleDataGenerator';
 import { PreviewContainer } from './PreviewContainer';
 import { CopyToClipboard } from './CopyToClipboard';
 import { CodeBlock } from './CodeBlock';
-import { useAccessibility } from './AccessibilityUtils';
 
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
 import { Button } from '../primitives/Button';

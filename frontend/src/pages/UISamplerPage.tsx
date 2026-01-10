@@ -13,10 +13,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ThemeProvider } from '../design-system/ThemeProvider';
-import { SidebarNavigation } from '../components/UISampler/SidebarNavigation';
+import { SidebarNavigation, type CategoryKey } from '../components/UISampler/SidebarNavigation';
 import { PreviewContainer } from '../components/UISampler/PreviewContainer';
 import { TypographySampler } from '../components/UISampler/TypographySampler';
 import { ColorPaletteSampler } from '../components/UISampler/ColorPaletteSampler';
@@ -41,6 +41,7 @@ export default function UISamplerPage() {
   const [activeComponent, setActiveComponent] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { toasts, removeToast } = useDocumentStore();
 
   // Close sidebar on mobile when component is selected
@@ -55,19 +56,19 @@ export default function UISamplerPage() {
     setActiveComponent(null);
   }, [activeCategory]);
 
-  // Parse URL hash to set active category/component
+  // Parse URL search parameters to set active category/component
   useEffect(() => {
-    const hash = location.hash.replace('#', '');
-    if (hash) {
-      const [category, component] = hash.split('/');
-      if (category && isValidCategory(category as CategoryKey)) {
-        setActiveCategory(category as CategoryKey);
-        if (component) {
-          setActiveComponent(component);
-        }
+    const urlParams = new URLSearchParams(location.search);
+    const category = urlParams.get('category');
+    const component = urlParams.get('component');
+
+    if (category && isValidCategory(category as CategoryKey)) {
+      setActiveCategory(category as CategoryKey);
+      if (component) {
+        setActiveComponent(component);
       }
     }
-  }, [location.hash]);
+  }, [location.search]);
 
   const isValidCategory = (category: string): category is CategoryKey => {
     return ['typography', 'colors', 'primitives', 'patterns', 'visualizations'].includes(category);
@@ -76,14 +77,14 @@ export default function UISamplerPage() {
   const handleCategoryChange = (category: CategoryKey) => {
     setActiveCategory(category);
     setActiveComponent(null);
-    // Update URL hash
-    window.location.hash = category;
+    // Use URL parameters instead of hash for cleaner navigation
+    navigate(`/ui-sampler?category=${category}`, { replace: true });
   };
 
   const handleComponentSelect = (componentKey: string) => {
     setActiveComponent(componentKey);
-    // Update URL hash
-    window.location.hash = `${activeCategory}/${componentKey}`;
+    // Use URL parameters instead of hash for cleaner navigation
+    navigate(`/ui-sampler?category=${activeCategory}&component=${componentKey}`, { replace: true });
   };
 
   const handleSidebarToggle = () => {
@@ -190,7 +191,7 @@ export default function UISamplerPage() {
                         Interactive preview and code examples
                       </p>
                     </div>
-                    {getActiveComponent() && React.createElement(getActiveComponent())}
+                    {getActiveComponent() && React.createElement(getActiveComponent()!)}
                   </div>
                 ) : (
                   // Category overview
