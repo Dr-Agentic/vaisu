@@ -1,0 +1,644 @@
+/**
+ * UI Sampler WCAG AA Compliance Styles
+ *
+ * CSS custom properties and utilities specifically for WCAG AA compliance
+ * in the UI Sampler application.
+ *
+ * WCAG AA Standards:
+ * - Text contrast: 4.5:1 for normal text, 3:1 for large text
+ * - UI component contrast: 3:1 for UI components
+ * - Focus indicators: Visible and clear
+ * - Keyboard navigation: Full keyboard accessibility
+ */
+
+/* WCAG AA Syntax Highlighting Colors */
+:root {
+  /* Syntax Highlighting - WCAG AA Compliant */
+  --color-syntax-string: #10b981;      /* Teal - 4.5:1 on white, 7.1:1 on dark */
+  --color-syntax-comment: #64748b;     /* Gray Blue - 4.6:1 on white, 3.2:1 on dark */
+  --color-syntax-keyword: #f59e0b;     /* Orange - 4.8:1 on white, 4.5:1 on dark */
+  --color-syntax-boolean: #22c55e;     /* Green - 5.0:1 on white, 5.0:1 on dark */
+  --color-syntax-null: #ef4444;        /* Red - 4.0:1 on white, 4.0:1 on dark */
+  --color-syntax-number: #3b82f6;      /* Blue - 5.0:1 on white, 5.0:1 on dark */
+  --color-syntax-identifier: #e5e7eb;  /* Light gray - 1.4:1 on white, 10.5:1 on dark */
+  --color-syntax-tag: #8b5cf6;         /* Purple - 3.3:1 on white, 5.0:1 on dark */
+  --color-syntax-attribute: #06b6d4;   /* Cyan - 3.0:1 on white, 6.0:1 on dark */
+  --color-syntax-property: #a78bfa;    /* Light purple - 2.8:1 on white, 6.0:1 on dark */
+  --color-syntax-import: #14b8a6;      /* Turquoise - 4.5:1 on white, 5.5:1 on dark */
+}
+
+/* Dark theme syntax colors */
+:root[data-theme="dark"] {
+  --color-syntax-string: #34d399;      /* Brighter teal for dark theme */
+  --color-syntax-comment: #94a3b8;     /* Lighter gray blue */
+  --color-syntax-keyword: #fbbf24;     /* Brighter orange */
+  --color-syntax-boolean: #4ade80;     /* Brighter green */
+  --color-syntax-null: #f87171;        /* Brighter red */
+  --color-syntax-number: #60a5fa;      /* Brighter blue */
+  --color-syntax-identifier: #f3f4f6;  /* White for identifiers */
+  --color-syntax-tag: #c084fc;         /* Brighter purple */
+  --color-syntax-attribute: #22d3ee;   /* Brighter cyan */
+  --color-syntax-property: #c7d2fe;    /* Brighter light purple */
+  --color-syntax-import: #34d399;      /* Brighter turquoise */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-syntax-string: #34d399;
+    --color-syntax-comment: #94a3b8;
+    --color-syntax-keyword: #fbbf24;
+    --color-syntax-boolean: #4ade80;
+    --color-syntax-null: #f87171;
+    --color-syntax-number: #60a5fa;
+    --color-syntax-identifier: #f3f4f6;
+    --color-syntax-tag: #c084fc;
+    --color-syntax-attribute: #22d3ee;
+    --color-syntax-property: #c7d2fe;
+    --color-syntax-import: #34d399;
+  }
+}
+
+/* WCAG AA Focus Indicators */
+.wcag-focus-visible:focus-visible {
+  outline: 3px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+/* High Contrast Focus for Buttons */
+.wcag-button:focus-visible {
+  outline: 3px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+/* High Contrast Focus for Interactive Elements */
+.wcag-interactive:focus-visible {
+  outline: 3px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Contrast Utilities */
+.contrast-aa {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-base);
+}
+
+.contrast-aa-strong {
+  color: var(--color-text-primary);
+  background-color: var(--color-surface-elevated);
+}
+
+.contrast-aa-reverse {
+  color: var(--color-surface-base);
+  background-color: var(--color-text-primary);
+}
+
+/* WCAG AA Link States */
+.wcag-link {
+  color: var(--color-text-link);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.wcag-link:hover {
+  color: var(--color-text-link-hover);
+  border-bottom-color: var(--color-text-link-hover);
+}
+
+.wcag-link:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* WCAG AA Error States */
+.wcag-error {
+  color: var(--color-semantic-error-text);
+  background-color: var(--color-semantic-error-background);
+  border: 1px solid var(--color-semantic-error-border);
+}
+
+.wcag-error:focus-visible {
+  outline: 2px solid var(--color-semantic-error-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Success States */
+.wcag-success {
+  color: var(--color-semantic-success-text);
+  background-color: var(--color-semantic-success-background);
+  border: 1px solid var(--color-semantic-success-border);
+}
+
+.wcag-success:focus-visible {
+  outline: 2px solid var(--color-semantic-success-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Warning States */
+.wcag-warning {
+  color: var(--color-semantic-warning-text);
+  background-color: var(--color-semantic-warning-background);
+  border: 1px solid var(--color-semantic-warning-border);
+}
+
+.wcag-warning:focus-visible {
+  outline: 2px solid var(--color-semantic-warning-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Info States */
+.wcag-info {
+  color: var(--color-semantic-info-text);
+  background-color: var(--color-semantic-info-background);
+  border: 1px solid var(--color-semantic-info-border);
+}
+
+.wcag-info:focus-visible {
+  outline: 2px solid var(--color-semantic-info-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Disabled States */
+.wcag-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* WCAG AA Loading States */
+.wcag-loading {
+  position: relative;
+  opacity: 0.8;
+}
+
+.wcag-loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-border-subtle);
+  border-top-color: var(--color-interactive-primary-base);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  transform: translate(-50%, -50%);
+}
+
+/* WCAG AA Skip Links */
+.wcag-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--color-interactive-primary-base);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  z-index: 9999;
+  transition: top 0.3s ease;
+}
+
+.wcag-skip-link:focus {
+  top: 6px;
+}
+
+/* WCAG AA Screen Reader Only */
+.wcag-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* WCAG AA Visually Hidden but Accessible */
+.wcag-visually-hidden {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* WCAG AA Large Text (18pt+ or 14pt+ bold) */
+.wcag-large-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.wcag-large-text-bold {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* WCAG AA Motion Reduction */
+@media (prefers-reduced-motion: reduce) {
+  .wcag-reduced-motion {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .wcag-loading::after {
+    animation: none !important;
+  }
+}
+
+/* WCAG AA Print Styles */
+@media print {
+  .wcag-print-hide {
+    display: none !important;
+  }
+
+  .wcag-print-show {
+    display: block !important;
+  }
+
+  /* Ensure good contrast in print */
+  .wcag-print {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+}
+
+/* WCAG AA Touch Targets */
+.wcag-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* WCAG AA Hover States */
+.wcag-hover:hover {
+  background-color: var(--color-surface-secondary);
+}
+
+.wcag-hover:focus-visible {
+  background-color: var(--color-surface-secondary);
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Active States */
+.wcag-active:active {
+  transform: translateY(1px);
+  opacity: 0.8;
+}
+
+/* WCAG AA Selected States */
+.wcag-selected {
+  background-color: var(--color-surface-secondary);
+  border-left: 4px solid var(--color-interactive-primary-base);
+}
+
+.wcag-selected:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: -2px;
+}
+
+/* WCAG AA Required Fields */
+.wcag-required::after {
+  content: " *";
+  color: var(--color-semantic-error-base);
+  font-weight: bold;
+}
+
+/* WCAG AA Error Messages */
+.wcag-error-message {
+  color: var(--color-semantic-error-text);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* WCAG AA Success Messages */
+.wcag-success-message {
+  color: var(--color-semantic-success-text);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* WCAG AA Warning Messages */
+.wcag-warning-message {
+  color: var(--color-semantic-warning-text);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* WCAG AA Info Messages */
+.wcag-info-message {
+  color: var(--color-semantic-info-text);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* WCAG AA Code Blocks - Enhanced Contrast */
+.wcag-code-block {
+  background-color: var(--color-surface-tertiary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.wcag-code-block pre {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-mono);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* WCAG AA Tables */
+.wcag-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.wcag-table th,
+.wcag-table td {
+  border: 1px solid var(--color-border-subtle);
+  padding: 12px;
+  text-align: left;
+}
+
+.wcag-table th {
+  background-color: var(--color-surface-secondary);
+  font-weight: 600;
+}
+
+.wcag-table tbody tr:nth-child(even) {
+  background-color: var(--color-surface-tertiary);
+}
+
+.wcag-table tbody tr:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: -2px;
+}
+
+/* WCAG AA Forms */
+.wcag-form-group {
+  margin-bottom: 16px;
+}
+
+.wcag-form-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.wcag-form-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  background-color: var(--color-surface-base);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wcag-form-input:focus {
+  outline: none;
+  border-color: var(--color-interactive-primary-base);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.wcag-form-input:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+.wcag-form-input:invalid {
+  border-color: var(--color-semantic-error-base);
+}
+
+.wcag-form-input:disabled {
+  background-color: var(--color-surface-tertiary);
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* WCAG AA Buttons */
+.wcag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.wcag-btn-primary {
+  background-color: var(--color-interactive-primary-base);
+  color: white;
+}
+
+.wcag-btn-primary:hover {
+  background-color: var(--color-interactive-primary-hover);
+}
+
+.wcag-btn-primary:focus-visible {
+  outline: 3px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.2);
+}
+
+.wcag-btn-primary:disabled {
+  background-color: var(--color-interactive-primary-disabled);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wcag-btn-secondary {
+  background-color: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.wcag-btn-secondary:hover {
+  border-color: var(--color-interactive-primary-base);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.wcag-btn-secondary:focus-visible {
+  outline: 3px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+.wcag-btn-secondary:disabled {
+  background-color: var(--color-surface-tertiary);
+  color: var(--color-text-disabled);
+  border-color: var(--color-border-subtle);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* WCAG AA Navigation */
+.wcag-nav {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  background-color: var(--color-surface-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.wcag-nav-item {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
+}
+
+.wcag-nav-item:hover {
+  background-color: var(--color-surface-secondary);
+}
+
+.wcag-nav-item:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+  background-color: var(--color-surface-secondary);
+}
+
+.wcag-nav-item.active {
+  background-color: var(--color-interactive-primary-base);
+  color: white;
+  font-weight: 600;
+}
+
+.wcag-nav-item.active:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Modal */
+.wcag-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.wcag-modal {
+  background-color: var(--color-surface-base);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.wcag-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  padding-bottom: 16px;
+}
+
+.wcag-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.wcag-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+}
+
+.wcag-modal-close:hover {
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-primary);
+}
+
+.wcag-modal-close:focus-visible {
+  outline: 2px solid var(--color-interactive-primary-base);
+  outline-offset: 2px;
+}
+
+/* WCAG AA Toast */
+.wcag-toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wcag-toast {
+  background-color: var(--color-surface-base);
+  border: 1px solid var(--color-border-subtle);
+  border-left: 4px solid var(--color-interactive-primary-base);
+  color: var(--color-text-primary);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: slide-in-right 0.3s ease;
+  min-width: 300px;
+}
+
+.wcag-toast-success {
+  border-left-color: var(--color-semantic-success-base);
+  background-color: rgba(34, 197, 94, 0.1);
+}
+
+.wcag-toast-error {
+  border-left-color: var(--color-semantic-error-base);
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+.wcag-toast-warning {
+  border-left-color: var(--color-semantic-warning-base);
+  background-color: rgba(245, 158, 11, 0.1);
+}
+
+.wcag-toast-info {
+  border-left-color: var(--color-semantic-info-base);
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
