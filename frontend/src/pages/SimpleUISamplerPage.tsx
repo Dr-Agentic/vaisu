@@ -69,7 +69,7 @@ export default function SimpleUISamplerPage() {
       <div className="lg:hidden sticky top-0 z-50 bg-[var(--color-surface-base)] border-b border-[var(--color-border-subtle)]">
         <div className="flex items-center justify-between p-4">
           <h1 className="text-xl font-bold text-[var(--color-text-primary)]">
-            Simple UI Sampler
+            Theme Sampler
           </h1>
           <button
             onClick={handleSidebarToggle}

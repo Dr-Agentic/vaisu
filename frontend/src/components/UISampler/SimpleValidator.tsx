@@ -11,7 +11,7 @@ import { SimplePreviewContainer } from './SimplePreviewContainer';
 export function SimpleValidator() {
   return (
     <div className="space-y-8 p-6">
-      <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Simplified UI Sampler - Validation</h1>
+      <h1 className="text-3xl font-bold text-[var(--color-text-primary)]">Theme Sampler - Validation</h1>
 
       {/* Button Validation */}
       <SimplePreviewContainer title="Button Component Validation">

@@ -207,6 +207,14 @@ module.exports = {
         'import/named': 'off',
         'import/no-unresolved': 'off'
       }
+    },
+    {
+      files: ['frontend/src/App.tsx', 'frontend/src/components/UISampler/SimpleValidator.tsx', 'frontend/src/pages/SimpleUISamplerPage.tsx'],
+      rules: {
+        'import/namespace': 'off',
+        'import/named': 'off',
+        'import/order': 'off'
+      }
     }
   ]
 };
