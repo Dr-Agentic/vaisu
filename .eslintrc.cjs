@@ -183,6 +183,30 @@ module.exports = {
         'no-console': 'off',
         'import/no-extraneous-dependencies': 'off'
       }
+    },
+    {
+      files: ['frontend/vite.config.ts'],
+      rules: {
+        'import/namespace': 'off',
+        'import/named': 'off',
+        'import/no-unresolved': 'off'
+      }
+    },
+    {
+      files: ['test/mocks/openRouterMock.ts'],
+      rules: {
+        'import/namespace': 'off',
+        'import/named': 'off',
+        'import/no-unresolved': 'off'
+      }
+    },
+    {
+      files: ['test/setup.ts'],
+      rules: {
+        'import/namespace': 'off',
+        'import/named': 'off',
+        'import/no-unresolved': 'off'
+      }
     }
   ]
 };

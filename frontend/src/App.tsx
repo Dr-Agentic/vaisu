@@ -5,12 +5,15 @@
  * Integrates the new Electron UI Design System with core application logic.
  *
  * Flow: Welcome → Input → Analysis → Visualization
+ * Plus: UI Sampler route for design system exploration
  */
 
 import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { StageContainer, Stage } from './components/patterns';
 import { ThemeProvider } from './design-system/ThemeProvider';
+import { ThemeSwitcher } from './components/UISampler/ThemeSwitcher';
 import {
   StageWelcome,
   StageInput,
@@ -18,6 +21,9 @@ import {
   StageVisualization,
   ToastContainer,
 } from './features';
+import UISamplerPage from './pages/UISamplerPage';
+import SimpleUISamplerPage from './pages/SimpleUISamplerPage';
+import { SimpleValidator } from './components/UISampler/SimpleValidator';
 import { useDocumentStore } from './stores/documentStore';
 
 /**
@@ -61,31 +67,53 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider>
-      <StageContainer currentStage={currentStage}>
-        {/* Toast Notifications */}
-        <ToastContainer toasts={toasts} onClose={removeToast} />
+    <Router>
+      <ThemeProvider>
+        <div className="relative min-h-screen">
+          {/* Floating Theme Switcher for Main App */}
+          <div className="hidden lg:block fixed top-6 right-6 z-50">
+            <ThemeSwitcher />
+          </div>
 
-        {/* Welcome Stage */}
-        <Stage active={currentStage === 'welcome'}>
-          <StageWelcome onGetStarted={handleGetStarted} />
-        </Stage>
+          <Routes>
+            {/* Main application routes */}
+            <Route path="/" element={
+              <StageContainer currentStage={currentStage}>
+                {/* Toast Notifications */}
+                <ToastContainer toasts={toasts} onClose={removeToast} />
 
-        {/* Input Stage */}
-        <Stage active={currentStage === 'input'}>
-          <StageInput />
-        </Stage>
+                {/* Welcome Stage */}
+                <Stage active={currentStage === 'welcome'}>
+                  <StageWelcome onGetStarted={handleGetStarted} />
+                </Stage>
 
-        {/* Analysis Stage */}
-        <Stage active={currentStage === 'analysis'}>
-          <StageAnalysis />
-        </Stage>
+                {/* Input Stage */}
+                <Stage active={currentStage === 'input'}>
+                  <StageInput />
+                </Stage>
 
-        {/* Visualization Stage */}
-        <Stage active={currentStage === 'visualization'}>
-          <StageVisualization onBack={handleBackFromVisualization} />
-        </Stage>
-      </StageContainer>
-    </ThemeProvider>
+                {/* Analysis Stage */}
+                <Stage active={currentStage === 'analysis'}>
+                  <StageAnalysis />
+                </Stage>
+
+                {/* Visualization Stage */}
+                <Stage active={currentStage === 'visualization'}>
+                  <StageVisualization onBack={handleBackFromVisualization} />
+                </Stage>
+              </StageContainer>
+            } />
+
+            {/* UI Sampler routes */}
+            <Route path="/ui-sampler" element={<UISamplerPage />} />
+            <Route path="/simple-ui-sampler" element={<SimpleUISamplerPage />} />
+            <Route path="/simple-ui-validator" element={<SimpleValidator />} />
+
+            {/* Redirect unknown routes to main app */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </ThemeProvider>
+    </Router>
   );
 }

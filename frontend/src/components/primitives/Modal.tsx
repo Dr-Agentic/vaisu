@@ -49,11 +49,6 @@ export interface ModalProps {
    */
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   /**
-   * Whether to show close button
-   * @default true
-   */
-  showCloseButton?: boolean;
-  /**
    * Whether clicking backdrop closes modal
    * @default true
    */
@@ -84,7 +79,6 @@ export function Modal({
   title,
   children,
   size = 'md',
-  showCloseButton = true,
   closeOnBackdropClick = true,
   closeOnEscape = true,
 }: ModalProps) {
@@ -174,32 +168,28 @@ export function Modal({
         )}
       >
         {/* Header */}
-        {(title || showCloseButton) && (
+        {title && (
           <div className="flex items-center justify-between p-[var(--spacing-lg)] border-b border-[var(--color-border-subtle)]">
-            {title && (
-              <h2
-                id="modal-title"
-                className={cn(
-                  'text-[var(--font-size-xl)]',
-                  'font-[var(--font-weight-semibold)]',
-                  'text-[var(--color-text-primary)]',
-                  'leading-[var(--line-height-tight)]',
-                )}
-              >
-                {title}
-              </h2>
-            )}
-            {showCloseButton && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                aria-label="Close modal"
-                className="ml-auto"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            )}
+            <h2
+              id="modal-title"
+              className={cn(
+                'text-[var(--font-size-xl)]',
+                'font-[var(--font-weight-semibold)]',
+                'text-[var(--color-text-primary)]',
+                'leading-[var(--line-height-tight)]',
+              )}
+            >
+              {title}
+            </h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              aria-label="Close modal"
+              className="ml-auto"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         )}
 

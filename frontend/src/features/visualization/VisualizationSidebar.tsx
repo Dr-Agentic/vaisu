@@ -16,7 +16,6 @@
  * ```
  */
 
-import { ChevronLeft } from 'lucide-react';
 import { forwardRef } from 'react';
 
 import { Badge } from '../../components/primitives';
@@ -190,7 +189,6 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
       currentViz,
       onVizChange,
       collapsed = false,
-      onToggleCollapse,
       visualizations = DEFAULT_VISUALIZATIONS,
     },
     ref,
@@ -214,46 +212,7 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
           borderRightStyle: 'solid',
         }}
       >
-        {/* Collapse Button (shown when not collapsed) */}
-        {!collapsed && onToggleCollapse && (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            className={cn(
-              'absolute',
-              'top-4',
-              'right-4',
-              'p-1',
-              'rounded-md',
-              'transition-all',
-              'duration-[var(--duration-fast)]',
-            )}
-            style={{
-              backgroundColor: 'var(--color-surface-elevated)',
-              border: '1px solid var(--color-border-subtle)',
-              color: 'var(--color-text-secondary)',
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.color = 'var(--color-text-primary)';
-              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.color = 'var(--color-text-secondary)';
-              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
-            }}
-            onFocus={(e) => {
-              e.currentTarget.style.color = 'var(--color-text-primary)';
-              e.currentTarget.style.borderColor = 'var(--color-border-strong)';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.color = 'var(--color-text-secondary)';
-              e.currentTarget.style.borderColor = 'var(--color-border-subtle)';
-            }}
-            aria-label="Collapse sidebar"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-        )}
+
 
         {/* Header */}
         <div

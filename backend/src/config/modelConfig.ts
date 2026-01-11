@@ -28,15 +28,37 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.5,
-    systemPrompt: `Create an executive summary with the following structure:
-1. Headline: One compelling sentence capturing the essence
-2. Top 3 Key Ideas: Most important takeaways
-3. Top 3 KPIs: Key metrics with values and units
-4. Top 3 Risks: Potential challenges or concerns
-5. Top 3 Opportunities: Potential benefits or advantages
-6. Call to Action: What should be done next
+    systemPrompt: `Create an executive summary of the document.
+Return ONLY valid JSON matching this exact format:
+{
+  "headline": "One compelling sentence capturing the essence",
+  "keyIdeas": [
+    "Most important takeaway 1",
+    "Most important takeaway 2",
+    "Most important takeaway 3"
+  ],
+  "kpis": [
+    {
+      "id": "kpi-1",
+      "label": "Metric Name",
+      "value": 100,
+      "unit": "%",
+      "trend": "up",
+      "confidence": 0.9
+    }
+  ],
+  "risks": [
+    "Potential challenge or concern 1",
+    "Potential challenge or concern 2"
+  ],
+  "opportunities": [
+    "Potential benefit or advantage 1",
+    "Potential benefit or advantage 2"
+  ],
+  "callToAction": "Specific action to take next"
+}
 
-Return as JSON matching the ExecutiveSummary interface.`,
+Ensure "value" in KPIs is a number (not a string). Extract 3-5 items for lists.`,
   },
   entityExtraction: {
     primary: LLM_PRIMARY,
