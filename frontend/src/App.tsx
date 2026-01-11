@@ -22,6 +22,8 @@ import {
   ToastContainer,
 } from './features';
 import UISamplerPage from './pages/UISamplerPage';
+import SimpleUISamplerPage from './pages/SimpleUISamplerPage';
+import { SimpleValidator } from './components/UISampler/SimpleValidator';
 import { useDocumentStore } from './stores/documentStore';
 
 /**
@@ -102,8 +104,10 @@ export default function App() {
               </StageContainer>
             } />
 
-            {/* UI Sampler route */}
+            {/* UI Sampler routes */}
             <Route path="/ui-sampler" element={<UISamplerPage />} />
+            <Route path="/simple-ui-sampler" element={<SimpleUISamplerPage />} />
+            <Route path="/simple-ui-validator" element={<SimpleValidator />} />
 
             {/* Redirect unknown routes to main app */}
             <Route path="*" element={<Navigate to="/" replace />} />
