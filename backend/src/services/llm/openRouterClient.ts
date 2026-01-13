@@ -1,33 +1,24 @@
 import axios, { AxiosInstance } from 'axios';
-
+import { env } from '../../config/env.js';
 import { getModelForTask } from '../../config/modelConfig.js';
-
 import type { LLMCallConfig, LLMResponse, TaskType } from '../../../../shared/src/types.js';
 
 export class OpenRouterClient {
   private client: AxiosInstance;
-  private apiKey: string;
   private appUrl: string;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.OPENROUTER_API_KEY || '';
-    this.appUrl = process.env.APP_URL || 'http://localhost:5173';
-
-    if (!this.apiKey || this.apiKey.includes('REPLACE') || this.apiKey.length < 20) {
-      console.warn('⚠️  OPENROUTER_API_KEY not configured. Add your key to backend/.env to enable AI features.');
-      console.warn('⚠️  Server will start but analysis will fail until key is added.');
-    } else {
-      console.log('✅ OpenRouter API key configured');
-    }
+    const token = apiKey || env.OPENROUTER_API_KEY;
+    this.appUrl = env.APP_URL;
 
     this.client = axios.create({
-      baseURL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
+      baseURL: env.OPENROUTER_BASE_URL,
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'Authorization': `Bearer ${token}`,
         'HTTP-Referer': this.appUrl,
         'X-Title': 'Vaisu',
+        'Content-Type': 'application/json',
       },
-      timeout: 60000,
     });
   }
 

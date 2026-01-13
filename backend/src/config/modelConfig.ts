@@ -501,6 +501,13 @@ Return as JSON with this exact structure:
 
 Extract 10-50 entities and 15-40 relationships based on document complexity. Focus on meaningful connections that reveal the document's knowledge structure.`,
   },
+  depthAnalysis: {
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
+    temperature: 0.2,
+    systemPrompt: 'You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the provided text.',
+  },
 };
 
 export function getModelForTask(task: TaskType): ModelConfig {

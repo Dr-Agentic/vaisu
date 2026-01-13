@@ -1,4 +1,5 @@
 import { visualizationService } from '../../repositories/visualizationService.js';
+import { DEPTH_ANALYSIS_PROMPT } from '../../prompts/depthAnalysisPrompt.js';
 
 import type {
   Document,
@@ -21,6 +22,7 @@ import type {
   ArgumentNode,
   ArgumentEdge,
   ArgumentPolarity,
+  DepthGraphData,
 } from '../../../../shared/src/types.js';
 
 // Internal types for LLM extraction
@@ -150,8 +152,8 @@ export class VisualizationGenerator {
           break;
 
         case 'depth-graph':
-          visualizationData = await this.generateArgumentMap(document, analysis);
-          llmMetadata.model = 'argument-map-generation';
+          visualizationData = await this.generateDepthGraph(document, analysis);
+          llmMetadata.model = 'depth-analysis';
           break;
 
         default:
@@ -765,6 +767,43 @@ Output the result as a JSON object matching the defined schema.`;
     return scores[0]?.domain || 'general';
   }
 
+
+  private async generateDepthGraph(
+    document: Document,
+    analysis: DocumentAnalysis,
+  ): Promise<DepthGraphData> {
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
+    const llmClient = getOpenRouterClient();
+
+    // Prepare context
+    const contentSample = document.content.substring(0, 15000);
+    const tldrText = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
+
+    const prompt = `${DEPTH_ANALYSIS_PROMPT}
+
+Input Document:
+Title: ${document.title}
+TLDR: ${tldrText}
+
+Content:
+${contentSample}
+`;
+
+    try {
+      const response = await llmClient.callWithFallback('depthAnalysis', prompt);
+      const parsed = llmClient.parseJSONResponse<DepthGraphData>(response);
+
+      if (parsed.logical_units && parsed.logical_units.length > 0) {
+        return parsed;
+      }
+    } catch (error) {
+      console.error('LLM depth graph generation failed:', error);
+      throw error; // Fail fast - no fallback
+    }
+
+    // If we reach here, generation failed - throw error
+    throw new Error('Unable to generate depth graph visualization. Please check your document content and try again.');
+  }
 
   private mapRelationshipType(type: string): UMLRelationship['type'] {
     const mapping: Record<string, UMLRelationship['type']> = {

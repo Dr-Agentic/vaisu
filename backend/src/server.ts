@@ -1,14 +1,10 @@
-// Load environment variables FIRST before any other imports
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
 import cors from 'cors';
-
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 
+import { env } from './config/env.js';
 import { validateAWSConfig } from './config/aws.js';
 import documentsRouter from './routes/documents.js';
 
@@ -16,12 +12,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3001;
-const isProduction = process.env.NODE_ENV === 'production';
+const PORT = env.PORT;
+const isProduction = env.NODE_ENV === 'production';
 
 // Middleware
 app.use(cors({
-  origin: process.env.APP_URL || 'http://localhost:5173',
+  origin: env.APP_URL,
   credentials: true,
 }));
 

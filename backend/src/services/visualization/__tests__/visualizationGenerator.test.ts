@@ -259,7 +259,7 @@ describe('VisualizationGenerator', () => {
           mockDocument,
           mockAnalysis,
         ),
-      ).rejects.toThrow('not yet implemented');
+      ).rejects.toThrowError('unsupported-type is not yet implemented');
     });
   });
 

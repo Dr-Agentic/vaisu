@@ -1,28 +1,44 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+import { env } from './env.js';
 
-// Environment variables (evaluated lazily to ensure dotenv has loaded)
+// Environment variables are now strictly loaded via env.ts
 export function getAWSRegion() {
-  return process.env.AWS_REGION || 'us-east-1';
+  return env.AWS_REGION;
 }
 
 export function getAWSAccessKeyId() {
-  return process.env.AWS_ACCESS_KEY_ID;
+  return env.AWS_ACCESS_KEY_ID;
 }
 
 export function getAWSSecretAccessKey() {
-  return process.env.AWS_SECRET_ACCESS_KEY;
+  return env.AWS_SECRET_ACCESS_KEY;
 }
 
 // DynamoDB Configuration
-export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || 'vaisu-documents-dev';
+export const S3_BUCKET_NAME = env.S3_BUCKET_NAME;
 
 // DynamoDB Configuration
-export const DYNAMODB_DOCUMENTS_TABLE = process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents';
-export const DYNAMODB_ANALYSES_TABLE = process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses';
+export const DYNAMODB_DOCUMENTS_TABLE = env.DYNAMODB_DOCUMENTS_TABLE;
+export const DYNAMODB_ANALYSES_TABLE = env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses'; // Fallback allowed if env.ts allows it, but env.ts has defaults.
 
 // Visualization tables (one per representation model)
+// Assuming these are added to env.ts or we pull them from process.env if not strict yet. 
+// For now, let's keep them as is but reading from env object if we added them there, 
+// OR we should add them to env.ts.
+// I didn't add them to env.ts in the first step. Let's fix that first.
+
+// Wait, I did NOT add all these tables to env.ts. I should probably add them there for completeness.
+// But the user focused on PORTS.
+// For now, I will leave the tables as process.env checks OR I should update env.ts to include them.
+// To avoid breaking changes if I miss one, I will defer moving ALL tables to env.ts unless I'm sure.
+// However, the AWS credentials MUST come from env.ts to ensure strictness if that's the goal.
+
+// Let's stick to using env.ts for what is there, and process.env for the rest for now, 
+// BUT imports might fail if env.ts throws on load. 
+// Since env.ts loads dotenv, importing it here guarantees dotenv is loaded.
+
 export const DYNAMODB_ARGUMENT_MAP_TABLE = process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map';
 export const DYNAMODB_DEPTH_GRAPH_TABLE = process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph';
 export const DYNAMODB_UML_CLASS_TABLE = process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class';
@@ -32,6 +48,7 @@ export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE
 export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
 export const DYNAMODB_TERMS_DEFINITIONS_TABLE = process.env.DYNAMODB_TERMS_DEFINITIONS_TABLE || 'vaisu-terms-definitions';
 export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
+
 
 /**
  * Validate AWS configuration

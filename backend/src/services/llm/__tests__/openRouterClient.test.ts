@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { testEnv } from '../../../../../test/utils/env';
 
 import { OpenRouterClient } from '../openRouterClient';
 
@@ -17,7 +18,7 @@ describe('OpenRouterClient', () => {
       defaults: {
         headers: {
           'Authorization': 'Bearer test-api-key',
-          'HTTP-Referer': 'http://localhost:5173',
+          'HTTP-Referer': testEnv.APP_URL,
           'X-Title': 'Vaisu',
         },
       },
