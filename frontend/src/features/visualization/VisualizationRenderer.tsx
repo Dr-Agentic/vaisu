@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { useEffect } from 'react';
 
 import { ArgumentMap } from '../../components/visualizations/argument-map/ArgumentMap';
+import { DepthGraph } from '../../components/visualizations/depth-graph/DepthGraph';
 import { ExecutiveDashboard } from '../../components/visualizations/executive-dashboard/ExecutiveDashboard';
 import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
 import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
@@ -64,7 +65,7 @@ export function VisualizationRenderer() {
     case 'argument-map':
       return <ArgumentMap data={data} />;
     case 'depth-graph':
-      return <ArgumentMap data={data} />;
+      return <DepthGraph data={data} />;
     case 'executive-dashboard':
       return <ExecutiveDashboard data={data} />;
     default:

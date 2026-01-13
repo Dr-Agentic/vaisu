@@ -1,0 +1,1175 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+  transition: background-color var(--motion-duration-base) var(--motion-easing-ease-out),
+              color var(--motion-duration-base) var(--motion-easing-ease-out);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+code {
+  font-family: var(--font-family-mono);
+}
+
+/* ============================================
+   ELECTRON UI - SOTA GRADIENT SYSTEM
+   ============================================ */
+
+/* CSS @property for animated gradient angles */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ============================================
+   ELECTRON UI - SOTA COLOR SYSTEM
+   ============================================ */
+:root {
+  /* Aurora Gradient (Primary) */
+  --aurora-1: #6366f1;
+  --aurora-2: #a855f7;
+  --aurora-3: #ec4899;
+
+  /* Nova Gradient (Secondary) */
+  --nova-1: #06b6d4;
+  --nova-2: #3b82f6;
+  --nova-3: #8b5cf6;
+
+  /* Solar Gradient (Warning) */
+  --solar-1: #f59e0b;
+  --solar-2: #f97316;
+  --solar-3: #ef4444;
+
+  /* Ember Gradient (Error) */
+  --ember-1: #f43f5e;
+  --ember-2: #ec4899;
+  --ember-3: #db2777;
+
+  /* Animation durations (SOTA) */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-gradient: 4s;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Spacing tokens (SOTA) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+
+  /* Gradient Definitions */
+  --gradient-aurora: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+  --gradient-nova: linear-gradient(135deg, var(--nova-1), var(--nova-2), var(--nova-3));
+  --gradient-solar: linear-gradient(135deg, var(--solar-1), var(--solar-2), var(--solar-3));
+  --gradient-ember: linear-gradient(135deg, var(--ember-1), var(--ember-2), var(--ember-3));
+
+  /* Conic Gradients for rotating borders */
+  --gradient-border-aurora: conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1));
+  --gradient-border-nova: conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1));
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes rotate-gradient-angle {
+  to { --gradient-angle: 360deg; }
+}
+
+@keyframes rotate-gradient {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes aurora-shift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(15deg); }
+}
+
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes success-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes flow {
+  from { stroke-dashoffset: 20; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* ============================================
+   HARDWARE ACCELERATION UTILITIES
+   ============================================ */
+
+/* Apply hardware acceleration to animated elements */
+.accelerated {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Gradient border performance optimizations */
+.gradient-border-animated,
+.gradient-border-animated-fast {
+  will-change: background, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Button performance optimizations */
+.btn {
+  will-change: transform, background;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Floating elements performance optimizations */
+.floating {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Card hover performance optimizations */
+.card:hover {
+  will-change: transform, border-color;
+  transform: translate3d(0, -2px, 0);
+}
+
+/* Stage transition performance optimizations */
+.stage {
+  will-change: opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+.stage.active {
+  will-change: opacity;
+}
+
+.stage.fade-in,
+.stage.slide-in-left,
+.stage.slide-in-right {
+  will-change: opacity, transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Loading spinner performance optimization */
+.loading-spinner,
+.progress-ring {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* ============================================
+   GRADIENT BORDER UTILITIES
+   ============================================ */
+
+/* Normal animated - subtle rotation */
+.gradient-border-animated {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-base), var(--color-surface-base)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+  animation: rotate-gradient-angle 4s linear infinite;
+}
+
+.gradient-border-animated.nova {
+  background:
+    linear-gradient(var(--color-surface-base), var(--color-surface-base)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* Fast animated - grabs attention */
+.gradient-border-animated-fast {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-base), var(--color-surface-base)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+  animation: rotate-gradient-angle 2s linear infinite;
+}
+
+.gradient-border-animated-fast.nova {
+  background:
+    linear-gradient(var(--color-surface-base), var(--color-surface-base)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* Static - no animation */
+.gradient-border-static {
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-base), var(--color-surface-base)) padding-box,
+    conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-lg);
+  border: 3px solid transparent;
+}
+
+.gradient-border-static.nova {
+  background:
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
+    conic-gradient(from 0deg, var(--nova-1), var(--nova-2), var(--nova-3), var(--nova-1)) border-box;
+}
+
+/* ============================================
+   MESH GLOW BACKGROUNDS
+   ============================================ */
+
+.mesh-glow {
+  background:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+    var(--color-surface-base);
+  border-radius: var(--radius-xl);
+}
+
+.mesh-glow-strong {
+  background:
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0%, transparent 40%),
+    radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.25) 0%, transparent 40%),
+    radial-gradient(at 50% 50%, rgba(236, 72, 153, 0.1) 0%, transparent 50%),
+    var(--color-surface-base);
+  border-radius: var(--radius-xl);
+}
+
+.hero-bg {
+  background:
+    radial-gradient(at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+    radial-gradient(at 80% 20%, rgba(168, 85, 247, 0.1) 0%, transparent 40%),
+    radial-gradient(at 40% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 40%),
+    transparent;
+  border-radius: var(--radius-xl);
+  animation: aurora-shift 8s ease-in-out infinite alternate;
+}
+
+/* ============================================
+   TEXT GRADIENT UTILITIES
+   ============================================ */
+
+.text-gradient {
+  display: inline-block;
+  background-image: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient.nova {
+  background-image: var(--gradient-nova);
+}
+
+.text-gradient-glow {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.3));
+}
+
+/* ============================================
+   STAGE TRANSITION UTILITIES
+   ============================================ */
+
+.stage-container {
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.stage.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.stage.fade-in {
+  animation: fade-in 0.3s ease forwards;
+}
+
+.stage.slide-in-left {
+  animation: slide-in-left 0.3s ease forwards;
+}
+
+.stage.slide-in-right {
+  animation: slide-in-right 0.3s ease forwards;
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-elevated) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    var(--color-surface-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border-subtle);
+  border-top-color: var(--aurora-1);
+  border-radius: 50%;
+  animation: spin 2s linear infinite;
+}
+
+.progress-ring {
+  width: 120px;
+  height: 120px;
+  border: 3px solid var(--color-border-subtle);
+  border-top-color: var(--aurora-1);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   ELECTRON UI - SOTA UTILITY CLASSES
+   ============================================ */
+
+.floating {
+  animation: float 3s ease-in-out infinite;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   ELECTRON UI BUTTONS
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Primary Button (Luminous) - Animated */
+.btn-primary {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--color-text-primary);
+  animation: rotate-gradient-angle 4s linear infinite;
+}
+
+.btn-primary:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+/* Primary Button - Fast animated - grabs attention */
+.btn-primary-fast {
+  --gradient-angle: 0deg;
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
+    conic-gradient(from var(--gradient-angle), var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--color-text-primary);
+  animation: rotate-gradient-angle 2s linear infinite;
+}
+
+.btn-primary-fast:hover {
+  transform: scale(1.02);
+}
+
+.btn-primary-fast:active {
+  transform: scale(0.98);
+}
+
+/* Primary Static Button */
+.btn-primary-static {
+  position: relative;
+  background:
+    linear-gradient(var(--color-surface-elevated), var(--color-surface-elevated)) padding-box,
+    conic-gradient(from 0deg, var(--aurora-1), var(--aurora-2), var(--aurora-3), var(--aurora-1)) border-box;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  border: 3px solid transparent;
+  color: var(--color-text-primary);
+}
+
+/* Secondary Button */
+.btn-secondary {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+  border-color: var(--aurora-1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+/* Tertiary Button */
+.btn-tertiary {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+  color: var(--color-text-secondary);
+}
+
+.btn-tertiary:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+   ELECTRON UI CARDS
+   ============================================ */
+
+.card {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+}
+
+.card-subtitle {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   ELECTRON UI BADGES
+   ============================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  min-height: 44px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-aurora {
+  background: rgba(99, 102, 241, 0.25);
+  color: #a78bfa;
+}
+
+.badge-nova {
+  background: rgba(6, 182, 212, 0.25);
+  color: #67e8f9;
+}
+
+.badge-solar {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--solar-2);
+}
+
+.badge-ember {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--ember-2);
+}
+
+/* ============================================
+   ELECTRON UI STAGE INDICATORS
+   ============================================ */
+
+.stage-indicators {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.stage-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-text-disabled);
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.stage-dot.completed {
+  background: var(--color-text-primary);
+}
+
+.stage-dot.active {
+  width: 16px;
+  height: 16px;
+  background: var(--gradient-aurora);
+  box-shadow: 0 0 20px var(--aurora-2), 0 0 40px rgba(168, 85, 247, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ============================================
+   ELECTRON UI VISUALIZATION ITEMS
+   ============================================ */
+
+.viz-item {
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.viz-item:hover {
+  border-color: var(--color-border-strong);
+}
+
+.viz-item.active {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--aurora-1);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+.viz-item-name {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-2xs);
+}
+
+.viz-item-desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   CUSTOM GRADIENT UTILITIES (Legacy)
+   ============================================ */
+  .gradient-border {
+    border-image: linear-gradient(90deg, #6366F1, #8B5CF6, #22D3EE) 1;
+  }
+
+  .gradient-border-animated-legacy {
+    position: relative;
+    background: white;
+  }
+
+  .gradient-border-animated-legacy::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 3px;
+    background: linear-gradient(90deg, #6366F1, #8B5CF6, #22D3EE);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .bg-shimmer {
+    background: linear-gradient(90deg, #E0E7FF 0%, #C7D2FE 50%, #E0E7FF 100%);
+    background-size: 200% 100%;
+  }
+
+  .bg-gradient-hero-animated {
+    background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06B6D4 100%);
+    background-size: 200% 200%;
+  }
+
+  .animate-gradient-flow {
+    animation: gradient-flow 4s ease-in-out infinite alternate;
+  }
+
+  .gradient-bg-primary {
+    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+    background-size: 400% 400%;
+    animation: gradient-flow 4s ease-in-out infinite alternate;
+  }
+
+  .gradient-bg-primary:hover {
+    background-position: 100% 50%;
+  }
+
+  .gradient-bg-primary.disabled,
+  .gradient-bg-primary:disabled {
+    opacity: 0.4;
+    background-position: 0% 50%;
+    animation: none;
+  }
+
+
+/* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus Visible for Keyboard Navigation */
+  *:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-base);
+  }
+  
+  /* Remove focus outline for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+/**
+ * CSS Custom Properties for Design Tokens
+ * 
+ * These variables enable runtime theme switching and provide
+ * semantic naming for design tokens.
+ * 
+ * Usage:
+ *   color: var(--color-text-primary);
+ *   padding: var(--spacing-md);
+ *   border-radius: var(--radius-lg);
+ */
+
+:root {
+  /* ============================================
+     SPACING TOKENS (4px base grid)
+     ============================================ */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 0.75rem;    /* 12px */
+  --spacing-base: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 2.5rem;    /* 40px */
+  --spacing-3xl: 3rem;      /* 48px */
+  --spacing-4xl: 4rem;      /* 64px */
+  --spacing-5xl: 6rem;      /* 96px */
+
+  /* ============================================
+     TYPOGRAPHY TOKENS
+     ============================================ */
+  --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.875rem;     /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg: 1.125rem;     /* 18px */
+  --font-size-xl: 1.25rem;      /* 20px */
+  --font-size-2xl: 1.5rem;      /* 24px */
+  --font-size-3xl: 1.875rem;    /* 30px */
+  --font-size-4xl: 2.25rem;     /* 36px */
+  --font-size-5xl: 3rem;        /* 48px */
+  --font-size-6xl: 3.75rem;     /* 60px */
+  --font-size-7xl: 4.5rem;      /* 72px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* ============================================
+     BORDER RADIUS TOKENS
+     ============================================ */
+  --radius-none: 0;
+  --radius-sm: 0.25rem;     /* 4px */
+  --radius-base: 0.375rem;  /* 6px */
+  --radius-md: 0.5rem;      /* 8px */
+  --radius-lg: 0.75rem;     /* 12px */
+  --radius-xl: 1rem;        /* 16px */
+  --radius-2xl: 1.5rem;     /* 24px */
+  --radius-full: 9999px;
+
+  /* ============================================
+     ELEVATION (SHADOW) TOKENS
+     ============================================ */
+  --elevation-none: none;
+  --elevation-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --elevation-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --elevation-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --elevation-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --elevation-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --elevation-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --elevation-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+
+  /* ============================================
+     MOTION TOKENS
+     ============================================ */
+  --motion-duration-instant: 0ms;
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 200ms;
+  --motion-duration-slow: 300ms;
+  --motion-duration-slower: 500ms;
+
+  --motion-easing-linear: linear;
+  --motion-easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --motion-easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --motion-easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ============================================
+     Z-INDEX TOKENS
+     ============================================ */
+  --z-index-base: 0;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+  --z-index-toast: 1080;
+
+  /* ============================================
+     LIGHT THEME COLORS (Default)
+     ============================================ */
+  
+  /* Background Colors */
+  --color-background-primary: #FFFFFF;
+  --color-background-secondary: #FAFAFA;
+  --color-background-tertiary: #F5F5F5;
+  --color-background-inverse: #171717;
+
+  /* Surface Colors */
+  --color-surface-base: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  --color-surface-overlay: rgba(255, 255, 255, 0.95);
+  --color-surface-inverse: #171717;
+
+  /* Text Colors */
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #737373;
+  --color-text-disabled: #A3A3A3;
+  --color-text-inverse: #FFFFFF;
+  --color-text-link: #4F46E5;
+  --color-text-link-hover: #4338CA;
+
+  /* Border Colors */
+  --color-border-subtle: #E5E5E5;
+  --color-border-base: #D4D4D4;
+  --color-border-strong: #A3A3A3;
+  --color-border-focus: #6366F1;
+  --color-border-error: #EF4444;
+
+  /* Interactive Colors - Primary */
+  --color-interactive-primary-base: #4F46E5;
+  --color-interactive-primary-hover: #4338CA;
+  --color-interactive-primary-active: #3730A3;
+  --color-interactive-primary-disabled: #D4D4D4;
+
+  /* Interactive Colors - Secondary */
+  --color-interactive-secondary-base: #7C3AED;
+  --color-interactive-secondary-hover: #6D28D9;
+  --color-interactive-secondary-active: #5B21B6;
+  --color-interactive-secondary-disabled: #D4D4D4;
+
+  /* Interactive Colors - Accent */
+  --color-interactive-accent-base: #06B6D4;
+  --color-interactive-accent-hover: #0891B2;
+  --color-interactive-accent-active: #0891B2;
+  --color-interactive-accent-disabled: #D4D4D4;
+
+  /* Semantic Colors - Success */
+  --color-semantic-success-base: #22C55E;
+  --color-semantic-success-background: #F0FDF4;
+  --color-semantic-success-border: #BBF7D0;
+  --color-semantic-success-text: #15803D;
+
+  /* Semantic Colors - Error */
+  --color-semantic-error-base: #EF4444;
+  --color-semantic-error-background: #FEF2F2;
+  --color-semantic-error-border: #FECACA;
+  --color-semantic-error-text: #B91C1C;
+
+  /* Semantic Colors - Warning */
+  --color-semantic-warning-base: #F59E0B;
+  --color-semantic-warning-background: #FFFBEB;
+  --color-semantic-warning-border: #FDE68A;
+  --color-semantic-warning-text: #B45309;
+
+  /* Semantic Colors - Info */
+  --color-semantic-info-base: #3B82F6;
+  --color-semantic-info-background: #EFF6FF;
+  --color-semantic-info-border: #BFDBFE;
+  --color-semantic-info-text: #1D4ED8;
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+
+/* Explicit Dark Theme */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+
+    /* Background Colors */
+    --color-background-primary: #0A0A0A;
+    --color-background-secondary: #171717;
+    --color-background-tertiary: #262626;
+    --color-background-inverse: #FFFFFF;
+
+    /* Surface Colors */
+    --color-surface-base: #171717;
+    --color-surface-elevated: #262626;
+    --color-surface-overlay: rgba(23, 23, 23, 0.95);
+    --color-surface-inverse: #FFFFFF;
+
+    /* Text Colors */
+    --color-text-primary: #FAFAFA;
+    --color-text-secondary: #D4D4D4;
+    --color-text-tertiary: #A3A3A3;
+    --color-text-disabled: #525252;
+    --color-text-inverse: #171717;
+    --color-text-link: #818CF8;
+    --color-text-link-hover: #A5B4FC;
+
+    /* Border Colors */
+    --color-border-subtle: #262626;
+    --color-border-base: #404040;
+    --color-border-strong: #525252;
+    --color-border-focus: #818CF8;
+    --color-border-error: #F87171;
+
+    /* Interactive Colors - Primary */
+    --color-interactive-primary-base: #6366F1;
+    --color-interactive-primary-hover: #818CF8;
+    --color-interactive-primary-active: #A5B4FC;
+    --color-interactive-primary-disabled: #404040;
+
+    /* Interactive Colors - Secondary */
+    --color-interactive-secondary-base: #8B5CF6;
+    --color-interactive-secondary-hover: #C084FC;
+    --color-interactive-secondary-active: #D8B4FE;
+    --color-interactive-secondary-disabled: #404040;
+
+    /* Interactive Colors - Accent */
+    --color-interactive-accent-base: #06B6D4;
+    --color-interactive-accent-hover: #22D3EE;
+    --color-interactive-accent-active: #22D3EE;
+    --color-interactive-accent-disabled: #404040;
+
+    /* Semantic Colors - Success */
+    --color-semantic-success-base: #4ADE80;
+    --color-semantic-success-background: rgba(16, 185, 129, 0.1);
+    --color-semantic-success-border: #166534;
+    --color-semantic-success-text: #86EFAC;
+
+    /* Semantic Colors - Error */
+    --color-semantic-error-base: #F87171;
+    --color-semantic-error-background: rgba(239, 68, 68, 0.1);
+    --color-semantic-error-border: #991B1B;
+    --color-semantic-error-text: #FCA5A5;
+
+    /* Semantic Colors - Warning */
+    --color-semantic-warning-base: #FBBF24;
+    --color-semantic-warning-background: rgba(245, 158, 11, 0.1);
+    --color-semantic-warning-border: #92400E;
+    --color-semantic-warning-text: #FDE68A;
+
+    /* Semantic Colors - Info */
+    --color-semantic-info-base: #60A5FA;
+    --color-semantic-info-background: rgba(59, 130, 246, 0.1);
+    --color-semantic-info-border: #1E40AF;
+    --color-semantic-info-text: #93C5FD;
+}
+
+/* System Dark Theme (when no explicit theme set) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+
+    /* Background Colors */
+    --color-background-primary: #0A0A0A;
+    --color-background-secondary: #171717;
+    --color-background-tertiary: #262626;
+    --color-background-inverse: #FFFFFF;
+
+    /* Surface Colors */
+    --color-surface-base: #171717;
+    --color-surface-elevated: #262626;
+    --color-surface-overlay: rgba(23, 23, 23, 0.95);
+    --color-surface-inverse: #FFFFFF;
+
+    /* Text Colors */
+    --color-text-primary: #FAFAFA;
+    --color-text-secondary: #D4D4D4;
+    --color-text-tertiary: #A3A3A3;
+    --color-text-disabled: #525252;
+    --color-text-inverse: #171717;
+    --color-text-link: #818CF8;
+    --color-text-link-hover: #A5B4FC;
+
+    /* Border Colors */
+    --color-border-subtle: #262626;
+    --color-border-base: #404040;
+    --color-border-strong: #525252;
+    --color-border-focus: #818CF8;
+    --color-border-error: #F87171;
+
+    /* Interactive Colors - Primary */
+    --color-interactive-primary-base: #6366F1;
+    --color-interactive-primary-hover: #818CF8;
+    --color-interactive-primary-active: #A5B4FC;
+    --color-interactive-primary-disabled: #404040;
+
+    /* Interactive Colors - Secondary */
+    --color-interactive-secondary-base: #8B5CF6;
+    --color-interactive-secondary-hover: #C084FC;
+    --color-interactive-secondary-active: #D8B4FE;
+    --color-interactive-secondary-disabled: #404040;
+
+    /* Interactive Colors - Accent */
+    --color-interactive-accent-base: #06B6D4;
+    --color-interactive-accent-hover: #22D3EE;
+    --color-interactive-accent-active: #22D3EE;
+    --color-interactive-accent-disabled: #404040;
+
+    /* Semantic Colors - Success */
+    --color-semantic-success-base: #4ADE80;
+    --color-semantic-success-background: rgba(16, 185, 129, 0.1);
+    --color-semantic-success-border: #166534;
+    --color-semantic-success-text: #86EFAC;
+
+    /* Semantic Colors - Error */
+    --color-semantic-error-base: #F87171;
+    --color-semantic-error-background: rgba(239, 68, 68, 0.1);
+    --color-semantic-error-border: #991B1B;
+    --color-semantic-error-text: #FCA5A5;
+
+    /* Semantic Colors - Warning */
+    --color-semantic-warning-base: #FBBF24;
+    --color-semantic-warning-background: rgba(245, 158, 11, 0.1);
+    --color-semantic-warning-border: #92400E;
+    --color-semantic-warning-text: #FDE68A;
+
+    /* Semantic Colors - Info */
+    --color-semantic-info-base: #60A5FA;
+    --color-semantic-info-background: rgba(59, 130, 246, 0.1);
+    --color-semantic-info-border: #1E40AF;
+    --color-semantic-info-text: #93C5FD;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable Electron UI animations */
+  .gradient-border-animated,
+  .gradient-border-animated-fast,
+  .hero-bg,
+  .loading-spinner,
+  .progress-ring,
+  .floating,
+  .shimmer {
+    animation: none !important;
+  }
+}
+
+/* ============================================
+   CARD CONTENT TEXT FIX
+   ============================================ */
+.text-content-primary {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+.text-content-primary p,
+.text-content-primary span,
+.text-content-primary div {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+/* Ensure CardContent text is always visible */
+.card-content {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+.card-content p,
+.card-content span,
+.card-content div {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+/* Additional specificity to override any conflicting styles */
+.design-system-card-content {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+.design-system-card-content p,
+.design-system-card-content span,
+.design-system-card-content div {
+  color: var(--color-text-primary) !important;
+  font-family: var(--font-family-sans) !important;
+}
+
+/* ============================================
+   CUSTOM SCROLLBAR
+   ============================================ */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-border-subtle);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-disabled);
+  border: 1px solid transparent;
+  background-clip: content-box;
+}

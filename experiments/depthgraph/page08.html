@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth Graph - Swimlanes (08)</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="styles.css" rel="stylesheet">
+    <script src="data.js"></script>
+</head>
+<body class="bg-[var(--color-background-primary)] text-[var(--color-text-primary)] p-8">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const variantStyles = {
+            base: 'bg-[var(--color-surface-base)] border border-[var(--color-border-base)]',
+            elevated: 'bg-[var(--color-surface-elevated)] shadow-[var(--elevation-md)] border border-[var(--color-border-base)]',
+            outlined: 'bg-[var(--color-surface-base)] border-2 border-[var(--color-border-strong)]',
+        };
+
+        const Card = ({ variant = 'base', className = '', children, ...props }) => (
+            <div className={`rounded-[var(--radius-lg)] p-5 transition-all ${variantStyles[variant] || variantStyles.base} ${className}`} {...props}>
+                {children}
+            </div>
+        );
+
+        const App = () => {
+            const lanes = {
+                "Deep": GRAPH_DATA.filter(n => n.additionalInfo.cognitive_level === "Deep"),
+                "Intermediate": GRAPH_DATA.filter(n => n.additionalInfo.cognitive_level === "Intermediate"),
+                "Surface / Strong Epistemic": GRAPH_DATA.filter(n => n.additionalInfo.cognitive_level !== "Deep" && n.additionalInfo.cognitive_level !== "Intermediate")
+            };
+
+            return (
+                <div className="h-screen flex flex-col overflow-hidden">
+                    <header className="mb-8 flex-none">
+                        <h1 className="text-4xl font-bold mb-2 text-gradient nova">Depth Graph Visualization</h1>
+                        <p className="text-[var(--color-text-secondary)]">Experiment 08: Cognitive Depth Swimlanes</p>
+                    </header>
+
+                    <div className="flex-grow grid grid-cols-3 gap-8 overflow-hidden h-full pb-8">
+                        {Object.entries(lanes).map(([level, nodes], index) => (
+                            <div key={level} className="flex flex-col h-full bg-[var(--color-background-secondary)] rounded-[var(--radius-2xl)] p-4 border border-[var(--color-border-subtle)]">
+                                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-[var(--color-border-subtle)]">
+                                    <div className={`w-3 h-3 rounded-full ${index === 0 ? 'bg-[var(--aurora-1)]' : index === 1 ? 'bg-[var(--nova-1)]' : 'bg-[var(--solar-1)]'}`}></div>
+                                    <h2 className="text-xl font-bold uppercase tracking-wider">{level}</h2>
+                                    <span className="ml-auto text-xs bg-[var(--color-surface-base)] px-2 py-1 rounded-full">{nodes.length}</span>
+                                </div>
+
+                                <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                                    {nodes.map(node => (
+                                        <Card 
+                                            key={node.id} 
+                                            variant={node.additionalInfo.cognitive_level === "Deep" ? "outlined" : "elevated"}
+                                            className="relative group cursor-pointer hover:shadow-lg hover:-translate-x-1 transition-transform duration-200"
+                                        >
+                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-[var(--aurora-1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-l-lg"></div>
+                                            
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h3 className="font-bold text-[var(--color-text-primary)]">{node.topic}</h3>
+                                                <span className="text-xs font-mono text-[var(--color-text-disabled)]">#{node.id}</span>
+                                            </div>
+                                            
+                                            <p className="text-sm text-[var(--color-text-secondary)] mb-3 line-clamp-3">
+                                                {node.topic_summary}
+                                            </p>
+
+                                            <div className="flex items-center gap-4 text-xs text-[var(--color-text-tertiary)]">
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--aurora-2)]"></div>
+                                                    <span>Cog: {node.cognitive}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-[var(--nova-2)]"></div>
+                                                    <span>Rig: {node.rigor}</span>
+                                                </div>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

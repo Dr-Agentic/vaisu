@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth Graph - Bento (10)</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="styles.css" rel="stylesheet">
+    <script src="data.js"></script>
+    <!-- 
+      EXCEPTION: Internal <style> is used for the complex bento grid layouts 
+      and specific item sizing which is more readable here than in inline Tailwind.
+    -->
+    <style>
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 240px;
+            gap: 20px;
+        }
+        @media (max-width: 1280px) {
+            .bento-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 1024px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .bento-grid { grid-template-columns: 1fr; }
+        }
+
+        .item-1 { grid-column: span 2; grid-row: span 2; } /* Thesis */
+        .item-2 { grid-column: span 2; grid-row: span 1; } /* Macro */
+        .item-13 { grid-column: span 2; grid-row: span 2; } /* Entry-Level Crisis */
+        .item-15 { grid-column: span 4; grid-row: span 1; } /* Policy (Footer) */
+    </style>
+</head>
+<body class="bg-[var(--color-background-primary)] text-[var(--color-text-primary)] p-8">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const variantStyles = {
+            base: 'bg-[var(--color-surface-base)] border border-[var(--color-border-base)]',
+            elevated: 'bg-[var(--color-surface-elevated)] shadow-[var(--elevation-md)] border border-[var(--color-border-base)]',
+            outlined: 'bg-[var(--color-surface-base)] border-2 border-[var(--color-border-strong)]',
+        };
+
+        const Card = ({ variant = 'base', className = '', children, ...props }) => (
+            <div className={`rounded-[var(--radius-2xl)] p-6 flex flex-col transition-all duration-400 ease-[var(--motion-easing-bounce)] hover:scale-[1.01] hover:z-10 relative overflow-hidden ${variantStyles[variant] || variantStyles.base} ${className}`} {...props}>
+                {children}
+            </div>
+        );
+
+        const App = () => {
+            return (
+                <div className="max-w-[1600px] mx-auto">
+                    <header className="mb-12 flex justify-between items-end">
+                        <div>
+                            <h1 className="text-6xl font-black mb-2 tracking-tighter text-gradient nova">DECOUPLED</h1>
+                            <p className="text-[var(--color-text-secondary)] font-mono">STRUCTURAL ECONOMIC SHIFT ANALYSIS // 2026</p>
+                        </div>
+                        <div className="text-right hidden md:block">
+                            <div className="text-4xl font-bold text-[var(--color-text-primary)]">15</div>
+                            <div className="text-xs uppercase tracking-widest text-[var(--color-text-tertiary)]">Analysis Nodes</div>
+                        </div>
+                    </header>
+
+                    <div className="bento-grid">
+                        {GRAPH_DATA.map((node) => {
+                            const isBig = node.id === 1 || node.id === 13 || node.id === 15;
+                            
+                            return (
+                                <Card key={node.id} variant={isBig ? "outlined" : "elevated"} className={`item-${node.id}`}>
+                                    <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-gradient-to-br from-[var(--aurora-1)] to-transparent opacity-5 rounded-full blur-3xl pointer-events-none"></div>
+
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className={`p-2 rounded-lg ${isBig ? 'bg-[var(--color-background-tertiary)]' : ''}`}>
+                                            <span className="font-mono text-xs text-[var(--color-text-disabled)]">#{String(node.id).padStart(2,'0')}</span>
+                                        </div>
+                                        {node.signals.grounding.length > 0 && (
+                                            <div className="flex gap-1">
+                                                <div className="w-2 h-2 rounded-full bg-[var(--aurora-1)]"></div>
+                                                <div className="w-2 h-2 rounded-full bg-[var(--nova-1)] opacity-50"></div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <h2 className={`${isBig ? 'text-4xl' : 'text-xl'} font-bold mb-3 text-[var(--color-text-primary)] leading-tight`}>
+                                        {node.topic}
+                                    </h2>
+
+                                    <p className={`text-[var(--color-text-secondary)] ${isBig ? 'text-lg line-clamp-4' : 'text-sm line-clamp-3'} mb-auto`}>
+                                        {node.topic_summary}
+                                    </p>
+
+                                    <div className="mt-6 pt-4 border-t border-[var(--color-border-subtle)] flex justify-between items-center">
+                                        <div className="flex gap-2">
+                                            {node.signals.grounding.slice(0, isBig ? 3 : 1).map((s,i) => (
+                                                <span key={i} className="px-2 py-0.5 rounded text-[10px] uppercase tracking-wider border border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)]">
+                                                    {s}
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="font-mono text-xs font-bold text-[var(--color-text-disabled)]">
+                                            {node.true_depth.toFixed(1)}
+                                        </div>
+                                    </div>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

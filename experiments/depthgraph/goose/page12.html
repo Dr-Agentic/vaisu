@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goose Depth Graph - Radial Network (12)</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../styles.css" rel="stylesheet">
+    <script src="../data.js"></script>
+    <!-- 
+      EXCEPTION: Inline SVG styles for the connector lines are used here to create 
+      dynamic path rendering that adjusts based on node positions. This is necessary 
+      for SVG path data which cannot be expressed via CSS classes alone.
+    -->
+    <style>
+        .node-connector {
+            stroke: var(--color-border-base);
+            stroke-width: 1.5;
+            fill: none;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+        .node-connector.active {
+            stroke: var(--aurora-1);
+            stroke-width: 2;
+            opacity: 1;
+        }
+        .radial-grid {
+            background-image: 
+                radial-gradient(circle at center, var(--color-border-subtle) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="bg-[var(--color-background-primary)] text-[var(--color-text-primary)] p-8">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- Card Components ---
+        const Card = ({ className = '', interactive = false, children, ...props }) => (
+            <div 
+                className={`
+                    rounded-[var(--radius-lg)] p-3
+                    bg-[var(--color-surface-elevated)] 
+                    border border-[var(--color-border-base)]
+                    ${interactive ? 'transition-all duration-200 hover:shadow-[var(--elevation-lg)] cursor-pointer' : ''}
+                    ${className}
+                `} 
+                {...props}
+            >
+                {children}
+            </div>
+        );
+
+        // --- Main App ---
+        const App = () => {
+            const [selectedNode, setSelectedNode] = React.useState(null);
+            const [hoveredNode, setHoveredNode] = React.useState(null);
+
+            // Get the "Thesis" node as center (node 1)
+            const thesisNode = GRAPH_DATA.find(n => n.id === 1);
+            const otherNodes = GRAPH_DATA.filter(n => n.id !== 1);
+
+            // Create connections based on thematic relationships
+            // Node 1 connects to 2, 3
+            // Node 2 connects to 4, 5
+            // Node 3 connects to 6, 7
+            // Node 4 connects to 8, 9
+            // Node 5 connects to 10, 11
+            // Node 6 connects to 12
+            // Node 13 synthesizes 8, 9, 10, 11, 12
+            // Node 14 connects to 13
+            // Node 15 connects to 14
+            
+            const connections = [
+                { source: 1, target: 2 }, { source: 1, target: 3 },
+                { source: 1, target: 4 }, { source: 1, target: 5 },
+                { source: 2, target: 6 }, { source: 2, target: 7 },
+                { source: 3, target: 8 }, { source: 3, target: 9 },
+                { source: 4, target: 10 }, { source: 5, target: 11 },
+                { source: 6, target: 12 }, { source: 7, target: 13 },
+                { source: 8, target: 13 }, { source: 9, target: 13 },
+                { source: 10, target: 13 }, { source: 11, target: 13 },
+                { source: 12, target: 13 },
+                { source: 13, target: 14 },
+                { source: 14, target: 15 },
+            ];
+
+            // Calculate node positions for radial layout
+            const rings = [
+                [1], // Center
+                [2, 3], // Inner ring
+                [4, 5, 6, 7], // Middle ring
+                [8, 9, 10, 11, 12], // Outer ring
+                [13], // Secondary center
+                [14, 15], // Final ring
+            ];
+
+            const getRingPosition = (nodeId, ringIndex) => {
+                const ring = rings[ringIndex];
+                const index = ring.indexOf(nodeId);
+                const total = ring.length;
+                const angle = (index / total) * 2 * Math.PI;
+                
+                // Calculate position with proper spacing
+                const radius = 80 + (ringIndex * 60);
+                const x = 400 + Math.cos(angle) * radius;
+                const y = 350 + Math.sin(angle) * radius;
+                
+                return { x, y };
+            };
+
+            const getNodePosition = (nodeId) => {
+                for (let i = 0; i < rings.length; i++) {
+                    if (rings[i].includes(nodeId)) {
+                        return getRingPosition(nodeId, i);
+                    }
+                }
+                // Fallback to outer ring
+                return getRingPosition(nodeId, 4);
+            };
+
+            const handleNodeClick = (node) => {
+                setSelectedNode(selectedNode?.id === node.id ? null : node);
+            };
+
+            const isNodeActive = (nodeId) => {
+                if (!selectedNode && !hoveredNode) return false;
+                const activeId = selectedNode?.id || hoveredNode?.id;
+                
+                // Check if this node is connected to active
+                return connections.some(c => 
+                    (c.source === activeId && c.target === nodeId) ||
+                    (c.target === activeId && c.source === nodeId) ||
+                    nodeId === activeId
+                );
+            };
+
+            const getDepthColor = (depth) => {
+                if (depth >= 8.5) return '#6366f1'; // aurora-1
+                if (depth >= 8.0) return '#06b6d4'; // nova-1
+                if (depth >= 7.5) return '#a855f7';
+                return '#737373';
+            };
+
+            return (
+                <div className="max-w-[1600px] mx-auto">
+                    <header className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h1 className="text-4xl font-bold mb-2 text-gradient nova">
+                                    Radial Network Visualization
+                                </h1>
+                                <p className="text-[var(--color-text-secondary)] text-lg">
+                                    Experiment 12: Central thesis with thematic connections
+                                </p>
+                            </div>
+                            <div className="flex gap-2">
+                                <a href="page11.html" className="btn btn-secondary px-4 py-2 rounded-lg text-sm">← Prev</a>
+                                <a href="page13.html" className="btn btn-secondary px-4 py-2 rounded-lg text-sm">Next →</a>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div className="grid grid-cols-[1fr_400px] gap-6">
+                        {/* Visual Network */}
+                        <div className="relative radial-grid rounded-2xl border border-[var(--color-border-subtle)] overflow-hidden" style={{ height: '750px' }}>
+                            {/* SVG Connector Lines */}
+                            <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                                {connections.map((conn, idx) => {
+                                    const srcPos = getNodePosition(conn.source);
+                                    const tgtPos = getNodePosition(conn.target);
+                                    const isActive = isNodeActive(conn.source) || isNodeActive(conn.target);
+                                    
+                                    return (
+                                        <line
+                                            key={idx}
+                                            x1={srcPos.x}
+                                            y1={srcPos.y}
+                                            x2={tgtPos.x}
+                                            y2={tgtPos.y}
+                                            className={`node-connector ${isActive ? 'active' : ''}`}
+                                            style={{ 
+                                                strokeDasharray: isActive ? '0' : '4 4',
+                                                transition: 'all 0.3s ease'
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </svg>
+
+                            {/* Node Dots */}
+                            {GRAPH_DATA.map((node) => {
+                                const pos = getNodePosition(node.id);
+                                const isActive = isNodeActive(node.id);
+                                const isSelected = selectedNode?.id === node.id;
+                                
+                                return (
+                                    <div
+                                        key={node.id}
+                                        className={`
+                                            absolute flex items-center justify-center rounded-full 
+                                            font-bold text-xs cursor-pointer transition-all duration-200
+                                            ${isActive ? 'scale-110' : ''}
+                                            ${isSelected ? 'ring-4 ring-[var(--aurora-1)] ring-offset-2 ring-offset-[var(--color-background-primary)]' : 'ring-2 ring-[var(--color-border-subtle)]'}
+                                        `}
+                                        style={{
+                                            left: pos.x - 20,
+                                            top: pos.y - 20,
+                                            width: '40px',
+                                            height: '40px',
+                                            backgroundColor: isActive ? '#262626' : '#171717',
+                                            color: isActive ? '#fff' : '#a3a3a3',
+                                            border: `2px solid ${isActive ? getDepthColor(node.true_depth) : 'var(--color-border-base)'}`
+                                        }}
+                                        onClick={() => handleNodeClick(node)}
+                                        onMouseEnter={() => setHoveredNode(node)}
+                                        onMouseLeave={() => setHoveredNode(null)}
+                                        title={node.topic}
+                                    >
+                                        {node.id}
+                                    </div>
+                                );
+                            })}
+
+                            {/* Center Indicator */}
+                            <div className="absolute left-[400px] top-[350px] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1">
+                                <div className="w-3 h-3 rounded-full bg-[var(--aurora-1)] animate-pulse"></div>
+                                <span className="text-[10px] text-[var(--color-text-secondary)]">Core Thesis</span>
+                            </div>
+                        </div>
+
+                        {/* Detail Panel */}
+                        <div className="bg-[var(--color-surface-elevated)] rounded-2xl border border-[var(--color-border-base)] p-6 h-[750px] overflow-y-auto custom-scrollbar">
+                            <h3 className="text-lg font-bold mb-4 text-gradient aurora">
+                                {selectedNode ? 'Selected Node Details' : 'Hover/Click Nodes'}
+                            </h3>
+                            
+                            {selectedNode ? (
+                                <div className="space-y-4 animate-fade-in">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-xs font-mono text-[var(--color-text-disabled)]">ID: {selectedNode.id}</span>
+                                        <div className="flex gap-2">
+                                            <Badge value={selectedNode.cognitive} label="C" />
+                                            <Badge value={selectedNode.epistemic} label="E" />
+                                        </div>
+                                    </div>
+
+                                    <h2 className="text-xl font-bold">{selectedNode.topic}</h2>
+                                    
+                                    <div className="h-1 w-16 bg-gradient-to-r from-[var(--aurora-1)] to-[var(--nova-1)] rounded"></div>
+
+                                    <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                                        {selectedNode.topic_summary}
+                                    </p>
+
+                                    <div className="bg-[var(--color-background-tertiary)] p-4 rounded-lg space-y-2">
+                                        <h4 className="text-xs font-bold uppercase text-[var(--color-text-tertiary)]">Extended Analysis</h4>
+                                        <p className="text-xs leading-relaxed">{selectedNode.extended_summary}</p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <h4 className="text-xs font-bold uppercase text-[var(--color-text-tertiary)]">Dimension Details</h4>
+                                        {Object.entries(selectedNode.dimensionDetails).map(([key, value]) => (
+                                            <div key={key} className="text-xs p-2 bg-[var(--color-surface-base)] rounded border border-[var(--color-border-subtle)]">
+                                                <span className="font-semibold capitalize">{key}:</span> {value}
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {selectedNode.feedback && (
+                                        <div className="bg-[var(--color-semantic-warning-background)] border border-[var(--color-semantic-warning-border)] p-3 rounded-lg">
+                                            <span className="text-xs font-bold text-[var(--color-semantic-warning-text)]">Feedback:</span>
+                                            <span className="text-xs text-[var(--color-semantic-warning-text)]"> {selectedNode.feedback}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full text-center opacity-50 space-y-3">
+                                    <div className="text-4xl">🎯</div>
+                                    <p className="text-sm">Click any node to see detailed information</p>
+                                    <p className="text-xs text-[var(--color-text-tertiary)]">Connections show thematic relationships</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Helper Badge Component
+        const Badge = ({ value, label }) => (
+            <div className="flex flex-col items-center px-2 py-1 bg-[var(--color-background-secondary)] rounded">
+                <span className="text-[10px] text-[var(--color-text-tertiary)]">{label}</span>
+                <span className="font-mono font-bold text-sm">{value}</span>
+            </div>
+        );
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

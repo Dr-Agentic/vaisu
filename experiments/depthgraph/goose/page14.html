@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goose Depth Graph - Dimensional Filter (14)</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../styles.css" rel="stylesheet">
+    <script src="../data.js"></script>
+</head>
+<body class="bg-[var(--color-background-primary)] text-[var(--color-text-primary)] p-8">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // --- Card Components ---
+        const Card = ({ className = '', children, ...props }) => (
+            <div 
+                className={`rounded-xl p-4 bg-[var(--color-surface-elevated)] border border-[var(--color-border-base)] hover:border-[var(--color-border-focus)] transition-all ${className}`} 
+                {...props}
+            >
+                {children}
+            </div>
+        );
+
+        const FilterButton = ({ active, children, onClick }) => (
+            <button 
+                onClick={onClick}
+                className={`
+                    px-4 py-2 rounded-lg text-sm font-semibold transition-all
+                    ${active 
+                        ? 'bg-[var(--aurora-1)] text-white shadow-[var(--elevation-md)]' 
+                        : 'bg-[var(--color-surface-base)] text-[var(--color-text-secondary)] border border-[var(--color-border-base)] hover:border-[var(--color-border-strong)]'
+                    }
+                `}
+            >
+                {children}
+            </button>
+        );
+
+        // --- Main App ---
+        const App = () => {
+            const [sortMetric, setSortMetric] = React.useState('id');
+            const [sortDirection, setSortDirection] = React.useState('asc');
+            const [minThreshold, setMinThreshold] = React.useState(0);
+            const [visibleMetrics, setVisibleMetrics] = React.useState({
+                cognitive: true,
+                epistemic: true,
+                causal: true,
+                rigor: true,
+                coherence: true,
+                true_depth: true
+            });
+
+            // Filter and sort data
+            const getProcessedData = () => {
+                let filtered = GRAPH_DATA.filter(node => {
+                    // Apply threshold for at least one metric if set
+                    if (minThreshold > 0) {
+                        return Object.values({
+                            cognitive: node.cognitive,
+                            epistemic: node.epistemic,
+                            causal: node.causal,
+                            rigor: node.rigor,
+                            coherence: node.coherence,
+                            true_depth: node.true_depth
+                        }).some(v => v >= minThreshold);
+                    }
+                    return true;
+                });
+
+                // Sort
+                filtered.sort((a, b) => {
+                    let aVal = sortMetric === 'id' ? a.id : a[sortMetric];
+                    let bVal = sortMetric === 'id' ? b.id : b[sortMetric];
+                    
+                    if (sortDirection === 'asc') {
+                        return aVal - bVal;
+                    } else {
+                        return bVal - aVal;
+                    }
+                });
+
+                return filtered;
+            };
+
+            const toggleMetric = (metric) => {
+                setVisibleMetrics(prev => ({
+                    ...prev,
+                    [metric]: !prev[metric]
+                }));
+            };
+
+            const getMetricClass = (value) => {
+                if (value >= 8.5) return 'bg-[var(--aurora-1)] text-white';
+                if (value >= 8.0) return 'bg-[var(--nova-1)] text-black';
+                if (value >= 7.5) return 'bg-[var(--color-surface-base)] text-[var(--color-text-primary)]';
+                return 'bg-[var(--color-background-tertiary)] text-[var(--color-text-disabled)]';
+            };
+
+            const processedData = getProcessedData();
+
+            return (
+                <div className="max-w-[1800px] mx-auto space-y-6">
+                    <header className="mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h1 className="text-4xl font-bold mb-2 text-gradient nova">
+                                    Dimensional Analysis Filter
+                                </h1>
+                                <p className="text-[var(--color-text-secondary)] text-lg">
+                                    Experiment 14: Interactive sorting and metric-based filtering
+                                </p>
+                            </div>
+                            <div className="flex gap-2">
+                                <a href="page13.html" className="btn btn-secondary px-4 py-2 rounded-lg text-sm">← Prev</a>
+                                <a href="page15.html" className="btn btn-secondary px-4 py-2 rounded-lg text-sm">Next →</a>
+                            </div>
+                        </div>
+
+                        {/* Filter Controls */}
+                        <div className="bg-[var(--color-surface-elevated)] rounded-xl border border-[var(--color-border-base)] p-6 space-y-4">
+                            {/* Sort Controls */}
+                            <div className="flex flex-wrap items-center gap-3">
+                                <span className="text-sm font-bold text-[var(--color-text-secondary)]">Sort By:</span>
+                                {['id', 'cognitive', 'epistemic', 'causal', 'rigor', 'coherence', 'true_depth'].map(metric => (
+                                    <FilterButton 
+                                        key={metric}
+                                        active={sortMetric === metric}
+                                        onClick={() => setSortMetric(metric)}
+                                    >
+                                        {metric.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(0, 2)).join('')}
+                                    </FilterButton>
+                                ))}
+                                <button 
+                                    onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                                    className="btn btn-tertiary px-3 py-2 rounded-lg text-sm"
+                                >
+                                    {sortDirection === 'asc' ? '↑ Asc' : '↓ Desc'}
+                                </button>
+                            </div>
+
+                            {/* Threshold & Metric Visibility */}
+                            <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-[var(--color-border-subtle)]">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm font-bold text-[var(--color-text-secondary)]">Min Depth:</span>
+                                    <input 
+                                        type="range" 
+                                        min="0" 
+                                        max="9" 
+                                        step="0.5"
+                                        value={minThreshold}
+                                        onChange={(e) => setMinThreshold(Number(e.target.value))}
+                                        className="w-32 accent-[var(--aurora-1)]"
+                                    />
+                                    <span className="font-mono text-sm min-w-[3rem] text-center">{minThreshold}</span>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <span className="text-sm font-bold text-[var(--color-text-secondary)]">Show Metrics:</span>
+                                    {Object.keys(visibleMetrics).map(metric => (
+                                        <button
+                                            key={metric}
+                                            onClick={() => toggleMetric(metric)}
+                                            className={`
+                                                px-3 py-1.5 text-xs rounded-full font-bold border transition-all
+                                                ${visibleMetrics[metric] 
+                                                    ? 'bg-[var(--aurora-1)] text-white border-[var(--aurora-1)]' 
+                                                    : 'bg-[var(--color-background-secondary)] text-[var(--color-text-disabled)] border-[var(--color-border-subtle)]'
+                                                }
+                                            `}
+                                        >
+                                            {metric.charAt(0).toUpperCase() + metric.slice(0, 2)}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button 
+                                    onClick={() => {
+                                        setSortMetric('id');
+                                        setSortDirection('asc');
+                                        setMinThreshold(0);
+                                        setVisibleMetrics({
+                                            cognitive: true, epistemic: true, causal: true,
+                                            rigor: true, coherence: true, true_depth: true
+                                        });
+                                    }}
+                                    className="ml-auto text-xs underline text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
+                                >
+                                    Reset All
+                                </button>
+                            </div>
+
+                            {/* Summary */}
+                            <div className="flex gap-6 text-xs text-[var(--color-text-secondary)] pt-2">
+                                <span>Showing: <strong className="text-[var(--color-text-primary)]">{processedData.length}</strong> of {GRAPH_DATA.length} nodes</span>
+                                {minThreshold > 0 && (
+                                    <span className="text-[var(--aurora-1)]">Filtered by ≥ {minThreshold} threshold</span>
+                                )}
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Data Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        {processedData.map(node => (
+                            <Card key={node.id} className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs font-mono px-2 py-0.5 bg-[var(--color-background-tertiary)] rounded text-[var(--color-text-tertiary)]">
+                                            #{node.id}
+                                        </span>
+                                        {node.true_depth >= 8.5 && (
+                                            <span className="text-[10px] px-1.5 py-0.5 bg-[var(--aurora-1)] text-white rounded font-bold">HIGH</span>
+                                        )}
+                                    </div>
+                                    <div className="font-mono text-sm font-bold text-gradient aurora">
+                                        {node.true_depth}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="font-bold text-[var(--color-text-primary)] leading-tight mb-1">
+                                        {node.topic}
+                                    </h3>
+                                    <div className="h-0.5 w-8 bg-gradient-to-r from-[var(--aurora-1)] to-[var(--nova-1)] rounded"></div>
+                                </div>
+
+                                <p className="text-xs text-[var(--color-text-secondary)] line-clamp-2">
+                                    {node.topic_summary}
+                                </p>
+
+                                {/* Metrics Grid */}
+                                <div className={`grid gap-1 mt-1 ${
+                                    Object.values(visibleMetrics).filter(v => v).length >= 4 ? 'grid-cols-3' : 'grid-cols-2'
+                                }`}>
+                                    {visibleMetrics.cognitive && (
+                                        <div className={`${getMetricClass(node.cognitive)} rounded p-1 text-center`}>
+                                            <div className="text-[10px] opacity-70">Cog</div>
+                                            <div className="font-bold">{node.cognitive}</div>
+                                        </div>
+                                    )}
+                                    {visibleMetrics.epistemic && (
+                                        <div className={`${getMetricClass(node.epistemic)} rounded p-1 text-center`}>
+                                            <div className="text-[10px] opacity-70">Epi</div>
+                                            <div className="font-bold">{node.epistemic}</div>
+                                        </div>
+                                    )}
+                                    {visibleMetrics.causal && (
+                                        <div className={`${getMetricClass(node.causal)} rounded p-1 text-center`}>
+                                            <div className="text-[10px] opacity-70">Cau</div>
+                                            <div className="font-bold">{node.causal}</div>
+                                        </div>
+                                    )}
+                                    {visibleMetrics.rigor && (
+                                        <div className={`${getMetricClass(node.rigor)} rounded p-1 text-center`}>
+                                            <div className="text-[10px] opacity-70">Rig</div>
+                                            <div className="font-bold">{node.rigor}</div>
+                                        </div>
+                                    )}
+                                    {visibleMetrics.coherence && (
+                                        <div className={`${getMetricClass(node.coherence)} rounded p-1 text-center`}>
+                                            <div className="text-[10px] opacity-70">Co</div>
+                                            <div className="font-bold">{node.coherence}</div>
+                                        </div>
+                                    )}
+                                    {visibleMetrics.true_depth && (
+                                        <div className={`${getMetricClass(node.true_depth)} rounded p-1 text-center col-span-2`}>
+                                            <div className="text-[10px] opacity-70">Depth</div>
+                                            <div className="font-bold">{node.true_depth}</div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Quick Signals */}
+                                {node.signals.grounding.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 pt-2 border-t border-[var(--color-border-subtle)]">
+                                        {node.signals.grounding.slice(0, 2).map((s, i) => (
+                                            <span key={i} className="px-1.5 py-0.5 text-[9px] bg-[var(--color-surface-base)] border border-[var(--color-border-subtle)] rounded">
+                                                {s.substring(0, 8)}{s.length > 8 ? '…' : ''}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
+                            </Card>
+                        ))}
+                    </div>
+
+                    {processedData.length === 0 && (
+                        <div className="text-center py-16 text-[var(--color-text-secondary)]">
+                            <div className="text-4xl mb-3">🔍</div>
+                            <p>No nodes match your filter criteria</p>
+                            <button 
+                                onClick={() => setMinThreshold(0)}
+                                className="mt-4 text-sm underline hover:text-[var(--color-text-primary)]"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

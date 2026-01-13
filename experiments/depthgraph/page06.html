@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth Graph - Grid Layout (06)</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="styles.css" rel="stylesheet">
+    <script src="data.js"></script>
+</head>
+<body class="bg-[var(--color-background-primary)] text-[var(--color-text-primary)] p-8">
+    <div id="root"></div>
+
+    <!-- 
+      EXCEPTION: Inline styles are used in this file for the progress bar width 
+      (style={{ width: ... }}) as it represents dynamic data values (node.true_depth).
+    -->
+    <script type="text/babel">
+        // --- Card Component Implementation (Mimicking frontend/src/components/primitives/Card.tsx) ---
+        
+        const variantStyles = {
+            base: 'bg-[var(--color-surface-base)] border border-[var(--color-border-base)]',
+            elevated: 'bg-[var(--color-surface-elevated)] shadow-[var(--elevation-md)] border border-[var(--color-border-base)]',
+            outlined: 'bg-[var(--color-surface-base)] border-2 border-[var(--color-border-strong)]',
+            filled: 'bg-[var(--color-background-secondary)] border border-[var(--color-border-base)]',
+            'mesh-glow': 'mesh-glow',
+            'mesh-glow-strong': 'mesh-glow-strong',
+            'gradient-border-animated': 'gradient-border-animated',
+            'gradient-border-static': 'gradient-border-static',
+            'gradient-border-animated-fast': 'gradient-border-animated-fast',
+            'aurora': 'gradient-border-animated',
+            'nova': 'gradient-border-animated nova',
+        };
+
+        const paddingStyles = {
+            none: '',
+            sm: 'p-[var(--spacing-sm)]',
+            md: 'p-[var(--spacing-base)]',
+            lg: 'p-[var(--spacing-lg)]',
+            xl: 'p-[var(--spacing-xl)]',
+        };
+
+        const Card = ({ variant = 'base', padding = 'md', interactive = false, className = '', children, ...props }) => {
+            return (
+                <div
+                    className={`
+                        rounded-[var(--radius-xl)] 
+                        design-system-card 
+                        ${variantStyles[variant] || variantStyles.base} 
+                        ${paddingStyles[padding] || paddingStyles.md} 
+                        ${interactive ? 'transition-all duration-[var(--motion-duration-base)] ease-[var(--motion-easing-ease-out)] hover:shadow-[var(--elevation-lg)] hover:-translate-y-0.5 cursor-pointer' : ''}
+                        ${className}
+                    `}
+                    {...props}
+                >
+                    {children}
+                </div>
+            );
+        };
+
+        const CardHeader = ({ className = '', children, ...props }) => (
+            <div className={`flex flex-col space-y-[var(--spacing-sm)] pb-[var(--spacing-base)] ${className}`} {...props}>
+                {children}
+            </div>
+        );
+
+        const CardTitle = ({ as: Component = 'h3', className = '', children, ...props }) => (
+            <Component className={`text-[var(--font-size-xl)] font-[var(--font-weight-semibold)] leading-[var(--line-height-tight)] text-[var(--color-text-primary)] ${className}`} {...props}>
+                {children}
+            </Component>
+        );
+
+        const CardDescription = ({ className = '', children, ...props }) => (
+            <p className={`text-[var(--font-size-sm)] text-[var(--color-text-secondary)] leading-[var(--line-height-normal)] ${className}`} {...props}>
+                {children}
+            </p>
+        );
+
+        const CardContent = ({ className = '', children, ...props }) => (
+            <div className={`text-[var(--color-text-primary)] font-[var(--font-family-sans)] design-system-card-content ${className}`} {...props}>
+                {children}
+            </div>
+        );
+
+        const CardFooter = ({ className = '', children, ...props }) => (
+            <div className={`flex items-center pt-[var(--spacing-base)] border-t border-[var(--color-border-subtle)] ${className}`} {...props}>
+                {children}
+            </div>
+        );
+
+        // --- Metric Badge Component ---
+        const MetricBadge = ({ label, value }) => (
+            <div className="flex flex-col items-center p-2 bg-[var(--color-background-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
+                <span className="text-[10px] text-[var(--color-text-secondary)] uppercase tracking-wider">{label}</span>
+                <span className="text-sm font-bold text-[var(--color-text-primary)]">{value}</span>
+            </div>
+        );
+
+        // --- Main App ---
+
+        const App = () => {
+            const [expandedId, setExpandedId] = React.useState(null);
+
+            const toggleExpand = (id) => {
+                setExpandedId(expandedId === id ? null : id);
+            };
+
+            return (
+                <div className="max-w-[1600px] mx-auto">
+                    <header className="mb-12 text-center">
+                        <h1 className="text-4xl font-bold mb-4 text-gradient nova">Depth Graph Visualization</h1>
+                        <p className="text-[var(--color-text-secondary)]">Experiment 06: Grid Layout</p>
+                    </header>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {GRAPH_DATA.map((node) => (
+                            <Card 
+                                key={node.id} 
+                                variant={expandedId === node.id ? "outlined" : "elevated"}
+                                interactive={true}
+                                onClick={() => toggleExpand(node.id)}
+                                className={`h-full flex flex-col ${expandedId === node.id ? 'col-span-1 md:col-span-2 row-span-2' : ''}`}
+                            >
+                                <CardHeader>
+                                    <div className="flex justify-between items-start">
+                                        <span className="text-xs font-mono text-[var(--color-text-secondary)]">#{String(node.id).padStart(2, '0')}</span>
+                                        <div className={`w-3 h-3 rounded-full ${node.cognitive >= 8 ? 'bg-[var(--aurora-1)]' : 'bg-[var(--color-text-disabled)]'}`}></div>
+                                    </div>
+                                    <CardTitle className="text-lg">{node.topic}</CardTitle>
+                                    <CardDescription>{node.topic_summary}</CardDescription>
+                                </CardHeader>
+                                
+                                <CardContent className="flex-grow">
+                                    {expandedId === node.id ? (
+                                        <div className="space-y-4 animate-fade-in">
+                                            <p className="text-sm leading-relaxed">{node.extended_summary}</p>
+                                            
+                                            <div className="grid grid-cols-4 gap-2 mt-4">
+                                                <MetricBadge label="Cognitive" value={node.cognitive} />
+                                                <MetricBadge label="Epistemic" value={node.epistemic} />
+                                                <MetricBadge label="Causal" value={node.causal} />
+                                                <MetricBadge label="Rigor" value={node.rigor} />
+                                            </div>
+
+                                            <div className="mt-4 p-3 bg-[var(--color-background-tertiary)] rounded-lg">
+                                                <h4 className="text-xs font-bold uppercase mb-2 text-[var(--color-text-secondary)]">Signals</h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {node.signals.grounding.map((s, i) => (
+                                                        <span key={i} className="px-2 py-1 text-xs rounded bg-[var(--color-surface-base)] border border-[var(--color-border-subtle)] text-[var(--color-text-secondary)]">{s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="h-1 w-full bg-[var(--color-border-subtle)] rounded-full overflow-hidden">
+                                                <div className="h-full bg-gradient-to-r from-[var(--aurora-1)] to-[var(--aurora-2)]" style={{ width: `${(node.true_depth / 10) * 100}%` }}></div>
+                                            </div>
+                                            <p className="text-xs text-[var(--color-text-tertiary)] line-clamp-3">
+                                                {node.additionalInfo.text_preview}
+                                            </p>
+                                        </div>
+                                    )}
+                                </CardContent>
+
+                                {expandedId === node.id && (
+                                    <CardFooter>
+                                        <span className="text-xs text-[var(--color-text-tertiary)] italic">{node.feedback}</span>
+                                    </CardFooter>
+                                )}
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
