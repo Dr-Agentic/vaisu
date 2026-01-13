@@ -253,7 +253,7 @@ DYNAMODB_KNOWLEDGE_GRAPH_TABLE=vaisu-knowledge-graph
 OPENROUTER_API_KEY=your-openrouter-api-key-here
 
 # Application Configuration
-PORT=3001
+PORT=7001
 NODE_ENV=development
 EOF
         fi
@@ -300,7 +300,7 @@ show_instructions() {
     echo "   npm run dev"
     echo ""
     echo "4. Test the infrastructure:"
-    echo "   - Upload a document at http://localhost:5173"
+    echo "   - Upload a document at http://localhost:7002"
     echo "   - Generate visualizations including argument maps"
     echo ""
     echo "Environment variables set:"

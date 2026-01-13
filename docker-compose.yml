@@ -6,12 +6,12 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "7001:7001"
     environment:
-      - PORT=3001
+      - PORT=7001
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-      - APP_URL=http://localhost:5173
+      - APP_URL=http://localhost:7002
       - NODE_ENV=production
     volumes:
       - ./backend:/app
@@ -23,9 +23,9 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
+      - "7002:7002"
     environment:
-      - VITE_API_URL=http://localhost:3001
+      - VITE_API_URL=http://localhost:7001
     volumes:
       - ./frontend:/app
       - /app/node_modules

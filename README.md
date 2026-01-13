@@ -53,11 +53,10 @@ npm install
 Create `backend/.env`:
 
 ```env
-PORT=3001
-OPENROUTER_API_KEY=your_api_key_here
+PORT=7001
+OPENROUTER_API_KEY=your_key_here
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-APP_URL=http://localhost:5173
-NODE_ENV=development
+APP_URL=http://localhost:7002
 ```
 
 ### 3. Start Development Servers
@@ -67,13 +66,13 @@ NODE_ENV=development
 npm run dev
 
 # Or start separately:
-npm run dev:backend  # Backend on http://localhost:3001
-npm run dev:frontend # Frontend on http://localhost:5173
+npm run dev:backend  # Backend on http://localhost:7001
+npm run dev:frontend # Frontend on http://localhost:7002
 ```
 
 ### 4. Open Application
 
-Navigate to http://localhost:5173
+Navigate to http://localhost:7002
 
 ## Usage
 
@@ -145,7 +144,7 @@ npm test
 ### Environment Variables
 
 **Backend (.env)**:
-- `PORT`: Server port (default: 3001)
+- `PORT`: Server port (default: 7001)
 - `OPENROUTER_API_KEY`: Your OpenRouter API key (required)
 - `OPENROUTER_BASE_URL`: OpenRouter API URL
 - `APP_URL`: Frontend URL for CORS
@@ -161,7 +160,10 @@ npm test
 - Ensure file type is .txt, .pdf, or .docx
 
 ### Backend not starting
-- Ensure port 3001 is available
+- Ensure port 7001 is available
+- Verify env vars are loaded
+- Check DynamoDB connection
+- Verify backend is running on port 7001
 - Check Node.js version (18+ required)
 
 ### Frontend not connecting to backend

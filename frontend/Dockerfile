@@ -17,6 +17,6 @@ RUN npm run build
 # Install serve to run the built app
 RUN npm install -g serve
 
-EXPOSE 5173
-
-CMD ["serve", "-s", "dist", "-l", "5173"]
+EXPOSE 7002
+# Start nginx/serve
+CMD ["serve", "-s", "dist", "-l", "7002"]

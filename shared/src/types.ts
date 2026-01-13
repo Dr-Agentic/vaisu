@@ -386,6 +386,51 @@ export interface ArgumentEdge {
   rationale?: string;
 }
 
+// Depth Graph Types
+
+export interface DepthGraphData {
+  analysis_metadata: {
+    total_logical_units: number;
+    overall_text_depth_trajectory: string;
+  };
+  logical_units: DepthGraphNode[];
+}
+
+export interface DepthGraphNode {
+  id: number;
+  topic: string;
+  topic_summary: string;
+  extended_summary: string;
+  true_depth: number;
+  dimensions: DepthDimensions;
+  clarity_signals: ClaritySignals;
+  actionable_feedback: string;
+  additional_data: {
+    text_preview: string;
+    coherence_analysis: string;
+  };
+}
+
+export interface DepthDimensions {
+  cognitive: DimensionDetail;
+  epistemic: DimensionDetail;
+  causal: DimensionDetail;
+  rigor: DimensionDetail;
+  coherence: DimensionDetail;
+}
+
+export interface DimensionDetail {
+  score: number;
+  rationale: string;
+  evidence: string[];
+}
+
+export interface ClaritySignals {
+  grounding: string[];
+  nuance: string[];
+}
+
+
 // UML Class Diagram Types
 
 export interface UMLDiagramData {
@@ -587,7 +632,8 @@ export type TaskType =
   | 'mindMapGeneration'
   | 'argumentMapGeneration'
   | 'uml-extraction'
-  | 'knowledge-graph-generation';
+  | 'knowledge-graph-generation'
+  | 'depthAnalysis';
 
 export interface LLMCallConfig {
   model: string;

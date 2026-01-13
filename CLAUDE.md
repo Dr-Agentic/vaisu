@@ -180,8 +180,8 @@ vaisu/
 npm run dev
 
 # Start servers individually
-npm run dev:backend   # Backend on http://localhost:3001
-npm run dev:frontend  # Frontend on http://localhost:5173
+npm run dev:backend   # Backend on http://localhost:7001
+npm run dev:frontend  # Frontend on http://localhost:7002
 
 # Build for production
 npm run build
@@ -332,16 +332,16 @@ import { Button } from '@/design-system/components';
 
 ### Backend (.env)
 ```env
-PORT=3001
-OPENROUTER_API_KEY=your_api_key_here
+PORT=7001
+OPENROUTER_API_KEY=...
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
-APP_URL=http://localhost:5173
+APP_URL=http://localhost:7002
 NODE_ENV=development
 AWS_REGION=us-east-1
 ```
 
 ### Frontend
-- Proxy configured to backend at `http://localhost:3001`
+- Proxy configured to backend at `http://localhost:7001`
 - Path alias: `@shared` → `../shared/src`
 
 ## Common Development Tasks
