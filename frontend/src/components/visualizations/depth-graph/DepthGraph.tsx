@@ -27,7 +27,7 @@ export const DepthGraph = ({ data }: DepthGraphProps) => {
   }
 
   return (
-    <div className={`flex flex-col h-full w-full overflow-hidden ${isDarkMode ? 'bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
+    <div className={`absolute inset-0 flex flex-col overflow-hidden ${isDarkMode ? 'bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
       {/* Fixed Header with Progressive Disclosure Card */}
       <DepthGraphHeader 
         data={data}
