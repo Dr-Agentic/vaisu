@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { DepthGraphData } from '@shared/types';
 import { Badge } from '../../../primitives/Badge';
+import { Card } from '../../../primitives/Card';
 
 interface DepthGraphHeaderProps {
   data: DepthGraphData;
@@ -40,17 +41,14 @@ export const DepthGraphHeader = ({
             </div>
 
             {/* Progressive Disclosure Card */}
-            <div 
-              className={`
-                rounded-lg border transition-all duration-200 overflow-hidden
-                ${isExpanded 
-                  ? 'bg-[var(--color-surface-elevated)] border-[var(--color-border-strong)] shadow-md' 
-                  : 'bg-[var(--color-background-secondary)] border-[var(--color-border-subtle)] hover:border-[var(--color-border-strong)] cursor-pointer'
-                }
-              `}
+            <Card
+              variant={isExpanded ? 'elevated' : 'filled'}
+              padding="sm"
+              interactive={!isExpanded}
               onClick={() => !isExpanded && setIsExpanded(true)}
+              className="transition-all duration-200"
             >
-              <div className="p-3 flex items-start gap-3">
+              <div className="flex items-start gap-3">
                 <Info className="w-5 h-5 text-[var(--color-interactive-primary-base)] shrink-0 mt-0.5" />
                 
                 <div className="flex-1 min-w-0">
@@ -82,7 +80,7 @@ export const DepthGraphHeader = ({
                         transition={{ duration: 0.2 }}
                         className="mt-4 pt-4 border-t border-[var(--color-border-subtle)]"
                       >
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-1">
                             <span className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold">
                               Total Units
@@ -91,23 +89,28 @@ export const DepthGraphHeader = ({
                               {metadata.total_logical_units}
                             </div>
                           </div>
-                          {/* Add more metadata fields here if available in the JSON */}
-                          <div className="col-span-2 space-y-1">
-                            <span className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold">
-                              Full Trajectory Analysis
-                            </span>
-                            <div className="text-xs font-mono text-[var(--color-text-secondary)] bg-[var(--color-background-primary)] p-2 rounded border border-[var(--color-border-subtle)]">
-                              {/* Display any other raw metadata if needed, for now using trajectory */}
-                              {JSON.stringify(metadata, null, 2)}
-                            </div>
-                          </div>
+                          
+                          {/* Structure additional metadata fields if they exist */}
+                          {Object.entries(metadata).map(([key, value]) => {
+                            if (key === 'total_logical_units' || key === 'overall_text_depth_trajectory') return null;
+                            return (
+                              <div key={key} className="space-y-1">
+                                <span className="text-xs text-[var(--color-text-tertiary)] uppercase tracking-wider font-semibold">
+                                  {key.replace(/_/g, ' ')}
+                                </span>
+                                <div className="text-sm font-mono text-[var(--color-text-secondary)] break-words">
+                                  {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
               </div>
-            </div>
+            </Card>
           </div>
 
           {/* Right: View Switcher */}
