@@ -259,7 +259,7 @@ describe('VisualizationGenerator', () => {
           mockDocument,
           mockAnalysis,
         ),
-      ).rejects.toThrowError('unsupported-type is not yet implemented');
+      ).rejects.toThrowError('Visualization type unsupported-type not yet implemented');
     });
   });
 
@@ -413,6 +413,63 @@ describe('VisualizationGenerator', () => {
 
       expect(result.classes).toHaveLength(1);
       expect(result.relationships).toHaveLength(0);
+    });
+  });
+
+  describe('Depth Graph Generation', () => {
+    beforeEach(() => {
+      const depthResponse = {
+        analysis_metadata: {
+          total_logical_units: 1,
+          overall_text_depth_trajectory: 'Linear increase in complexity.',
+        },
+        logical_units: [
+          {
+            id: 1,
+            topic: 'Thesis',
+            topic_summary: 'Main thesis.',
+            extended_summary: 'Detailed thesis...',
+            true_depth: 7.5,
+            dimensions: {
+              cognitive: { score: 7, rationale: 'R', evidence: ['E'] },
+              epistemic: { score: 8, rationale: 'R', evidence: ['E'] },
+              causal: { score: 7, rationale: 'R', evidence: ['E'] },
+              rigor: { score: 8, rationale: 'R', evidence: ['E'] },
+              coherence: { score: 8, rationale: 'R', evidence: ['E'] },
+            },
+            clarity_signals: { grounding: ['G'], nuance: ['N'] },
+            actionable_feedback: 'Feedback.',
+            additional_data: { text_preview: 'Text...', coherence_analysis: 'Coh...' },
+          },
+        ],
+      };
+      mocks.callWithFallback.mockResolvedValue({
+        content: JSON.stringify(depthResponse),
+      });
+    });
+
+    it('should generate depth graph with LLM', async () => {
+      const result = await generator.generateVisualization(
+        'depth-graph',
+        mockDocument,
+        mockAnalysis,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.logical_units).toHaveLength(1);
+      expect(result.analysis_metadata.total_logical_units).toBe(1);
+    });
+
+    it('should throw error on LLM failure', async () => {
+      mocks.callWithFallback.mockRejectedValue(new Error('LLM failed'));
+
+      await expect(
+        generator.generateVisualization(
+          'depth-graph',
+          mockDocument,
+          mockAnalysis,
+        ),
+      ).rejects.toThrow('LLM failed');
     });
   });
 });

@@ -585,11 +585,13 @@ router.get('/', async (req: Request, res: Response) => {
 
       console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
 
+      const total = documentList.length;
+
       return res.json({
         documents: documentList,
-        total: documentList.length,
+        total,
         limit,
-        offset: 0,
+        offset,
       });
     } catch (dbError) {
       console.error('DynamoDB fetch error (falling back to memory):', dbError);

@@ -54,8 +54,8 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
 
     // Keyboard shortcuts
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-      // Viz shortcuts: 1-8
-      if (['1', '2', '3', '4', '5', '6', '7', '8'].includes(e.key)) {
+      // Viz shortcuts: 1-9
+      if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
         const vizTypes: VisualizationType[] = [
           'executive-dashboard',
           'mind-map',
@@ -65,6 +65,7 @@ export const StageVisualization = forwardRef<HTMLDivElement, StageVisualizationP
           'uml-class-diagram',
           'structured-view',
           'terms-definitions',
+          'depth-graph',
         ];
         const index = parseInt(e.key) - 1;
         if (vizTypes[index]) {
