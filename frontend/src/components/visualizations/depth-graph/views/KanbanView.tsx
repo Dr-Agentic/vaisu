@@ -91,7 +91,12 @@ export const KanbanView = ({ data, mode }: KanbanViewProps) => {
           {/* Column Content */}
           <div className="p-3 space-y-3 overflow-y-auto min-h-[200px]">
             {col.nodes.map(node => (
-              <DepthNodeCard key={node.id} node={node} compact />
+              <DepthNodeCard 
+                key={node.id} 
+                node={node} 
+                compact 
+                rank={data.logical_units.findIndex(n => n.id === node.id) + 1}
+              />
             ))}
             {col.nodes.length === 0 && (
               <div className="h-20 flex items-center justify-center text-[var(--color-text-tertiary)] italic text-sm border-2 border-dashed border-[var(--color-border-subtle)] rounded-lg">

@@ -17,10 +17,10 @@ export const TimelineView = ({ data }: TimelineViewProps) => {
           
           return (
             <div key={node.id} className="relative flex items-center justify-between group">
-              {/* Left Side */}
-              <div className={`w-[45%] ${isLeft ? 'pr-8' : 'order-last pl-8'}`}>
+              {/* Left Side Container */}
+              <div className="w-[45%] pr-8 flex justify-end">
                 {isLeft && (
-                  <DepthNodeCard node={node} />
+                  <DepthNodeCard node={node} rank={index + 1} />
                 )}
               </div>
 
@@ -38,10 +38,10 @@ export const TimelineView = ({ data }: TimelineViewProps) => {
                 }`} />
               </div>
 
-              {/* Right Side */}
-              <div className={`w-[45%] ${isLeft ? 'pl-8' : 'pr-8 text-right'}`}>
+              {/* Right Side Container */}
+              <div className="w-[45%] pl-8 flex justify-start">
                 {!isLeft && (
-                  <DepthNodeCard node={node} />
+                  <DepthNodeCard node={node} rank={index + 1} />
                 )}
                 {/* Connector Line (Visual Aid) */}
                 <div className={`absolute top-1/2 border-t border-[var(--color-border-subtle)] w-8 

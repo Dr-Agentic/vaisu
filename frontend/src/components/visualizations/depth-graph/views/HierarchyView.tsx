@@ -36,7 +36,7 @@ export const HierarchyView = ({ data }: HierarchyViewProps) => {
               )}
               
               <div className="w-[600px]">
-                <DepthNodeCard node={node} compact />
+                <DepthNodeCard node={node} compact rank={index + 1} />
               </div>
 
               {/* Connecting vertical line for previous levels */}

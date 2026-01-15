@@ -15,9 +15,10 @@ import { DepthGraphNode, DimensionDetail } from '@shared/types';
 interface DepthNodeCardProps {
   node: DepthGraphNode;
   compact?: boolean;
+  rank?: number;
 }
 
-export const DepthNodeCard = ({ node, compact = false }: DepthNodeCardProps) => {
+export const DepthNodeCard = ({ node, compact = false, rank }: DepthNodeCardProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const getScoreBadge = (score: number) => {
@@ -42,9 +43,16 @@ export const DepthNodeCard = ({ node, compact = false }: DepthNodeCardProps) => 
         } hover:shadow-lg transition-shadow bg-[var(--color-surface-base)]`}>
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-start gap-2">
-              <h3 className="font-semibold text-lg leading-tight text-[var(--color-text-primary)]">
-                {node.topic}
-              </h3>
+              <div className="flex items-center gap-2">
+                {rank !== undefined && (
+                  <span className="text-xs font-mono font-bold text-[var(--color-text-tertiary)] bg-[var(--color-background-tertiary)] w-6 h-6 flex items-center justify-center rounded-full shrink-0">
+                    {rank}
+                  </span>
+                )}
+                <h3 className="font-semibold text-lg leading-tight text-[var(--color-text-primary)]">
+                  {node.topic}
+                </h3>
+              </div>
               <Badge variant={getScoreBadge(node.true_depth)} className="shrink-0">
                 {node.true_depth.toFixed(1)}
               </Badge>
