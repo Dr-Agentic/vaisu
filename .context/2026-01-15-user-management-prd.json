@@ -1,0 +1,1115 @@
+{
+  "productRequirementsDocument": {
+    "title": "User Management System for Vaisu Document Intelligence Platform",
+    "version": "1.0.0",
+    "created": "2026-01-14",
+    "author": "System Architect",
+    "status": "draft",
+
+    "executiveSummary": {
+      "overview": "Implement a comprehensive user management system that enables secure user authentication, authorization, and data isolation for the Vaisu document intelligence platform. This will transform the application from a single-user proof-of-concept to a production-ready, multi-tenant platform.",
+      "businessValue": "Enable user registration, secure login/logout, and complete data isolation between users while maintaining the existing document analysis and visualization capabilities.",
+      "scope": "Full-stack implementation including authentication, authorization, database schema updates, API enhancements, frontend integration, and security measures."
+    },
+
+    "requirements": {
+      "functionalRequirements": {
+        "authentication": {
+          "userRegistration": {
+            "description": "Users can create accounts with email and password",
+            "fields": ["email", "password", "firstName", "lastName"],
+            "validation": [
+              "email format",
+              "password strength (8+ chars, mixed case, numbers, symbols)",
+              "unique email"
+            ],
+            "confirmation": "Email verification required before account activation",
+            "welcomeEmail": "Send welcome email with getting started guide"
+          },
+          "userLogin": {
+            "description": "Secure login with email/password",
+            "sessionManagement": "JWT tokens with refresh token rotation",
+            "rememberMe": "Optional extended session (30 days)",
+            "failedAttempts": "Lock account after 5 failed attempts for 15 minutes"
+          },
+          "passwordReset": {
+            "description": "Secure password reset flow",
+            "tokenGeneration": "Time-limited reset tokens (15 minutes)",
+            "emailDelivery": "Reset link sent to registered email",
+            "tokenValidation": "One-time use tokens with expiration"
+          },
+          "accountVerification": {
+            "description": "Email verification for new accounts",
+            "tokenGeneration": "Verification tokens with 24-hour expiration",
+            "resendCapability": "Allow resending verification emails",
+            "accountStatus": "Unverified accounts cannot access premium features"
+          },
+          "socialLogin": {
+            "description": "OAuth integration for Google, GitHub, and Microsoft",
+            "providers": [
+              "Google OAuth 2.0",
+              "GitHub OAuth",
+              "Microsoft Azure AD"
+            ],
+            "profileSync": "Auto-populate user profile from OAuth provider",
+            "accountLinking": "Allow linking multiple OAuth providers to one account"
+          },
+          "logout": {
+            "description": "Secure logout with token invalidation",
+            "sessionCleanup": "Invalidate all refresh tokens for the user",
+            "redirect": "Redirect to login page after logout"
+          }
+        },
+
+        "authorization": {
+          "dataIsolation": {
+            "description": "Complete user data isolation at all levels",
+            "documents": "Users can only access their own documents and analyses",
+            "visualizations": "Users can only view visualizations of their own documents",
+            "storage": "S3 objects are organized by user ID with proper permissions",
+            "databaseQueries": "All queries include user ID filtering"
+          },
+          "roleBasedAccess": {
+            "description": "Hierarchical permission system",
+            "roles": {
+              "free": {
+                "description": "Basic user with limited features",
+                "limits": {
+                  "documentsPerMonth": 10,
+                  "documentSize": "10MB",
+                  "analysisCredits": 50
+                }
+              },
+              "premium": {
+                "description": "Paid user with full access",
+                "limits": {
+                  "documentsPerMonth": 1000,
+                  "documentSize": "1GB",
+                  "analysisCredits": 10000
+                },
+                "features": [
+                  "advanced analytics",
+                  "export all formats",
+                  "API access"
+                ]
+              },
+              "enterprise": {
+                "description": "Organization-wide access with admin controls",
+                "limits": "unlimited",
+                "features": [
+                  "team management",
+                  "organization analytics",
+                  "custom integrations"
+                ]
+              }
+            }
+          },
+          "resourceOwnership": {
+            "description": "All resources are owned by specific users",
+            "documentOwnership": "Documents created by user A cannot be accessed by user B",
+            "sharingPermissions": "Future feature: allow sharing documents with specific users",
+            "auditLogging": "Log all access attempts and modifications"
+          }
+        },
+
+        "userProfile": {
+          "profileManagement": {
+            "description": "Users can manage their profile information",
+            "editableFields": [
+              "firstName",
+              "lastName",
+              "email",
+              "profilePicture",
+              "timezone",
+              "language"
+            ],
+            "profilePicture": "Upload avatar images with automatic resizing",
+            "preferences": {
+              "theme": "light/dark/system",
+              "notifications": "email preferences for analysis completion, limits reached",
+              "privacy": "data sharing preferences, analytics opt-in"
+            }
+          },
+          "accountSettings": {
+            "description": "Account management and security settings",
+            "passwordChange": "Secure password update with current password verification",
+            "twoFactorAuth": {
+              "description": "TOTP-based 2FA using authenticator apps",
+              "backupCodes": "10 backup codes for account recovery",
+              "enforcement": "Required for enterprise accounts"
+            },
+            "activeSessions": "View and revoke active login sessions",
+            "accountDeletion": {
+              "description": "Self-service account deletion",
+              "dataRetention": "Soft delete with 30-day recovery period",
+              "confirmation": "Multi-step confirmation process"
+            }
+          },
+          "usageAnalytics": {
+            "description": "Personal usage dashboard",
+            "metrics": [
+              "documents analyzed",
+              "storage used",
+              "API calls",
+              "credits remaining"
+            ],
+            "charts": [
+              "monthly usage trends",
+              "document type distribution",
+              "analysis success rate"
+            ],
+            "billingHistory": "For paid users, show billing and payment history"
+          }
+        },
+
+        "adminPanel": {
+          "userManagement": {
+            "description": "Admin interface for user management (enterprise only)",
+            "userListing": "Paginated user list with search and filters",
+            "userActions": [
+              "view profile",
+              "reset password",
+              "suspend account",
+              "delete account"
+            ],
+            "bulkOperations": "Bulk user operations (suspend, delete, role changes)",
+            "auditLogs": "Complete audit trail of admin actions"
+          },
+          "systemAnalytics": {
+            "description": "Organization-wide analytics dashboard",
+            "metrics": [
+              "total users",
+              "active users",
+              "usage patterns",
+              "system performance"
+            ],
+            "reports": [
+              "user growth",
+              "feature adoption",
+              "error rates",
+              "resource utilization"
+            ]
+          }
+        }
+      },
+
+      "nonFunctionalRequirements": {
+        "security": {
+          "authenticationSecurity": {
+            "passwordHashing": "Argon2id with appropriate parameters",
+            "tokenSecurity": "JWT with RS256 signing, secure key rotation",
+            "sessionSecurity": "HttpOnly, Secure, SameSite cookies for web clients"
+          },
+          "dataProtection": {
+            "encryptionAtRest": "AES-256 encryption for sensitive data in database",
+            "encryptionInTransit": "TLS 1.3 for all communications",
+            "inputValidation": "Comprehensive input sanitization and validation"
+          },
+          "privacyCompliance": {
+            "gdprCompliance": {
+              "dataMinimization": "Collect only necessary user data",
+              "consentManagement": "Explicit consent for data processing",
+              "rightToDeletion": "Complete data deletion on account removal",
+              "dataPortability": "Export user data in standard formats"
+            },
+            "dataRetention": {
+              "userData": "Retain until account deletion",
+              "analyticsData": "Anonymized after 2 years",
+              "auditLogs": "Retain for 7 years for compliance"
+            }
+          }
+        },
+
+        "performance": {
+          "scalability": {
+            "databaseScaling": "DynamoDB with proper partition keys and GSIs",
+            "cachingStrategy": "Redis for session storage and frequently accessed data",
+            "cdnIntegration": "CloudFront for static assets and user uploads",
+            "horizontalScaling": "Stateless backend services with load balancing"
+          },
+          "responseTimes": {
+            "authentication": "< 500ms for login",
+            "apiResponses": "< 200ms for simple queries",
+            "documentUpload": "< 30 seconds for 100MB files",
+            "analysisCompletion": "< 2 minutes for typical documents"
+          },
+          "resourceLimits": {
+            "concurrentUsers": "Support 10,000+ concurrent users",
+            "storageScaling": "Petabyte-scale storage with automatic partitioning",
+            "apiThroughput": "1000+ requests per second per region"
+          }
+        },
+
+        "reliability": {
+          "availability": {
+            "targetUptime": "99.9% availability SLA",
+            "redundancy": "Multi-AZ deployment with automatic failover",
+            "backupStrategy": "Daily automated backups with point-in-time recovery",
+            "disasterRecovery": "Cross-region failover capability"
+          },
+          "errorHandling": {
+            "gracefulDegradation": "Continue operating with reduced functionality during outages",
+            "circuitBreakers": "Automatic failure detection and recovery",
+            "retryLogic": "Exponential backoff for transient failures",
+            "fallbackSystems": "Offline analysis capabilities for premium users"
+          }
+        },
+
+        "usability": {
+          "userExperience": {
+            "onboardingFlow": "5-step wizard for new users with progress indicators",
+            "intuitiveNavigation": "Clear information hierarchy and breadcrumbs",
+            "responsiveDesign": "Mobile-first design with progressive enhancement",
+            "accessibility": "WCAG 2.1 AA compliance with screen reader support"
+          },
+          "feedbackSystems": {
+            "loadingStates": "Progress indicators for all async operations",
+            "errorMessages": "Clear, actionable error messages with recovery suggestions",
+            "successConfirmations": "Positive feedback for completed actions",
+            "helpSystem": "Contextual help and tooltips throughout the application"
+          }
+        }
+      },
+
+      "technicalRequirements": {
+        "architecture": {
+          "backendChanges": {
+            "authenticationService": {
+              "description": "New microservice for user authentication",
+              "technologies": ["Node.js", "Express", "JWT", "Argon2", "Redis"],
+              "endpoints": [
+                "POST /auth/register",
+                "POST /auth/login",
+                "POST /auth/logout",
+                "POST /auth/refresh",
+                "POST /auth/forgot-password",
+                "POST /auth/reset-password",
+                "POST /auth/verify-email",
+                "GET /auth/me"
+              ]
+            },
+            "userService": {
+              "description": "User profile and account management",
+              "endpoints": [
+                "GET /users/profile",
+                "PUT /users/profile",
+                "PUT /users/password",
+                "DELETE /users/account",
+                "GET /users/sessions",
+                "DELETE /users/sessions/:id"
+              ]
+            },
+            "authorizationMiddleware": {
+              "description": "Request-level authorization checks",
+              "features": [
+                "JWT validation",
+                "user context injection",
+                "permission checks"
+              ]
+            }
+          },
+
+          "databaseSchema": {
+            "userTable": {
+              "description": "User account information and profile data",
+              "fields": {
+                "userId": "UUID primary key",
+                "email": "Unique, indexed",
+                "passwordHash": "Argon2id hash",
+                "firstName": "String",
+                "lastName": "String",
+                "emailVerified": "Boolean",
+                "verificationToken": "String (nullable)",
+                "passwordResetToken": "String (nullable)",
+                "tokenExpiresAt": "Timestamp",
+                "role": "Enum: free, premium, enterprise",
+                "status": "Enum: active, suspended, pending_deletion",
+                "createdAt": "Timestamp",
+                "updatedAt": "Timestamp",
+                "lastLoginAt": "Timestamp",
+                "loginCount": "Integer",
+                "profilePictureUrl": "String (nullable)",
+                "preferences": "JSON object",
+                "twoFactorSecret": "String (nullable)",
+                "backupCodes": "Encrypted array"
+              },
+              "indexes": ["email", "status", "role", "createdAt"]
+            },
+            "sessionTable": {
+              "description": "User session management",
+              "fields": {
+                "sessionId": "UUID primary key",
+                "userId": "Foreign key to users",
+                "refreshToken": "Hashed token",
+                "ipAddress": "String",
+                "userAgent": "String",
+                "createdAt": "Timestamp",
+                "expiresAt": "Timestamp",
+                "isActive": "Boolean"
+              },
+              "indexes": ["userId", "expiresAt"]
+            },
+            "userLimitsTable": {
+              "description": "Usage limits and quotas per user",
+              "fields": {
+                "userId": "Primary key",
+                "period": "Enum: monthly, daily",
+                "periodStart": "Timestamp",
+                "documentsAnalyzed": "Integer",
+                "storageUsed": "Integer (bytes)",
+                "apiCalls": "Integer",
+                "creditsUsed": "Integer"
+              }
+            }
+          },
+
+          "frontendChanges": {
+            "authenticationPages": {
+              "loginPage": "Email/password login with social options",
+              "registerPage": "Registration form with validation",
+              "forgotPasswordPage": "Password reset request",
+              "resetPasswordPage": "New password form",
+              "verifyEmailPage": "Email verification handling"
+            },
+            "protectedRoutes": {
+              "description": "Route-level authentication checks",
+              "middleware": "Check for valid JWT and user permissions",
+              "redirects": "Redirect unauthenticated users to login"
+            },
+            "userContext": {
+              "description": "Global user state management",
+              "zustandStore": "User profile, preferences, and session state",
+              "reactContext": "User context provider for components"
+            },
+            "profileComponents": {
+              "profilePage": "User profile editing",
+              "settingsPage": "Account and security settings",
+              "usageDashboard": "Personal analytics and limits"
+            }
+          }
+        },
+
+        "integrationRequirements": {
+          "emailService": {
+            "provider": "AWS SES or SendGrid",
+            "templates": [
+              "welcome",
+              "verification",
+              "password-reset",
+              "notifications"
+            ],
+            "features": [
+              "template management",
+              "delivery tracking",
+              "bounce handling"
+            ]
+          },
+          "storageUpdates": {
+            "s3Organization": "Organize objects by user ID: /users/{userId}/documents/",
+            "accessControl": "Bucket policies and IAM roles for user isolation",
+            "presignedUrls": "Secure, time-limited access to user files"
+          },
+          "monitoring": {
+            "authenticationMetrics": "Login attempts, failures, success rates",
+            "userActivity": "Document uploads, analyses, API usage",
+            "securityEvents": "Failed login attempts, suspicious activity",
+            "performanceMetrics": "Response times, error rates, throughput"
+          }
+        }
+      }
+    },
+
+    "implementationPlan": {
+      "phases": {
+        "phase1": {
+          "name": "Foundation",
+          "duration": "2 weeks",
+          "tasks": [
+            "Design database schema for users, sessions, and limits",
+            "Set up authentication service infrastructure",
+            "Implement password hashing and JWT utilities",
+            "Create user registration and login endpoints",
+            "Add basic authorization middleware",
+            "Update document repository to include user isolation"
+          ]
+        },
+        "phase2": {
+          "name": "Core Authentication",
+          "duration": "2 weeks",
+          "tasks": [
+            "Implement email verification system",
+            "Add password reset functionality",
+            "Create session management with refresh tokens",
+            "Integrate OAuth providers (Google, GitHub)",
+            "Update all existing endpoints to require authentication"
+          ]
+        },
+        "phase3": {
+          "name": "User Management",
+          "duration": "2 weeks",
+          "tasks": [
+            "Build user profile management endpoints",
+            "Implement role-based access control",
+            "Add usage limits and quota tracking",
+            "Create admin panel for user management",
+            "Implement account deletion and data cleanup",
+            "Add audit logging for user actions"
+          ]
+        },
+        "phase4": {
+          "name": "Frontend Integration",
+          "duration": "2 weeks",
+          "tasks": [
+            "Create authentication UI components",
+            "Implement protected routes and navigation",
+            "Add user context and state management",
+            "Build profile and settings pages",
+            "Integrate social login buttons",
+            "Add loading states and error handling"
+          ]
+        },
+        "phase5": {
+          "name": "Security & Compliance",
+          "duration": "1 week",
+          "tasks": [
+            "Implement 2FA with TOTP",
+            "Add comprehensive input validation",
+            "Set up security monitoring and alerts",
+            "Conduct security audit and penetration testing",
+            "Implement GDPR compliance features",
+            "Add comprehensive logging and monitoring"
+          ]
+        },
+        "phase6": {
+          "name": "Testing & Deployment",
+          "duration": "2 weeks",
+          "tasks": [
+            "Write comprehensive unit and integration tests",
+            "Perform end-to-end testing of user flows",
+            "Load testing for concurrent users",
+            "Set up CI/CD pipelines with security scanning",
+            "Deploy to staging environment for testing",
+            "Production deployment with monitoring"
+          ]
+        }
+      },
+
+      "dependencies": [
+        "AWS SES for email delivery",
+        "Redis for session storage",
+        "OAuth application setup for social providers",
+        "SSL certificates for secure communications",
+        "Monitoring tools (DataDog, CloudWatch)",
+        "Security scanning tools"
+      ],
+
+      "risks": [
+        "Data migration complexity for existing documents",
+        "OAuth provider API changes affecting authentication",
+        "Email deliverability issues with verification emails",
+        "Token security vulnerabilities",
+        "Performance impact from authorization checks",
+        "GDPR compliance requirements for EU users"
+      ]
+    },
+
+    "useCases": {
+      "newUserRegistration": {
+        "actors": ["New User", "Email System"],
+        "preconditions": "User does not have an account",
+        "basicFlow": [
+          "1. User navigates to registration page",
+          "2. User enters email, password, first name, and last name",
+          "3. User agrees to terms of service and privacy policy",
+          "4. User clicks 'Create Account'",
+          "5. System validates input and checks for existing accounts",
+          "6. System creates user account with 'pending_verification' status",
+          "7. System generates verification token and sends email",
+          "8. User receives verification email and clicks link",
+          "9. System verifies email and updates status to 'active'",
+          "10. System sends welcome email"
+        ],
+        "alternativeFlows": [
+          "3a. Email already exists - show error and suggest login",
+          "4a. Password doesn't meet requirements - show validation error",
+          "9a. Token expired - allow resend verification email"
+        ],
+        "postconditions": "User has verified account and can login"
+      },
+
+      "userLogin": {
+        "actors": ["Registered User", "Authentication System"],
+        "preconditions": "User has verified account",
+        "basicFlow": [
+          "1. User navigates to login page",
+          "2. User enters email and password",
+          "3. User optionally selects 'Remember me'",
+          "4. User clicks 'Login'",
+          "5. System validates credentials",
+          "6. System generates access token (15 min expiry) and refresh token",
+          "7. System stores refresh token in database",
+          "8. System returns tokens to user",
+          "9. User is redirected to dashboard"
+        ],
+        "alternativeFlows": [
+          "2a. Email not found - show error message",
+          "2b. Wrong password - increment failed attempt counter",
+          "2c. Account locked - show locked message with unlock time",
+          "4a. 2FA required - redirect to 2FA verification page"
+        ],
+        "postconditions": "User is authenticated with valid session"
+      },
+
+      "documentUploadWithIsolation": {
+        "actors": ["Authenticated User"],
+        "preconditions": "User is logged in and has remaining credits",
+        "basicFlow": [
+          "1. User uploads document file",
+          "2. System validates file type and size",
+          "3. System creates document record with userId",
+          "4. System stores file in S3 under user's folder",
+          "5. User requests document analysis",
+          "6. System validates user's ownership of document",
+          "7. System processes analysis and stores results",
+          "8. User views analysis results"
+        ],
+        "alternativeFlows": [
+          "2a. Invalid file type - show error message",
+          "2b. File too large - show size limit error",
+          "3a. User exceeded monthly limit - show upgrade prompt",
+          "6a. User doesn't own document - return 403 error"
+        ],
+        "postconditions": "Document and analysis are stored with user ownership"
+      },
+
+      "passwordResetFlow": {
+        "actors": ["Registered User", "Email System"],
+        "preconditions": "User has account but forgot password",
+        "basicFlow": [
+          "1. User clicks 'Forgot Password' on login page",
+          "2. User enters registered email address",
+          "3. User submits request",
+          "4. System generates reset token with 15-minute expiry",
+          "5. System sends password reset email with link",
+          "6. User clicks link in email",
+          "7. User enters new password",
+          "8. System validates new password",
+          "9. System updates password hash",
+          "10. System invalidates all existing sessions"
+        ],
+        "alternativeFlows": [
+          "2a. Email not found - show generic 'email sent' message",
+          "5a. Email delivery fails - retry up to 3 times",
+          "6a. Token expired - show expired message with link to resend",
+          "8a. Password doesn't meet requirements - show validation error"
+        ],
+        "postconditions": "User can login with new password"
+      },
+
+      "profileManagement": {
+        "actors": ["Authenticated User"],
+        "preconditions": "User is logged in",
+        "basicFlow": [
+          "1. User navigates to profile settings",
+          "2. User views current profile information",
+          "3. User updates desired fields",
+          "4. User saves changes",
+          "5. System validates and updates database",
+          "6. System returns success confirmation"
+        ],
+        "alternativeFlows": [
+          "3a. User uploads new profile picture",
+          "3b. User changes email - requires verification",
+          "4a. Validation fails - show specific error messages"
+        ],
+        "postconditions": "User profile is updated"
+      },
+
+      "sessionManagement": {
+        "actors": ["Authenticated User"],
+        "preconditions": "User is logged in with active sessions",
+        "basicFlow": [
+          "1. User navigates to security settings",
+          "2. User views list of active sessions",
+          "3. User selects session to revoke",
+          "4. User confirms revocation",
+          "5. System deletes refresh token from database",
+          "6. User's device is logged out"
+        ],
+        "alternativeFlows": [
+          "3a. User revokes 'current session' - require re-authentication"
+        ],
+        "postconditions": "Selected session is terminated"
+      },
+
+      "adminUserManagement": {
+        "actors": ["Enterprise Admin"],
+        "preconditions": "User has enterprise admin role",
+        "basicFlow": [
+          "1. Admin navigates to admin panel",
+          "2. Admin views list of users",
+          "3. Admin filters or searches for user",
+          "4. Admin selects user to manage",
+          "5. Admin views user details",
+          "6. Admin performs action (reset password, suspend, etc.)",
+          "7. System logs admin action",
+          "8. System notifies user if required"
+        ],
+        "alternativeFlows": [
+          "4a. Bulk selection - apply action to multiple users",
+          "6a. Suspend user - prevent login and access",
+          "6b. Delete user - initiate data deletion process"
+        ],
+        "postconditions": "User account is modified as requested"
+      },
+
+      "accountDeletion": {
+        "actors": ["Authenticated User"],
+        "preconditions": "User is logged in",
+        "basicFlow": [
+          "1. User navigates to account deletion in settings",
+          "2. User reviews data that will be deleted",
+          "3. User enters password to confirm",
+          "4. User checks confirmation checkbox",
+          "5. User clicks 'Delete Account'",
+          "6. System sets account status to 'pending_deletion'",
+          "7. System sends deletion confirmation email",
+          "8. After 30 days, system permanently deletes all data"
+        ],
+        "alternativeFlows": [
+          "5a. User cancels - account remains active",
+          "8a. User recovers account - cancel deletion within 30 days"
+        ],
+        "postconditions": "User account and all data are deleted"
+      },
+
+      "socialLoginOAuth": {
+        "actors": ["New User", "Returning User", "OAuth Provider"],
+        "preconditions": "OAuth providers are configured",
+        "basicFlow": [
+          "1. User clicks 'Login with Google' (or other provider)",
+          "2. System redirects to OAuth provider",
+          "3. User grants permission to Vaisu",
+          "4. OAuth provider returns authorization code",
+          "5. System exchanges code for access token",
+          "6. System retrieves user profile from provider",
+          "7. System creates or links user account",
+          "8. System generates session tokens",
+          "9. User is logged in"
+        ],
+        "alternativeFlows": [
+          "4a. User denies permission - redirect to login with error",
+          "6a. Email already exists - prompt to link accounts",
+          "6b. New email - create new account with OAuth profile"
+        ],
+        "postconditions": "User is authenticated via OAuth"
+      },
+
+      "usageAnalyticsView": {
+        "actors": ["Authenticated User"],
+        "preconditions": "User is logged in",
+        "basicFlow": [
+          "1. User navigates to usage dashboard",
+          "2. System retrieves usage data for user",
+          "3. User views charts and metrics",
+          "4. User can filter by time period",
+          "5. User can see remaining quotas"
+        ],
+        "postconditions": "User has visibility into their usage"
+      }
+    },
+
+    "userStories": [
+      {
+        "id": "US001",
+        "title": "New User Registration",
+        "asA": "new user",
+        "iWantTo": "create an account with my email",
+        "soThat": "I can access the document analysis features",
+        "priority": "Must Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "Registration form includes email, password, first name, last name",
+          "Password must be at least 8 characters with mixed case, numbers, and symbols",
+          "Email must be valid format and unique",
+          "User receives verification email within 60 seconds",
+          "Account is not active until email is verified",
+          "Welcome email is sent after verification"
+        ]
+      },
+      {
+        "id": "US002",
+        "title": "User Login",
+        "asA": "registered user",
+        "iWantTo": "login with my email and password",
+        "soThat": "I can access my documents and analyses",
+        "priority": "Must Have",
+        "storyPoints": 3,
+        "acceptanceCriteria": [
+          "Login with valid credentials succeeds in under 500ms",
+          "JWT access token is issued with 15-minute expiry",
+          "Refresh token is stored securely in database",
+          "Invalid credentials show specific error message",
+          "After 5 failed attempts, account is locked for 15 minutes"
+        ]
+      },
+      {
+        "id": "US003",
+        "title": "Secure Logout",
+        "asA": "authenticated user",
+        "iWantTo": "logout from all devices",
+        "soThat": "my account is secure if I lose my device",
+        "priority": "Must Have",
+        "storyPoints": 2,
+        "acceptanceCriteria": [
+          "Logout invalidates current refresh token",
+          "Option to logout from all devices",
+          "User is redirected to login page",
+          "Immediate re-login requires new credentials"
+        ]
+      },
+      {
+        "id": "US004",
+        "title": "Password Reset",
+        "asA": "registered user who forgot password",
+        "iWantTo": "reset my password via email",
+        "soThat": "I can regain access to my account",
+        "priority": "Must Have",
+        "storyPoints": 3,
+        "acceptanceCriteria": [
+          "Password reset request sends email within 60 seconds",
+          "Reset link is valid for 15 minutes",
+          "Token can only be used once",
+          "After reset, all existing sessions are invalidated",
+          "Password must meet strength requirements"
+        ]
+      },
+      {
+        "id": "US005",
+        "title": "Email Verification",
+        "asA": "new user who just registered",
+        "iWantTo": "verify my email address",
+        "soThat": "I can fully activate my account",
+        "priority": "Must Have",
+        "storyPoints": 2,
+        "acceptanceCriteria": [
+          "Verification link expires after 24 hours",
+          "Resend verification option is available",
+          "Account cannot access premium features until verified",
+          "Verification is confirmed within 2 seconds"
+        ]
+      },
+      {
+        "id": "US006",
+        "title": "Social Login",
+        "asA": "user with existing Google/GitHub/Microsoft account",
+        "iWantTo": "login using my social account",
+        "soThat": "I don't need to create and remember another password",
+        "priority": "Should Have",
+        "storyPoints": 8,
+        "acceptanceCriteria": [
+          "Google, GitHub, and Microsoft login options are available",
+          "Profile information is auto-populated from OAuth provider",
+          "New account is created if email doesn't exist",
+          "Existing account can be linked to OAuth provider",
+          "Login process completes in under 3 seconds"
+        ]
+      },
+      {
+        "id": "US007",
+        "title": "Document Data Isolation",
+        "asA": "authenticated user",
+        "iWantTo": "only see and access my own documents",
+        "soThat": "my data remains private and secure",
+        "priority": "Must Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "Users cannot access documents belonging to other users",
+          "API endpoints require valid JWT token",
+          "Database queries are filtered by user ID",
+          "S3 objects are organized by user and require signed URLs",
+          "Any cross-user access attempt is logged"
+        ]
+      },
+      {
+        "id": "US008",
+        "title": "User Profile Management",
+        "asA": "authenticated user",
+        "iWantTo": "view and edit my profile information",
+        "soThat": "my account information is accurate and up-to-date",
+        "priority": "Should Have",
+        "storyPoints": 3,
+        "acceptanceCriteria": [
+          "Can edit first name, last name, timezone, and language",
+          "Can upload and change profile picture",
+          "Profile picture is automatically resized to standard dimensions",
+          "Changes are saved within 1 second",
+          "Email changes require re-verification"
+        ]
+      },
+      {
+        "id": "US009",
+        "title": "Password Change",
+        "asA": "authenticated user",
+        "iWantTo": "change my password while logged in",
+        "soThat": "I can update to a stronger password",
+        "priority": "Should Have",
+        "storyPoints": 2,
+        "acceptanceCriteria": [
+          "Must enter current password to change",
+          "New password must meet strength requirements",
+          "All existing sessions are invalidated after change",
+          "Confirmation email is sent"
+        ]
+      },
+      {
+        "id": "US010",
+        "title": "Active Sessions Management",
+        "asA": "authenticated user",
+        "iWantTo": "see and manage all my active sessions",
+        "soThat": "I can logout from devices I no longer use",
+        "priority": "Should Have",
+        "storyPoints": 3,
+        "acceptanceCriteria": [
+          "List shows all devices with login time and IP address",
+          "Can revoke any individual session",
+          "Cannot revoke current session without re-authentication",
+          "Session list updates within 1 second of action"
+        ]
+      },
+      {
+        "id": "US011",
+        "title": "Usage Dashboard",
+        "asA": "authenticated user",
+        "iWantTo": "see my usage statistics and remaining quotas",
+        "soThat": "I know how much I've used and what limits apply",
+        "priority": "Should Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "Shows documents analyzed this month",
+          "Shows storage used",
+          "Shows remaining analysis credits",
+          "Displays monthly usage trends chart",
+          "Updates in real-time as actions are performed"
+        ]
+      },
+      {
+        "id": "US012",
+        "title": "Account Deletion",
+        "asA": "authenticated user",
+        "iWantTo": "delete my account and all my data",
+        "soThat": "I can remove my information from the service",
+        "priority": "Must Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "30-day recovery period after deletion request",
+          "Requires password confirmation and explicit checkbox",
+          "All documents, analyses, and settings are deleted",
+          "Confirmation email is sent at deletion and recovery deadline",
+          "Can cancel deletion within 30 days"
+        ]
+      },
+      {
+        "id": "US013",
+        "title": "Role-Based Access Control",
+        "asA": "platform administrator",
+        "iWantTo": "assign different roles to users",
+        "soThat": "users have appropriate access levels",
+        "priority": "Should Have",
+        "storyPoints": 8,
+        "acceptanceCriteria": [
+          "Free users have limited documents and storage",
+          "Premium users have higher limits and advanced features",
+          "Enterprise users have organization management",
+          "Role changes take effect immediately",
+          "Users are notified of role changes"
+        ]
+      },
+      {
+        "id": "US014",
+        "title": "Admin User Management",
+        "asA": "enterprise admin",
+        "iWantTo": "manage user accounts in my organization",
+        "soThat": "I can maintain security and compliance",
+        "priority": "Should Have",
+        "storyPoints": 8,
+        "acceptanceCriteria": [
+          "View list of all users in organization",
+          "Search and filter users by various criteria",
+          "Reset user passwords",
+          "Suspend or delete user accounts",
+          "All admin actions are logged with timestamp and admin ID"
+        ]
+      },
+      {
+        "id": "US015",
+        "title": "Two-Factor Authentication",
+        "asA": "security-conscious user",
+        "iWantTo": "enable two-factor authentication",
+        "soThat": "my account has additional security",
+        "priority": "Could Have",
+        "storyPoints": 8,
+        "acceptanceCriteria": [
+          "Setup using authenticator app (TOTP)",
+          "QR code provided for easy setup",
+          "10 backup codes are generated and shown once",
+          "Can require 2FA for all logins",
+          "Backup codes can be regenerated"
+        ]
+      },
+      {
+        "id": "US016",
+        "title": "Remember Me Login",
+        "asA": "returning user",
+        "iWantTo": "stay logged in for extended periods",
+        "soThat": "I don't need to login frequently",
+        "priority": "Should Have",
+        "storyPoints": 2,
+        "acceptanceCriteria": [
+          "Remember me option extends session to 30 days",
+          "Refresh token is securely stored",
+          "Can logout from all devices at any time",
+          "Session persists across browser restarts"
+        ]
+      },
+      {
+        "id": "US017",
+        "title": "Data Export",
+        "asA": "authenticated user",
+        "iWantTo": "export all my data",
+        "soThat": "I have a backup or can move to another service",
+        "priority": "Could Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "Export includes all documents, analyses, and profile data",
+          "Export format is standard (JSON or ZIP)",
+          "Export process completes within 5 minutes",
+          "Download link is valid for 24 hours"
+        ]
+      },
+      {
+        "id": "US018",
+        "title": "GDPR Data Access Request",
+        "asA": "EU user requesting GDPR compliance",
+        "iWantTo": "request a copy of all my personal data",
+        "soThat": "I can exercise my right to data access",
+        "priority": "Must Have",
+        "storyPoints": 3,
+        "acceptanceCriteria": [
+          "Data export request can be submitted through settings",
+          "Export is generated within 24 hours",
+          "Export includes all personal data categories",
+          "Download link is provided via email"
+        ]
+      },
+      {
+        "id": "US019",
+        "title": "OAuth Account Linking",
+        "asA": "user who registered with email",
+        "iWantTo": "link my social accounts for easier login",
+        "soThat": "I can login using multiple methods",
+        "priority": "Could Have",
+        "storyPoints": 5,
+        "acceptanceCriteria": [
+          "Can link Google, GitHub, and Microsoft accounts",
+          "Each provider can only be linked to one account",
+          "Can unlink providers from account settings",
+          "Linked accounts show in security settings"
+        ]
+      },
+      {
+        "id": "US020",
+        "title": "Session Timeout Warning",
+        "asA": "authenticated user with expiring session",
+        "iWantTo": "be warned before my session expires",
+        "soThat": "I can extend my session if needed",
+        "priority": "Could Have",
+        "storyPoints": 2,
+        "acceptanceCriteria": [
+          "Warning shown 2 minutes before session expiry",
+          "One-click option to extend session",
+          "Warning appears as toast notification"
+        ]
+      }
+    ],
+
+    "acceptanceCriteria": {
+      "functionalTests": [
+        "User can register with email and password",
+        "User receives verification email and can verify account",
+        "User can login with correct credentials",
+        "User cannot access documents without authentication",
+        "User can only see their own documents and analyses",
+        "User can update profile information",
+        "User can change password securely",
+        "User can reset password via email",
+        "User can logout from all devices",
+        "Admin can view and manage user accounts"
+      ],
+      "securityTests": [
+        "Passwords are properly hashed and salted",
+        "JWT tokens expire and cannot be reused",
+        "SQL injection and XSS attacks are prevented",
+        "User data is properly isolated between accounts",
+        "Sensitive data is encrypted at rest and in transit"
+      ],
+      "performanceTests": [
+        "Login completes in under 500ms",
+        "Document listing loads in under 200ms",
+        "System supports 1000 concurrent users",
+        "File uploads complete within expected time limits"
+      ],
+      "complianceTests": [
+        "GDPR data deletion requests are fulfilled",
+        "User consent is properly managed",
+        "Audit logs capture all user actions",
+        "Data export functionality works correctly"
+      ]
+    },
+
+    "successMetrics": {
+      "userAcquisition": "Number of new user registrations",
+      "userRetention": "Percentage of users returning after 30 days",
+      "authenticationSuccess": "Percentage of successful login attempts",
+      "dataIsolation": "Zero cross-user data access incidents",
+      "performance": "Average response times for key operations",
+      "security": "Number of security incidents (target: 0)",
+      "compliance": "100% compliance with GDPR and security standards"
+    },
+
+    "stakeholders": {
+      "productManager": "Define requirements and acceptance criteria",
+      "backendEngineer": "Implement authentication and authorization services",
+      "frontendEngineer": "Build user interface and user experience",
+      "securityEngineer": "Ensure security best practices and compliance",
+      "devopsEngineer": "Set up infrastructure and deployment pipelines",
+      "qaEngineer": "Test functionality and performance",
+      "legalTeam": "Review compliance and privacy requirements",
+      "users": "Provide feedback on user experience"
+    },
+
+    "appendices": {
+      "apiSpecification": {
+        "authenticationEndpoints": "Detailed API documentation for auth endpoints",
+        "userManagementEndpoints": "API specs for user profile and settings",
+        "authorizationHeaders": "JWT token format and usage",
+        "errorResponses": "Standardized error response formats"
+      },
+      "databaseMigrations": {
+        "userTableCreation": "DDL for user and related tables",
+        "dataMigrationScript": "Script to migrate existing anonymous data",
+        "indexCreation": "Database indexes for performance"
+      },
+      "uiMockups": {
+        "loginFlow": "Wireframes for authentication pages",
+        "profilePage": "Design for user profile management",
+        "adminPanel": "Interface for user administration"
+      },
+      "securityAssessment": {
+        "threatModel": "Security threats and mitigation strategies",
+        "penetrationTestResults": "Findings from security testing",
+        "complianceChecklist": "GDPR and security compliance items"
+      }
+    }
+  }
+}
