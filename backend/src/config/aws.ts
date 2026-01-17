@@ -50,6 +50,11 @@ export const DYNAMODB_TERMS_DEFINITIONS_TABLE = process.env.DYNAMODB_TERMS_DEFIN
 export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
 
 
+
+// User Management tables
+export const DYNAMODB_USERS_TABLE = process.env.DYNAMODB_USERS_TABLE || 'vaisu-users';
+export const DYNAMODB_SESSIONS_TABLE = process.env.DYNAMODB_SESSIONS_TABLE || 'vaisu-sessions';
+export const DYNAMODB_USER_LIMITS_TABLE = process.env.DYNAMODB_USER_LIMITS_TABLE || 'vaisu-user-limits';
 /**
  * Validate AWS configuration
  * Throws error if persistence is enabled but configuration is invalid
@@ -68,6 +73,10 @@ export function validateAWSConfig(): void {
 
   if (!DYNAMODB_DOCUMENTS_TABLE || !DYNAMODB_ANALYSES_TABLE) {
     throw new Error('DynamoDB table names not configured');
+  }
+
+  if (!DYNAMODB_USERS_TABLE || !DYNAMODB_SESSIONS_TABLE || !DYNAMODB_USER_LIMITS_TABLE) {
+    throw new Error('User management table names not configured');
   }
 
   // Validate all visualization table names exist
@@ -104,6 +113,11 @@ export function validateAWSConfig(): void {
       termsDefinitions: DYNAMODB_TERMS_DEFINITIONS_TABLE,
       knowledgeGraph: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     },
+      userManagementTables: {
+        users: DYNAMODB_USERS_TABLE,
+        sessions: DYNAMODB_SESSIONS_TABLE,
+        userLimits: DYNAMODB_USER_LIMITS_TABLE,
+      },
   });
 }
 

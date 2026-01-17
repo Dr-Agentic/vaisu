@@ -1,0 +1,1845 @@
+{
+  "project": "User Management System for Vaisu",
+  "version": "1.0.0",
+  "created": "2026-01-16T04:38:02.298769",
+  "overview": "Comprehensive test plan covering all aspects of user management system",
+  "testingStrategy": {
+    "approach": "Test-Driven Development (TDD) with comprehensive coverage",
+    "testLevels": [
+      "Unit Tests",
+      "Integration Tests",
+      "End-to-End Tests",
+      "Security Tests",
+      "Performance Tests",
+      "Compliance Tests"
+    ],
+    "testEnvironments": [
+      "Local Development",
+      "Staging Environment",
+      "Production-like Environment"
+    ]
+  },
+  "testCoverage": {
+    "targetCoverage": "80% code coverage minimum",
+    "criticalPaths": "100% coverage required",
+    "securityTests": "All security scenarios must be tested"
+  },
+  "testSuites": [
+    {
+      "name": "Authentication Service",
+      "description": "Tests for user registration, login, and authentication flows",
+      "testTypes": [
+        "Unit",
+        "Integration",
+        "Security"
+      ],
+      "testCases": [
+        {
+          "id": "AUTH-001",
+          "name": "User Registration - Valid Data",
+          "description": "Register user with valid email, password, and name",
+          "type": "Unit",
+          "steps": [
+            "Call registration endpoint with valid data",
+            "Verify user record created in database",
+            "Verify password is hashed with Argon2id",
+            "Verify verification token generated",
+            "Verify email sent to user"
+          ],
+          "expectedResult": "User created successfully, verification email sent",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-002",
+          "name": "User Registration - Invalid Email",
+          "description": "Register user with invalid email format",
+          "type": "Unit",
+          "steps": [
+            "Call registration endpoint with invalid email",
+            "Verify validation error returned",
+            "Verify no user record created"
+          ],
+          "expectedResult": "400 Bad Request with validation error",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-003",
+          "name": "User Registration - Weak Password",
+          "description": "Register user with password not meeting requirements",
+          "type": "Unit",
+          "steps": [
+            "Call registration endpoint with weak password",
+            "Verify password strength validation error"
+          ],
+          "expectedResult": "400 Bad Request with password strength error",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-004",
+          "name": "User Registration - Duplicate Email",
+          "description": "Register user with already existing email",
+          "type": "Integration",
+          "steps": [
+            "Register first user with email",
+            "Attempt to register second user with same email",
+            "Verify duplicate email error"
+          ],
+          "expectedResult": "409 Conflict with duplicate email error",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-005",
+          "name": "User Login - Valid Credentials",
+          "description": "Login with valid email and password",
+          "type": "Unit",
+          "steps": [
+            "Call login endpoint with valid credentials",
+            "Verify JWT access token returned",
+            "Verify refresh token stored in database",
+            "Verify token expiry times"
+          ],
+          "expectedResult": "200 OK with access and refresh tokens",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-006",
+          "name": "User Login - Invalid Password",
+          "description": "Login with incorrect password",
+          "type": "Unit",
+          "steps": [
+            "Call login endpoint with wrong password",
+            "Verify failed attempt counter increments",
+            "Verify no tokens returned"
+          ],
+          "expectedResult": "401 Unauthorized",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-007",
+          "name": "User Login - Account Lockout",
+          "description": "Login with 5 failed attempts locks account",
+          "type": "Integration",
+          "steps": [
+            "Attempt login with wrong password 5 times",
+            "Verify account locked for 15 minutes",
+            "Verify login fails on 6th attempt"
+          ],
+          "expectedResult": "Account locked error message",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-008",
+          "name": "Email Verification - Valid Token",
+          "description": "Verify email with valid verification token",
+          "type": "Integration",
+          "steps": [
+            "Register new user",
+            "Extract verification token from email",
+            "Call verification endpoint with token",
+            "Verify account status changed to active"
+          ],
+          "expectedResult": "Account verified and activated",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-009",
+          "name": "Email Verification - Expired Token",
+          "description": "Verify email with expired verification token",
+          "type": "Integration",
+          "steps": [
+            "Register new user",
+            "Wait for token to expire (24 hours)",
+            "Attempt verification with expired token",
+            "Verify error message"
+          ],
+          "expectedResult": "Token expired error, allow resend",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-010",
+          "name": "Password Reset - Valid Request",
+          "description": "Request password reset for existing user",
+          "type": "Integration",
+          "steps": [
+            "Call forgot password endpoint with registered email",
+            "Verify reset email sent",
+            "Extract reset token from email",
+            "Use token to set new password",
+            "Verify password updated in database"
+          ],
+          "expectedResult": "Password reset successful, all sessions invalidated",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-011",
+          "name": "Password Reset - Expired Token",
+          "description": "Use expired password reset token",
+          "type": "Integration",
+          "steps": [
+            "Request password reset",
+            "Wait for token to expire (15 minutes)",
+            "Attempt to use expired token",
+            "Verify error message"
+          ],
+          "expectedResult": "Token expired error",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-012",
+          "name": "Password Reset - One-Time Use",
+          "description": "Verify reset token can only be used once",
+          "type": "Integration",
+          "steps": [
+            "Request password reset",
+            "Use token to reset password",
+            "Attempt to use same token again",
+            "Verify token invalidated"
+          ],
+          "expectedResult": "Token already used error",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-013",
+          "name": "Logout - Invalidate Refresh Token",
+          "description": "Logout should invalidate refresh token",
+          "type": "Integration",
+          "steps": [
+            "Login to get tokens",
+            "Call logout endpoint",
+            "Attempt to use refresh token",
+            "Verify token no longer valid"
+          ],
+          "expectedResult": "Refresh token invalidated, logout successful",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-014",
+          "name": "Logout - All Devices",
+          "description": "Logout from all devices invalidates all sessions",
+          "type": "Integration",
+          "steps": [
+            "Login on multiple devices",
+            "Call logout all devices endpoint",
+            "Verify all refresh tokens invalidated",
+            "Verify all sessions terminated"
+          ],
+          "expectedResult": "All sessions terminated",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-015",
+          "name": "Token Refresh - Valid Refresh Token",
+          "description": "Refresh access token with valid refresh token",
+          "type": "Unit",
+          "steps": [
+            "Call refresh endpoint with valid refresh token",
+            "Verify new access token returned",
+            "Verify new refresh token (rotation)",
+            "Verify old refresh token invalidated"
+          ],
+          "expectedResult": "New tokens returned, old refresh token invalidated",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-016",
+          "name": "Token Refresh - Invalid Refresh Token",
+          "description": "Refresh with invalid or revoked refresh token",
+          "type": "Unit",
+          "steps": [
+            "Call refresh endpoint with invalid token",
+            "Verify error returned"
+          ],
+          "expectedResult": "401 Unauthorized",
+          "priority": "High"
+        },
+        {
+          "id": "AUTH-017",
+          "name": "Remember Me - Extended Session",
+          "description": "Remember me option creates 30-day session",
+          "type": "Integration",
+          "steps": [
+            "Login with remember me checked",
+            "Verify refresh token expiry is 30 days",
+            "Verify access token expiry is 15 minutes"
+          ],
+          "expectedResult": "Tokens with appropriate expiry times",
+          "priority": "Medium"
+        },
+        {
+          "id": "AUTH-018",
+          "name": "JWT Token Security",
+          "description": "Verify JWT tokens are properly signed and validated",
+          "type": "Security",
+          "steps": [
+            "Attempt to use tampered JWT token",
+            "Verify token validation fails",
+            "Verify token signature validation",
+            "Verify token expiry validation"
+          ],
+          "expectedResult": "All tampered tokens rejected",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-019",
+          "name": "Password Hashing Security",
+          "description": "Verify passwords are properly hashed with Argon2id",
+          "type": "Security",
+          "steps": [
+            "Register user with password",
+            "Verify password hash in database",
+            "Verify hash uses Argon2id",
+            "Verify salt is unique per user"
+          ],
+          "expectedResult": "Passwords properly hashed and salted",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTH-020",
+          "name": "Rate Limiting - Login Attempts",
+          "description": "Rate limiting prevents brute force attacks",
+          "type": "Security",
+          "steps": [
+            "Attempt multiple logins in short time",
+            "Verify rate limiting kicks in",
+            "Verify appropriate error message"
+          ],
+          "expectedResult": "Rate limit exceeded error after threshold",
+          "priority": "High"
+        }
+      ]
+    },
+    {
+      "name": "Authorization & Data Isolation",
+      "description": "Tests for role-based access control and data isolation",
+      "testTypes": [
+        "Unit",
+        "Integration",
+        "Security"
+      ],
+      "testCases": [
+        {
+          "id": "AUTHZ-001",
+          "name": "Data Isolation - User Cannot Access Others' Documents",
+          "description": "Verify users cannot access documents belonging to other users",
+          "type": "Integration",
+          "steps": [
+            "Create two users (User A and User B)",
+            "User A creates document",
+            "User B attempts to access User A's document",
+            "Verify 403 Forbidden returned"
+          ],
+          "expectedResult": "Access denied, 403 Forbidden",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTHZ-002",
+          "name": "Data Isolation - Database Query Filtering",
+          "description": "Verify all database queries include user ID filtering",
+          "type": "Integration",
+          "steps": [
+            "Create multiple users with documents",
+            "Query documents without user filter",
+            "Verify query returns only user's documents",
+            "Verify no cross-user data leakage"
+          ],
+          "expectedResult": "Only user's own documents returned",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTHZ-003",
+          "name": "Data Isolation - S3 Object Access",
+          "description": "Verify S3 objects are organized by user and access controlled",
+          "type": "Integration",
+          "steps": [
+            "User A uploads document to S3",
+            "User B attempts to access User A's S3 object",
+            "Verify access denied",
+            "Verify signed URLs work for owner only"
+          ],
+          "expectedResult": "S3 access denied for non-owner",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTHZ-004",
+          "name": "Role-Based Access - Free User Limits",
+          "description": "Verify free users have correct limits enforced",
+          "type": "Integration",
+          "steps": [
+            "Create free user",
+            "Attempt to upload beyond monthly limit",
+            "Verify limit enforcement",
+            "Verify upgrade prompt shown"
+          ],
+          "expectedResult": "Upload blocked, upgrade prompt shown",
+          "priority": "High"
+        },
+        {
+          "id": "AUTHZ-005",
+          "name": "Role-Based Access - Premium User Features",
+          "description": "Verify premium users have access to advanced features",
+          "type": "Integration",
+          "steps": [
+            "Create premium user",
+            "Access advanced features",
+            "Verify no limits enforced",
+            "Verify API access available"
+          ],
+          "expectedResult": "All premium features accessible",
+          "priority": "High"
+        },
+        {
+          "id": "AUTHZ-006",
+          "name": "Role-Based Access - Enterprise Admin",
+          "description": "Verify enterprise admins can manage organization users",
+          "type": "Integration",
+          "steps": [
+            "Create enterprise admin",
+            "Access admin panel",
+            "Manage other users",
+            "Verify audit logging"
+          ],
+          "expectedResult": "Admin can manage users, actions logged",
+          "priority": "High"
+        },
+        {
+          "id": "AUTHZ-007",
+          "name": "JWT Validation - Token Expiry",
+          "description": "Verify expired JWT tokens are rejected",
+          "type": "Unit",
+          "steps": [
+            "Generate expired JWT token",
+            "Attempt API call with expired token",
+            "Verify 401 Unauthorized returned"
+          ],
+          "expectedResult": "Expired token rejected",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTHZ-008",
+          "name": "JWT Validation - Invalid Signature",
+          "description": "Verify tokens with invalid signatures are rejected",
+          "type": "Security",
+          "steps": [
+            "Create JWT token with tampered signature",
+            "Attempt API call",
+            "Verify 401 Unauthorized returned"
+          ],
+          "expectedResult": "Invalid signature rejected",
+          "priority": "Critical"
+        },
+        {
+          "id": "AUTHZ-009",
+          "name": "Permission Checking - Middleware",
+          "description": "Verify authorization middleware works correctly",
+          "type": "Unit",
+          "steps": [
+            "Test middleware with valid token",
+            "Test middleware with invalid token",
+            "Test middleware with missing token",
+            "Verify appropriate responses"
+          ],
+          "expectedResult": "Middleware correctly validates and rejects",
+          "priority": "High"
+        },
+        {
+          "id": "AUTHZ-010",
+          "name": "Audit Logging - User Actions",
+          "description": "Verify all user actions are logged",
+          "type": "Integration",
+          "steps": [
+            "Perform various user actions",
+            "Check audit log entries",
+            "Verify log contains user ID, action, timestamp",
+            "Verify log cannot be modified"
+          ],
+          "expectedResult": "All actions logged with complete details",
+          "priority": "High"
+        }
+      ]
+    },
+    {
+      "name": "User Profile Management",
+      "description": "Tests for user profile and account settings",
+      "testTypes": [
+        "Unit",
+        "Integration"
+      ],
+      "testCases": [
+        {
+          "id": "PROFILE-001",
+          "name": "View Profile - Authenticated User",
+          "description": "Authenticated user can view their profile",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Call profile endpoint",
+            "Verify profile data returned"
+          ],
+          "expectedResult": "200 OK with profile data",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-002",
+          "name": "Update Profile - Valid Changes",
+          "description": "User can update profile fields",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Update profile fields (name, timezone)",
+            "Verify changes saved in database",
+            "Verify success response"
+          ],
+          "expectedResult": "Profile updated successfully",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-003",
+          "name": "Update Profile - Email Change",
+          "description": "Email change requires verification",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Update email address",
+            "Verify new email requires verification",
+            "Verify old email still works until verified"
+          ],
+          "expectedResult": "Email change pending verification",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-004",
+          "name": "Profile Picture Upload",
+          "description": "User can upload and update profile picture",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Upload profile picture",
+            "Verify picture resized and stored",
+            "Verify URL returned"
+          ],
+          "expectedResult": "Profile picture uploaded and accessible",
+          "priority": "Medium"
+        },
+        {
+          "id": "PROFILE-005",
+          "name": "Password Change - Current Password Required",
+          "description": "Password change requires current password",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Attempt password change without current password",
+            "Verify error returned",
+            "Provide current password and new password",
+            "Verify password changed"
+          ],
+          "expectedResult": "Password changed only with current password",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-006",
+          "name": "Password Change - Session Invalidation",
+          "description": "Password change invalidates all sessions",
+          "type": "Integration",
+          "steps": [
+            "Login on multiple devices",
+            "Change password on one device",
+            "Verify all other sessions logged out",
+            "Verify refresh tokens invalidated"
+          ],
+          "expectedResult": "All sessions terminated after password change",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-007",
+          "name": "Active Sessions - View Sessions",
+          "description": "User can view all active sessions",
+          "type": "Integration",
+          "steps": [
+            "Login on multiple devices",
+            "View active sessions list",
+            "Verify all sessions shown with details"
+          ],
+          "expectedResult": "List of all active sessions with device info",
+          "priority": "Medium"
+        },
+        {
+          "id": "PROFILE-008",
+          "name": "Active Sessions - Revoke Session",
+          "description": "User can revoke specific session",
+          "type": "Integration",
+          "steps": [
+            "Login on multiple devices",
+            "Revoke one session",
+            "Verify that session no longer works",
+            "Verify other sessions still work"
+          ],
+          "expectedResult": "Specific session revoked, others unaffected",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-009",
+          "name": "Active Sessions - Revoke Current Session",
+          "description": "Revoke current session requires re-authentication",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Attempt to revoke current session",
+            "Verify re-authentication required",
+            "Verify session revoked after re-auth"
+          ],
+          "expectedResult": "Re-authentication required, then session revoked",
+          "priority": "Medium"
+        },
+        {
+          "id": "PROFILE-010",
+          "name": "Account Deletion - Confirmation Required",
+          "description": "Account deletion requires password and checkbox confirmation",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Attempt account deletion without confirmation",
+            "Verify error returned",
+            "Provide password and check confirmation",
+            "Verify account marked for deletion"
+          ],
+          "expectedResult": "Account marked for deletion with proper confirmation",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-011",
+          "name": "Account Deletion - 30 Day Recovery",
+          "description": "Account can be recovered within 30 days",
+          "type": "Integration",
+          "steps": [
+            "Delete account",
+            "Verify account status is pending_deletion",
+            "Attempt recovery within 30 days",
+            "Verify account restored"
+          ],
+          "expectedResult": "Account restored within recovery period",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-012",
+          "name": "Account Deletion - Permanent After 30 Days",
+          "description": "Account permanently deleted after 30 days",
+          "type": "Integration",
+          "steps": [
+            "Delete account",
+            "Wait 30 days (simulate)",
+            "Verify account and data permanently deleted",
+            "Verify no data remains"
+          ],
+          "expectedResult": "All data permanently deleted",
+          "priority": "High"
+        },
+        {
+          "id": "PROFILE-013",
+          "name": "Usage Dashboard - Metrics Display",
+          "description": "Usage dashboard shows correct metrics",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Access usage dashboard",
+            "Verify metrics displayed correctly",
+            "Verify charts render properly"
+          ],
+          "expectedResult": "Dashboard shows accurate usage data",
+          "priority": "Medium"
+        },
+        {
+          "id": "PROFILE-014",
+          "name": "Usage Dashboard - Real-time Updates",
+          "description": "Usage metrics update in real-time",
+          "type": "Integration",
+          "steps": [
+            "View usage dashboard",
+            "Perform document analysis",
+            "Verify metrics update immediately",
+            "Verify chart refreshes"
+          ],
+          "expectedResult": "Metrics update in real-time",
+          "priority": "Medium"
+        }
+      ]
+    },
+    {
+      "name": "Social Login (OAuth)",
+      "description": "Tests for OAuth integration with Google, GitHub, Microsoft",
+      "testTypes": [
+        "Integration",
+        "Security"
+      ],
+      "testCases": [
+        {
+          "id": "OAUTH-001",
+          "name": "Google OAuth - New User Registration",
+          "description": "New user registers via Google OAuth",
+          "type": "Integration",
+          "steps": [
+            "Click Google login button",
+            "Complete OAuth flow with Google",
+            "Verify new account created",
+            "Verify profile data synced"
+          ],
+          "expectedResult": "New account created with Google profile data",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-002",
+          "name": "Google OAuth - Existing User Login",
+          "description": "Existing user logs in via Google OAuth",
+          "type": "Integration",
+          "steps": [
+            "Login with Google (existing account)",
+            "Verify authentication successful",
+            "Verify session created"
+          ],
+          "expectedResult": "Login successful, session created",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-003",
+          "name": "GitHub OAuth - New User Registration",
+          "description": "New user registers via GitHub OAuth",
+          "type": "Integration",
+          "steps": [
+            "Click GitHub login button",
+            "Complete OAuth flow with GitHub",
+            "Verify new account created",
+            "Verify profile data synced"
+          ],
+          "expectedResult": "New account created with GitHub profile data",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-004",
+          "name": "Microsoft OAuth - New User Registration",
+          "description": "New user registers via Microsoft OAuth",
+          "type": "Integration",
+          "steps": [
+            "Click Microsoft login button",
+            "Complete OAuth flow with Microsoft",
+            "Verify new account created",
+            "Verify profile data synced"
+          ],
+          "expectedResult": "New account created with Microsoft profile data",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-005",
+          "name": "OAuth - Permission Denied",
+          "description": "User denies permission during OAuth flow",
+          "type": "Integration",
+          "steps": [
+            "Initiate OAuth flow",
+            "Deny permission on provider",
+            "Verify error message shown",
+            "Verify no account created"
+          ],
+          "expectedResult": "Error message, no account created",
+          "priority": "Medium"
+        },
+        {
+          "id": "OAUTH-006",
+          "name": "OAuth - Account Linking",
+          "description": "Link OAuth provider to existing account",
+          "type": "Integration",
+          "steps": [
+            "Login with email/password",
+            "Link Google account",
+            "Verify provider linked",
+            "Verify can login with Google"
+          ],
+          "expectedResult": "OAuth provider linked successfully",
+          "priority": "Medium"
+        },
+        {
+          "id": "OAUTH-007",
+          "name": "OAuth - Duplicate Email Handling",
+          "description": "OAuth email already exists in system",
+          "type": "Integration",
+          "steps": [
+            "Register with email/password",
+            "Attempt OAuth with same email",
+            "Verify prompt to link accounts",
+            "Verify linking works"
+          ],
+          "expectedResult": "Account linking prompt, successful linking",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-008",
+          "name": "OAuth - Profile Sync",
+          "description": "Profile data syncs from OAuth provider",
+          "type": "Integration",
+          "steps": [
+            "Login via OAuth",
+            "Check profile data",
+            "Verify name, email synced",
+            "Verify profile picture available"
+          ],
+          "expectedResult": "Profile data correctly synced",
+          "priority": "Medium"
+        },
+        {
+          "id": "OAUTH-009",
+          "name": "OAuth - Token Validation",
+          "description": "OAuth tokens are properly validated",
+          "type": "Security",
+          "steps": [
+            "Attempt OAuth with invalid token",
+            "Verify validation fails",
+            "Verify error returned"
+          ],
+          "expectedResult": "Invalid OAuth token rejected",
+          "priority": "High"
+        },
+        {
+          "id": "OAUTH-010",
+          "name": "OAuth - Unlink Provider",
+          "description": "User can unlink OAuth provider",
+          "type": "Integration",
+          "steps": [
+            "Login with linked OAuth provider",
+            "Unlink provider from account settings",
+            "Verify provider unlinked",
+            "Verify can still login with email/password"
+          ],
+          "expectedResult": "Provider unlinked successfully",
+          "priority": "Medium"
+        }
+      ]
+    },
+    {
+      "name": "Two-Factor Authentication (2FA)",
+      "description": "Tests for TOTP-based two-factor authentication",
+      "testTypes": [
+        "Integration",
+        "Security"
+      ],
+      "testCases": [
+        {
+          "id": "2FA-001",
+          "name": "2FA Setup - Generate QR Code",
+          "description": "User can setup 2FA with QR code",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Initiate 2FA setup",
+            "Verify QR code generated",
+            "Verify secret stored securely"
+          ],
+          "expectedResult": "QR code generated, secret stored",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-002",
+          "name": "2FA Setup - Verify with Authenticator",
+          "description": "Verify 2FA setup with authenticator app",
+          "type": "Integration",
+          "steps": [
+            "Scan QR code with authenticator",
+            "Enter verification code",
+            "Verify 2FA enabled"
+          ],
+          "expectedResult": "2FA enabled successfully",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-003",
+          "name": "2FA Login - Valid Code",
+          "description": "Login with valid 2FA code",
+          "type": "Integration",
+          "steps": [
+            "Login with username/password",
+            "Enter valid 2FA code",
+            "Verify login successful"
+          ],
+          "expectedResult": "Login successful with 2FA",
+          "priority": "Critical"
+        },
+        {
+          "id": "2FA-004",
+          "name": "2FA Login - Invalid Code",
+          "description": "Login with invalid 2FA code",
+          "type": "Integration",
+          "steps": [
+            "Login with username/password",
+            "Enter invalid 2FA code",
+            "Verify login fails"
+          ],
+          "expectedResult": "Login failed, invalid code error",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-005",
+          "name": "2FA Backup Codes - Generation",
+          "description": "Backup codes generated during 2FA setup",
+          "type": "Integration",
+          "steps": [
+            "Setup 2FA",
+            "Verify 10 backup codes generated",
+            "Verify codes stored encrypted"
+          ],
+          "expectedResult": "10 backup codes generated and stored",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-006",
+          "name": "2FA Backup Codes - Use Backup Code",
+          "description": "Login using backup code when 2FA unavailable",
+          "type": "Integration",
+          "steps": [
+            "Login with username/password",
+            "Use backup code instead of 2FA",
+            "Verify login successful",
+            "Verify backup code marked as used"
+          ],
+          "expectedResult": "Login successful with backup code",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-007",
+          "name": "2FA Backup Codes - One-Time Use",
+          "description": "Backup codes can only be used once",
+          "type": "Integration",
+          "steps": [
+            "Use backup code to login",
+            "Attempt to use same backup code again",
+            "Verify code rejected"
+          ],
+          "expectedResult": "Backup code rejected after use",
+          "priority": "High"
+        },
+        {
+          "id": "2FA-008",
+          "name": "2FA Enforcement - Enterprise Requirement",
+          "description": "2FA required for enterprise accounts",
+          "type": "Integration",
+          "steps": [
+            "Create enterprise user",
+            "Attempt login without 2FA",
+            "Verify 2FA required error"
+          ],
+          "expectedResult": "2FA required for enterprise users",
+          "priority": "Medium"
+        },
+        {
+          "id": "2FA-009",
+          "name": "2FA Disable - With Verification",
+          "description": "Disable 2FA requires verification",
+          "type": "Integration",
+          "steps": [
+            "Login with 2FA enabled",
+            "Attempt to disable 2FA",
+            "Verify re-authentication required",
+            "Verify 2FA disabled after verification"
+          ],
+          "expectedResult": "2FA disabled after verification",
+          "priority": "Medium"
+        },
+        {
+          "id": "2FA-010",
+          "name": "2FA Secret Security",
+          "description": "2FA secrets are encrypted and secure",
+          "type": "Security",
+          "steps": [
+            "Setup 2FA",
+            "Verify secret encrypted in database",
+            "Verify secret not exposed in API responses"
+          ],
+          "expectedResult": "Secret encrypted and secure",
+          "priority": "High"
+        }
+      ]
+    },
+    {
+      "name": "Admin Panel",
+      "description": "Tests for enterprise admin user management",
+      "testTypes": [
+        "Integration",
+        "Security"
+      ],
+      "testCases": [
+        {
+          "id": "ADMIN-001",
+          "name": "Admin Access - Enterprise Only",
+          "description": "Only enterprise admins can access admin panel",
+          "type": "Integration",
+          "steps": [
+            "Login as free user, attempt admin access",
+            "Verify access denied",
+            "Login as premium user, attempt admin access",
+            "Verify access denied",
+            "Login as enterprise admin, verify access granted"
+          ],
+          "expectedResult": "Only enterprise admins can access admin panel",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-002",
+          "name": "User Listing - Pagination",
+          "description": "Admin can view paginated user list",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Access user listing",
+            "Verify pagination works",
+            "Verify search and filter options"
+          ],
+          "expectedResult": "User list with pagination and filtering",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-003",
+          "name": "User Actions - Reset Password",
+          "description": "Admin can reset user password",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Select user to manage",
+            "Reset user password",
+            "Verify password reset email sent"
+          ],
+          "expectedResult": "Password reset email sent to user",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-004",
+          "name": "User Actions - Suspend Account",
+          "description": "Admin can suspend user account",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Suspend user account",
+            "Verify user cannot login",
+            "Verify account status changed"
+          ],
+          "expectedResult": "User account suspended, login blocked",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-005",
+          "name": "User Actions - Delete Account",
+          "description": "Admin can delete user account",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Delete user account",
+            "Verify account marked for deletion",
+            "Verify user notified"
+          ],
+          "expectedResult": "Account marked for deletion, user notified",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-006",
+          "name": "Bulk Operations - Multiple Users",
+          "description": "Admin can perform bulk operations on multiple users",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Select multiple users",
+            "Perform bulk action (suspend, delete)",
+            "Verify all selected users affected"
+          ],
+          "expectedResult": "Bulk operation successful on all selected users",
+          "priority": "Medium"
+        },
+        {
+          "id": "ADMIN-007",
+          "name": "Audit Logging - Admin Actions",
+          "description": "All admin actions are logged",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Perform various admin actions",
+            "Check audit logs",
+            "Verify all actions logged with details"
+          ],
+          "expectedResult": "All admin actions logged with timestamp and admin ID",
+          "priority": "High"
+        },
+        {
+          "id": "ADMIN-008",
+          "name": "System Analytics - Dashboard",
+          "description": "Admin can view system analytics dashboard",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Access analytics dashboard",
+            "Verify metrics displayed",
+            "Verify charts render correctly"
+          ],
+          "expectedResult": "Analytics dashboard with system metrics",
+          "priority": "Medium"
+        },
+        {
+          "id": "ADMIN-009",
+          "name": "System Analytics - Reports",
+          "description": "Admin can generate and view reports",
+          "type": "Integration",
+          "steps": [
+            "Login as enterprise admin",
+            "Generate user growth report",
+            "Verify report data accurate",
+            "Verify report can be exported"
+          ],
+          "expectedResult": "Accurate reports with export capability",
+          "priority": "Medium"
+        },
+        {
+          "id": "ADMIN-010",
+          "name": "Admin Security - Access Control",
+          "description": "Verify admin actions require proper authorization",
+          "type": "Security",
+          "steps": [
+            "Attempt admin action without proper role",
+            "Verify access denied",
+            "Attempt admin action with valid role",
+            "Verify action allowed"
+          ],
+          "expectedResult": "Proper authorization enforced for admin actions",
+          "priority": "High"
+        }
+      ]
+    },
+    {
+      "name": "GDPR Compliance",
+      "description": "Tests for GDPR compliance features",
+      "testTypes": [
+        "Integration",
+        "Compliance"
+      ],
+      "testCases": [
+        {
+          "id": "GDPR-001",
+          "name": "Data Export - Complete User Data",
+          "description": "User can export all their personal data",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Request data export",
+            "Verify export generated",
+            "Verify export includes all data categories"
+          ],
+          "expectedResult": "Complete data export generated",
+          "priority": "Critical"
+        },
+        {
+          "id": "GDPR-002",
+          "name": "Data Export - Standard Format",
+          "description": "Data export in standard format (JSON/ZIP)",
+          "type": "Integration",
+          "steps": [
+            "Request data export",
+            "Verify export format is JSON or ZIP",
+            "Verify export is downloadable"
+          ],
+          "expectedResult": "Export in standard format, downloadable",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-003",
+          "name": "Data Export - Timely Delivery",
+          "description": "Data export delivered within 24 hours",
+          "type": "Integration",
+          "steps": [
+            "Request data export",
+            "Verify export generated within 24 hours",
+            "Verify download link sent via email"
+          ],
+          "expectedResult": "Export delivered within 24 hours",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-004",
+          "name": "Consent Management - Explicit Consent",
+          "description": "User must give explicit consent for data processing",
+          "type": "Integration",
+          "steps": [
+            "Register new user",
+            "Verify consent checkbox required",
+            "Verify consent stored with timestamp"
+          ],
+          "expectedResult": "Explicit consent required and stored",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-005",
+          "name": "Consent Management - Withdraw Consent",
+          "description": "User can withdraw consent at any time",
+          "type": "Integration",
+          "steps": [
+            "Login as user",
+            "Withdraw consent in settings",
+            "Verify consent status updated",
+            "Verify data processing stopped"
+          ],
+          "expectedResult": "Consent withdrawn, processing stopped",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-006",
+          "name": "Right to Deletion - Complete Data Removal",
+          "description": "Account deletion removes all personal data",
+          "type": "Integration",
+          "steps": [
+            "Delete account",
+            "Wait for permanent deletion (30 days)",
+            "Verify all personal data removed",
+            "Verify only anonymized data remains"
+          ],
+          "expectedResult": "All personal data permanently removed",
+          "priority": "Critical"
+        },
+        {
+          "id": "GDPR-007",
+          "name": "Data Minimization - Collect Only Necessary",
+          "description": "System collects only necessary user data",
+          "type": "Compliance",
+          "steps": [
+            "Review data collection points",
+            "Verify only required fields collected",
+            "Verify optional fields clearly marked"
+          ],
+          "expectedResult": "Only necessary data collected",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-008",
+          "name": "Data Retention - Automatic Cleanup",
+          "description": "Data retention policies enforced automatically",
+          "type": "Integration",
+          "steps": [
+            "Verify data retention rules configured",
+            "Check old data cleanup process",
+            "Verify anonymization after 2 years"
+          ],
+          "expectedResult": "Automatic data retention enforcement",
+          "priority": "Medium"
+        },
+        {
+          "id": "GDPR-009",
+          "name": "Audit Trail - Complete Logging",
+          "description": "All user actions logged for compliance",
+          "type": "Integration",
+          "steps": [
+            "Perform various user actions",
+            "Check audit trail",
+            "Verify all actions logged with details"
+          ],
+          "expectedResult": "Complete audit trail maintained",
+          "priority": "High"
+        },
+        {
+          "id": "GDPR-010",
+          "name": "Data Portability - Machine Readable",
+          "description": "Data export in machine-readable format",
+          "type": "Integration",
+          "steps": [
+            "Request data export",
+            "Verify format is JSON or similar",
+            "Verify data can be imported elsewhere"
+          ],
+          "expectedResult": "Data in standard, machine-readable format",
+          "priority": "High"
+        }
+      ]
+    },
+    {
+      "name": "Security Tests",
+      "description": "Comprehensive security testing",
+      "testTypes": [
+        "Security",
+        "Integration"
+      ],
+      "testCases": [
+        {
+          "id": "SEC-001",
+          "name": "SQL Injection Prevention",
+          "description": "Verify SQL injection attacks are prevented",
+          "type": "Security",
+          "steps": [
+            "Attempt SQL injection in login form",
+            "Attempt SQL injection in search queries",
+            "Verify all inputs properly sanitized"
+          ],
+          "expectedResult": "SQL injection attempts blocked",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-002",
+          "name": "XSS Prevention",
+          "description": "Verify XSS attacks are prevented",
+          "type": "Security",
+          "steps": [
+            "Attempt XSS in form inputs",
+            "Attempt XSS in URL parameters",
+            "Verify all outputs properly escaped"
+          ],
+          "expectedResult": "XSS attempts blocked",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-003",
+          "name": "CSRF Prevention",
+          "description": "Verify CSRF attacks are prevented",
+          "type": "Security",
+          "steps": [
+            "Attempt CSRF attack",
+            "Verify CSRF tokens required",
+            "Verify same-origin policy enforced"
+          ],
+          "expectedResult": "CSRF attempts blocked",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-004",
+          "name": "Brute Force Protection",
+          "description": "Verify brute force attacks are mitigated",
+          "type": "Security",
+          "steps": [
+            "Attempt multiple login attempts",
+            "Verify rate limiting kicks in",
+            "Verify account lockout after threshold"
+          ],
+          "expectedResult": "Brute force attempts mitigated",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-005",
+          "name": "Data Encryption at Rest",
+          "description": "Verify sensitive data encrypted in database",
+          "type": "Security",
+          "steps": [
+            "Check database for sensitive data",
+            "Verify encryption at rest",
+            "Verify encryption keys properly managed"
+          ],
+          "expectedResult": "Sensitive data encrypted at rest",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-006",
+          "name": "Data Encryption in Transit",
+          "description": "Verify TLS 1.3 for all communications",
+          "type": "Security",
+          "steps": [
+            "Check TLS version in API calls",
+            "Verify TLS 1.3 enforced",
+            "Verify no unencrypted endpoints"
+          ],
+          "expectedResult": "TLS 1.3 enforced for all communications",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-007",
+          "name": "JWT Token Security",
+          "description": "Verify JWT tokens are secure",
+          "type": "Security",
+          "steps": [
+            "Verify RS256 signing",
+            "Verify token expiry enforced",
+            "Verify token cannot be tampered"
+          ],
+          "expectedResult": "JWT tokens properly secured",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-008",
+          "name": "Password Hashing Security",
+          "description": "Verify Argon2id password hashing",
+          "type": "Security",
+          "steps": [
+            "Check password hash in database",
+            "Verify Argon2id used",
+            "Verify unique salt per user"
+          ],
+          "expectedResult": "Passwords properly hashed with Argon2id",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-009",
+          "name": "Session Security",
+          "description": "Verify session tokens are secure",
+          "type": "Security",
+          "steps": [
+            "Verify HttpOnly cookies",
+            "Verify Secure flag set",
+            "Verify SameSite policy enforced"
+          ],
+          "expectedResult": "Session tokens properly secured",
+          "priority": "High"
+        },
+        {
+          "id": "SEC-010",
+          "name": "Input Validation",
+          "description": "Verify comprehensive input validation",
+          "type": "Security",
+          "steps": [
+            "Test various invalid inputs",
+            "Verify validation errors returned",
+            "Verify no data corruption"
+          ],
+          "expectedResult": "All inputs properly validated",
+          "priority": "High"
+        },
+        {
+          "id": "SEC-011",
+          "name": "S3 Bucket Security",
+          "description": "Verify S3 buckets properly secured",
+          "type": "Security",
+          "steps": [
+            "Verify bucket policies restrict access",
+            "Verify signed URLs for user access",
+            "Verify no public bucket access"
+          ],
+          "expectedResult": "S3 buckets properly secured",
+          "priority": "Critical"
+        },
+        {
+          "id": "SEC-012",
+          "name": "API Rate Limiting",
+          "description": "Verify API rate limiting prevents abuse",
+          "type": "Security",
+          "steps": [
+            "Make rapid API calls",
+            "Verify rate limiting enforced",
+            "Verify appropriate error returned"
+          ],
+          "expectedResult": "Rate limiting prevents API abuse",
+          "priority": "High"
+        },
+        {
+          "id": "SEC-013",
+          "name": "Error Handling Security",
+          "description": "Verify error messages don't leak sensitive info",
+          "type": "Security",
+          "steps": [
+            "Trigger various errors",
+            "Verify error messages generic",
+            "Verify no stack traces exposed"
+          ],
+          "expectedResult": "Generic error messages, no sensitive info leaked",
+          "priority": "High"
+        },
+        {
+          "id": "SEC-014",
+          "name": "Dependency Security",
+          "description": "Verify dependencies are secure and up to date",
+          "type": "Security",
+          "steps": [
+            "Run security audit on dependencies",
+            "Verify no known vulnerabilities",
+            "Verify dependencies updated regularly"
+          ],
+          "expectedResult": "No vulnerable dependencies",
+          "priority": "High"
+        },
+        {
+          "id": "SEC-015",
+          "name": "Environment Variable Security",
+          "description": "Verify secrets properly managed",
+          "type": "Security",
+          "steps": [
+            "Check for hardcoded secrets",
+            "Verify environment variables used",
+            "Verify secrets not in version control"
+          ],
+          "expectedResult": "Secrets properly managed via environment variables",
+          "priority": "Critical"
+        }
+      ]
+    },
+    {
+      "name": "Performance Tests",
+      "description": "Performance and load testing",
+      "testTypes": [
+        "Performance",
+        "Integration"
+      ],
+      "testCases": [
+        {
+          "id": "PERF-001",
+          "name": "Login Performance",
+          "description": "Login completes in under 500ms",
+          "type": "Performance",
+          "steps": [
+            "Measure login response time",
+            "Verify average < 500ms",
+            "Verify 95th percentile < 1000ms"
+          ],
+          "expectedResult": "Login completes in under 500ms",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-002",
+          "name": "Document Listing Performance",
+          "description": "Document listing loads in under 200ms",
+          "type": "Performance",
+          "steps": [
+            "Measure document listing response time",
+            "Verify average < 200ms",
+            "Verify 95th percentile < 500ms"
+          ],
+          "expectedResult": "Document listing loads in under 200ms",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-003",
+          "name": "Concurrent User Support",
+          "description": "System supports 1000+ concurrent users",
+          "type": "Performance",
+          "steps": [
+            "Simulate 1000 concurrent users",
+            "Verify system remains stable",
+            "Verify response times acceptable"
+          ],
+          "expectedResult": "System handles 1000+ concurrent users",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-004",
+          "name": "Document Upload Performance",
+          "description": "Document upload completes within expected time",
+          "type": "Performance",
+          "steps": [
+            "Upload 100MB document",
+            "Measure upload time",
+            "Verify within acceptable limits"
+          ],
+          "expectedResult": "Upload completes within expected time",
+          "priority": "Medium"
+        },
+        {
+          "id": "PERF-005",
+          "name": "Analysis Completion Performance",
+          "description": "Document analysis completes in under 2 minutes",
+          "type": "Performance",
+          "steps": [
+            "Upload and analyze document",
+            "Measure analysis time",
+            "Verify < 2 minutes for typical documents"
+          ],
+          "expectedResult": "Analysis completes in under 2 minutes",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-006",
+          "name": "API Throughput",
+          "description": "System handles 1000+ requests per second",
+          "type": "Performance",
+          "steps": [
+            "Simulate 1000+ requests per second",
+            "Verify system handles load",
+            "Verify error rate < 1%"
+          ],
+          "expectedResult": "System handles 1000+ requests per second",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-007",
+          "name": "Database Query Performance",
+          "description": "Database queries perform well under load",
+          "type": "Performance",
+          "steps": [
+            "Run complex queries under load",
+            "Verify query times acceptable",
+            "Verify indexes used properly"
+          ],
+          "expectedResult": "Database queries perform well under load",
+          "priority": "High"
+        },
+        {
+          "id": "PERF-008",
+          "name": "Caching Performance",
+          "description": "Redis caching improves performance",
+          "type": "Performance",
+          "steps": [
+            "Measure response times with/without cache",
+            "Verify caching reduces latency",
+            "Verify cache hit rate acceptable"
+          ],
+          "expectedResult": "Caching significantly improves performance",
+          "priority": "Medium"
+        },
+        {
+          "id": "PERF-009",
+          "name": "Memory Usage",
+          "description": "System memory usage within limits",
+          "type": "Performance",
+          "steps": [
+            "Monitor memory usage under load",
+            "Verify no memory leaks",
+            "Verify memory usage stable"
+          ],
+          "expectedResult": "Memory usage within acceptable limits",
+          "priority": "Medium"
+        },
+        {
+          "id": "PERF-010",
+          "name": "CPU Usage",
+          "description": "CPU usage within limits under load",
+          "type": "Performance",
+          "steps": [
+            "Monitor CPU usage under load",
+            "Verify CPU usage acceptable",
+            "Verify no CPU spikes"
+          ],
+          "expectedResult": "CPU usage within acceptable limits",
+          "priority": "Medium"
+        }
+      ]
+    },
+    {
+      "name": "End-to-End Tests",
+      "description": "Complete user flow testing",
+      "testTypes": [
+        "E2E",
+        "Integration"
+      ],
+      "testCases": [
+        {
+          "id": "E2E-001",
+          "name": "Complete User Registration Flow",
+          "description": "New user registers, verifies email, and logs in",
+          "type": "E2E",
+          "steps": [
+            "Navigate to registration page",
+            "Fill registration form",
+            "Submit registration",
+            "Check email for verification link",
+            "Click verification link",
+            "Login with new credentials",
+            "Verify dashboard accessible"
+          ],
+          "expectedResult": "Complete registration and login successful",
+          "priority": "Critical"
+        },
+        {
+          "id": "E2E-002",
+          "name": "Complete Document Upload and Analysis Flow",
+          "description": "User uploads document and views analysis",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Upload document",
+            "Wait for analysis",
+            "View analysis results",
+            "Verify visualization displayed"
+          ],
+          "expectedResult": "Document analyzed and results displayed",
+          "priority": "Critical"
+        },
+        {
+          "id": "E2E-003",
+          "name": "Complete Password Reset Flow",
+          "description": "User resets forgotten password",
+          "type": "E2E",
+          "steps": [
+            "Navigate to login page",
+            "Click forgot password",
+            "Enter email and submit",
+            "Check email for reset link",
+            "Click reset link",
+            "Enter new password",
+            "Login with new password"
+          ],
+          "expectedResult": "Password reset successful, can login with new password",
+          "priority": "Critical"
+        },
+        {
+          "id": "E2E-004",
+          "name": "Complete Profile Management Flow",
+          "description": "User updates profile and settings",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Navigate to profile page",
+            "Update profile information",
+            "Upload profile picture",
+            "Change password",
+            "Verify all changes saved"
+          ],
+          "expectedResult": "Profile updated successfully",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-005",
+          "name": "Complete Social Login Flow",
+          "description": "User registers and logs in via OAuth",
+          "type": "E2E",
+          "steps": [
+            "Navigate to login page",
+            "Click Google login",
+            "Complete OAuth flow",
+            "Verify new account created",
+            "Verify dashboard accessible"
+          ],
+          "expectedResult": "OAuth login successful, dashboard accessible",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-006",
+          "name": "Complete 2FA Setup and Login Flow",
+          "description": "User sets up 2FA and logs in with it",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Navigate to security settings",
+            "Setup 2FA with authenticator",
+            "Logout",
+            "Login with 2FA code",
+            "Verify login successful"
+          ],
+          "expectedResult": "2FA setup and login successful",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-007",
+          "name": "Complete Account Deletion Flow",
+          "description": "User deletes account and data",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Navigate to account deletion",
+            "Confirm deletion",
+            "Verify account marked for deletion",
+            "Verify deletion confirmation email"
+          ],
+          "expectedResult": "Account marked for deletion, confirmation sent",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-008",
+          "name": "Complete Admin User Management Flow",
+          "description": "Admin manages users in organization",
+          "type": "E2E",
+          "steps": [
+            "Login as enterprise admin",
+            "Access admin panel",
+            "View user list",
+            "Reset user password",
+            "Suspend user account",
+            "Verify actions logged"
+          ],
+          "expectedResult": "Admin successfully manages users, actions logged",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-009",
+          "name": "Complete Data Export Flow",
+          "description": "User requests and downloads data export",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Request data export",
+            "Wait for export generation",
+            "Receive download link via email",
+            "Download and verify export"
+          ],
+          "expectedResult": "Data export generated and downloaded successfully",
+          "priority": "High"
+        },
+        {
+          "id": "E2E-010",
+          "name": "Complete Usage Dashboard Flow",
+          "description": "User views and interacts with usage dashboard",
+          "type": "E2E",
+          "steps": [
+            "Login as user",
+            "Navigate to usage dashboard",
+            "View metrics and charts",
+            "Filter by time period",
+            "Verify data accuracy"
+          ],
+          "expectedResult": "Dashboard displays accurate usage data",
+          "priority": "Medium"
+        }
+      ]
+    }
+  ],
+  "testExecution": {
+    "testEnvironment": {
+      "local": {
+        "description": "Local development environment",
+        "tools": [
+          "Jest",
+          "Vitest",
+          "Supertest",
+          "Playwright"
+        ],
+        "coverage": "Unit and integration tests"
+      },
+      "staging": {
+        "description": "Staging environment for E2E tests",
+        "tools": [
+          "Playwright",
+          "Cypress",
+          "LoadRunner"
+        ],
+        "coverage": "E2E and performance tests"
+      },
+      "production": {
+        "description": "Production-like environment for final validation",
+        "tools": [
+          "Monitoring tools",
+          "APM"
+        ],
+        "coverage": "Smoke tests and monitoring"
+      }
+    },
+    "testTools": {
+      "unitTesting": [
+        "Jest",
+        "Vitest"
+      ],
+      "integrationTesting": [
+        "Supertest",
+        "Jest"
+      ],
+      "e2eTesting": [
+        "Playwright",
+        "Cypress"
+      ],
+      "securityTesting": [
+        "OWASP ZAP",
+        "Snyk"
+      ],
+      "performanceTesting": [
+        "k6",
+        "Apache JMeter"
+      ],
+      "loadTesting": [
+        "k6",
+        "Locust"
+      ]
+    },
+    "testSchedule": {
+      "unitTests": "Run on every commit",
+      "integrationTests": "Run on pull request",
+      "e2eTests": "Run on staging deployment",
+      "securityTests": "Run weekly and before production deployment",
+      "performanceTests": "Run on staging before production deployment"
+    }
+  },
+  "testMetrics": {
+    "codeCoverage": {
+      "target": "80% minimum",
+      "criticalPaths": "100% coverage required",
+      "measurement": "Measured by Jest/Vitest coverage reports"
+    },
+    "testExecutionTime": {
+      "unitTests": "< 5 minutes",
+      "integrationTests": "< 15 minutes",
+      "e2eTests": "< 30 minutes",
+      "performanceTests": "< 1 hour"
+    },
+    "testSuccessRate": {
+      "target": "95% test pass rate",
+      "actionOnFailure": "Block deployment if critical tests fail"
+    }
+  }
+}

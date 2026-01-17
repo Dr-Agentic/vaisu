@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import { env } from './config/env.js';
 import { validateAWSConfig } from './config/aws.js';
 import documentsRouter from './routes/documents.js';
+import authRouter from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,6 +34,7 @@ app.use((req, res, next) => {
 
 // API Routes
 app.use('/api/documents', documentsRouter);
+app.use('/api/auth', authRouter);
 
 // Health check
 app.all('/api/health', (req: any, res: any) => {

@@ -1,0 +1,154 @@
+{
+  "project": "User Management Database Schema",
+  "version": "1.0.0",
+  "tables": [
+    {
+      "name": "vaisu-users",
+      "description": "User accounts table",
+      "partitionKey": {
+        "name": "userId",
+        "type": "S"
+      },
+      "gsi": [
+        {
+          "name": "GSI1",
+          "partitionKey": {
+            "name": "email",
+            "type": "S"
+          },
+          "projectionType": "ALL"
+        },
+        {
+          "name": "GSI2",
+          "partitionKey": {
+            "name": "status",
+            "type": "S"
+          },
+          "sortKey": {
+            "name": "createdAt",
+            "type": "S"
+          },
+          "projectionType": "ALL"
+        }
+      ],
+      "attributes": [
+        "userId",
+        "email",
+        "firstName",
+        "lastName",
+        "passwordHash",
+        "status",
+        "emailVerified",
+        "verificationToken",
+        "resetToken",
+        "resetTokenExpiry",
+        "failedLoginAttempts",
+        "lockedUntil",
+        "lastLogin",
+        "createdAt",
+        "updatedAt",
+        "deletedAt"
+      ]
+    },
+    {
+      "name": "vaisu-sessions",
+      "description": "User sessions table",
+      "partitionKey": {
+        "name": "sessionId",
+        "type": "S"
+      },
+      "gsi": [
+        {
+          "name": "GSI1",
+          "partitionKey": {
+            "name": "userId",
+            "type": "S"
+          },
+          "sortKey": {
+            "name": "createdAt",
+            "type": "S"
+          },
+          "projectionType": "ALL"
+        }
+      ],
+      "attributes": [
+        "sessionId",
+        "userId",
+        "refreshToken",
+        "ipAddress",
+        "userAgent",
+        "createdAt",
+        "expiresAt",
+        "revoked"
+      ]
+    },
+    {
+      "name": "vaisu-usage-limits",
+      "description": "User usage limits and quotas",
+      "partitionKey": {
+        "name": "userId",
+        "type": "S"
+      },
+      "sortKey": {
+        "name": "period",
+        "type": "S"
+      },
+      "attributes": [
+        "userId",
+        "period",
+        "documentCount",
+        "analysisCount",
+        "apiCalls",
+        "storageUsed",
+        "resetDate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    {
+      "name": "vaisu-audit-logs",
+      "description": "Audit logs for user actions",
+      "partitionKey": {
+        "name": "logId",
+        "type": "S"
+      },
+      "gsi": [
+        {
+          "name": "GSI1",
+          "partitionKey": {
+            "name": "userId",
+            "type": "S"
+          },
+          "sortKey": {
+            "name": "timestamp",
+            "type": "S"
+          },
+          "projectionType": "ALL"
+        },
+        {
+          "name": "GSI2",
+          "partitionKey": {
+            "name": "action",
+            "type": "S"
+          },
+          "sortKey": {
+            "name": "timestamp",
+            "type": "S"
+          },
+          "projectionType": "ALL"
+        }
+      ],
+      "attributes": [
+        "logId",
+        "userId",
+        "action",
+        "resourceId",
+        "resourceType",
+        "details",
+        "ipAddress",
+        "userAgent",
+        "timestamp"
+      ]
+    }
+  ]
+}

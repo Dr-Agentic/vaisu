@@ -1,6 +1,11 @@
 #!/usr/bin/env tsx
 
-import { DynamoDBClient, CreateTableCommand } from '@aws-sdk/client-dynamodb';
+import { 
+  DynamoDBClient, 
+  CreateTableCommand, 
+  DescribeTableCommand, 
+  UpdateTableCommand 
+} from '@aws-sdk/client-dynamodb';
 import 'dotenv/config';
 
 // Environment variables
@@ -29,15 +34,8 @@ const TABLES = [
         { AttributeName: 'filename', KeyType: 'RANGE' },
       ],
       Projection: { ProjectionType: 'ALL' },
-      ProvisionedThroughput: {
-        ReadCapacityUnits: 5,
-        WriteCapacityUnits: 5,
-      },
     }],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses',
@@ -49,10 +47,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   // Visualization tables (one per representation model)
   {
@@ -65,10 +60,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph',
@@ -80,10 +72,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class',
@@ -95,10 +84,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_MIND_MAP_TABLE || 'vaisu-mind-map',
@@ -110,10 +96,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart',
@@ -125,10 +108,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard',
@@ -140,10 +120,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline',
@@ -155,10 +132,7 @@ const TABLES = [
       { AttributeName: 'documentId', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name: process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph',
@@ -170,15 +144,12 @@ const TABLES = [
       { AttributeName: 'PK', AttributeType: 'S' },
       { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    provisionedThroughput: {
-      ReadCapacityUnits: 5,
-      WriteCapacityUnits: 5,
-    },
+    billingMode: 'PAY_PER_REQUEST',
   },
 ];
 
 async function main() {
-  console.log('🚀 Setting up DynamoDB tables for Vaisu...\n');
+  console.log('🚀 Setting up DynamoDB tables for Vaisu (On-Demand)...\n');
 
   // Validate AWS credentials
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
@@ -196,45 +167,56 @@ async function main() {
   });
 
   console.log(`📍 Region: ${AWS_REGION}`);
-  console.log(`📊 Creating ${TABLES.length} tables...\n`);
-
-  console.log('📋 Table Schema:');
-  console.log('   • vaisu-knowledge-graph: PK=GRAPH#{DocumentID}, SK=NODE#{NodeID}|EDGE#{SourceID}#{TargetID}');
-  console.log('     - Stores KnowledgeNode and KnowledgeEdge entities');
-  console.log('     - Attributes: confidence, entityType, metadata (sources), relationshipType');
-  console.log('');
+  console.log(`📊 Processing ${TABLES.length} tables...\n`);
 
   for (const tableConfig of TABLES) {
     try {
-      console.log(`📦 Creating table: ${tableConfig.name}...`);
+      console.log(`📦 Checking table: ${tableConfig.name}...`);
+
+      // Check if table exists
+      try {
+        const describeCommand = new DescribeTableCommand({ TableName: tableConfig.name });
+        const { Table } = await client.send(describeCommand);
+
+        if (Table) {
+          const currentBillingMode = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
+          
+          if (currentBillingMode !== 'PAY_PER_REQUEST') {
+            console.log(`  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`);
+            const updateCommand = new UpdateTableCommand({
+              TableName: tableConfig.name,
+              BillingMode: 'PAY_PER_REQUEST',
+            });
+            await client.send(updateCommand);
+            console.log(`  ✅ Table updated to PAY_PER_REQUEST: ${tableConfig.name}`);
+          } else {
+            console.log(`  ✅ Table already exists and is PAY_PER_REQUEST: ${tableConfig.name}`);
+          }
+          continue;
+        }
+      } catch (error: any) {
+        if (error.name !== 'ResourceNotFoundException') {
+          throw error;
+        }
+        // Table doesn't exist, proceed to create
+      }
 
       const command = new CreateTableCommand({
         TableName: tableConfig.name,
         KeySchema: tableConfig.keySchema,
         AttributeDefinitions: tableConfig.attributeDefinitions,
-        ProvisionedThroughput: tableConfig.provisionedThroughput,
+        BillingMode: 'PAY_PER_REQUEST',
         GlobalSecondaryIndexes: tableConfig.globalSecondaryIndexes,
       });
 
       await client.send(command);
       console.log(`✅ Created table: ${tableConfig.name}`);
     } catch (error: any) {
-      if (error.name === 'ResourceInUseException') {
-        console.log(`⚠️  Table already exists: ${tableConfig.name}`);
-      } else {
-        console.error(`❌ Failed to create table ${tableConfig.name}:`, error.message);
-      }
+      console.error(`❌ Failed to process table ${tableConfig.name}:`, error.message);
     }
   }
 
   console.log('\n🎉 DynamoDB setup complete!');
-  console.log('\n📋 Tables created:');
-  TABLES.forEach(table => console.log(`   • ${table.name}`));
-
-  console.log('\n💡 Next steps:');
-  console.log('   1. Configure S3 bucket: vaisu-documents-dev');
-  console.log('   2. Set environment variables in .env file');
-  console.log('   3. Start the backend server');
 }
 
 main().catch(error => {

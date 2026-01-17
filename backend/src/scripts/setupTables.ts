@@ -3,7 +3,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { DynamoDBClient, CreateTableCommand } from '@aws-sdk/client-dynamodb';
+import { 
+  DynamoDBClient, 
+  CreateTableCommand,
+  DescribeTableCommand,
+  UpdateTableCommand
+} from '@aws-sdk/client-dynamodb';
 
 import {
   DYNAMODB_DOCUMENTS_TABLE,
@@ -96,7 +101,36 @@ const tables: TableConfig[] = [
   },
 ];
 
-async function createTable(client: DynamoDBClient, config: TableConfig) {
+async function ensureTable(client: DynamoDBClient, config: TableConfig) {
+  console.log(`📦 Checking table: ${config.name}`);
+
+  try {
+    const describeCommand = new DescribeTableCommand({ TableName: config.name });
+    const { Table } = await client.send(describeCommand);
+
+    if (Table) {
+      const currentBillingMode = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
+      
+      if (currentBillingMode !== 'PAY_PER_REQUEST') {
+        console.log(`  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`);
+        const updateCommand = new UpdateTableCommand({
+          TableName: config.name,
+          BillingMode: 'PAY_PER_REQUEST',
+        });
+        await client.send(updateCommand);
+        console.log(`  ✅ Table updated to PAY_PER_REQUEST: ${config.name}`);
+      } else {
+        console.log(`  ✅ Table already exists and is PAY_PER_REQUEST: ${config.name}`);
+      }
+      return;
+    }
+  } catch (error: any) {
+    if (error.name !== 'ResourceNotFoundException') {
+      console.error(`❌ Error checking table ${config.name}:`, error);
+      throw error;
+    }
+  }
+
   console.log(`🏗️  Creating table: ${config.name}`);
 
   const command = new CreateTableCommand({
@@ -129,22 +163,16 @@ async function createTable(client: DynamoDBClient, config: TableConfig) {
   }
 
   try {
-    const result = await client.send(command);
+    await client.send(command);
     console.log(`✅ Table created: ${config.name}`);
-    return result;
   } catch (error: any) {
-    if (error.name === 'ResourceInUseException') {
-      console.log(`⚠️  Table already exists: ${config.name}`);
-      return null;
-    } else {
-      console.error(`❌ Failed to create table ${config.name}:`, error);
-      throw error;
-    }
+    console.error(`❌ Failed to create table ${config.name}:`, error);
+    throw error;
   }
 }
 
 async function main() {
-  console.log('🚀 Setting up DynamoDB tables...\n');
+  console.log('🚀 Setting up DynamoDB tables (On-Demand)...\n');
 
   // Validate AWS configuration
   try {
@@ -172,31 +200,26 @@ async function main() {
     },
   });
 
-  console.log('\n📋 Tables to create:');
+  console.log('\n📋 Tables to process:');
   tables.forEach(table => {
     console.log(`   - ${table.name} (${table.primaryKey}${table.sortKey ? ` + ${table.sortKey}` : ''})`);
   });
 
-  console.log('\n🏗️  Creating tables...\n');
+  console.log('\n🏗️  Processing tables...\n');
 
   // Create tables sequentially to avoid throttling
   for (const table of tables) {
     try {
-      await createTable(client, table);
+      await ensureTable(client, table);
       // Add delay between table creation requests
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (error) {
-      console.error(`Failed to create table ${table.name}:`, error);
+      console.error(`Failed to process table ${table.name}:`, error);
       process.exit(1);
     }
   }
 
-  console.log('\n🎉 All tables created successfully!');
-  console.log('\n💡 Table structure summary:');
-  console.log('   • Documents: id (PK)');
-  console.log('   • Analyses: id (PK)');
-  console.log('   • Visualizations: documentId (PK) + type (SK)');
-  console.log('   • Knowledge Graph: documentId (PK) + type (SK)');
+  console.log('\n🎉 All tables processed successfully!');
 }
 
 if (import.meta.url.startsWith('file:')) {

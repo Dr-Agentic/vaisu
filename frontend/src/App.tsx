@@ -22,8 +22,18 @@ import {
   ToastContainer,
 } from './features';
 import UISamplerPage from './pages/UISamplerPage';
+import LoginPage from './pages/LoginPage';
 import { SimpleValidator } from './components/UISampler/SimpleValidator';
 import { useDocumentStore } from './stores/documentStore';
+import { apiClient } from './services/apiClient';
+
+// Protected Route Component
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  if (!apiClient.isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 /**
  * App
@@ -75,32 +85,37 @@ export default function App() {
           </div>
 
           <Routes>
-            {/* Main application routes */}
+            {/* Login Route */}
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* Main application routes (Protected) */}
             <Route path="/" element={
-              <StageContainer currentStage={currentStage}>
-                {/* Toast Notifications */}
-                <ToastContainer toasts={toasts} onClose={removeToast} />
+              <ProtectedRoute>
+                <StageContainer currentStage={currentStage}>
+                  {/* Toast Notifications */}
+                  <ToastContainer toasts={toasts} onClose={removeToast} />
 
-                {/* Welcome Stage */}
-                <Stage active={currentStage === 'welcome'}>
-                  <StageWelcome onGetStarted={handleGetStarted} />
-                </Stage>
+                  {/* Welcome Stage */}
+                  <Stage active={currentStage === 'welcome'}>
+                    <StageWelcome onGetStarted={handleGetStarted} />
+                  </Stage>
 
-                {/* Input Stage */}
-                <Stage active={currentStage === 'input'}>
-                  <StageInput />
-                </Stage>
+                  {/* Input Stage */}
+                  <Stage active={currentStage === 'input'}>
+                    <StageInput />
+                  </Stage>
 
-                {/* Analysis Stage */}
-                <Stage active={currentStage === 'analysis'}>
-                  <StageAnalysis />
-                </Stage>
+                  {/* Analysis Stage */}
+                  <Stage active={currentStage === 'analysis'}>
+                    <StageAnalysis />
+                  </Stage>
 
-                {/* Visualization Stage */}
-                <Stage active={currentStage === 'visualization'}>
-                  <StageVisualization onBack={handleBackFromVisualization} />
-                </Stage>
-              </StageContainer>
+                  {/* Visualization Stage */}
+                  <Stage active={currentStage === 'visualization'}>
+                    <StageVisualization onBack={handleBackFromVisualization} />
+                  </Stage>
+                </StageContainer>
+              </ProtectedRoute>
             } />
 
             {/* UI Sampler routes */}

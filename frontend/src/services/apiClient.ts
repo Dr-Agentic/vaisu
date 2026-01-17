@@ -15,7 +15,77 @@ const client = axios.create({
   },
 });
 
+// Add auth token to requests
+client.interceptors.request.use((config) => {
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token refresh on 401
+client.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/login')) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) throw new Error('No refresh token');
+
+        const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
+        localStorage.setItem('accessToken', data.accessToken);
+        
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return client(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const apiClient = {
+  // Auth Methods
+  async login(email: string, password: string) {
+    const response = await client.post('/auth/login', { email, password });
+    if (response.data.accessToken) {
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  async register(email: string, password: string, firstName: string, lastName: string) {
+    const response = await client.post('/auth/register', { email, password, firstName, lastName });
+    return response.data;
+  },
+
+  logout() {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  },
+
+  isAuthenticated() {
+    return !!localStorage.getItem('accessToken');
+  },
+
+  getUser() {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+  },
+
+  // Document Methods
   async uploadDocument(file: File) {
     const formData = new FormData();
     formData.append('file', file);

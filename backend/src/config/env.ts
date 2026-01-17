@@ -47,4 +47,8 @@ export const env = {
   DYNAMODB_ANALYSES_TABLE: process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses',
   // ... other tables can rely on defaults or be strict if needed. 
   // For now, focusing on Ports as requested.
+  // User Management tables
+  DYNAMODB_USERS_TABLE: process.env.DYNAMODB_USERS_TABLE || 'vaisu-users',
+  DYNAMODB_SESSIONS_TABLE: process.env.DYNAMODB_SESSIONS_TABLE || 'vaisu-sessions',
+  DYNAMODB_USER_LIMITS_TABLE: process.env.DYNAMODB_USER_LIMITS_TABLE || 'vaisu-user-limits',
 };
