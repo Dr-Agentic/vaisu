@@ -17,10 +17,11 @@
 
 import { useState } from 'react';
 
-import { Tooltip } from '../primitives/Tooltip';
-import { Button } from '../primitives/Button';
 import { Badge } from '../primitives/Badge';
+import { Button } from '../primitives/Button';
 import { Input } from '../primitives/Input';
+import { Tooltip } from '../primitives/Tooltip';
+
 import { PreviewContainer } from './PreviewContainer';
 
 export function TooltipSampler() {
@@ -207,7 +208,7 @@ export function TooltipSampler() {
             <Tooltip content="This appears on hover (default)" position="top">
               <Button variant="primary">Hover Trigger</Button>
             </Tooltip>
-            <Tooltip content="This appears on focus" position="top" showOnFocus={true}>
+            <Tooltip content="This appears on focus" position="top" showOnFocus>
               <Button variant="secondary">Focus Trigger</Button>
             </Tooltip>
           </div>
@@ -387,7 +388,7 @@ export function TooltipSampler() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-green-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
               <h4 className="font-semibold text-green-900">Interactive Content</h4>
             </div>
             <ul className="text-green-800 text-sm space-y-1">
@@ -400,7 +401,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-blue-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full" />
               <h4 className="font-semibold text-blue-900">Trigger Events</h4>
             </div>
             <ul className="text-blue-800 text-sm space-y-1">
@@ -413,7 +414,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-purple-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full" />
               <h4 className="font-semibold text-purple-900">Content Types</h4>
             </div>
             <ul className="text-purple-800 text-sm space-y-1">
@@ -426,7 +427,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-yellow-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full" />
               <h4 className="font-semibold text-yellow-900">Accessibility</h4>
             </div>
             <ul className="text-yellow-800 text-sm space-y-1">
@@ -447,7 +448,7 @@ export function TooltipSampler() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-green-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
               <h4 className="font-semibold text-green-900">ARIA Support</h4>
             </div>
             <ul className="text-green-800 text-sm space-y-1">
@@ -460,7 +461,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-blue-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full" />
               <h4 className="font-semibold text-blue-900">Keyboard Navigation</h4>
             </div>
             <ul className="text-blue-800 text-sm space-y-1">
@@ -473,7 +474,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-purple-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full" />
               <h4 className="font-semibold text-purple-900">Focus Management</h4>
             </div>
             <ul className="text-purple-800 text-sm space-y-1">
@@ -486,7 +487,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-yellow-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full" />
               <h4 className="font-semibold text-yellow-900">Screen Reader</h4>
             </div>
             <ul className="text-yellow-800 text-sm space-y-1">
@@ -499,7 +500,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-cyan-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-cyan-500 rounded-full" />
               <h4 className="font-semibold text-cyan-900">Visual Indicators</h4>
             </div>
             <ul className="text-cyan-800 text-sm space-y-1">
@@ -512,7 +513,7 @@ export function TooltipSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-indigo-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-indigo-500 rounded-full" />
               <h4 className="font-semibold text-indigo-900">Touch Support</h4>
             </div>
             <ul className="text-indigo-800 text-sm space-y-1">
@@ -535,7 +536,7 @@ export function TooltipSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When to Use Tooltips</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Additional Information:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -544,7 +545,7 @@ export function TooltipSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Form Guidance:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -553,7 +554,7 @@ export function TooltipSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Icon Clarification:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -568,7 +569,7 @@ export function TooltipSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When NOT to Use Tooltips</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Primary Information:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -577,7 +578,7 @@ export function TooltipSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Long Text:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -586,7 +587,7 @@ export function TooltipSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Critical Actions:</strong>
                   <p className="text-[var(--color-text-secondary)]">

@@ -20,14 +20,15 @@
 
 import { useState } from 'react';
 
-import { Input } from '../primitives/Input';
-import { Button } from '../primitives/Button';
 import { Badge } from '../primitives/Badge';
+import { Button } from '../primitives/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../primitives/Card';
+import { Input } from '../primitives/Input';
 import { Spinner } from '../primitives/Spinner';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
+
 import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
 
 export function InputSampler() {
   const [email, setEmail] = useState('');
@@ -72,7 +73,7 @@ export function InputSampler() {
           helperText="We'll never share your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          error={email && !validateEmail(email) ? "Please enter a valid email" : undefined}
+          error={email && !validateEmail(email) ? 'Please enter a valid email' : undefined}
         />
       ),
     },
@@ -242,7 +243,7 @@ export function InputSampler() {
                   helperText="We'll never share your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  error={email && !validateEmail(email) ? "Please enter a valid email" : undefined}
+                  error={email && !validateEmail(email) ? 'Please enter a valid email' : undefined}
                   required
                 />
                 <Input
@@ -609,7 +610,7 @@ export function InputSampler() {
           <Card variant="elevated" className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">Semantic Structure</h3>
               </div>
               <ul className="text-green-800 text-sm space-y-1">
@@ -624,7 +625,7 @@ export function InputSampler() {
           <Card variant="gradient-border-animated" className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Keyboard Navigation</h3>
               </div>
               <ul className="text-blue-800 text-sm space-y-1">
@@ -639,7 +640,7 @@ export function InputSampler() {
           <Card variant="aurora" className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Focus Indicators</h3>
               </div>
               <ul className="text-purple-800 text-sm space-y-1">
@@ -654,7 +655,7 @@ export function InputSampler() {
           <Card variant="nova" className="bg-yellow-50 border-yellow-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-yellow-900">Screen Reader Support</h3>
               </div>
               <ul className="text-yellow-800 text-sm space-y-1">
@@ -669,7 +670,7 @@ export function InputSampler() {
           <Card variant="gradient-border-static" className="bg-cyan-50 border-cyan-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-cyan-900">Form Validation</h3>
               </div>
               <ul className="text-cyan-800 text-sm space-y-1">
@@ -684,7 +685,7 @@ export function InputSampler() {
           <Card variant="mesh-glow" className="bg-indigo-50 border-indigo-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-indigo-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-indigo-900">Touch Targets</h3>
               </div>
               <ul className="text-indigo-800 text-sm space-y-1">
@@ -728,27 +729,27 @@ export function InputSampler() {
                 <h4 className="font-semibold text-[var(--color-text-primary)] mb-3">Accessibility Checklist</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Use semantic label elements</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Provide clear error messages</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Use appropriate input types</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Ensure sufficient color contrast</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Support keyboard navigation</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Provide loading states for async actions</span>
                   </div>
                 </div>

@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { userRepository } from '../repositories/userRepository.js';
+
 import { sessionRepository } from '../repositories/sessionRepository.js';
+import { userRepository } from '../repositories/userRepository.js';
 import { authUtils } from '../utils/auth.js';
 
 export interface AuthenticatedRequest extends Request {

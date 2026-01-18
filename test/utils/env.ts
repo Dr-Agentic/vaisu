@@ -1,5 +1,6 @@
-import dotenv from 'dotenv';
 import path from 'path';
+
+import dotenv from 'dotenv';
 
 // Load .env from backend root (assuming tests run from project root or similar depth)
 dotenv.config({ path: path.resolve(__dirname, '../../backend/.env') });

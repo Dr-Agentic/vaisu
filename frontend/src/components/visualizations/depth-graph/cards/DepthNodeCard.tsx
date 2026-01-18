@@ -1,16 +1,18 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Brain, 
-  Scale, 
-  GitBranch, 
-  ShieldCheck, 
-  Link as LinkIcon 
-} from 'lucide-react';
-import { Card } from '../../../primitives/Card';
-import { Badge } from '../../../primitives/Badge';
-import { Modal } from '../../../primitives/Modal';
 import { DepthGraphNode, DimensionDetail } from '@shared/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Brain,
+  Scale,
+  GitBranch,
+  ShieldCheck,
+  Link as LinkIcon,
+} from 'lucide-react';
+import { useState } from 'react';
+
+import { Badge } from '../../../primitives/Badge';
+import { Card } from '../../../primitives/Card';
+import { Modal } from '../../../primitives/Modal';
+
 
 interface DepthNodeCardProps {
   node: DepthGraphNode;
@@ -37,9 +39,9 @@ export const DepthNodeCard = ({ node, compact = false, rank }: DepthNodeCardProp
         transition={{ duration: 0.2 }}
       >
         <Card className={`h-full border-l-4 ${
-          node.true_depth >= 8 ? 'border-l-emerald-500' :
-          node.true_depth >= 5 ? 'border-l-amber-500' :
-          'border-l-rose-500'
+          node.true_depth >= 8 ? 'border-l-emerald-500'
+            : node.true_depth >= 5 ? 'border-l-amber-500'
+              : 'border-l-rose-500'
         } hover:shadow-lg transition-shadow bg-[var(--color-surface-base)]`}>
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-start gap-2">
@@ -57,22 +59,22 @@ export const DepthNodeCard = ({ node, compact = false, rank }: DepthNodeCardProp
                 {node.true_depth.toFixed(1)}
               </Badge>
             </div>
-            
+
             <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2">
               {node.topic_summary}
             </p>
 
             {!compact && (
               <div className="flex gap-2 text-xs text-[var(--color-text-tertiary)] mt-2">
-                 <span className="flex items-center gap-1">
-                   <Brain size={12} /> {node.dimensions.cognitive.score.toFixed(1)}
-                 </span>
-                 <span className="flex items-center gap-1">
-                   <Scale size={12} /> {node.dimensions.epistemic.score.toFixed(1)}
-                 </span>
-                 <span className="flex items-center gap-1">
-                   <GitBranch size={12} /> {node.dimensions.causal.score.toFixed(1)}
-                 </span>
+                <span className="flex items-center gap-1">
+                  <Brain size={12} /> {node.dimensions.cognitive.score.toFixed(1)}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Scale size={12} /> {node.dimensions.epistemic.score.toFixed(1)}
+                </span>
+                <span className="flex items-center gap-1">
+                  <GitBranch size={12} /> {node.dimensions.causal.score.toFixed(1)}
+                </span>
               </div>
             )}
           </div>
@@ -98,30 +100,30 @@ export const DepthNodeCard = ({ node, compact = false, rank }: DepthNodeCardProp
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <DimensionCard 
-                  icon={Brain} 
-                  title="Cognitive Depth" 
-                  data={node.dimensions.cognitive} 
+                <DimensionCard
+                  icon={Brain}
+                  title="Cognitive Depth"
+                  data={node.dimensions.cognitive}
                 />
-                <DimensionCard 
-                  icon={Scale} 
-                  title="Epistemic Depth" 
-                  data={node.dimensions.epistemic} 
+                <DimensionCard
+                  icon={Scale}
+                  title="Epistemic Depth"
+                  data={node.dimensions.epistemic}
                 />
-                <DimensionCard 
-                  icon={GitBranch} 
-                  title="Causal Depth" 
-                  data={node.dimensions.causal} 
+                <DimensionCard
+                  icon={GitBranch}
+                  title="Causal Depth"
+                  data={node.dimensions.causal}
                 />
-                <DimensionCard 
-                  icon={ShieldCheck} 
-                  title="Argumentative Rigor" 
-                  data={node.dimensions.rigor} 
+                <DimensionCard
+                  icon={ShieldCheck}
+                  title="Argumentative Rigor"
+                  data={node.dimensions.rigor}
                 />
-                <DimensionCard 
-                  icon={LinkIcon} 
-                  title="Coherence" 
-                  data={node.dimensions.coherence} 
+                <DimensionCard
+                  icon={LinkIcon}
+                  title="Coherence"
+                  data={node.dimensions.coherence}
                 />
               </div>
 
@@ -171,9 +173,9 @@ const DimensionCard = ({ icon: Icon, title, data }: { icon: any, title: string, 
         <span className="text-sm font-medium">{title}</span>
       </div>
       <span className={`text-lg font-bold ${
-        data.score >= 8 ? 'text-emerald-500' : 
-        data.score >= 5 ? 'text-amber-500' : 
-        'text-rose-500'
+        data.score >= 8 ? 'text-emerald-500'
+          : data.score >= 5 ? 'text-amber-500'
+            : 'text-rose-500'
       }`}>
         {data.score.toFixed(1)}
       </span>

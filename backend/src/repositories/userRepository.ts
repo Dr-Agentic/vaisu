@@ -7,6 +7,7 @@ import {
   DeleteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
+
 import { env } from '../config/env.js';
 import { calculateContentHash } from '../utils/hash.js';
 
@@ -15,6 +16,8 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
+  profilePictureUrl?: string;
+  role?: string;
   passwordHash: string;
   status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
   emailVerified: boolean;
@@ -33,6 +36,8 @@ export interface CreateUserInput {
   email: string;
   firstName: string;
   lastName: string;
+  profilePictureUrl?: string;
+  role?: string;
   passwordHash: string;
 }
 
@@ -131,7 +136,7 @@ export class UserRepository {
       if (value !== undefined) {
         const attrName = `#${key}`;
         updateFields.push(`${attrName} = :${key}`);
-        expressionValues[':' + key] = value;
+        expressionValues[`:${key}`] = value;
         expressionAttributeNames[attrName] = key;
       }
     });
@@ -143,7 +148,7 @@ export class UserRepository {
     const command = new UpdateCommand({
       TableName: TABLE_NAME,
       Key: { userId },
-      UpdateExpression: 'SET ' + updateFields.join(', '),
+      UpdateExpression: `SET ${updateFields.join(', ')}`,
       ExpressionAttributeValues: expressionValues,
       ExpressionAttributeNames: expressionAttributeNames,
       ReturnValues: 'ALL_NEW',

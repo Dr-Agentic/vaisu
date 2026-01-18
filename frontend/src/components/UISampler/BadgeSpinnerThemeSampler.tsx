@@ -19,8 +19,9 @@
 import { useState } from 'react';
 
 import { Badge } from '../primitives/Badge';
-import { Spinner } from '../primitives/Spinner';
 import { Button } from '../primitives/Button';
+import { Spinner } from '../primitives/Spinner';
+
 import { PreviewContainer } from './PreviewContainer';
 
 export function BadgeSpinnerThemeSampler() {
@@ -537,7 +538,7 @@ export function BadgeSpinnerThemeSampler() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-green-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
               <h3 className="text-lg font-semibold text-green-900">Badge Accessibility</h3>
             </div>
             <ul className="text-green-800 text-sm space-y-1">
@@ -550,7 +551,7 @@ export function BadgeSpinnerThemeSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-blue-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full" />
               <h3 className="text-lg font-semibold text-blue-900">Spinner Accessibility</h3>
             </div>
             <ul className="text-blue-800 text-sm space-y-1">
@@ -563,7 +564,7 @@ export function BadgeSpinnerThemeSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-purple-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full" />
               <h3 className="text-lg font-semibold text-purple-900">Theme Accessibility</h3>
             </div>
             <ul className="text-purple-800 text-sm space-y-1">
@@ -576,7 +577,7 @@ export function BadgeSpinnerThemeSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-yellow-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full" />
               <h3 className="text-lg font-semibold text-yellow-900">Focus Management</h3>
             </div>
             <ul className="text-yellow-800 text-sm space-y-1">
@@ -589,7 +590,7 @@ export function BadgeSpinnerThemeSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-cyan-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-cyan-500 rounded-full" />
               <h3 className="text-lg font-semibold text-cyan-900">Color Adaptation</h3>
             </div>
             <ul className="text-cyan-800 text-sm space-y-1">
@@ -602,7 +603,7 @@ export function BadgeSpinnerThemeSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-indigo-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-indigo-500 rounded-full" />
               <h3 className="text-lg font-semibold text-indigo-900">Interactive States</h3>
             </div>
             <ul className="text-indigo-800 text-sm space-y-1">
@@ -625,7 +626,7 @@ export function BadgeSpinnerThemeSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When to Use Badges</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Status Indicators:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -634,7 +635,7 @@ export function BadgeSpinnerThemeSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Count Indicators:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -643,7 +644,7 @@ export function BadgeSpinnerThemeSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Labels:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -658,7 +659,7 @@ export function BadgeSpinnerThemeSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When to Use Spinners</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Loading States:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -667,7 +668,7 @@ export function BadgeSpinnerThemeSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Async Operations:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -676,7 +677,7 @@ export function BadgeSpinnerThemeSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">User Feedback:</strong>
                   <p className="text-[var(--color-text-secondary)]">

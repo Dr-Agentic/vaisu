@@ -18,12 +18,13 @@ import { useState } from 'react';
 
 import { StageContainer, Stage, type StageName } from '../patterns/StageContainer';
 import { TabGroup } from '../patterns/TabGroup';
+import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
-import { Badge } from '../primitives/Badge';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
+
 import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
 
 export function PatternSampler() {
   const [activeStage, setActiveStage] = useState<StageName | null>(null);
@@ -38,10 +39,10 @@ export function PatternSampler() {
     {
       title: 'Welcome Stage',
       description: 'Welcome screen with stage container',
-      code: `<StageContainer currentStage="welcome"><Stage active={true}>Content</Stage></StageContainer>`,
+      code: '<StageContainer currentStage="welcome"><Stage active={true}>Content</Stage></StageContainer>',
       component: (
         <StageContainer currentStage="welcome">
-          <Stage active={true}>
+          <Stage active>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Welcome Stage Content</h3>
               <p className="text-[var(--color-text-secondary)]">This is the welcome stage layout.</p>
@@ -63,10 +64,10 @@ export function PatternSampler() {
     {
       title: 'Input Stage',
       description: 'Input form stage with container',
-      code: `<StageContainer currentStage="input"><Stage active={true}>Input Content</Stage></StageContainer>`,
+      code: '<StageContainer currentStage="input"><Stage active={true}>Input Content</Stage></StageContainer>',
       component: (
         <StageContainer currentStage="input">
-          <Stage active={true}>
+          <Stage active>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Input Stage Content</h3>
               <p className="text-[var(--color-text-secondary)]">This is the input stage layout.</p>
@@ -92,10 +93,10 @@ export function PatternSampler() {
     {
       title: 'Analysis Stage',
       description: 'Analysis results stage',
-      code: `<StageContainer currentStage="analysis"><Stage active={true}>Analysis Content</Stage></StageContainer>`,
+      code: '<StageContainer currentStage="analysis"><Stage active={true}>Analysis Content</Stage></StageContainer>',
       component: (
         <StageContainer currentStage="analysis">
-          <Stage active={true}>
+          <Stage active>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Analysis Stage Content</h3>
               <p className="text-[var(--color-text-secondary)]">This is the analysis stage layout.</p>
@@ -117,10 +118,10 @@ export function PatternSampler() {
     {
       title: 'Visualization Stage',
       description: 'Visualization display stage',
-      code: `<StageContainer currentStage="visualization"><Stage active={true}>Visualization Content</Stage></StageContainer>`,
+      code: '<StageContainer currentStage="visualization"><Stage active={true}>Visualization Content</Stage></StageContainer>',
       component: (
         <StageContainer currentStage="visualization">
-          <Stage active={true}>
+          <Stage active>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Visualization Stage Content</h3>
               <p className="text-[var(--color-text-secondary)]">This is the visualization stage layout.</p>
@@ -150,7 +151,7 @@ export function PatternSampler() {
     {
       title: 'Default Tabs',
       description: 'Standard tab layout',
-      code: `<TabGroup tabs={[{id: 'tab1', label: 'Tab 1'}]} activeTab="tab1" onTabChange={onChange} />`,
+      code: '<TabGroup tabs={[{id: \'tab1\', label: \'Tab 1\'}]} activeTab="tab1" onTabChange={onChange} />',
       component: (
         <TabGroup
           tabs={[
@@ -168,7 +169,7 @@ export function PatternSampler() {
     {
       title: 'Cards Tabs',
       description: 'Card-style tab layout',
-      code: `<TabGroup variant="cards" tabs={[{id: 'tab1', label: 'Tab 1'}]} activeTab="tab1" onTabChange={onChange} />`,
+      code: '<TabGroup variant="cards" tabs={[{id: \'tab1\', label: \'Tab 1\'}]} activeTab="tab1" onTabChange={onChange} />',
       component: (
         <TabGroup
           tabs={[
@@ -186,7 +187,7 @@ export function PatternSampler() {
     {
       title: 'Pill Tabs',
       description: 'Pill-shaped tab layout',
-      code: `<TabGroup variant="pill" tabs={[{id: 'tab1', label: 'Tab 1'}]} activeTab="tab1" onTabChange={onChange} />`,
+      code: '<TabGroup variant="pill" tabs={[{id: \'tab1\', label: \'Tab 1\'}]} activeTab="tab1" onTabChange={onChange} />',
       component: (
         <TabGroup
           tabs={[
@@ -204,7 +205,7 @@ export function PatternSampler() {
     {
       title: 'Small Tabs',
       description: 'Compact tab layout',
-      code: `<TabGroup size="sm" tabs={[{id: 'tab1', label: 'Tab 1'}]} activeTab="tab1" onTabChange={onChange} />`,
+      code: '<TabGroup size="sm" tabs={[{id: \'tab1\', label: \'Tab 1\'}]} activeTab="tab1" onTabChange={onChange} />',
       component: (
         <TabGroup
           tabs={[
@@ -222,7 +223,7 @@ export function PatternSampler() {
     {
       title: 'Large Tabs',
       description: 'Large tab layout',
-      code: `<TabGroup size="lg" tabs={[{id: 'tab1', label: 'Tab 1'}]} activeTab="tab1" onTabChange={onChange} />`,
+      code: '<TabGroup size="lg" tabs={[{id: \'tab1\', label: \'Tab 1\'}]} activeTab="tab1" onTabChange={onChange} />',
       component: (
         <TabGroup
           tabs={[
@@ -523,7 +524,7 @@ export function PatternSampler() {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">StageContainer Accessibility</h3>
               </div>
               <ul className="text-green-800 text-sm space-y-1">
@@ -538,7 +539,7 @@ export function PatternSampler() {
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">TabGroup Accessibility</h3>
               </div>
               <ul className="text-blue-800 text-sm space-y-1">
@@ -553,7 +554,7 @@ export function PatternSampler() {
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Interactive States</h3>
               </div>
               <ul className="text-purple-800 text-sm space-y-1">
@@ -568,7 +569,7 @@ export function PatternSampler() {
           <Card className="bg-yellow-50 border-yellow-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-yellow-900">Keyboard Navigation</h3>
               </div>
               <ul className="text-yellow-800 text-sm space-y-1">
@@ -583,7 +584,7 @@ export function PatternSampler() {
           <Card className="bg-cyan-50 border-cyan-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-cyan-900">Focus Indicators</h3>
               </div>
               <ul className="text-cyan-800 text-sm space-y-1">
@@ -598,7 +599,7 @@ export function PatternSampler() {
           <Card className="bg-indigo-50 border-indigo-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-indigo-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-indigo-900">ARIA Support</h3>
               </div>
               <ul className="text-indigo-800 text-sm space-y-1">

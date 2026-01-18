@@ -3,11 +3,11 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { 
-  DynamoDBClient, 
+import {
+  DynamoDBClient,
   CreateTableCommand,
   DescribeTableCommand,
-  UpdateTableCommand
+  UpdateTableCommand,
 } from '@aws-sdk/client-dynamodb';
 
 import {
@@ -110,7 +110,7 @@ async function ensureTable(client: DynamoDBClient, config: TableConfig) {
 
     if (Table) {
       const currentBillingMode = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
-      
+
       if (currentBillingMode !== 'PAY_PER_REQUEST') {
         console.log(`  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`);
         const updateCommand = new UpdateTableCommand({

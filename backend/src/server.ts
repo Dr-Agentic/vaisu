@@ -1,13 +1,14 @@
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { env } from './config/env.js';
+import cors from 'cors';
+import express from 'express';
+
 import { validateAWSConfig } from './config/aws.js';
-import documentsRouter from './routes/documents.js';
+import { env } from './config/env.js';
 import authRouter from './routes/auth.js';
+import documentsRouter from './routes/documents.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

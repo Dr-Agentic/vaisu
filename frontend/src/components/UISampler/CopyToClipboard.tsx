@@ -15,8 +15,8 @@
 
 import { useState, useCallback } from 'react';
 
-import { Button } from '../primitives/Button';
 import { useDocumentStore } from '../../stores/documentStore';
+import { Button } from '../primitives/Button';
 
 export interface CopyToClipboardProps {
   /**

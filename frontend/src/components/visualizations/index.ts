@@ -6,5 +6,5 @@
  */
 
 export { StructuredViewRenderer } from './StructuredViewRenderer';
-export { MindMap } from './MindMap';
+export { MindMap } from './mind-map/MindMap';
 export { TermsDefinitions } from './TermsDefinitions';

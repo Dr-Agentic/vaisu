@@ -17,10 +17,11 @@
 
 import { useState } from 'react';
 
-import { Modal } from '../primitives/Modal';
+import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Input } from '../primitives/Input';
-import { Badge } from '../primitives/Badge';
+import { Modal } from '../primitives/Modal';
+
 import { PreviewContainer } from './PreviewContainer';
 
 export function ModalSampler() {
@@ -476,7 +477,7 @@ export function ModalSampler() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-green-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-green-500 rounded-full" />
               <h4 className="font-semibold text-green-900">Focus Management</h4>
             </div>
             <ul className="text-green-800 text-sm space-y-1">
@@ -489,7 +490,7 @@ export function ModalSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-blue-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-500 rounded-full" />
               <h4 className="font-semibold text-blue-900">Keyboard Navigation</h4>
             </div>
             <ul className="text-blue-800 text-sm space-y-1">
@@ -502,7 +503,7 @@ export function ModalSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-purple-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-purple-500 rounded-full" />
               <h4 className="font-semibold text-purple-900">ARIA Support</h4>
             </div>
             <ul className="text-purple-800 text-sm space-y-1">
@@ -515,7 +516,7 @@ export function ModalSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-yellow-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-yellow-500 rounded-full" />
               <h4 className="font-semibold text-yellow-900">Screen Reader</h4>
             </div>
             <ul className="text-yellow-800 text-sm space-y-1">
@@ -528,7 +529,7 @@ export function ModalSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-cyan-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-cyan-500 rounded-full" />
               <h4 className="font-semibold text-cyan-900">Visual Indicators</h4>
             </div>
             <ul className="text-cyan-800 text-sm space-y-1">
@@ -541,7 +542,7 @@ export function ModalSampler() {
 
           <div className="border border-[var(--color-border-subtle)] rounded-lg p-6 bg-indigo-50">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+              <div className="w-3 h-3 bg-indigo-500 rounded-full" />
               <h4 className="font-semibold text-indigo-900">Touch Support</h4>
             </div>
             <ul className="text-indigo-800 text-sm space-y-1">
@@ -563,7 +564,7 @@ export function ModalSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When to Use Modals</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">User Input Required:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -572,7 +573,7 @@ export function ModalSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Context Switch:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -581,7 +582,7 @@ export function ModalSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Important Information:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -596,7 +597,7 @@ export function ModalSampler() {
             <h4 className="font-semibold text-[var(--color-text-primary)] mb-4">When NOT to Use Modals</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Frequent Actions:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -605,7 +606,7 @@ export function ModalSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Primary Navigation:</strong>
                   <p className="text-[var(--color-text-secondary)]">
@@ -614,7 +615,7 @@ export function ModalSampler() {
                 </div>
               </div>
               <div className="flex items-start gap-3">
-                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0" />
                 <div>
                   <strong className="text-[var(--color-text-primary)]">Long-Form Content:</strong>
                   <p className="text-[var(--color-text-secondary)]">

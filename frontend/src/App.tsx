@@ -1,3 +1,4 @@
+
 /**
  * App Component
  *
@@ -9,7 +10,7 @@
  */
 
 import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import { StageContainer, Stage } from './components/patterns';
 import { ThemeProvider } from './design-system/ThemeProvider';
@@ -22,15 +23,39 @@ import {
   ToastContainer,
 } from './features';
 import UISamplerPage from './pages/UISamplerPage';
-import LoginPage from './pages/LoginPage';
 import { SimpleValidator } from './components/UISampler/SimpleValidator';
 import { useDocumentStore } from './stores/documentStore';
-import { apiClient } from './services/apiClient';
+import { useUserStore } from './stores/userStore';
+import { UserMenu } from './components/UserMenu';
+
+// Pages
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ProfilePage from './pages/ProfilePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  if (!apiClient.isAuthenticated()) {
-    return <Navigate to="/login" replace />;
+  const { isAuthenticated, checkAuth } = useUserStore();
+  const location = useLocation();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return children;
+};
+
+// Public Only Route (redirects to home if logged in)
+const PublicRoute = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated } = useUserStore();
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
   return children;
 };
@@ -49,6 +74,12 @@ export default function App() {
     toasts,
     removeToast,
   } = useDocumentStore();
+
+  const { checkAuth } = useUserStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   // Auto-transition to analysis stage when document is uploaded and analysis starts
   useEffect(() => {
@@ -78,15 +109,23 @@ export default function App() {
   return (
     <Router>
       <ThemeProvider>
-        <div className="relative min-h-screen">
-          {/* Floating Theme Switcher for Main App */}
-          <div className="hidden lg:block fixed top-6 right-6 z-50">
+        <div className="relative min-h-screen bg-gray-900">
+          {/* Floating Theme Switcher & User Menu */}
+          <div className="fixed top-6 right-6 z-50 flex items-center space-x-4">
             <ThemeSwitcher />
+            <UserMenu />
           </div>
 
           <Routes>
-            {/* Login Route */}
-            <Route path="/login" element={<LoginPage />} />
+            {/* Public Routes */}
+            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+            <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+            <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
+
+            {/* Protected Routes */}
+            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
             {/* Main application routes (Protected) */}
             <Route path="/" element={

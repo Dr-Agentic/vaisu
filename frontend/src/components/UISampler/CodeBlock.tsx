@@ -16,6 +16,7 @@
 import { useState } from 'react';
 
 import { Button } from '../primitives/Button';
+
 import { CopyToClipboard } from './CopyToClipboard';
 
 export interface CodeBlockProps {
@@ -121,14 +122,14 @@ export function CodeBlock({
         }
         if (i < text.length) i++; // Include closing quote
         tokens.push({ type: 'string', value: text.slice(start, i) });
-      } else if (/[0-9-]/.test(text[i])) {
+      } else if ((/[0-9-]/).test(text[i])) {
         const start = i;
         if (text[i] === '-') i++;
-        while (i < text.length && /[0-9.]/.test(text[i])) i++;
+        while (i < text.length && (/[0-9.]/).test(text[i])) i++;
         if (i < text.length && (text[i] === 'e' || text[i] === 'E')) {
           i++;
           if (i < text.length && (text[i] === '+' || text[i] === '-')) i++;
-          while (i < text.length && /[0-9]/.test(text[i])) i++;
+          while (i < text.length && (/[0-9]/).test(text[i])) i++;
         }
         tokens.push({ type: 'number', value: text.slice(start, i) });
       } else if (text.slice(i, i + 4) === 'true') {
@@ -177,9 +178,9 @@ export function CodeBlock({
         tokens.push({ type: 'string', value: text.slice(start, i) });
       }
       // Keywords and identifiers
-      else if (/[a-zA-Z_$]/.test(text[i])) {
+      else if ((/[a-zA-Z_$]/).test(text[i])) {
         const start = i;
-        while (i < text.length && /[a-zA-Z0-9_$]/.test(text[i])) i++;
+        while (i < text.length && (/[a-zA-Z0-9_$]/).test(text[i])) i++;
         const word = text.slice(start, i);
         if (isKeyword(word)) {
           tokens.push({ type: 'keyword', value: word });
@@ -192,13 +193,13 @@ export function CodeBlock({
         }
       }
       // Numbers
-      else if (/[0-9]/.test(text[i])) {
+      else if ((/[0-9]/).test(text[i])) {
         const start = i;
-        while (i < text.length && /[0-9.]/.test(text[i])) i++;
+        while (i < text.length && (/[0-9.]/).test(text[i])) i++;
         tokens.push({ type: 'number', value: text.slice(start, i) });
       }
       // JSX tags
-      else if (text[i] === '<' && /[a-zA-Z]/.test(text[i + 1])) {
+      else if (text[i] === '<' && (/[a-zA-Z]/).test(text[i + 1])) {
         const start = i;
         i++;
         while (i < text.length && text[i] !== '>') i++;
@@ -233,7 +234,7 @@ export function CodeBlock({
       'return', 'throw', 'try', 'catch', 'finally', 'new', 'this', 'super',
       'extends', 'implements', 'private', 'protected', 'public', 'static',
       'readonly', 'abstract', 'async', 'await', 'yield', 'of', 'in', 'instanceof',
-      'typeof', 'void'
+      'typeof', 'void',
     ];
     return keywords.includes(word);
   };

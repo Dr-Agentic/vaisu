@@ -36,14 +36,14 @@ export class SampleDataGenerator {
             {
               id: 'overview',
               title: 'Project Overview',
-              content: 'A comprehensive overview of the project scope and objectives.'
+              content: 'A comprehensive overview of the project scope and objectives.',
             },
             {
               id: 'goals',
               title: 'Project Goals',
-              content: 'Key goals and success criteria for the project implementation.'
-            }
-          ]
+              content: 'Key goals and success criteria for the project implementation.',
+            },
+          ],
         },
         {
           id: 'architecture',
@@ -54,19 +54,19 @@ export class SampleDataGenerator {
             {
               id: 'frontend',
               title: 'Frontend Architecture',
-              content: 'React-based frontend with component hierarchy and state management.'
+              content: 'React-based frontend with component hierarchy and state management.',
             },
             {
               id: 'backend',
               title: 'Backend Architecture',
-              content: 'Node.js Express backend with service layer and data access patterns.'
+              content: 'Node.js Express backend with service layer and data access patterns.',
             },
             {
               id: 'database',
               title: 'Database Design',
-              content: 'Database schema design and data relationships.'
-            }
-          ]
+              content: 'Database schema design and data relationships.',
+            },
+          ],
         },
         {
           id: 'api',
@@ -77,14 +77,14 @@ export class SampleDataGenerator {
             {
               id: 'endpoints',
               title: 'Available Endpoints',
-              content: 'List of all available API endpoints with HTTP methods and parameters.'
+              content: 'List of all available API endpoints with HTTP methods and parameters.',
             },
             {
               id: 'examples',
               title: 'Usage Examples',
-              content: 'Code examples showing how to use the API effectively.'
-            }
-          ]
+              content: 'Code examples showing how to use the API effectively.',
+            },
+          ],
         },
         {
           id: 'deployment',
@@ -95,16 +95,16 @@ export class SampleDataGenerator {
             {
               id: 'requirements',
               title: 'System Requirements',
-              content: 'Minimum system requirements and dependencies.'
+              content: 'Minimum system requirements and dependencies.',
             },
             {
               id: 'steps',
               title: 'Deployment Steps',
-              content: 'Detailed deployment process and configuration.'
-            }
-          ]
-        }
-      ]
+              content: 'Detailed deployment process and configuration.',
+            },
+          ],
+        },
+      ],
     };
   }
 
@@ -117,7 +117,7 @@ export class SampleDataGenerator {
         id: 'project',
         label: 'Vaisu Project',
         description: 'AI-powered text-to-visual intelligence application',
-        type: 'concept'
+        type: 'concept',
       },
       nodes: [
         {
@@ -125,64 +125,64 @@ export class SampleDataGenerator {
           label: 'Frontend',
           description: 'React-based user interface with visualization components',
           type: 'component',
-          connections: ['backend', 'visualization', 'state']
+          connections: ['backend', 'visualization', 'state'],
         },
         {
           id: 'backend',
           label: 'Backend',
           description: 'Node.js Express API with AI integration',
           type: 'component',
-          connections: ['frontend', 'database', 'llm']
+          connections: ['frontend', 'database', 'llm'],
         },
         {
           id: 'visualization',
           label: 'Visualizations',
           description: 'Six different visualization types for data representation',
           type: 'feature',
-          connections: ['frontend', 'analysis']
+          connections: ['frontend', 'analysis'],
         },
         {
           id: 'state',
           label: 'State Management',
           description: 'Zustand-based global state management',
           type: 'pattern',
-          connections: ['frontend', 'ui']
+          connections: ['frontend', 'ui'],
         },
         {
           id: 'database',
           label: 'Database',
           description: 'AWS DynamoDB for data storage',
           type: 'infrastructure',
-          connections: ['backend', 'storage']
+          connections: ['backend', 'storage'],
         },
         {
           id: 'llm',
           label: 'LLM Integration',
           description: 'OpenRouter API for AI-powered analysis',
           type: 'service',
-          connections: ['backend', 'analysis']
+          connections: ['backend', 'analysis'],
         },
         {
           id: 'analysis',
           label: 'Document Analysis',
           description: 'AI-powered document analysis and structure extraction',
           type: 'service',
-          connections: ['llm', 'visualization']
+          connections: ['llm', 'visualization'],
         },
         {
           id: 'ui',
           label: 'User Interface',
           description: 'Design system with responsive components',
           type: 'design',
-          connections: ['state', 'frontend']
+          connections: ['state', 'frontend'],
         },
         {
           id: 'storage',
           label: 'File Storage',
           description: 'AWS S3 for document file storage',
           type: 'infrastructure',
-          connections: ['database', 'backend']
-        }
+          connections: ['database', 'backend'],
+        },
       ],
       connections: [
         { from: 'project', to: 'frontend' },
@@ -193,8 +193,8 @@ export class SampleDataGenerator {
         { from: 'project', to: 'llm' },
         { from: 'project', to: 'analysis' },
         { from: 'project', to: 'ui' },
-        { from: 'project', to: 'storage' }
-      ]
+        { from: 'project', to: 'storage' },
+      ],
     };
   }
 
@@ -209,64 +209,64 @@ export class SampleDataGenerator {
           title: 'Document Upload',
           description: 'User uploads a text document',
           type: 'start',
-          position: { x: 100, y: 50 }
+          position: { x: 100, y: 50 },
         },
         {
           id: 'parse',
           title: 'Document Parsing',
           description: 'Parse document structure and extract content',
           type: 'process',
-          position: { x: 300, y: 50 }
+          position: { x: 300, y: 50 },
         },
         {
           id: 'analyze',
           title: 'Content Analysis',
           description: 'AI analyzes content for key concepts and relationships',
           type: 'process',
-          position: { x: 500, y: 50 }
+          position: { x: 500, y: 50 },
         },
         {
           id: 'structure',
           title: 'Structure Detection',
           description: 'Detect document structure and hierarchy',
           type: 'process',
-          position: { x: 700, y: 50 }
+          position: { x: 700, y: 50 },
         },
         {
           id: 'generate',
           title: 'Visualization Generation',
           description: 'Generate appropriate visualization based on content',
           type: 'process',
-          position: { x: 900, y: 50 }
+          position: { x: 900, y: 50 },
         },
         {
           id: 'render',
           title: 'Render Visualization',
           description: 'Render visualization in the user interface',
           type: 'process',
-          position: { x: 1100, y: 50 }
+          position: { x: 1100, y: 50 },
         },
         {
           id: 'interactive',
           title: 'User Interaction',
           description: 'User interacts with visualization',
           type: 'decision',
-          position: { x: 1300, y: 50 }
+          position: { x: 1300, y: 50 },
         },
         {
           id: 'feedback',
           title: 'Feedback Loop',
           description: 'User provides feedback or requests new visualization',
           type: 'process',
-          position: { x: 1500, y: 50 }
+          position: { x: 1500, y: 50 },
         },
         {
           id: 'end',
           title: 'Complete',
           description: 'Process completed successfully',
           type: 'end',
-          position: { x: 1700, y: 50 }
-        }
+          position: { x: 1700, y: 50 },
+        },
       ],
       edges: [
         { from: 'start', to: 'parse', label: 'Upload Complete' },
@@ -277,8 +277,8 @@ export class SampleDataGenerator {
         { from: 'render', to: 'interactive', label: 'Rendered' },
         { from: 'interactive', to: 'feedback', label: 'User Action' },
         { from: 'interactive', to: 'end', label: 'No Further Action' },
-        { from: 'feedback', to: 'analyze', label: 'New Request' }
-      ]
+        { from: 'feedback', to: 'analyze', label: 'New Request' },
+      ],
     };
   }
 
@@ -293,71 +293,71 @@ export class SampleDataGenerator {
           name: 'Vaisu',
           type: 'application',
           description: 'AI-powered text-to-visual intelligence application',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'react',
           name: 'React',
           type: 'technology',
           description: 'JavaScript library for building user interfaces',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'nodejs',
           name: 'Node.js',
           type: 'technology',
           description: 'JavaScript runtime environment',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'openrouter',
           name: 'OpenRouter',
           type: 'service',
           description: 'AI model routing service',
-          importance: 'medium'
+          importance: 'medium',
         },
         {
           id: 'aws',
           name: 'AWS',
           type: 'service',
           description: 'Amazon Web Services cloud platform',
-          importance: 'medium'
+          importance: 'medium',
         },
         {
           id: 'documentation',
           name: 'Documentation',
           type: 'concept',
           description: 'Technical documentation and guides',
-          importance: 'medium'
+          importance: 'medium',
         },
         {
           id: 'visualization',
           name: 'Visualization',
           type: 'feature',
           description: 'Data visualization and representation',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'analysis',
           name: 'Analysis',
           type: 'process',
           description: 'Document analysis and processing',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'frontend',
           name: 'Frontend',
           type: 'component',
           description: 'User interface layer',
-          importance: 'high'
+          importance: 'high',
         },
         {
           id: 'backend',
           name: 'Backend',
           type: 'component',
           description: 'Server-side application logic',
-          importance: 'high'
-        }
+          importance: 'high',
+        },
       ],
       relationships: [
         { from: 'vaisu', to: 'frontend', type: 'contains', strength: 0.9 },
@@ -370,8 +370,8 @@ export class SampleDataGenerator {
         { from: 'backend', to: 'aws', type: 'uses', strength: 0.7 },
         { from: 'analysis', to: 'openrouter', type: 'requires', strength: 1.0 },
         { from: 'visualization', to: 'documentation', type: 'visualizes', strength: 0.8 },
-        { from: 'frontend', to: 'visualization', type: 'renders', strength: 0.9 }
-      ]
+        { from: 'frontend', to: 'visualization', type: 'renders', strength: 0.9 },
+      ],
     };
   }
 
@@ -389,7 +389,7 @@ export class SampleDataGenerator {
           change: 12.5,
           trend: 'up',
           unit: 'users',
-          description: 'Total active users in the last 30 days'
+          description: 'Total active users in the last 30 days',
         },
         {
           id: 'document_processed',
@@ -399,7 +399,7 @@ export class SampleDataGenerator {
           change: -3.2,
           trend: 'down',
           unit: 'documents',
-          description: 'Total documents processed this month'
+          description: 'Total documents processed this month',
         },
         {
           id: 'visualization_generated',
@@ -409,7 +409,7 @@ export class SampleDataGenerator {
           change: 8.7,
           trend: 'up',
           unit: 'visualizations',
-          description: 'Total visualizations generated this quarter'
+          description: 'Total visualizations generated this quarter',
         },
         {
           id: 'api_calls',
@@ -419,7 +419,7 @@ export class SampleDataGenerator {
           change: 0,
           trend: 'stable',
           unit: 'calls',
-          description: 'Total API calls in the last 24 hours'
+          description: 'Total API calls in the last 24 hours',
         },
         {
           id: 'response_time',
@@ -429,7 +429,7 @@ export class SampleDataGenerator {
           change: -15.4,
           trend: 'down',
           unit: 'seconds',
-          description: 'Average API response time'
+          description: 'Average API response time',
         },
         {
           id: 'error_rate',
@@ -439,8 +439,8 @@ export class SampleDataGenerator {
           change: -0.2,
           trend: 'down',
           unit: 'percentage',
-          description: 'API error rate in the last hour'
-        }
+          description: 'API error rate in the last hour',
+        },
       ],
       charts: [
         {
@@ -454,8 +454,8 @@ export class SampleDataGenerator {
             { date: '2024-01-15', value: 1150 },
             { date: '2024-01-20', value: 1200 },
             { date: '2024-01-25', value: 1234 },
-            { date: '2024-01-30', value: 1250 }
-          ]
+            { date: '2024-01-30', value: 1250 },
+          ],
         },
         {
           id: 'processing_volume',
@@ -464,8 +464,8 @@ export class SampleDataGenerator {
           data: [
             { date: 'Jan 2024', value: 5000 },
             { date: 'Feb 2024', value: 5500 },
-            { date: 'Mar 2024', value: 5678 }
-          ]
+            { date: 'Mar 2024', value: 5678 },
+          ],
         },
         {
           id: 'visualization_types',
@@ -476,17 +476,17 @@ export class SampleDataGenerator {
             { type: 'Mind Map', value: 25 },
             { type: 'Flowchart', value: 15 },
             { type: 'Knowledge Graph', value: 12 },
-            { type: 'Timeline', value: 8 }
-          ]
-        }
+            { type: 'Timeline', value: 8 },
+          ],
+        },
       ],
       summary: {
         period: 'Q1 2024',
         total_revenue: '$125,000',
         growth_rate: '15.2%',
         new_features: 3,
-        customer_satisfaction: '94%'
-      }
+        customer_satisfaction: '94%',
+      },
     };
   }
 
@@ -503,7 +503,7 @@ export class SampleDataGenerator {
           date: '2024-01-15',
           description: 'Project kickoff and initial planning phase completed',
           status: 'completed',
-          milestone: true
+          milestone: true,
         },
         {
           id: 'requirements',
@@ -511,7 +511,7 @@ export class SampleDataGenerator {
           date: '2024-02-01',
           description: 'Completed comprehensive requirements analysis and user stories',
           status: 'completed',
-          milestone: true
+          milestone: true,
         },
         {
           id: 'architecture',
@@ -519,7 +519,7 @@ export class SampleDataGenerator {
           date: '2024-02-15',
           description: 'System architecture and technology stack finalized',
           status: 'completed',
-          milestone: true
+          milestone: true,
         },
         {
           id: 'frontend_dev',
@@ -527,7 +527,7 @@ export class SampleDataGenerator {
           date: '2024-03-01',
           description: 'React frontend development commenced',
           status: 'in_progress',
-          milestone: false
+          milestone: false,
         },
         {
           id: 'backend_dev',
@@ -535,7 +535,7 @@ export class SampleDataGenerator {
           date: '2024-03-15',
           description: 'Node.js backend API development started',
           status: 'pending',
-          milestone: false
+          milestone: false,
         },
         {
           id: 'llm_integration',
@@ -543,7 +543,7 @@ export class SampleDataGenerator {
           date: '2024-04-01',
           description: 'OpenRouter API integration and testing',
           status: 'pending',
-          milestone: false
+          milestone: false,
         },
         {
           id: 'visualization',
@@ -551,7 +551,7 @@ export class SampleDataGenerator {
           date: '2024-04-15',
           description: 'Visualization components and rendering engine',
           status: 'pending',
-          milestone: false
+          milestone: false,
         },
         {
           id: 'testing',
@@ -559,7 +559,7 @@ export class SampleDataGenerator {
           date: '2024-05-01',
           description: 'Comprehensive testing and quality assurance',
           status: 'pending',
-          milestone: false
+          milestone: false,
         },
         {
           id: 'deployment',
@@ -567,7 +567,7 @@ export class SampleDataGenerator {
           date: '2024-05-15',
           description: 'Production deployment and monitoring setup',
           status: 'pending',
-          milestone: true
+          milestone: true,
         },
         {
           id: 'launch',
@@ -575,35 +575,35 @@ export class SampleDataGenerator {
           date: '2024-06-01',
           description: 'Public launch and marketing campaign',
           status: 'pending',
-          milestone: true
-        }
+          milestone: true,
+        },
       ],
       phases: [
         {
           name: 'Planning',
           start: '2024-01-15',
           end: '2024-02-15',
-          color: '#3b82f6'
+          color: '#3b82f6',
         },
         {
           name: 'Development',
           start: '2024-03-01',
           end: '2024-04-30',
-          color: '#10b981'
+          color: '#10b981',
         },
         {
           name: 'Testing',
           start: '2024-05-01',
           end: '2024-05-14',
-          color: '#f59e0b'
+          color: '#f59e0b',
         },
         {
           name: 'Launch',
           start: '2024-05-15',
           end: '2024-06-01',
-          color: '#ef4444'
-        }
-      ]
+          color: '#ef4444',
+        },
+      ],
     };
   }
 
@@ -765,7 +765,7 @@ Q4 2024:
 - October: Production deployment preparation
 - November: Beta release and feedback collection
 - December: Public launch and marketing campaign
-      `
+      `,
     };
 
     return contentMap[type] || 'Sample content for visualization';
@@ -810,7 +810,7 @@ Q4 2024:
       '',
       '## Conclusion',
       'This sample document demonstrates the capabilities of the visualization system.',
-      'Various content types and structures are supported for optimal user experience.'
+      'Various content types and structures are supported for optimal user experience.',
     ];
 
     return sections.join('\n');

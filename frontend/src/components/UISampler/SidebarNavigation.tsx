@@ -360,9 +360,9 @@ export function SidebarNavigation({
                 duration-300
                 ease-in-out
                 ${expandedSections[category.key]
-                  ? 'max-h-[1000px] opacity-100'
-                  : 'max-h-0 opacity-0'
-                }
+            ? 'max-h-[1000px] opacity-100'
+            : 'max-h-0 opacity-0'
+          }
               `}
             >
               <div className="py-2 space-y-1">

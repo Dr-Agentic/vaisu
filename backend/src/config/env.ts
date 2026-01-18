@@ -1,6 +1,7 @@
-import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+import dotenv from 'dotenv';
 
 // Load .env file
 const __filename = fileURLToPath(import.meta.url);
@@ -31,27 +32,27 @@ export const env = {
   APP_URL: getRequiredEnv('APP_URL'), // Frontend URL
   API_URL: `http://localhost:${getRequiredIntEnv('PORT')}`, // Self URL
   NODE_ENV: process.env.NODE_ENV || 'development',
-  
+
   // External Services
   OPENROUTER_API_KEY: getRequiredEnv('OPENROUTER_API_KEY'),
   OPENROUTER_BASE_URL: process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1',
-  
+
   // AWS
   AWS_REGION: process.env.AWS_REGION || 'us-east-1',
   AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
   S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || 'vaisu-documents-dev',
-  
+
   // Tables
   DYNAMODB_DOCUMENTS_TABLE: process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents',
   DYNAMODB_ANALYSES_TABLE: process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses',
-  // ... other tables can rely on defaults or be strict if needed. 
+  // ... other tables can rely on defaults or be strict if needed.
   // For now, focusing on Ports as requested.
   // User Management tables
   DYNAMODB_USERS_TABLE: process.env.DYNAMODB_USERS_TABLE || 'vaisu-users',
   DYNAMODB_SESSIONS_TABLE: process.env.DYNAMODB_SESSIONS_TABLE || 'vaisu-sessions',
   DYNAMODB_USER_LIMITS_TABLE: process.env.DYNAMODB_USER_LIMITS_TABLE || 'vaisu-user-limits',
-  
+
   // JWT secret for authentication
   JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
 };
