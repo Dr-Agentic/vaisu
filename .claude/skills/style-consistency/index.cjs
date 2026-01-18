@@ -23,7 +23,7 @@ const path = require('path');
  * Configuration
  * --------------------------------------------------------------------------- */
 // Path to the design‑token source (adjust if you move the file)
-const TOKENS_SRC = path.join(__dirname, '..', '..', 'frontend', 'src', 'design-system', 'tokens.ts');
+const TOKENS_SRC = path.join(path.resolve(__dirname), '../../../frontend', 'src', 'design-system', 'tokens.ts');
 // AUTO‑GENERATED JSON with the *values* of the semantic tokens (generated once)
 const TOKEN_VALUES_JSON = path.join(__dirname, 'semantic-colors.json');
 // Whitelist file for class names (kept for backward compatibility – will be
@@ -32,6 +32,8 @@ const WHITELIST_FILE = path.join(__dirname, 'whitelist.txt');
 
 // Prefixes that denote a semantic utility class
 const SEMANTIC_PREFIXES = new Set(['c-', 'b-', 'p-', 'm-', 'gap-', 'r-', 'e-', 'f-', 'lh-']);
+
+
 
 /* ---------------------------------------------------------------------------
  * Helper: Load & parse design tokens
@@ -114,6 +116,8 @@ function ensureTokenValuesFile() {
 
 const SEMANTIC_TOKENS = ensureTokenValuesFile(); // e.g. { primary: '#6366F1', ... }
 
+
+
 /* ---------------------------------------------------------------------------
  * Helper: Load whitelist (class names) – keep it in sync automatically
  * --------------------------------------------------------------------------- */
@@ -147,92 +151,87 @@ function findInlineHardCodedColors() {
   const regex = /style\s*=\s*{[^}]*#[0-9A-Fa-f]{3,6}[^}]*}/g;
   const results = [];
 
-  // Walk all *.tsx files under src/
-  const walk = (dir) => {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        results.push(...walk(path.join(fullPath, '..'))); // go up to src root
-      } else if (entry.isFile() && entry.name.endsWith('.tsx')) {
-        const content = fs.readFileSync(fullPath, 'utf8');
-        let match;
-        while ((match = regex.exec(content)) !== null) {
-          const snippet = match[0];
-          const line = content.substr(0, match.index).split('\n').length;
-          // Extract the hex value
-          const hexMatch = snippet.match(/#([0-9A-Fa-f]{3,6})/);
-          const hex = hexMatch ? hexMatch[1].toLowerCase() : null;
-          let token = null;
-          if (hex) {
-            // Find the semantic token name that has this value
-            const tokenName = Object.keys(SEMANTIC_TOKENS).find(k => SEMANTIC_TOKENS[k].toLowerCase() === `#${hex}`);
-            if (tokenName) token = tokenName;
-          }
-          results.push({
-            file: fullPath,
-            line,
-            snippet,
-            token,
-          });
+  // Directly read all *.tsx files in the frontend folder (no recursion needed)
+  const frontendPath = path.join(path.resolve(__dirname), '../../../frontend');
+  const files = fs.readdirSync(frontendPath);
+  files.forEach(file => {
+    if (file.endsWith('.tsx')) {
+      const fullPath = path.join(frontendPath, file);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      let match;
+      while ((match = regex.exec(content)) !== null) {
+        const snippet = match[0];
+        const line = content.substr(0, match.index).split('\n').length;
+        // Extract the hex value
+        const hexMatch = snippet.match(/#([0-9A-Fa-f]{3,6})/);
+        const hex = hexMatch ? hexMatch[1].toLowerCase() : null;
+        let token = null;
+        if (hex) {
+          // Find the semantic token name that has this value
+          const tokenName = Object.keys(SEMANTIC_TOKENS).find(k => SEMANTIC_TOKENS[k].toLowerCase() === `#${hex}`);
+          if (tokenName) token = tokenName;
         }
+        results.push({
+          file: fullPath,
+          line,
+          snippet,
+          token,
+        });
       }
     }
-  };
-  walk(path.join(__dirname, '..', '..', 'frontend', 'src'));
+  });
+
   return results;
 }
 
 /**
  * 2️⃣ Detect className usage that violates the naming convention.
  *
- * @returns {Array<{file:string, line:number, snippet:string, offendingClass:string}>}
+ * @returns {Array<{file:string, line:number, snippet:string, offendingClass:string, note?:string}>}
  */
 function findUnwhitelistedOrNonPrefixedClasses() {
   const whitelist = loadWhitelist();
   const results = [];
 
-  const walk = (dir) => {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        results.push(...walk(path.join(fullPath, '..')));
-      } else if (entry.isFile() && entry.name.endsWith('.tsx')) {
-        const content = fs.readFileSync(fullPath, 'utf8');
-        const classNameRe = /className\s*=\s*{[^}]*}/g;
-        let match;
-        while ((match = classNameRe.exec(content)) !== null) {
-          const inner = match[0].match(/{(.*)}/)[1];
-          const classes = inner.split(' ').map(c => c.trim().replace(/[\"']/g, ''));
-          classes.forEach(cls => {
-            // If the class is NOT in the whitelist, flag it
-            if (!whitelist.has(cls)) {
+  // Directly read all *.tsx files in the frontend folder (no recursion needed)
+  const frontendPath = path.join(path.resolve(__dirname), '../../../frontend');
+  const files = fs.readdirSync(frontendPath);
+  files.forEach(file => {
+    if (file.endsWith('.tsx')) {
+      const fullPath = path.join(frontendPath, file);
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const classNameRe = /className\s*=\s*{[^}]*}/g;
+      let match;
+      while ((match = classNameRe.exec(content)) !== null) {
+        const inner = match[0].match(/{(.*)}/)[1];
+        const classes = inner.split(' ').map(c => c.trim().replace(/[\"']/g, ''));
+        classes.forEach(cls => {
+          // If the class is NOT in the whitelist, flag it
+          if (!whitelist.has(cls)) {
+            results.push({
+              file: fullPath,
+              line: content.substr(0, match.index).split('\n').length,
+              snippet: match[0].trim(),
+              offendingClass: cls,
+            });
+          } else {
+            // Enforce prefix rule for whitelisted entries
+            const prefix = cls.slice(0, cls.indexOf('-') + 1);
+            if (!SEMANTIC_PREFIXES.has(prefix)) {
               results.push({
                 file: fullPath,
                 line: content.substr(0, match.index).split('\n').length,
                 snippet: match[0].trim(),
                 offendingClass: cls,
+                note: `Class does not start with an allowed semantic prefix (${Array.from(SEMANTIC_PREFIXES).join(', ')})`,
               });
-            } else {
-              // Enforce prefix rule for whitelisted entries
-              const prefix = cls.slice(0, cls.indexOf('-') + 1);
-              if (!SEMANTIC_PREFIXES.has(prefix)) {
-                results.push({
-                  file: fullPath,
-                  line: content.substr(0, match.index).split('\n').length,
-                  snippet: match[0].trim(),
-                  offendingClass: cls,
-                  note: `Class does not start with an allowed semantic prefix (${Array.from(SEMANTIC_PREFIXES).join(', ')})`,
-                });
-              }
             }
-          });
-        }
+          }
+        });
       }
     }
-  };
-  walk(path.join(__dirname, '..', '..', 'frontend', 'src'));
+  });
+
   return results;
 }
 
@@ -250,7 +249,8 @@ function report() {
       const tokenInfo = i.token ? ` (maps to semantic token \`--${i.token}\`) ` : '';
       console.log(`  - ${i.file}:${i.line} → ${i.snippet}${tokenInfo}`);
     });
-    console.log('\n💡 Fix: replace the literal with the appropriate semantic token reference (e.g., className="c-' + i.token + '-bg") or add the colour to the token map if it is a new custom colour.\n');
+    console.log('\n💡 Fix: replace the literal with the appropriate semantic token reference (e.g., className="c-' +
+      i.token + '-bg") or add the colour to the token map if it is a new custom colour.\n');
   } else {
     console.log('✅ No un‑mapped hard‑coded colour patterns detected.\n');
   }
