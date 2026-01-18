@@ -1,8 +1,8 @@
-import { createHash } from 'crypto';
-
 import mammoth from 'mammoth';
 import pdfParse from 'pdf-parse';
 import { v4 as uuidv4 } from 'uuid';
+
+import { detectLanguage } from '../utils/languageDetector.js';
 
 import type { Document, DocumentStructure, Section } from '../../../shared/src/types.js';
 
@@ -26,7 +26,7 @@ export class DocumentParser {
         wordCount: this.countWords(text),
         uploadDate: new Date(),
         fileType,
-        language: 'en', // TODO: detect language
+        language: detectLanguage(text),
       },
       structure,
     };
@@ -53,7 +53,7 @@ export class DocumentParser {
         wordCount: this.countWords(sanitizedText),
         uploadDate: new Date(),
         fileType: 'txt',
-        language: 'en', // TODO: detect language
+        language: detectLanguage(sanitizedText),
       },
       structure,
     };
