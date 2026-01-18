@@ -61,7 +61,7 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
     >
       <div
         ref={containerRef}
-        className="relative w-full h-full overflow-auto bg-slate-50 blueprint-grid"
+        className="relative w-full h-full overflow-auto bg-[var(--color-surface-base)] blueprint-grid"
         onClick={handleBackgroundClick}
       >
         <GraphBackground />

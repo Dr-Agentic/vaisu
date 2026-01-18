@@ -171,7 +171,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ data }) => {
       title="Neural Knowledge Graph"
       description="Hierarchical mapping of entities and relationships using natural flow."
     >
-      <div className="relative w-full h-full bg-slate-50">
+      <div className="relative w-full h-full bg-[var(--color-surface-base)]">
         <GraphBackground />
 
         <div
@@ -183,7 +183,7 @@ export const KnowledgeGraph: React.FC<KnowledgeGraphProps> = ({ data }) => {
             {columnData.map((column, i) => (
               <div key={column.id} className="flex flex-col gap-12" style={{ width: columnWidth }}>
                 {/* Header */}
-                <div className="flex flex-col gap-4 mb-4 sticky top-0 bg-slate-50/80 backdrop-blur py-4 z-30">
+                <div className="flex flex-col gap-4 mb-4 sticky top-0 bg-[var(--color-surface-base)]/80 backdrop-blur py-4 z-30">
                   <div className="flex items-center gap-3">
                     <div className={`w-2.5 h-2.5 rounded-full ${i === 0 ? 'bg-blue-600' : i === 1 ? 'bg-purple-600' : 'bg-pink-600 shadow-[0_0_10px_rgba(236,72,153,0.4)]'}`} />
                     <span className={`text-[11px] font-black uppercase tracking-[0.5em] text-gradient ${i === 1 ? 'nova' : ''}`}>

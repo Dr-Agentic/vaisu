@@ -78,7 +78,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
       style={style}
     >
       {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex justify-between items-center">
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-[var(--color-surface-base)]/30 flex justify-between items-center">
         <span className="font-mono text-[10px] font-bold text-slate-400 uppercase tracking-widest truncate max-w-[120px]">
           {node.id}
         </span>
@@ -135,7 +135,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
                     </label>
                     <div className="flex flex-wrap gap-2">
                       {node.mentions.slice(0, 4).map((m, i) => (
-                        <span key={i} className="text-[10px] font-bold font-mono bg-slate-50 dark:bg-slate-800 text-slate-400 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <span key={i} className="text-[10px] font-bold font-mono bg-[var(--color-background-secondary)] text-slate-400 px-3 py-1 rounded-lg border border-slate-100 dark:border-slate-700">
                           "{m}"
                         </span>
                       ))}

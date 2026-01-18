@@ -144,7 +144,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) 
       title="Document Structure"
       description="Hierarchical view of document sections and subsections."
     >
-      <div className="absolute inset-0 overflow-auto custom-scrollbar bg-slate-50 dark:bg-slate-900">
+      <div className="absolute inset-0 overflow-auto custom-scrollbar bg-[var(--color-surface-base)]">
         <div
           className="relative min-w-full p-8"
           style={{

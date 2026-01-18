@@ -101,10 +101,14 @@ export const GraphConnectionModal: React.FC<GraphConnectionModalProps> = ({
               </div>
             </div>
           </div>
-          <div className="bg-slate-50/50 p-6 border-t border-slate-100 flex justify-center">
-            <span className="text-[10px] font-mono text-slate-400 tracking-widest uppercase">
-              End of Pathway Data Segment
-            </span>
+          {/* Actions */}
+          <div className="bg-[var(--color-surface-base)]/50 p-6 border-t border-slate-100 dark:border-slate-800 flex justify-center">
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 transition-all"
+            >
+              Close Details
+            </button>
           </div>
         </motion.div>
       </motion.div>

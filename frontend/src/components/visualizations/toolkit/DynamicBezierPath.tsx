@@ -17,7 +17,7 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
   label,
   isActive = false,
 }) => {
-  const strokeColor = isActive ? 'var(--color-primary)' : 'var(--color-border-strong)';
+  const strokeColor = isActive ? 'var(--color-interactive-primary-base)' : 'var(--color-border-strong)';
   const strokeWidth = isActive ? 2 : 1.5;
   const markerEnd = isActive ? 'url(#arrowhead-active)' : 'url(#arrowhead)';
 

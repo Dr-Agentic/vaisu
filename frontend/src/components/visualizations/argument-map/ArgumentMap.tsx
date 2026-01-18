@@ -143,7 +143,7 @@ export const ArgumentMap: React.FC<ArgumentMapProps> = ({ data }) => {
       title="Semantic Argument Map"
       description="Kinetic visualization of argument structures."
     >
-      <div ref={containerRef} className="relative w-full h-full overflow-auto bg-slate-50 blueprint-grid" onClick={handleBackgroundClick}>
+      <div ref={containerRef} className="relative w-full h-full overflow-auto bg-[var(--color-surface-base)] blueprint-grid" onClick={handleBackgroundClick}>
         <GraphBackground />
 
         {/* Render Column Headers */}
