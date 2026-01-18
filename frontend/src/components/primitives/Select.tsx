@@ -19,9 +19,9 @@
  */
 
 import { ChevronDown } from 'lucide-react';
-import { SelectHTMLAttributes, forwardRef } from 'react';
+import { SelectHTMLAttributes, forwardRef, useId } from 'react';
 
-import { cn } from '../../lib/utils';
+import { cn } => '../../lib/utils';
 
 export interface SelectOption {
   value: string;
@@ -114,7 +114,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     },
     ref,
   ) => {
-    const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const selectId = id || generatedId;
     const helperId = helperText ? `${selectId}-helper` : undefined;
     const errorId = error ? `${selectId}-error` : undefined;
     const ariaDescribedBy = [helperId, errorId].filter((id): id is string => Boolean(id)).join(' ') || undefined;

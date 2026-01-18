@@ -14,7 +14,7 @@
  * ```
  */
 
-import { TextareaHTMLAttributes, forwardRef } from 'react';
+import { TextareaHTMLAttributes, forwardRef, useId } from 'react';
 
 import { cn } from '../../lib/utils';
 
@@ -93,7 +93,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref,
   ) => {
-    const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+    const generatedId = useId();
+    const textareaId = id || generatedId;
     const helperId = helperText ? `${textareaId}-helper` : undefined;
     const errorId = error ? `${textareaId}-error` : undefined;
     const ariaDescribedBy = [helperId, errorId].filter(Boolean).join(' ') || undefined;

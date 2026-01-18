@@ -109,11 +109,13 @@ export function requireRole(roles: string[]) {
       return res.status(401).json({ error: 'Authentication required' });
     }
 
-    // TODO: Implement role checking when roles are added
-    // For now, just check if user exists
     const user = await userRepository.getUserById(req.user.userId);
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
+    }
+
+    if (!user.role || !roles.includes(user.role)) {
+      return res.status(403).json({ error: 'Access denied: insufficient permissions' });
     }
 
     next();
@@ -135,15 +137,16 @@ export function requireSelfOrAdmin(paramName: string = 'userId') {
       return res.status(400).json({ error: 'Target user ID required' });
     }
 
-    // Check if user is admin or accessing their own data
     const user = await userRepository.getUserById(req.user.userId);
     if (!user) {
       return res.status(401).json({ error: 'User not found' });
     }
 
-    // TODO: Implement admin role check when roles are added
-    // For now, only allow self access
-    if (req.user.userId !== targetUserId) {
+    // Allow if user is admin or accessing their own data
+    const isAdmin = user.role === 'admin';
+    const isSelf = req.user.userId === targetUserId;
+
+    if (!isAdmin && !isSelf) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
