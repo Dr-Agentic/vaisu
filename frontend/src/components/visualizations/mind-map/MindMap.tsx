@@ -1,6 +1,6 @@
+import { MindMapData } from '@shared/types';
 import React, { useEffect, useMemo, useRef } from 'react';
 
-import { MindMapData } from '@shared/types';
 import {
   GraphViewerLayout,
   GraphCanvas,

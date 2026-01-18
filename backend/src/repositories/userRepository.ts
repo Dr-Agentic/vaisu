@@ -65,7 +65,7 @@ export const dynamodb = DynamoDBDocumentClient.from(
       removeUndefinedValues: true,
       convertClassInstanceToMap: true,
     },
-  }
+  },
 );
 const TABLE_NAME = 'vaisu-users';
 
@@ -106,13 +106,13 @@ export class UserRepository {
 
     const result = await dynamodb.send(command);
     if (!result.Item) return null;
-    
+
     // Handle missing failedLoginAttempts for old records
     const user = result.Item as any;
     if (typeof user.failedLoginAttempts === 'undefined') {
       user.failedLoginAttempts = 0;
     }
-    
+
     return user as User;
   }
 

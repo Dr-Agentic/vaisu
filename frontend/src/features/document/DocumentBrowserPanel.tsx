@@ -308,18 +308,18 @@ const DocumentList = memo<DocumentListProps>(({ documents, currentDocumentId, on
     <>
       {/* @ts-ignore */}
       <VirtualizedList
-      width={1000}
-      height={Math.min(documents.length * rowHeight, 600)}
-      rowCount={documents.length}
-      rowHeight={rowHeight}
-      rowRenderer={rowRenderer}
-      overscanRowCount={overscanRowCount}
-      className="overflow-y-auto"
-      // Pass documents prop to force re-render when list changes
-      // This fixes potential stale closure issues where rowRenderer might not be re-evaluated
-      // by VirtualizedList if rowCount remains the same but content changes.
-      documents={documents}
-    />
+        width={1000}
+        height={Math.min(documents.length * rowHeight, 600)}
+        rowCount={documents.length}
+        rowHeight={rowHeight}
+        rowRenderer={rowRenderer}
+        overscanRowCount={overscanRowCount}
+        className="overflow-y-auto"
+        // Pass documents prop to force re-render when list changes
+        // This fixes potential stale closure issues where rowRenderer might not be re-evaluated
+        // by VirtualizedList if rowCount remains the same but content changes.
+        documents={documents}
+      />
     </>
   );
 });

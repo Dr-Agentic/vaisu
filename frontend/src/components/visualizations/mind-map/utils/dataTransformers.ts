@@ -5,7 +5,7 @@ import { MindMapGraphNode } from '../types';
 export const transformMindMapData = (data: MindMapData): { nodes: MindMapGraphNode[], edges: GraphEdge[], rootId: string | null } => {
   const nodes: MindMapGraphNode[] = [];
   const edges: GraphEdge[] = [];
-  
+
   if (!data.root) {
     return { nodes: [], edges: [], rootId: null };
   }
@@ -31,10 +31,10 @@ export const transformMindMapData = (data: MindMapData): { nodes: MindMapGraphNo
         description: node.subtitle, // For toolkit compatibility
         context: node.icon, // For toolkit compatibility
         centrality: 0,
-        connections: node.children?.length || 0
-      }
+        connections: node.children?.length || 0,
+      },
     };
-    
+
     nodes.push(graphNode);
 
     if (parentId) {
@@ -44,7 +44,7 @@ export const transformMindMapData = (data: MindMapData): { nodes: MindMapGraphNo
         target: node.id,
         type: 'relates-to',
         strength: 1,
-        rationale: 'Hierarchical connection'
+        rationale: 'Hierarchical connection',
       });
     }
 
