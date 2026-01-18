@@ -55,8 +55,8 @@ const upload = multer({
 });
 
 // In-memory storage (replace with database in production)
-const documents = new Map<string, Document>();
-const analyses = new Map<string, DocumentAnalysis>();
+export const documents = new Map<string, Document>();
+export const analyses = new Map<string, DocumentAnalysis>();
 
 // Helper to create document list item
 function toDocumentListItem(doc: Document): any {

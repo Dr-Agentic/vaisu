@@ -1,19 +1,28 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { mockClient } from 'aws-sdk-client-mock';
-import { DynamoDBClient, PutItemCommand, GetItemCommand, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { marshall } from '@aws-sdk/util-dynamodb';
-import { userRepository } from '../userRepository.js';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-const ddbMock = mockClient(DynamoDBClient);
+import { userRepository, dynamodb } from '../userRepository.js';
+
+const dynamoMock = mockClient(dynamodb);
+
+// Mock AWS config
+vi.mock('../config/aws.js', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../config/aws.js')>();
+  return {
+    ...actual,
+    DYNAMODB_USERS_TABLE: 'test-users-table',
+  };
+});
 
 describe('UserRepository', () => {
   beforeEach(() => {
-    ddbMock.reset();
+    dynamoMock.reset();
   });
 
   describe('createUser', () => {
     it('should create a user successfully', async () => {
-      ddbMock.on(PutItemCommand).resolves({});
+      dynamoMock.on(PutCommand).resolves({});
 
       const userData = {
         email: 'test@example.com',
@@ -29,7 +38,7 @@ describe('UserRepository', () => {
       expect(user.email).toBe(userData.email);
       expect(user.role).toBe('free');
       expect(user.status).toBe('pending_verification');
-      expect(ddbMock.calls()).toHaveLength(1);
+      expect(dynamoMock.calls()).toHaveLength(1);
     });
   });
 
@@ -45,8 +54,8 @@ describe('UserRepository', () => {
         updatedAt: new Date().toISOString(),
       };
 
-      ddbMock.on(QueryCommand).resolves({
-        Items: [marshall(mockUser)],
+      dynamoMock.on(QueryCommand).resolves({
+        Items: [mockUser],
       });
 
       const user = await userRepository.getUserByEmail('test@example.com');
@@ -56,7 +65,7 @@ describe('UserRepository', () => {
     });
 
     it('should return null when not found', async () => {
-      ddbMock.on(QueryCommand).resolves({
+      dynamoMock.on(QueryCommand).resolves({
         Items: [],
       });
 
@@ -78,8 +87,8 @@ describe('UserRepository', () => {
         updatedAt: new Date().toISOString(),
       };
 
-      ddbMock.on(GetItemCommand).resolves({
-        Item: marshall(mockUser),
+      dynamoMock.on(GetCommand).resolves({
+        Item: mockUser,
       });
 
       const user = await userRepository.getUserById('123');
@@ -89,7 +98,7 @@ describe('UserRepository', () => {
     });
 
     it('should return null when not found', async () => {
-      ddbMock.on(GetItemCommand).resolves({});
+      dynamoMock.on(GetCommand).resolves({});
 
       const user = await userRepository.getUserById('nonexistent');
 

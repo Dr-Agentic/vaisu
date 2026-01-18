@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { testEnv } from '../../../../../test/utils/env';
 
 import { OpenRouterClient } from '../openRouterClient';
+import { LLM_MODELS, LLM_PRIMARY } from '../../../config/modelConfig';
 
 vi.mock('axios');
 const mockedAxios = axios as any;
@@ -40,7 +41,7 @@ describe('OpenRouterClient', () => {
       const mockResponse = {
         data: {
           id: 'gen-123',
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           choices: [{
             message: {
               role: 'assistant',
@@ -59,7 +60,7 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await client.call({
-        model: 'x-ai/grok-4.1-fast',
+        model: LLM_MODELS.GROK_FAST,
         messages: [{ role: 'user', content: 'Test prompt' }],
         maxTokens: 500,
         temperature: 0.3,
@@ -70,7 +71,7 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         '/chat/completions',
         expect.objectContaining({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test prompt' }],
           max_tokens: 500,
           temperature: 0.3,
@@ -92,7 +93,7 @@ describe('OpenRouterClient', () => {
       });
 
       await client.call({
-        model: 'x-ai/grok-4.1-fast',
+        model: LLM_MODELS.GROK_FAST,
         messages: [{ role: 'user', content: 'Test' }],
       });
 
@@ -106,7 +107,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test' }],
         }),
       ).rejects.toThrow('LLM call failed');
@@ -122,7 +123,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test' }],
         }),
       ).rejects.toThrow();
@@ -150,7 +151,7 @@ describe('OpenRouterClient', () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok'), // Primary for TLDR
+          model: LLM_PRIMARY,
         }),
         expect.any(Object),
       );
@@ -196,24 +197,24 @@ describe('OpenRouterClient', () => {
         },
       });
 
-      // Test TLDR (should use Grok)
+      // Test TLDR (should use Primary)
       await client.callWithFallback('tldr', 'Test');
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok'),
+          model: LLM_PRIMARY,
         }),
         expect.any(Object),
       );
 
       vi.clearAllMocks();
 
-      // Test Executive Summary (should also use Grok)
+      // Test Executive Summary (should also use Primary)
       await client.callWithFallback('executiveSummary', 'Test');
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          model: expect.stringContaining('grok'),
+          model: LLM_PRIMARY,
         }),
         expect.any(Object),
       );
@@ -228,7 +229,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test' }],
         }),
       ).rejects.toThrow();
@@ -246,7 +247,7 @@ describe('OpenRouterClient', () => {
 
       await expect(
         client.call({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test' }],
         }),
       ).rejects.toThrow();
@@ -271,7 +272,7 @@ describe('OpenRouterClient', () => {
       mockAxiosInstance.post.mockResolvedValue(mockResponse);
 
       const result = await client.call({
-        model: 'x-ai/grok-4.1-fast',
+        model: LLM_MODELS.GROK_FAST,
         messages: [{ role: 'user', content: 'Test' }],
       });
 
@@ -296,7 +297,7 @@ describe('OpenRouterClient', () => {
 
       const promises = Array(10).fill(null).map(() =>
         client.call({
-          model: 'x-ai/grok-4.1-fast',
+          model: LLM_MODELS.GROK_FAST,
           messages: [{ role: 'user', content: 'Test' }],
         }),
       );

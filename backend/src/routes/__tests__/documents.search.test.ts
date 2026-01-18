@@ -2,18 +2,46 @@ import express from 'express';
 import request from 'supertest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-import { documentsRouter } from '../documents.js';
+import { documentsRouter, documents, analyses } from '../documents.js';
+
+// Mock the repositories to prevent hitting DynamoDB during tests
+vi.mock('../../repositories/documentRepository.js', () => ({
+  findByHashAndFilename: vi.fn().mockResolvedValue(null),
+  create: vi.fn().mockResolvedValue({}),
+  listByUserId: vi.fn().mockImplementation((userId, limit) => {
+    // Return mock documents if there are any in the in-memory store
+    const docs = Array.from(documents.values()).map(doc => ({
+      documentId: doc.id,
+      filename: doc.title,
+      contentType: doc.metadata.fileType,
+      uploadedAt: doc.metadata.uploadDate.toISOString(),
+    }));
+    return Promise.resolve({ documents: docs, total: docs.length });
+  }),
+  findById: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock('../../repositories/analysisRepository.js', () => ({
+  findByDocumentId: vi.fn().mockImplementation((id) => {
+    const analysis = analyses.get(id);
+    if (analysis) {
+      return Promise.resolve({ documentId: id, analysis });
+    }
+    return Promise.resolve(null);
+  }),
+  create: vi.fn().mockResolvedValue({}),
+}));
 
 // Mock the dependencies
 vi.mock('../../services/documentParser.js', () => ({
   documentParser: {
-    parseDocument: vi.fn().mockResolvedValue({
+    parseDocument: vi.fn().mockImplementation((buffer, filename) => ({
       id: 'test-id',
-      title: 'Test Document',
-      content: 'Test content',
+      title: filename,
+      content: buffer.toString(),
       metadata: {
-        wordCount: 2,
-        uploadDate: new Date('2025-12-07T00:00:00Z'),
+        wordCount: buffer.toString().split(/\s+/).length,
+        uploadDate: new Date(),
         fileType: 'text/plain',
         language: 'en',
       },
@@ -21,17 +49,17 @@ vi.mock('../../services/documentParser.js', () => ({
         sections: [],
         hierarchy: [],
       },
-    }),
-  },
-}));
+    })),
+    },
+  }));
 
 vi.mock('../../services/analysis/textAnalyzer.js', () => ({
   textAnalyzer: {
-    analyzeDocument: vi.fn().mockResolvedValue({
+    analyzeDocument: vi.fn().mockImplementation((doc) => Promise.resolve({
       tldr: {
         text: 'This is a test summary about machine learning',
         confidence: 0.9,
-        generatedAt: '2025-12-07T00:00:00Z',
+        generatedAt: new Date().toISOString(),
         model: 'test-model',
       },
       executiveSummary: {
@@ -54,7 +82,7 @@ vi.mock('../../services/analysis/textAnalyzer.js', () => ({
         temporal: 0.5,
       },
       recommendations: [],
-    }),
+    })),
   },
 }));
 
@@ -65,16 +93,18 @@ vi.mock('../../services/visualization/visualizationGenerator.js', () => ({
 }));
 
 describe('Documents API - Search and List', () => {
-  let app: express.Application;
+    let app: express.Application;
 
   beforeEach(async () => {
+    vi.clearAllMocks();
+    // Clear in-memory stores
+    documents.clear();
+    analyses.clear();
+
     app = express();
     app.use(express.json());
     app.use('/api/documents', documentsRouter);
-
-    // Note: In-memory storage is shared across tests in the same file
-    // This is intentional to test the cumulative behavior
-  });
+  }, 10000);
 
   describe('GET /api/documents/search', () => {
     it('should return empty results for empty query', async () => {

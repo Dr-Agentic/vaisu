@@ -1,11 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
-  PutCommand,
-  GetCommand,
-  UpdateCommand,
-  QueryCommand,
-  DeleteCommand,
-} from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocumentClient, PutCommand, GetCommand, UpdateCommand, QueryCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 import { v4 as uuidv4 } from 'uuid';
 
 import { env } from '../config/env.js';
@@ -64,7 +58,15 @@ const config = {
   },
 };
 
-const dynamodb = new DynamoDBClient(config);
+export const dynamodb = DynamoDBDocumentClient.from(
+  new DynamoDBClient(config),
+  {
+    marshallOptions: {
+      removeUndefinedValues: true,
+      convertClassInstanceToMap: true,
+    },
+  }
+);
 const TABLE_NAME = 'vaisu-users';
 
 export class UserRepository {
@@ -78,6 +80,7 @@ export class UserRepository {
       firstName: input.firstName,
       lastName: input.lastName,
       passwordHash: input.passwordHash,
+      role: input.role || 'free',
       status: 'pending_verification',
       emailVerified: false,
       verificationToken: uuidv4(),
@@ -102,7 +105,15 @@ export class UserRepository {
     });
 
     const result = await dynamodb.send(command);
-    return (result.Item as User) || null;
+    if (!result.Item) return null;
+    
+    // Handle missing failedLoginAttempts for old records
+    const user = result.Item as any;
+    if (typeof user.failedLoginAttempts === 'undefined') {
+      user.failedLoginAttempts = 0;
+    }
+    
+    return user as User;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
@@ -117,7 +128,12 @@ export class UserRepository {
 
     const result = await dynamodb.send(command);
     if (result.Items && result.Items.length > 0) {
-      return result.Items[0] as User;
+      // Handle missing failedLoginAttempts for old records
+      const user = result.Items[0] as any;
+      if (typeof user.failedLoginAttempts === 'undefined') {
+        user.failedLoginAttempts = 0;
+      }
+      return user as User;
     }
     return null;
   }
@@ -225,7 +241,9 @@ export class UserRepository {
     const user = await this.getUserById(userId);
     if (!user) return;
 
-    const attempts = user.failedLoginAttempts + 1;
+    // Handle case where failedLoginAttempts might be undefined (from old records)
+    const currentAttempts = user.failedLoginAttempts || 0;
+    const attempts = currentAttempts + 1;
     const updates: UpdateUserInput = { failedLoginAttempts: attempts };
 
     if (attempts >= 5) {
