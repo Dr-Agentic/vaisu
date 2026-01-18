@@ -245,7 +245,7 @@ export function createMockOpenRouterClient() {
         case 'entityExtraction':
           rawResponse = mockOpenRouterResponses.entityExtraction;
           break;
-        case 'signalAnalysis':
+        case 'signalAnalysis': {
           // Detect document type from prompt content
           let signals = {
             structural: 0.8,
@@ -293,13 +293,14 @@ export function createMockOpenRouterClient() {
             }],
           };
           break;
+        }
         case 'relationshipDetection':
           rawResponse = mockOpenRouterResponses.relationshipDetection;
           break;
         case 'sectionSummary':
           rawResponse = mockOpenRouterResponses.sectionSummary;
           break;
-        case 'vizRecommendation':
+        case 'vizRecommendation': {
           // Return more recommendations based on content and signals
           let recommendations = [
             {
@@ -387,6 +388,7 @@ export function createMockOpenRouterClient() {
             }],
           };
           break;
+        }
         default:
           rawResponse = mockOpenRouterResponses.tldr;
       }
