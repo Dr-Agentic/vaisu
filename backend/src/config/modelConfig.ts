@@ -29,7 +29,7 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.5,
     systemPrompt: `Create an executive summary of the document.
-Return ONLY valid JSON matching this exact format:
+Return ONLY valid JSON matching this exact format (do not use markdown code blocks):
 {
   "headline": "One compelling sentence capturing the essence",
   "keyIdeas": [
@@ -75,7 +75,7 @@ For each entity provide:
 - context: brief explanation of the entity's role/significance
 - mentions: array with at least one mention object containing start, end, text
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 {
   "entities": [
     {
@@ -116,7 +116,7 @@ For each relationship provide:
 - strength: 0.0-1.0 (how strong/important is this relationship)
 - evidence: array with at least one evidence object containing start, end, text from the document
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 {
   "relationships": [
     {
@@ -140,7 +140,7 @@ Extract at least 5-20 relationships if entities are connected. Focus on meaningf
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `Analyze the section and provide a structured summary.
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 {
   "summary": "Concise summary in 2-3 sentences.",
   "keywords": ["keyword1", "keyword2", "keyword3"]
@@ -159,7 +159,7 @@ Extract 3-5 important keywords.`,
 - technical: code, APIs, technical terminology
 - argumentative: claims, evidence, reasoning
 - temporal: dates, timelines, chronological information
-Return as JSON object with these six scores.`,
+Return as JSON object with these six scores. Do not use markdown.`,
   },
   vizRecommendation: {
     primary: LLM_PRIMARY,
@@ -169,7 +169,7 @@ Return as JSON object with these six scores.`,
     systemPrompt: `Recommend the top 3-5 most appropriate visualizations for this document.
 Available types: structured-view, mind-map, flowchart, knowledge-graph, executive-dashboard, timeline.
 For each recommendation include: type, score (0-1), and rationale (one sentence).
-Return as JSON array.`,
+Return as JSON array. Do not use markdown.`,
   },
   kpiExtraction: {
     primary: LLM_PRIMARY,
@@ -178,7 +178,7 @@ Return as JSON array.`,
     temperature: 0.1,
     systemPrompt: `Extract key performance indicators (KPIs) from the text.
 For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), and confidence (0-1).
-Deduplicate similar metrics. Return as JSON array.`,
+Deduplicate similar metrics. Return as JSON array. Do not use markdown.`,
   },
   glossary: {
     primary: LLM_PRIMARY,
@@ -187,7 +187,7 @@ Deduplicate similar metrics. Return as JSON array.`,
     temperature: 0.3,
     systemPrompt: `Extract keywords and acronyms with context-aware definitions.
 Analyze the domain and provide definitions appropriate to that context.
-Return as JSON array with: term, definition, domain, confidence.`,
+Return as JSON array with (no markdown): term, definition, domain, confidence.`,
   },
   qa: {
     primary: LLM_PRIMARY,
@@ -226,7 +226,7 @@ Icon Selection Guidelines:
 - Avoid abstract or ambiguous emojis
 - Ensure visual distinction between sibling nodes
 
-Return ONLY valid JSON matching this structure:
+Return ONLY valid JSON matching this structure (do not use markdown code blocks):
 {
   "nodes": [
     {
@@ -285,7 +285,7 @@ The goal is to map the claims, arguments, evidence, and their relationships.
 - Assign polarity (support/attack/neutral) and confidence (0-1).
 - Provide a concise summary (1-2 lines) for each node.
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 {
   "nodes": [
     {
@@ -361,7 +361,7 @@ Extract the following:
 
 3. **Packages**: Group related classes into packages/namespaces
 
-Return as JSON with this structure:
+Return as JSON with this structure (do not use markdown code blocks):
 {
   "classes": [
     {
@@ -449,7 +449,7 @@ Extract the following:
 3. **Clusters**: Group related entities (optional, computed on frontend)
 4. **Hierarchy**: Detect parent-child relationships for recursive exploration
 
-Return as JSON with this exact structure:
+Return as JSON with this exact structure (do not use markdown code blocks):
 {
   "nodes": [
     {

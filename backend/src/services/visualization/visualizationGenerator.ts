@@ -562,7 +562,7 @@ export class VisualizationGenerator {
     try {
       // Prepare document content (limit to 10000 chars for context)
       const contentSample = document.content.substring(0, 10000);
-      const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}\n\nExtract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as JSON array with format: { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }`;
+      const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}\n\nExtract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as raw JSON array with format (no markdown): { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }`;
 
       const response = await llmClient.callWithFallback('glossary', prompt);
       const parsed = llmClient.parseJSONResponse<{ terms: any[], domain?: string }>(response);
@@ -650,7 +650,7 @@ CRITICAL INSTRUCTIONS:
 4. Identify relationships (inheritance, dependency, composition, etc.) between these classes.
 5. Be exhaustive. It is better to include a speculative class than to miss a core component.
 
-Output the result as a JSON object matching the defined schema.`;
+Output the result as a raw JSON object matching the defined schema. Do not use markdown code blocks.`;
   }
 
   private processUMLExtraction(
@@ -845,7 +845,7 @@ CRITICAL INSTRUCTIONS:
    - Grounding: Quality of evidence and factual support.
    - Tension: Degree of argumentative conflict or debate.
    - Confidence: Your confidence in EACH of the above scores.
-3. Return a JSON object with "nodes" and "edges".
+3. Return a raw JSON object with "nodes" and "edges". Do not use markdown code blocks.
 
 Node Schema:
 {

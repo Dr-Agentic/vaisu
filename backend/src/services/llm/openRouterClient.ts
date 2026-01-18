@@ -120,6 +120,10 @@ export class OpenRouterClient {
       const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
       if (codeBlockMatch) {
         content = codeBlockMatch[1];
+      } else {
+        // Fallback: Remove markdown code block markers if regex didn't match (e.g. incomplete block)
+        // This handles cases where the response starts with ```json but doesn't end properly or regex fails
+        content = content.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
       }
 
       // 2. Find the JSON object/array boundaries

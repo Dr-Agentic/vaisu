@@ -56,7 +56,7 @@ Reasoning: The unit relies on a vague appeal to authority ("Many experts") and a
 Verdict: High Confidence (Tone) ≠ High Depth (Content).
 
 OUTPUT FORMAT (JSON)
-You must output a single valid JSON object.
+You must output a single valid JSON object. Do not wrap it in markdown code blocks.
 {
   "analysis_metadata": {
     "total_logical_units": 0,
