@@ -118,7 +118,7 @@ export class UserRepository {
 
   async updateUser(userId: string, updates: UpdateUserInput): Promise<User> {
     const now = new Date().toISOString();
-    const updateFields: string[] = [];
+    const updateFields: string[] = ['updatedAt = :updatedAt'];
     const expressionValues: Record<string, any> = {
       ':updatedAt': now,
     };
