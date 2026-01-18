@@ -19,12 +19,13 @@
 
 import { useState } from 'react';
 
+import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
-import { Badge } from '../primitives/Badge';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
+
 import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
 
 export function ButtonSampler() {
   const [loadingButton, setLoadingButton] = useState<string | null>(null);
@@ -482,7 +483,7 @@ export function ButtonSampler() {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">ARIA Attributes</h3>
               </div>
               <ul className="text-green-800 text-sm space-y-1">
@@ -497,7 +498,7 @@ export function ButtonSampler() {
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Keyboard Navigation</h3>
               </div>
               <ul className="text-blue-800 text-sm space-y-1">
@@ -512,7 +513,7 @@ export function ButtonSampler() {
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Focus Indicators</h3>
               </div>
               <ul className="text-purple-800 text-sm space-y-1">
@@ -527,7 +528,7 @@ export function ButtonSampler() {
           <Card className="bg-yellow-50 border-yellow-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-yellow-900">Loading States</h3>
               </div>
               <ul className="text-yellow-800 text-sm space-y-1">
@@ -583,27 +584,27 @@ export function ButtonSampler() {
                 <h4 className="font-semibold text-[var(--color-text-primary)] mb-3">Accessibility Checklist</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Use semantic button elements</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Provide clear focus indicators</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Use appropriate aria attributes</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Ensure sufficient color contrast</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Support keyboard navigation</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 rounded-full" />
                     <span>Provide loading states for async actions</span>
                   </div>
                 </div>

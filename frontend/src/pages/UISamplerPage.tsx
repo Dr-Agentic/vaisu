@@ -15,20 +15,20 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { ThemeProvider } from '../design-system/ThemeProvider';
-import { SidebarNavigation, type CategoryKey } from '../components/UISampler/SidebarNavigation';
-import { ThemeSwitcher } from '../components/UISampler/ThemeSwitcher';
-import { PreviewContainer } from '../components/UISampler/PreviewContainer';
-import { TypographySampler } from '../components/UISampler/TypographySampler';
-import { ColorPaletteSampler } from '../components/UISampler/ColorPaletteSampler';
+import { BadgeSpinnerThemeSampler } from '../components/UISampler/BadgeSpinnerThemeSampler';
 import { ButtonSampler } from '../components/UISampler/ButtonSampler';
 import { CardSampler } from '../components/UISampler/CardSampler';
+import { ColorPaletteSampler } from '../components/UISampler/ColorPaletteSampler';
 import { InputSampler } from '../components/UISampler/InputSampler';
 import { ModalSampler } from '../components/UISampler/ModalSampler';
-import { TooltipSampler } from '../components/UISampler/TooltipSampler';
-import { BadgeSpinnerThemeSampler } from '../components/UISampler/BadgeSpinnerThemeSampler';
 import { PatternSampler } from '../components/UISampler/PatternSampler';
+import { PreviewContainer } from '../components/UISampler/PreviewContainer';
+import { SidebarNavigation, type CategoryKey } from '../components/UISampler/SidebarNavigation';
+import { ThemeSwitcher } from '../components/UISampler/ThemeSwitcher';
+import { TooltipSampler } from '../components/UISampler/TooltipSampler';
+import { TypographySampler } from '../components/UISampler/TypographySampler';
 import { VisualizationSampler } from '../components/UISampler/VisualizationOverview';
+import { ThemeProvider } from '../design-system/ThemeProvider';
 import { ToastContainer } from '../features/feedback/ToastContainer';
 import { useDocumentStore } from '../stores/documentStore';
 

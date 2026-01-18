@@ -1,12 +1,13 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import {
+import { fileURLToPath } from 'url';
+
+import { DynamoDBClient,
   CreateTableCommand,
   DynamoDBClientConfig,
   DescribeTableCommand,
   UpdateTableCommand,
 } from '@aws-sdk/client-dynamodb';
+
 import { env } from '../config/env.js';
-import { fileURLToPath } from 'url';
 
 const config: DynamoDBClientConfig = {
   region: env.AWS_REGION || 'us-east-1',
@@ -127,7 +128,7 @@ async function ensureTable(tableConfig: any) {
     if (Table) {
       // Check if BillingModeSummary exists, if not it defaults to PROVISIONED
       const currentBillingMode = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
-      
+
       if (currentBillingMode !== 'PAY_PER_REQUEST') {
         console.log(`  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`);
         const updateCommand = new UpdateTableCommand({

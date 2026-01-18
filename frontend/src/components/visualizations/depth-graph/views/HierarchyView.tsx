@@ -1,6 +1,7 @@
 import { DepthGraphData } from '@shared/types';
-import { DepthNodeCard } from '../cards/DepthNodeCard';
 import { CornerDownRight } from 'lucide-react';
+
+import { DepthNodeCard } from '../cards/DepthNodeCard';
 
 interface HierarchyViewProps {
   data: DepthGraphData;
@@ -13,28 +14,28 @@ export const HierarchyView = ({ data }: HierarchyViewProps) => {
         {data.logical_units.map((node, index) => {
           // Calculate indentation (cap at 10 to prevent extreme width)
           const indentLevel = Math.min(index, 10);
-          
+
           return (
-            <div 
-              key={node.id} 
+            <div
+              key={node.id}
               className="relative mb-6"
               style={{ paddingLeft: `${indentLevel * 3}rem` }}
             >
               {index > 0 && (
-                <div 
+                <div
                   className="absolute left-0 top-[-1.5rem] bottom-1/2 w-[3rem] border-l-2 border-b-2 rounded-bl-xl border-[var(--color-border-subtle)]"
-                  style={{ 
+                  style={{
                     left: `${(indentLevel - 1) * 3 + 1.5}rem`,
-                    width: '3rem'
+                    width: '3rem',
                   }}
                 >
-                  <CornerDownRight 
-                    size={16} 
-                    className="absolute -right-2 -bottom-2 text-[var(--color-text-tertiary)] bg-[var(--color-background-primary)]" 
+                  <CornerDownRight
+                    size={16}
+                    className="absolute -right-2 -bottom-2 text-[var(--color-text-tertiary)] bg-[var(--color-background-primary)]"
                   />
                 </div>
               )}
-              
+
               <div className="w-[600px]">
                 <DepthNodeCard node={node} compact rank={index + 1} />
               </div>

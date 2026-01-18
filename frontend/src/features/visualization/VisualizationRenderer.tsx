@@ -6,7 +6,7 @@ import { DepthGraph } from '../../components/visualizations/depth-graph/DepthGra
 import { ExecutiveDashboard } from '../../components/visualizations/executive-dashboard/ExecutiveDashboard';
 import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
 import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
-import { MindMap } from '../../components/visualizations/MindMap';
+import { MindMap } from '../../components/visualizations/mind-map/MindMap';
 import { StructuredViewRenderer } from '../../components/visualizations/StructuredViewRenderer';
 import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
 import { UMLClassDiagram } from '../../components/visualizations/uml-class-diagram/UMLClassDiagram';

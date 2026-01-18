@@ -1,9 +1,11 @@
-import { useState } from 'react';
 import { DepthGraphData } from '@shared/types';
-import { TimelineView } from './views/TimelineView';
+import { useState } from 'react';
+
+import { DepthGraphHeader } from './components/DepthGraphHeader';
 import { HierarchyView } from './views/HierarchyView';
 import { KanbanView } from './views/KanbanView';
-import { DepthGraphHeader } from './components/DepthGraphHeader';
+import { TimelineView } from './views/TimelineView';
+
 import { useTheme } from '@/design-system/ThemeProvider';
 
 interface DepthGraphProps {
@@ -29,7 +31,7 @@ export const DepthGraph = ({ data }: DepthGraphProps) => {
   return (
     <div className={`absolute inset-0 flex flex-col overflow-hidden ${isDarkMode ? 'bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
       {/* Fixed Header with Progressive Disclosure Card */}
-      <DepthGraphHeader 
+      <DepthGraphHeader
         data={data}
         viewMode={viewMode}
         onViewModeChange={setViewMode}

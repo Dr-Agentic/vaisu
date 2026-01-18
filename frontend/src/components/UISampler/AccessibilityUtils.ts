@@ -22,11 +22,11 @@ export class ContrastChecker {
    * Convert hex color to RGB
    */
   static hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    const result = (/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i).exec(hex);
     return result ? {
       r: parseInt(result[1], 16),
       g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
+      b: parseInt(result[3], 16),
     } : null;
   }
 
@@ -118,7 +118,7 @@ export class FocusManager {
       'textarea:not([disabled])',
       'select:not([disabled])',
       '[tabindex]:not([tabindex="-1"])',
-      '[contenteditable="true"]'
+      '[contenteditable="true"]',
     ].join(', ');
 
     return Array.from(container.querySelectorAll(focusableSelector))
@@ -227,7 +227,7 @@ export class KeyboardManager {
     e: KeyboardEvent,
     elements: HTMLElement[],
     currentIndex: number,
-    orientation: 'horizontal' | 'vertical' = 'vertical'
+    orientation: 'horizontal' | 'vertical' = 'vertical',
   ): number {
     let newIndex = currentIndex;
 
@@ -262,7 +262,7 @@ export class KeyboardManager {
   static handleHomeEndNavigation(
     e: KeyboardEvent,
     elements: HTMLElement[],
-    currentIndex: number
+    currentIndex: number,
   ): number {
     let newIndex = currentIndex;
 

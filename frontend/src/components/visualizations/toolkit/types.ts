@@ -2,6 +2,7 @@ export interface GraphNode {
   id: string;
   type: string;
   label: string;
+  color?: string;
   description?: string;
   importance?: 'low' | 'medium' | 'high' | number;
   context?: string;

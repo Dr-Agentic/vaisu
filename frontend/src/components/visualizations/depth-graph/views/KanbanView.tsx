@@ -1,4 +1,5 @@
 import { DepthGraphData, DepthGraphNode } from '@shared/types';
+
 import { DepthNodeCard } from '../cards/DepthNodeCard';
 
 type GroupingMode = 'depth' | 'cognitive';
@@ -23,26 +24,26 @@ export const KanbanView = ({ data, mode }: KanbanViewProps) => {
           id: 'low',
           title: 'Surface (1.0 - 4.0)',
           color: 'border-rose-500',
-          nodes: data.logical_units.filter(n => n.true_depth < 4.0)
+          nodes: data.logical_units.filter(n => n.true_depth < 4.0),
         },
         {
           id: 'mid-low',
           title: 'Emergent (4.0 - 6.0)',
           color: 'border-orange-500',
-          nodes: data.logical_units.filter(n => n.true_depth >= 4.0 && n.true_depth < 6.0)
+          nodes: data.logical_units.filter(n => n.true_depth >= 4.0 && n.true_depth < 6.0),
         },
         {
           id: 'mid-high',
           title: 'Coherent (6.0 - 8.0)',
           color: 'border-amber-500',
-          nodes: data.logical_units.filter(n => n.true_depth >= 6.0 && n.true_depth < 8.0)
+          nodes: data.logical_units.filter(n => n.true_depth >= 6.0 && n.true_depth < 8.0),
         },
         {
           id: 'high',
           title: 'Profound (8.0 - 10.0)',
           color: 'border-emerald-500',
-          nodes: data.logical_units.filter(n => n.true_depth >= 8.0)
-        }
+          nodes: data.logical_units.filter(n => n.true_depth >= 8.0),
+        },
       ];
     } else {
       // Cognitive Level Mode
@@ -51,20 +52,20 @@ export const KanbanView = ({ data, mode }: KanbanViewProps) => {
           id: 'cog-low',
           title: 'Descriptive (Cognitive 1-4)',
           color: 'border-slate-500',
-          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score < 5)
+          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score < 5),
         },
         {
           id: 'cog-mid',
           title: 'Competent (Cognitive 5-7)',
           color: 'border-blue-500',
-          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score >= 5 && n.dimensions.cognitive.score < 8)
+          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score >= 5 && n.dimensions.cognitive.score < 8),
         },
         {
           id: 'cog-high',
           title: 'Transformative (Cognitive 8-10)',
           color: 'border-indigo-500',
-          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score >= 8)
-        }
+          nodes: data.logical_units.filter(n => n.dimensions.cognitive.score >= 8),
+        },
       ];
     }
   };
@@ -74,8 +75,8 @@ export const KanbanView = ({ data, mode }: KanbanViewProps) => {
   return (
     <div className="flex h-full gap-4 overflow-x-auto p-4 pb-8 items-start">
       {columns.map(col => (
-        <div 
-          key={col.id} 
+        <div
+          key={col.id}
           className="flex-shrink-0 w-80 flex flex-col bg-[var(--color-surface-elevated)] rounded-xl border border-[var(--color-border-subtle)] max-h-full"
         >
           {/* Column Header */}
@@ -91,10 +92,10 @@ export const KanbanView = ({ data, mode }: KanbanViewProps) => {
           {/* Column Content */}
           <div className="p-3 space-y-3 overflow-y-auto min-h-[200px]">
             {col.nodes.map(node => (
-              <DepthNodeCard 
-                key={node.id} 
-                node={node} 
-                compact 
+              <DepthNodeCard
+                key={node.id}
+                node={node}
+                compact
                 rank={data.logical_units.findIndex(n => n.id === node.id) + 1}
               />
             ))}

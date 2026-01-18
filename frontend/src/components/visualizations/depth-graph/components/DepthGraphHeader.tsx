@@ -1,15 +1,16 @@
-import { useState } from 'react';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Info,
-  GitCommit, 
-  GitMerge, 
-  Layers,
-  ArrowDownToLine 
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { DepthGraphData } from '@shared/types';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  ChevronDown,
+  ChevronUp,
+  Info,
+  GitCommit,
+  GitMerge,
+  Layers,
+  ArrowDownToLine,
+} from 'lucide-react';
+import { useState } from 'react';
+
 import { Badge } from '../../../primitives/Badge';
 import { Card } from '../../../primitives/Card';
 
@@ -19,10 +20,10 @@ interface DepthGraphHeaderProps {
   onViewModeChange: (mode: 'timeline' | 'hierarchy' | 'kanban-level' | 'kanban-depth') => void;
 }
 
-export const DepthGraphHeader = ({ 
-  data, 
-  viewMode, 
-  onViewModeChange 
+export const DepthGraphHeader = ({
+  data,
+  viewMode,
+  onViewModeChange,
 }: DepthGraphHeaderProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const metadata = data.analysis_metadata;
@@ -50,7 +51,7 @@ export const DepthGraphHeader = ({
             >
               <div className="flex items-start gap-3">
                 <Info className="w-5 h-5 text-[var(--color-interactive-primary-base)] shrink-0 mt-0.5" />
-                
+
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
                     <h3 className="text-sm font-medium text-[var(--color-text-primary)] mb-1">
@@ -89,7 +90,7 @@ export const DepthGraphHeader = ({
                               {metadata.total_logical_units}
                             </div>
                           </div>
-                          
+
                           {/* Structure additional metadata fields if they exist */}
                           {Object.entries(metadata).map(([key, value]) => {
                             if (key === 'total_logical_units' || key === 'overall_text_depth_trajectory') return null;
@@ -115,27 +116,27 @@ export const DepthGraphHeader = ({
 
           {/* Right: View Switcher */}
           <div className="flex bg-[var(--color-surface-elevated)] p-1 rounded-lg border border-[var(--color-border-subtle)] shrink-0">
-            <ToolbarButton 
-              active={viewMode === 'timeline'} 
+            <ToolbarButton
+              active={viewMode === 'timeline'}
               onClick={() => onViewModeChange('timeline')}
               icon={GitCommit}
               label="Timeline"
             />
-            <ToolbarButton 
-              active={viewMode === 'hierarchy'} 
+            <ToolbarButton
+              active={viewMode === 'hierarchy'}
               onClick={() => onViewModeChange('hierarchy')}
               icon={GitMerge}
               label="Hierarchy"
             />
             <div className="w-px bg-[var(--color-border-subtle)] mx-1" />
-            <ToolbarButton 
-              active={viewMode === 'kanban-level'} 
+            <ToolbarButton
+              active={viewMode === 'kanban-level'}
               onClick={() => onViewModeChange('kanban-level')}
               icon={Layers}
               label="Cognitive"
             />
-            <ToolbarButton 
-              active={viewMode === 'kanban-depth'} 
+            <ToolbarButton
+              active={viewMode === 'kanban-depth'}
               onClick={() => onViewModeChange('kanban-depth')}
               icon={ArrowDownToLine}
               label="Depth"
@@ -147,22 +148,22 @@ export const DepthGraphHeader = ({
   );
 };
 
-const ToolbarButton = ({ 
-  active, 
-  onClick, 
-  icon: Icon, 
-  label 
-}: { 
-  active: boolean; 
-  onClick: () => void; 
-  icon: any; 
-  label: string; 
+const ToolbarButton = ({
+  active,
+  onClick,
+  icon: Icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  icon: any;
+  label: string;
 }) => (
   <button
     onClick={onClick}
     className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-      active 
-        ? 'bg-[var(--color-interactive-primary-base)] text-white shadow-sm' 
+      active
+        ? 'bg-[var(--color-interactive-primary-base)] text-white shadow-sm'
         : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-interactive-hover)] hover:text-[var(--color-text-primary)]'
     }`}
     title={label}

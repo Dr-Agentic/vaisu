@@ -1,5 +1,5 @@
-import { visualizationService } from '../../repositories/visualizationService.js';
 import { DEPTH_ANALYSIS_PROMPT } from '../../prompts/depthAnalysisPrompt.js';
+import { visualizationService } from '../../repositories/visualizationService.js';
 
 import type {
   Document,

@@ -19,8 +19,9 @@ import { useState, ReactNode } from 'react';
 
 import { Button } from '../primitives/Button';
 import { Card, CardContent } from '../primitives/Card';
-import { CopyToClipboard } from './CopyToClipboard';
+
 import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
 
 export interface PreviewExample {
   title: string;
@@ -289,7 +290,7 @@ export function SimplePreview({
       title={title}
       description={description}
       className={className}
-      showCode={true}
+      showCode
       defaultCode={code}
     >
       {preview}

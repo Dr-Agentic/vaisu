@@ -17,18 +17,19 @@
 
 import { useState, useEffect } from 'react';
 
-import type { VisualizationType } from '@shared/types';
 import { apiClient } from '../../services/apiClient';
-import { SampleDataGenerator } from './SampleDataGenerator';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
-import { CodeBlock } from './CodeBlock';
-
-import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
-import { Button } from '../primitives/Button';
 import { Badge } from '../primitives/Badge';
+import { Button } from '../primitives/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
 import { Spinner } from '../primitives/Spinner';
 import { Tooltip } from '../primitives/Tooltip';
+
+import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
+import { SampleDataGenerator } from './SampleDataGenerator';
+
+import type { VisualizationType } from '@shared/types';
 
 export function VisualizationSampler() {
   const [loadingVisualizations, setLoadingVisualizations] = useState<Set<string>>(new Set());
@@ -260,7 +261,7 @@ export function VisualizationSampler() {
             key={index}
             className="bg-white rounded-lg shadow-sm p-4 border border-[var(--color-border-subtle)] hover:shadow-md transition-shadow"
           >
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-2"></div>
+            <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mx-auto mb-2" />
             <h5 className="font-medium text-center text-[var(--color-text-primary)] text-sm">{node.label}</h5>
             <p className="text-xs text-center text-[var(--color-text-secondary)] mt-1">{node.description}</p>
           </div>
@@ -279,9 +280,9 @@ export function VisualizationSampler() {
         {data.nodes?.map((node: any, index: number) => (
           <div key={index} className="flex items-center gap-4">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm ${
-              node.type === 'start' ? 'bg-green-500' :
-              node.type === 'end' ? 'bg-red-500' :
-              node.type === 'decision' ? 'bg-yellow-500' : 'bg-blue-500'
+              node.type === 'start' ? 'bg-green-500'
+                : node.type === 'end' ? 'bg-red-500'
+                  : node.type === 'decision' ? 'bg-yellow-500' : 'bg-blue-500'
             }`}>
               {index + 1}
             </div>
@@ -290,7 +291,7 @@ export function VisualizationSampler() {
               <p className="text-sm text-[var(--color-text-secondary)]">{node.description}</p>
             </div>
             {index < data.nodes.length - 1 && (
-              <div className="w-8 h-0.5 bg-[var(--color-border-subtle)]"></div>
+              <div className="w-8 h-0.5 bg-[var(--color-border-subtle)]" />
             )}
           </div>
         ))}
@@ -310,7 +311,7 @@ export function VisualizationSampler() {
             key={index}
             className="bg-white rounded-lg shadow-sm p-3 border border-[var(--color-border-subtle)] hover:shadow-md transition-shadow"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mx-auto mb-2"></div>
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full mx-auto mb-2" />
             <h6 className="font-medium text-center text-[var(--color-text-primary)] text-xs">{entity.name}</h6>
             <p className="text-xs text-center text-[var(--color-text-secondary)] mt-1">{entity.type}</p>
           </div>
@@ -336,9 +337,9 @@ export function VisualizationSampler() {
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-[var(--color-text-secondary)]">{metric.label}</span>
               <span className={`px-2 py-1 rounded text-xs font-medium ${
-                metric.trend === 'up' ? 'bg-green-100 text-green-800' :
-                metric.trend === 'down' ? 'bg-red-100 text-red-800' :
-                'bg-gray-100 text-gray-800'
+                metric.trend === 'up' ? 'bg-green-100 text-green-800'
+                  : metric.trend === 'down' ? 'bg-red-100 text-red-800'
+                    : 'bg-gray-100 text-gray-800'
               }`}>
                 {metric.trend === 'up' ? '▲' : metric.trend === 'down' ? '▼' : '—'} {Math.abs(metric.change)}%
               </span>
@@ -353,7 +354,7 @@ export function VisualizationSampler() {
           <div key={index} className="bg-white rounded-lg shadow-sm p-4 border border-[var(--color-border-subtle)]">
             <h6 className="font-medium text-[var(--color-text-primary)] mb-2">{chart.title}</h6>
             <div className="h-24 bg-gradient-to-r from-blue-200 to-green-200 rounded flex items-end p-2">
-              <div className="w-full h-full bg-gradient-to-t from-blue-500 to-green-500 rounded opacity-20"></div>
+              <div className="w-full h-full bg-gradient-to-t from-blue-500 to-green-500 rounded opacity-20" />
             </div>
           </div>
         ))}
@@ -368,11 +369,11 @@ export function VisualizationSampler() {
         <p className="text-sm text-[var(--color-text-secondary)]">Chronological events and milestones</p>
       </div>
       <div className="relative">
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[var(--color-border-subtle)]"></div>
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-[var(--color-border-subtle)]" />
         <div className="space-y-8">
           {data.events?.map((event: any, index: number) => (
             <div key={index} className="relative pl-12">
-              <div className="absolute left-2 top-2 w-4 h-4 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full border-2 border-white shadow-sm"></div>
+              <div className="absolute left-2 top-2 w-4 h-4 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full border-2 border-white shadow-sm" />
               <div className="bg-white rounded-lg shadow-sm p-4 border border-[var(--color-border-subtle)]">
                 <div className="flex items-center justify-between mb-2">
                   <h6 className="font-medium text-[var(--color-text-primary)]">{event.title}</h6>
@@ -381,9 +382,9 @@ export function VisualizationSampler() {
                 <p className="text-sm text-[var(--color-text-secondary)]">{event.description}</p>
                 {event.status && (
                   <div className={`mt-2 inline-block px-2 py-1 rounded text-xs font-medium ${
-                    event.status === 'completed' ? 'bg-green-100 text-green-800' :
-                    event.status === 'in_progress' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
+                    event.status === 'completed' ? 'bg-green-100 text-green-800'
+                      : event.status === 'in_progress' ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-100 text-gray-800'
                   }`}>
                     {event.status}
                   </div>
@@ -538,7 +539,7 @@ export function VisualizationSampler() {
               {errorStates[viz.type] && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <div className="w-3 h-3 bg-red-500 rounded-full" />
                     <span className="text-red-800 font-medium">Error:</span>
                   </div>
                   <p className="text-red-700 mt-1">{errorStates[viz.type]}</p>
@@ -623,7 +624,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">Data Optimization</h3>
               </div>
               <ul className="text-green-800 text-sm space-y-1">
@@ -638,7 +639,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Rendering Optimization</h3>
               </div>
               <ul className="text-blue-800 text-sm space-y-1">
@@ -653,7 +654,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Memory Management</h3>
               </div>
               <ul className="text-purple-800 text-sm space-y-1">
@@ -668,7 +669,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-yellow-50 border-yellow-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-yellow-900">User Experience</h3>
               </div>
               <ul className="text-yellow-800 text-sm space-y-1">
@@ -683,7 +684,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-cyan-50 border-cyan-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-cyan-900">Accessibility</h3>
               </div>
               <ul className="text-cyan-800 text-sm space-y-1">
@@ -698,7 +699,7 @@ const data = await apiClient.generateVisualization(documentId, '${viz.type}');
           <Card className="bg-indigo-50 border-indigo-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-indigo-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-indigo-900">Testing</h3>
               </div>
               <ul className="text-indigo-800 text-sm space-y-1">
@@ -887,7 +888,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">ARIA Support</h3>
               </div>
               <ul className="text-green-800 text-sm space-y-1">
@@ -902,7 +903,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Keyboard Navigation</h3>
               </div>
               <ul className="text-blue-800 text-sm space-y-1">
@@ -917,7 +918,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Screen Reader</h3>
               </div>
               <ul className="text-purple-800 text-sm space-y-1">
@@ -932,7 +933,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-yellow-50 border-yellow-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-yellow-900">High Contrast</h3>
               </div>
               <ul className="text-yellow-800 text-sm space-y-1">
@@ -947,7 +948,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-cyan-50 border-cyan-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-cyan-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-cyan-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-cyan-900">Touch Support</h3>
               </div>
               <ul className="text-cyan-800 text-sm space-y-1">
@@ -962,7 +963,7 @@ export const useVisualizationStore = create<VisualizationState>((set, get) => ({
           <Card className="bg-indigo-50 border-indigo-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-indigo-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-indigo-900">Focus Management</h3>
               </div>
               <ul className="text-indigo-800 text-sm space-y-1">

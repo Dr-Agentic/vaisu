@@ -14,17 +14,17 @@
  * - Responsive text scaling examples
  */
 
-const buttonText = "Click me";
+const buttonText = 'Click me';
 
+import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
-import { Badge } from '../primitives/Badge';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
+
 import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
 
 export function TypographySampler() {
-
   // Typography scale from design tokens
   const fontSizes = [
     { name: 'xs', size: '0.75rem', pixels: '12px', css: 'var(--font-size-xs)' },
@@ -73,7 +73,7 @@ export function TypographySampler() {
   ];
 
   // Sample text for typography examples
-  const sampleText = "The quick brown fox jumps over the lazy dog.";
+  const sampleText = 'The quick brown fox jumps over the lazy dog.';
 
   const getContrastStatus = (fontSize: string) => {
     // Check contrast for different text sizes
@@ -449,7 +449,7 @@ export function TypographySampler() {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">Contrast Verified</h3>
               </div>
               <p className="text-green-800 text-sm">
@@ -462,7 +462,7 @@ export function TypographySampler() {
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Accessibility First</h3>
               </div>
               <p className="text-blue-800 text-sm">
@@ -475,7 +475,7 @@ export function TypographySampler() {
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Semantic Structure</h3>
               </div>
               <p className="text-purple-800 text-sm">

@@ -1,6 +1,7 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { S3Client } from '@aws-sdk/client-s3';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
+
 import { env } from './env.js';
 
 // Environment variables are now strictly loaded via env.ts
@@ -24,8 +25,8 @@ export const DYNAMODB_DOCUMENTS_TABLE = env.DYNAMODB_DOCUMENTS_TABLE;
 export const DYNAMODB_ANALYSES_TABLE = env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses'; // Fallback allowed if env.ts allows it, but env.ts has defaults.
 
 // Visualization tables (one per representation model)
-// Assuming these are added to env.ts or we pull them from process.env if not strict yet. 
-// For now, let's keep them as is but reading from env object if we added them there, 
+// Assuming these are added to env.ts or we pull them from process.env if not strict yet.
+// For now, let's keep them as is but reading from env object if we added them there,
 // OR we should add them to env.ts.
 // I didn't add them to env.ts in the first step. Let's fix that first.
 
@@ -35,8 +36,8 @@ export const DYNAMODB_ANALYSES_TABLE = env.DYNAMODB_ANALYSES_TABLE || 'vaisu-ana
 // To avoid breaking changes if I miss one, I will defer moving ALL tables to env.ts unless I'm sure.
 // However, the AWS credentials MUST come from env.ts to ensure strictness if that's the goal.
 
-// Let's stick to using env.ts for what is there, and process.env for the rest for now, 
-// BUT imports might fail if env.ts throws on load. 
+// Let's stick to using env.ts for what is there, and process.env for the rest for now,
+// BUT imports might fail if env.ts throws on load.
 // Since env.ts loads dotenv, importing it here guarantees dotenv is loaded.
 
 export const DYNAMODB_ARGUMENT_MAP_TABLE = process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map';
@@ -48,7 +49,6 @@ export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE = process.env.DYNAMODB_EXECUTIVE
 export const DYNAMODB_TIMELINE_TABLE = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
 export const DYNAMODB_TERMS_DEFINITIONS_TABLE = process.env.DYNAMODB_TERMS_DEFINITIONS_TABLE || 'vaisu-terms-definitions';
 export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
-
 
 
 // User Management tables
@@ -113,11 +113,11 @@ export function validateAWSConfig(): void {
       termsDefinitions: DYNAMODB_TERMS_DEFINITIONS_TABLE,
       knowledgeGraph: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     },
-      userManagementTables: {
-        users: DYNAMODB_USERS_TABLE,
-        sessions: DYNAMODB_SESSIONS_TABLE,
-        userLimits: DYNAMODB_USER_LIMITS_TABLE,
-      },
+    userManagementTables: {
+      users: DYNAMODB_USERS_TABLE,
+      sessions: DYNAMODB_SESSIONS_TABLE,
+      userLimits: DYNAMODB_USER_LIMITS_TABLE,
+    },
   });
 }
 

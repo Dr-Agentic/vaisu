@@ -1,9 +1,11 @@
+/* eslint-disable max-len */
 import { Router, Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
-import { userRepository } from '../repositories/userRepository.js';
+
+import { authenticate } from '../middleware/auth.js';
 import { sessionRepository } from '../repositories/sessionRepository.js';
+import { userRepository } from '../repositories/userRepository.js';
 import { authUtils } from '../utils/auth.js';
-import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
@@ -68,7 +70,6 @@ router.post(
       const verificationToken = user.verificationToken;
 
       // TODO: Send verification email
-      console.log(`Verification token for ${email}: ${verificationToken}`);
 
       res.status(201).json({
         message: 'User registered successfully. Please check your email to verify your account.',
@@ -80,7 +81,7 @@ router.post(
       console.error('Registration error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 // POST /api/auth/login - Login user
@@ -94,7 +95,7 @@ router.post(
   validateRequest,
   async (req: Request, res: Response) => {
     try {
-      const { email, password, rememberMe } = req.body;
+      const { email, password } = req.body;
 
       // Get user by email
       const user = await userRepository.getUserByEmail(email);
@@ -164,7 +165,7 @@ router.post(
       console.error('Login error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 // POST /api/auth/refresh - Refresh access token
@@ -260,7 +261,7 @@ router.post(
       console.error('Email verification error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 // POST /api/auth/request-password-reset - Request password reset
@@ -289,7 +290,6 @@ router.post(
       });
 
       // TODO: Send reset email
-      console.log(`Password reset token for ${email}: ${resetToken}`);
 
       res.json({
         message: 'If an account exists, a reset link has been sent',
@@ -299,7 +299,7 @@ router.post(
       console.error('Password reset request error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 // POST /api/auth/reset-password - Reset password
@@ -339,7 +339,7 @@ router.post(
       console.error('Password reset error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 );
 
 // GET /api/auth/sessions - Get user sessions
@@ -374,6 +374,148 @@ router.post('/revoke-session', async (req: Request, res: Response) => {
     res.json({ message: 'Session revoked successfully' });
   } catch (error) {
     console.error('Revoke session error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/auth/me - Get current user
+router.get('/me', authenticate, async (req: any, res: Response) => {
+  try {
+    const user = await userRepository.getUserById(req.user!.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      user: {
+        userId: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profilePictureUrl: user.profilePictureUrl,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error('Get me error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /api/auth/profile - Update user profile
+router.put(
+  '/profile',
+  authenticate,
+  [
+    body('firstName').optional().trim().isLength({ min: 1, max: 50 }),
+    body('lastName').optional().trim().isLength({ min: 1, max: 50 }),
+  ],
+  validateRequest,
+  async (req: any, res: Response) => {
+    try {
+      const { firstName, lastName } = req.body;
+      const userId = req.user!.userId;
+
+      const updatedUser = await userRepository.updateUser(userId, {
+        firstName,
+        lastName,
+      });
+
+      res.json({
+        message: 'Profile updated successfully',
+        user: {
+          userId: updatedUser.userId,
+          email: updatedUser.email,
+          firstName: updatedUser.firstName,
+          lastName: updatedUser.lastName,
+        },
+      });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+);
+
+// PUT /api/auth/password - Change password
+router.put(
+  '/password',
+  authenticate,
+  [
+    body('currentPassword').notEmpty(),
+    body('newPassword').isLength({ min: 8 }),
+  ],
+  validateRequest,
+  async (req: any, res: Response) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      const userId = req.user!.userId;
+
+      const user = await userRepository.getUserById(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Verify current password
+      const isValid = await authUtils.verifyPassword(currentPassword, user.passwordHash);
+      if (!isValid) {
+        return res.status(401).json({ error: 'Invalid current password' });
+      }
+
+      // Validate new password strength
+      const passwordValidation = authUtils.validatePassword(newPassword);
+      if (!passwordValidation.valid) {
+        return res.status(400).json({
+          error: 'New password does not meet requirements',
+          details: passwordValidation.errors,
+        });
+      }
+
+      // Hash new password
+      const newHash = await authUtils.hashPassword(newPassword);
+
+      // Update password
+      await userRepository.updateUser(userId, { passwordHash: newHash });
+
+      res.json({ message: 'Password changed successfully' });
+    } catch (error) {
+      console.error('Change password error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  },
+);
+
+// DELETE /api/auth/account - Delete user account
+router.delete('/account', authenticate, async (req: any, res: Response) => {
+  try {
+    const { password } = req.body;
+    const userId = req.user!.userId;
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password required to confirm deletion' });
+    }
+
+    // Get user to verify password
+    const user = await userRepository.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Verify password
+    const isValidPassword = await authUtils.verifyPassword(password, user.passwordHash);
+    if (!isValidPassword) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Delete user (soft delete)
+    await userRepository.deleteUser(userId);
+
+    // Revoke all sessions
+    await sessionRepository.revokeAllUserSessions(userId);
+
+    res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    console.error('Delete account error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

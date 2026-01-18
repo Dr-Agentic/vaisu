@@ -305,7 +305,9 @@ const DocumentList = memo<DocumentListProps>(({ documents, currentDocumentId, on
   };
 
   return (
-    <VirtualizedList
+    <>
+      {/* @ts-ignore */}
+      <VirtualizedList
       width={1000}
       height={Math.min(documents.length * rowHeight, 600)}
       rowCount={documents.length}
@@ -318,6 +320,7 @@ const DocumentList = memo<DocumentListProps>(({ documents, currentDocumentId, on
       // by VirtualizedList if rowCount remains the same but content changes.
       documents={documents}
     />
+    </>
   );
 });
 

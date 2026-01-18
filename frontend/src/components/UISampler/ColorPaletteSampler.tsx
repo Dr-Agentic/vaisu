@@ -19,13 +19,14 @@
 
 import { useState } from 'react';
 
+import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../primitives/Card';
-import { Badge } from '../primitives/Badge';
-import { PreviewContainer } from './PreviewContainer';
-import { CopyToClipboard } from './CopyToClipboard';
-import { CodeBlock } from './CodeBlock';
+
 import { useAccessibility } from './AccessibilityUtils';
+import { CodeBlock } from './CodeBlock';
+import { CopyToClipboard } from './CopyToClipboard';
+import { PreviewContainer } from './PreviewContainer';
 
 // Color palettes from design tokens
 const colorPalettes = {
@@ -223,7 +224,7 @@ export function ColorPaletteSampler() {
         >
           {/* Gradient overlay for dark colors to show contrast */}
           {!isLight && (
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg" />
           )}
         </div>
 
@@ -360,7 +361,7 @@ export function ColorPaletteSampler() {
                 style={{ backgroundColor: color.hex }}
               >
                 {!color.light && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-lg" />
                 )}
               </div>
 
@@ -604,7 +605,7 @@ export function ColorPaletteSampler() {
           <Card className="bg-green-50 border-green-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-green-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-green-900">Contrast Verified</h3>
               </div>
               <p className="text-green-800 text-sm">
@@ -617,7 +618,7 @@ export function ColorPaletteSampler() {
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-blue-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-blue-900">Color Balance</h3>
               </div>
               <p className="text-blue-800 text-sm">
@@ -630,7 +631,7 @@ export function ColorPaletteSampler() {
           <Card className="bg-purple-50 border-purple-200">
             <CardContent className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                <div className="w-3 h-3 bg-purple-500 rounded-full" />
                 <h3 className="text-lg font-semibold text-purple-900">Semantic Meaning</h3>
               </div>
               <p className="text-purple-800 text-sm">

@@ -37,7 +37,7 @@ client.interceptors.response.use(
 
         const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, { refreshToken });
         localStorage.setItem('accessToken', data.accessToken);
-        
+
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return client(originalRequest);
       } catch (refreshError) {
@@ -49,7 +49,7 @@ client.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const apiClient = {
@@ -140,6 +140,53 @@ export const apiClient = {
 
   async generateVisualization(documentId: string, type: VisualizationType): Promise<any> {
     const response = await client.post(`/documents/${documentId}/visualizations/${type}`);
+    return response.data;
+  },
+
+  // User Management Methods
+  async getMe() {
+    const response = await client.get('/auth/me');
+    return response.data;
+  },
+
+  async updateProfile(data: { firstName?: string; lastName?: string }) {
+    const response = await client.put('/auth/profile', data);
+    return response.data;
+  },
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    const response = await client.put('/auth/password', { currentPassword, newPassword });
+    return response.data;
+  },
+
+  async requestPasswordReset(email: string) {
+    const response = await client.post('/auth/request-password-reset', { email });
+    return response.data;
+  },
+
+  async resetPassword(userId: string, token: string, newPassword: string) {
+    const response = await client.post('/auth/reset-password', { userId, token, newPassword });
+    return response.data;
+  },
+
+  async verifyEmail(userId: string, token: string) {
+    const response = await client.post('/auth/verify-email', { userId, token });
+    return response.data;
+  },
+
+  async getSessions() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const response = await client.get(`/auth/sessions?userId=${user.userId}`);
+    return response.data;
+  },
+
+  async revokeSession(sessionId: string) {
+    const response = await client.post('/auth/revoke-session', { sessionId });
+    return response.data;
+  },
+
+  async deleteAccount(password: string) {
+    const response = await client.delete('/auth/account', { data: { password } });
     return response.data;
   },
 };

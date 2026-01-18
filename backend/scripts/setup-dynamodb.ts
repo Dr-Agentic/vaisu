@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 
-import { 
-  DynamoDBClient, 
-  CreateTableCommand, 
-  DescribeTableCommand, 
-  UpdateTableCommand 
+import {
+  DynamoDBClient,
+  CreateTableCommand,
+  DescribeTableCommand,
+  UpdateTableCommand,
 } from '@aws-sdk/client-dynamodb';
 import 'dotenv/config';
 
@@ -180,7 +180,7 @@ async function main() {
 
         if (Table) {
           const currentBillingMode = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
-          
+
           if (currentBillingMode !== 'PAY_PER_REQUEST') {
             console.log(`  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`);
             const updateCommand = new UpdateTableCommand({

@@ -128,4 +128,64 @@ describe('Auth Routes', () => {
       expect(response.status).toBe(401);
     });
   });
+
+  describe('DELETE /api/auth/account', () => {
+    it('should delete account successfully with valid password', async () => {
+      const userId = '123';
+      const password = 'Password123!';
+
+      // Mock authentication middleware behavior
+      // Since we can't easily mock the middleware function itself in this setup without changing how app is created,
+      // we rely on mocking the dependencies that the middleware uses.
+
+      // 1. Mock token verification
+      vi.spyOn(authUtils, 'verifyAccessToken').mockReturnValue({ userId, email: 'test@example.com' });
+
+      // 2. Mock user retrieval for middleware AND for the route handler
+      const mockUser = {
+        userId,
+        email: 'test@example.com',
+        passwordHash: 'hashed_password',
+        status: 'active' as const,
+      };
+      vi.mocked(userRepository.getUserById).mockResolvedValue(mockUser as any);
+
+      // 3. Mock password verification
+      vi.spyOn(authUtils, 'verifyPassword').mockResolvedValue(true);
+
+      // 4. Mock delete and revoke
+      vi.mocked(userRepository.deleteUser).mockResolvedValue(undefined);
+      vi.mocked(sessionRepository.revokeAllUserSessions).mockResolvedValue(undefined);
+
+      const response = await request(app)
+        .delete('/api/auth/account')
+        .set('Authorization', 'Bearer valid_token')
+        .send({ password });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('message', 'Account deleted successfully');
+      expect(userRepository.deleteUser).toHaveBeenCalledWith(userId);
+      expect(sessionRepository.revokeAllUserSessions).toHaveBeenCalledWith(userId);
+    });
+
+    it('should return 401 if password is invalid', async () => {
+      const userId = '123';
+
+      vi.spyOn(authUtils, 'verifyAccessToken').mockReturnValue({ userId, email: 'test@example.com' });
+      vi.mocked(userRepository.getUserById).mockResolvedValue({
+        userId,
+        status: 'active',
+        passwordHash: 'hashed_password',
+      } as any);
+      vi.spyOn(authUtils, 'verifyPassword').mockResolvedValue(false);
+
+      const response = await request(app)
+        .delete('/api/auth/account')
+        .set('Authorization', 'Bearer valid_token')
+        .send({ password: 'WrongPassword' });
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('error', 'Invalid password');
+    });
+  });
 });
