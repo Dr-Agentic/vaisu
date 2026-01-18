@@ -198,7 +198,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
       progressStore.set(document.id, { step, progress, message, partialAnalysis });
     };
 
-    const analysis = await textAnalyzer.analyzeDocument(document, onProgress);
+    const analysisResult = await textAnalyzer.analyzeDocument(document, onProgress);
+    const { metadata: analysisMetadata, ...analysis } = analysisResult;
     const processingTime = Date.now() - startTime;
 
     // Clear progress and store analysis
@@ -240,8 +241,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
           analysisVersion: 'v1.0',
           analysis,
           llmMetadata: {
-            model: 'x-ai/grok-4.1-fast', // TODO: Get from actual LLM call
-            tokensUsed: 0, // TODO: Track actual tokens
+            model: analysisMetadata?.models.join(', ') || 'unknown',
+            tokensUsed: analysisMetadata?.tokensUsed || 0,
             processingTime,
             timestamp: new Date().toISOString(),
           },

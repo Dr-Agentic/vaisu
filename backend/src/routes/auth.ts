@@ -66,16 +66,17 @@ router.post(
         passwordHash,
       });
 
-      // Generate verification token
-      const verificationToken = user.verificationToken;
-
-      // TODO: Send verification email
+      // Auto-verify email (can be changed back later)
+      await userRepository.updateUser(user.userId, {
+        emailVerified: true,
+        status: 'active',
+        verificationToken: undefined,
+      });
 
       res.status(201).json({
-        message: 'User registered successfully. Please check your email to verify your account.',
+        message: 'User registered successfully.',
         userId: user.userId,
         email: user.email,
-        verificationToken, // In production, don't return this
       });
     } catch (error) {
       console.error('Registration error:', error);
@@ -109,14 +110,6 @@ router.post(
         return res.status(423).json({
           error: 'Account is temporarily locked due to too many failed attempts',
           lockedUntil: user.lockedUntil,
-        });
-      }
-
-      // Check if email is verified
-      if (!user.emailVerified) {
-        return res.status(403).json({
-          error: 'Email not verified',
-          message: 'Please verify your email before logging in',
         });
       }
 

@@ -16,17 +16,96 @@
  * ```
  */
 
-import { InputHTMLAttributes, forwardRef, ReactNode, useId } from 'react';
+import { InputHTMLAttributes, forwardRef, ReactNode } from 'react';
 
 import { cn } from '../../lib/utils';
 
 export type InputSize = 'sm' | 'md' | 'lg';
-// ... (omitting intermediate code for brevity)
+
+export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
+  /**
+   * Label text for the input
+   */
+  label?: string;
+  /**
+   * Helper text displayed below the input
+   */
+  helperText?: string;
+  /**
+   * Error message to display
+   */
+  error?: string;
+  /**
+   * Icon to display on the left side
+   */
+  leftIcon?: ReactNode;
+  /**
+   * Icon to display on the right side
+   */
+  rightIcon?: ReactNode;
+  /**
+   * Size of the input
+   * @default 'md'
+   */
+  size?: InputSize;
+  /**
+   * Whether the input is required
+   */
+  required?: boolean;
+  /**
+   * Full width of container
+   */
+  fullWidth?: boolean;
+}
+
+const sizeStyles: Record<InputSize, { input: string; label: string }> = {
+  sm: {
+    input: `
+      px-[var(--spacing-sm)]
+      py-[var(--spacing-xs)]
+      text-[var(--font-size-sm)]
+      rounded-[var(--radius-md)]
+    `,
+    label: 'text-[var(--font-size-sm)]',
+  },
+  md: {
+    input: `
+      px-[var(--spacing-base)]
+      py-[var(--spacing-sm)]
+      text-[var(--font-size-base)]
+      rounded-[var(--radius-md)]
+    `,
+    label: 'text-[var(--font-size-base)]',
+  },
+  lg: {
+    input: `
+      px-[var(--spacing-lg)]
+      py-[var(--spacing-md)]
+      text-[var(--font-size-lg)]
+      rounded-[var(--radius-lg)]
+    `,
+    label: 'text-[var(--font-size-lg)]',
+  },
+};
+
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      label,
+      helperText,
+      error,
+      leftIcon,
+      rightIcon,
+      size = 'md',
+      required = false,
+      fullWidth = false,
+      className,
+      id,
+      ...props
     },
     ref,
   ) => {
-    const generatedId = useId();
-    const inputId = id || generatedId;
+    const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
     const helperId = helperText ? `${inputId}-helper` : undefined;
     const errorId = error ? `${inputId}-error` : undefined;
     const ariaDescribedBy = [helperId, errorId].filter(Boolean).join(' ') || undefined;

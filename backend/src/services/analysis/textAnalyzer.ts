@@ -21,6 +21,8 @@ export type ProgressCallback = (
 
 export class TextAnalyzer {
   private _llmClient: OpenRouterClient | null;
+  private totalTokensUsed: number = 0;
+  private modelsUsed: Set<string> = new Set();
 
   constructor(llmClient?: OpenRouterClient) {
     this._llmClient = llmClient || null;
@@ -30,11 +32,18 @@ export class TextAnalyzer {
     return this._llmClient || getOpenRouterClient();
   }
 
+  private trackUsage(response: { tokensUsed: number; model: string }) {
+    this.totalTokensUsed += response.tokensUsed;
+    this.modelsUsed.add(response.model);
+  }
+
   async analyzeDocument(
     document: Document,
     onProgress?: ProgressCallback,
-  ): Promise<DocumentAnalysis> {
+  ): Promise<DocumentAnalysis & { metadata?: { tokensUsed: number; models: string[] } }> {
     console.log(`Analyzing document: ${document.id}`);
+    this.totalTokensUsed = 0;
+    this.modelsUsed.clear();
 
     onProgress?.('initialization', 5, 'Starting analysis...');
 
@@ -90,6 +99,10 @@ export class TextAnalyzer {
       metrics: [], // KPIs are in executiveSummary, metrics would need separate extraction
       signals,
       recommendations,
+      metadata: {
+        tokensUsed: this.totalTokensUsed,
+        models: Array.from(this.modelsUsed),
+      },
     };
   }
 
@@ -99,6 +112,7 @@ export class TextAnalyzer {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const response = await this.llmClient.callWithFallback('tldr', sample);
+        this.trackUsage(response);
         return {
           text: response.content.trim(),
           confidence: 0.85,
@@ -120,6 +134,7 @@ export class TextAnalyzer {
   async generateExecutiveSummary(text: string): Promise<ExecutiveSummary> {
     const sample = text.substring(0, 6000);
     const response = await this.llmClient.callWithFallback('executiveSummary', sample);
+    this.trackUsage(response);
 
     try {
       const parsed = this.llmClient.parseJSONResponse<ExecutiveSummary>(response);
@@ -158,6 +173,7 @@ export class TextAnalyzer {
   async extractEntities(text: string): Promise<Entity[]> {
     const sample = text.substring(0, 5000);
     const response = await this.llmClient.callWithFallback('entityExtraction', sample);
+    this.trackUsage(response);
 
     try {
       const parsed = this.llmClient.parseJSONResponse<{ entities: Entity[] }>(response);
@@ -182,6 +198,7 @@ export class TextAnalyzer {
     const prompt = `Text: ${text.substring(0, 4000)}\n\nEntities (use the ID in source/target fields):\n${entityList}\n\nAnalyze the text and find relationships between these entities. Use the entity IDs (e.g., "entity-1") in your response, not the entity names.`;
 
     const response = await this.llmClient.callWithFallback('relationshipDetection', prompt);
+    this.trackUsage(response);
 
     try {
       const parsed = this.llmClient.parseJSONResponse<{ relationships: Relationship[] }>(response);
@@ -222,6 +239,7 @@ export class TextAnalyzer {
   async analyzeSignals(text: string): Promise<SignalAnalysis> {
     const sample = text.substring(0, 3000);
     const response = await this.llmClient.callWithFallback('signalAnalysis', sample);
+    this.trackUsage(response);
 
     try {
       const parsed = this.llmClient.parseJSONResponse<SignalAnalysis>(response);
@@ -248,6 +266,7 @@ export class TextAnalyzer {
             'sectionSummary',
             section.content.substring(0, 2000),
           );
+          this.trackUsage(response);
 
           try {
             const parsed = this.llmClient.parseJSONResponse<{ summary: string; keywords: string[] }>(response);
@@ -301,6 +320,7 @@ Sample text:
 ${document.content.substring(0, 1000)}`;
 
     const response = await this.llmClient.callWithFallback('vizRecommendation', prompt);
+    this.trackUsage(response);
 
     try {
       const parsed = this.llmClient.parseJSONResponse<{ recommendations: VisualizationRecommendation[] }>(response);
