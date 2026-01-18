@@ -155,7 +155,7 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 export function rateLimit(windowMs: number = 15 * 60 * 1000, max: number = 100) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip;
+    const ip = req.ip || 'unknown';
     const now = Date.now();
 
     const entry = rateLimitStore.get(ip);
@@ -180,7 +180,7 @@ const loginAttempts = new Map<string, { count: number; resetTime: number }>();
 
 export function loginRateLimit(windowMs: number = 15 * 60 * 1000, max: number = 5) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const ip = req.ip;
+    const ip = req.ip || 'unknown';
     const now = Date.now();
 
     const entry = loginAttempts.get(ip);

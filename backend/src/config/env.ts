@@ -51,4 +51,7 @@ export const env = {
   DYNAMODB_USERS_TABLE: process.env.DYNAMODB_USERS_TABLE || 'vaisu-users',
   DYNAMODB_SESSIONS_TABLE: process.env.DYNAMODB_SESSIONS_TABLE || 'vaisu-sessions',
   DYNAMODB_USER_LIMITS_TABLE: process.env.DYNAMODB_USER_LIMITS_TABLE || 'vaisu-user-limits',
+  
+  // JWT secret for authentication
+  JWT_SECRET: process.env.JWT_SECRET || 'your-secret-key-change-in-production',
 };

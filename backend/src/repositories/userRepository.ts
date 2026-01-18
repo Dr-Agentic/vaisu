@@ -48,6 +48,7 @@ export interface UpdateUserInput {
   failedLoginAttempts?: number;
   lockedUntil?: string;
   lastLogin?: string;
+  deletedAt?: string;
 }
 
 const config = {
