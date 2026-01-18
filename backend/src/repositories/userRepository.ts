@@ -119,15 +119,20 @@ export class UserRepository {
 
   async updateUser(userId: string, updates: UpdateUserInput): Promise<User> {
     const now = new Date().toISOString();
-    const updateFields: string[] = ['updatedAt = :updatedAt'];
+    const updateFields: string[] = ['#updatedAt = :updatedAt'];
     const expressionValues: Record<string, any> = {
       ':updatedAt': now,
+    };
+    const expressionAttributeNames: Record<string, string> = {
+      '#updatedAt': 'updatedAt',
     };
 
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) {
-        updateFields.push(`${key} = :${key}`);
+        const attrName = `#${key}`;
+        updateFields.push(`${attrName} = :${key}`);
         expressionValues[':' + key] = value;
+        expressionAttributeNames[attrName] = key;
       }
     });
 
@@ -140,6 +145,7 @@ export class UserRepository {
       Key: { userId },
       UpdateExpression: 'SET ' + updateFields.join(', '),
       ExpressionAttributeValues: expressionValues,
+      ExpressionAttributeNames: expressionAttributeNames,
       ReturnValues: 'ALL_NEW',
     });
 
