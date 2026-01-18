@@ -111,6 +111,12 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="mb-6">
+        <Button variant="ghost" onClick={() => navigate('/')} className="flex items-center gap-2">
+          ← Back to Dashboard
+        </Button>
+      </div>
+
       <div className="flex items-center space-x-4 mb-8">
         <div className="w-16 h-16 rounded-full bg-blue-600 flex items-center justify-center text-2xl font-bold text-white">
           {user.firstName[0]}{user.lastName[0]}
