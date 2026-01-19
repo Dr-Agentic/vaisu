@@ -10,6 +10,7 @@ import { documentParser } from '../services/documentParser.js';
 import * as s3Storage from '../services/storage/s3Storage.js';
 import { visualizationGenerator } from '../services/visualization/visualizationGenerator.js';
 import { calculateContentHash } from '../utils/hash.js';
+import { authenticate, AuthenticatedRequest } from '../middleware/auth.js';
 
 import type { Document, DocumentAnalysis } from '../../shared/src/types.js';
 import type { DocumentRecord, AnalysisRecord } from '../repositories/types.js';
@@ -28,6 +29,9 @@ router.use((req: Request, res: Response, next: NextFunction) => {
 
   next();
 });
+
+// Apply authentication middleware to all routes
+router.use(authenticate);
 
 // Store for progress tracking with partial results
 interface ProgressInfo {
@@ -57,6 +61,7 @@ const upload = multer({
 // In-memory storage (replace with database in production)
 export const documents = new Map<string, Document>();
 export const analyses = new Map<string, DocumentAnalysis>();
+export const documentOwners = new Map<string, string>(); // documentId -> userId
 
 // Helper to create document list item
 function toDocumentListItem(doc: Document): any {
@@ -87,6 +92,7 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
   });
 }, async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     let document: Document;
 
     if (req.file) {
@@ -101,6 +107,7 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
     }
 
     documents.set(document.id, document);
+    documentOwners.set(document.id, authReq.user!.userId);
 
     res.json({
       documentId: document.id,
@@ -116,6 +123,7 @@ router.post('/upload', (req: Request, res: Response, next: NextFunction) => {
 // POST /api/documents/analyze
 router.post('/analyze', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { documentId, text, force } = req.body;
     const isForce = force === true || force === 'true';
 
@@ -128,6 +136,11 @@ router.post('/analyze', async (req: Request, res: Response) => {
       if (!document) {
         return res.status(404).json({ error: 'Document not found' });
       }
+      // Check ownership
+      if (documentOwners.get(documentId) !== authReq.user!.userId) {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
       buffer = Buffer.from(document.content, 'utf-8');
       filename = document.title;
     } else if (text) {
@@ -136,6 +149,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
       filename = 'direct-text.txt';
       document = await documentParser.parseDocument(buffer, filename);
       documents.set(document.id, document);
+      documentOwners.set(document.id, authReq.user!.userId);
     } else {
       return res.status(400).json({ error: 'No documentId or text provided' });
     }
@@ -151,29 +165,35 @@ router.post('/analyze', async (req: Request, res: Response) => {
         const cachedDoc = await documentRepository.findByHashAndFilename(contentHash, filename);
 
         if (cachedDoc) {
-          console.log(`✅ Cache HIT! Returning existing ID: ${cachedDoc.documentId}`);
+          // Check ownership of cached document
+          if (cachedDoc.userId === authReq.user!.userId) {
+            console.log(`✅ Cache HIT! Returning existing ID: ${cachedDoc.documentId}`);
 
-          // Retrieve cached analysis
-          const cachedAnalysis = await analysisRepository.findByDocumentId(cachedDoc.documentId);
+            // Retrieve cached analysis
+            const cachedAnalysis = await analysisRepository.findByDocumentId(cachedDoc.documentId);
 
 
-          if (cachedAnalysis) {
-            // Update access metadata
-            await documentRepository.updateAccessMetadata(cachedDoc.documentId);
+            if (cachedAnalysis) {
+              // Update access metadata
+              await documentRepository.updateAccessMetadata(cachedDoc.documentId);
 
-            const processingTime = Date.now() - startTime;
+              const processingTime = Date.now() - startTime;
 
-            // Store in memory for this session
-            documents.set(cachedDoc.documentId, document);
-            analyses.set(cachedDoc.documentId, cachedAnalysis.analysis);
+              // Store in memory for this session
+              documents.set(cachedDoc.documentId, document);
+              documentOwners.set(cachedDoc.documentId, authReq.user!.userId);
+              analyses.set(cachedDoc.documentId, cachedAnalysis.analysis);
 
-            return res.json({
-              documentId: cachedDoc.documentId,
-              document,
-              analysis: cachedAnalysis.analysis,
-              processingTime,
-              cached: true,
-            });
+              return res.json({
+                documentId: cachedDoc.documentId,
+                document,
+                analysis: cachedAnalysis.analysis,
+                processingTime,
+                cached: true,
+              });
+            }
+          } else {
+            console.log('⚠️ Cache HIT but user mismatch - treating as new document');
           }
         } else {
           console.log('❌ Cache MISS - will analyze and store');
@@ -220,7 +240,7 @@ router.post('/analyze', async (req: Request, res: Response) => {
         // Store document metadata using the document's own ID
         const documentRecord: DocumentRecord = {
           documentId: document.id,
-          userId: '1', // Default anonymous user
+          userId: authReq.user!.userId,
           contentHash,
           filename,
           s3Path: s3Result.path,
@@ -285,15 +305,21 @@ router.post('/analyze', async (req: Request, res: Response) => {
 // GET /api/documents/search - Search documents (must be before /:id route)
 router.get('/search', (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const query = (req.query.q as string || '').toLowerCase().trim();
 
     if (!query) {
       return res.json({ documents: [], total: 0, query: '' });
     }
 
-    // Search in filename, tldr, and summary
+    // Search in filename, tldr, and summary - ONLY for user's documents
     const matchingDocs = Array.from(documents.values())
       .filter(doc => {
+        // Check ownership
+        if (documentOwners.get(doc.id) !== authReq.user!.userId) {
+          return false;
+        }
+
         const analysis = analyses.get(doc.id);
         const titleMatch = doc.title.toLowerCase().includes(query);
         // TLDR is now an object with a text field
@@ -318,24 +344,71 @@ router.get('/search', (req: Request, res: Response) => {
 });
 
 // GET /api/documents/:id
-router.get('/:id', (req: Request, res: Response) => {
-  const document = documents.get(req.params.id);
+router.get('/:id', async (req: Request, res: Response) => {
+  const authReq = req as AuthenticatedRequest;
+  const { id } = req.params;
 
-  if (!document) {
+  // Check memory first
+  const docInMemory = documents.get(id);
+  if (docInMemory) {
+    if (documentOwners.get(id) === authReq.user!.userId) {
+      const analysis = analyses.get(id);
+      return res.json({
+        document: docInMemory,
+        analysis,
+      });
+    }
+    // If in memory but ownership mismatch, strictly denied?
+    // Or maybe it's another user's doc. We should fall through to DB check to be sure,
+    // but honestly if it's in memory and owner is different, it's 403 or 404.
+    // Safe to return 404 to avoid enumeration.
     return res.status(404).json({ error: 'Document not found' });
   }
 
-  const analysis = analyses.get(req.params.id);
+  // Not in memory, check DB
+  try {
+    const docRecord = await documentRepository.findById(id);
+    if (!docRecord || docRecord.userId !== authReq.user!.userId) {
+      return res.status(404).json({ error: 'Document not found' });
+    }
 
-  res.json({
-    document,
-    analysis,
-  });
+    // Load content from S3
+    // We don't have analysis loaded here if we just want the doc?
+    // The original code was:
+    // const document = documents.get(req.params.id);
+    // if (!document) return 404;
+    // ...
+    // So it ONLY worked for in-memory docs?
+    // Wait, let's check the original code again.
+    // Original:
+    // const document = documents.get(req.params.id);
+    // if (!document) { return res.status(404)... }
+    //
+    // So the original code DID NOT fetch from DB for this route!
+    // It only fetched from DB for visualization routes and full route.
+    // So I should keep it that way for consistency, or improve it?
+    // The user didn't ask to improve this specific route, but if I'm fixing security...
+    // If I leave it as memory-only, it's safe because of the check above.
+    
+    // However, if the user lists documents (from DB), clicks one, and this route is called,
+    // it will fail if not in memory.
+    // The previous implementation of `GET /:id` was strictly memory-based.
+    // But `GET /:id/full` fetched from DB.
+    // Let's assume the frontend uses `GET /:id` for quick checks or something.
+    // Given the context, I will stick to memory-check + DB-check if I can, to be helpful.
+    // But to minimize changes and risk, I will mirror the original behavior but SECURELY.
+
+    return res.status(404).json({ error: 'Document not found in active session' });
+  } catch (error) {
+    console.error('Error fetching document:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // POST /api/documents/:id/visualizations/:type
 router.post('/:id/visualizations/:type', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id, type } = req.params;
     const force = req.query.force === 'true';
 
@@ -345,7 +418,13 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
     let document = documents.get(id);
     let analysis = analyses.get(id);
 
-    // If not in memory, try loading from DynamoDB
+    // Security check for in-memory
+    if (document && documentOwners.get(id) !== authReq.user!.userId) {
+       document = undefined; // Pretend we didn't find it
+       analysis = undefined;
+    }
+
+    // If not in memory (or denied), try loading from DynamoDB
     if (!document) {
       console.log('🔍 Document not in memory, checking DynamoDB...');
       try {
@@ -353,6 +432,12 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
         const analysisRecord = await analysisRepository.findByDocumentId(id);
 
         if (docRecord && analysisRecord) {
+          // Ownership check
+          if (docRecord.userId !== authReq.user!.userId) {
+            console.log(`❌ Ownership mismatch for doc ${id}`);
+            return res.status(404).json({ error: 'Document not found' });
+          }
+
           console.log(`✅ Found in DynamoDB: ${docRecord.filename}`);
 
           // Load content from S3 and reconstruct document with proper structure, preserving original ID
@@ -373,6 +458,7 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 
           // Cache in memory for future requests
           documents.set(id, document);
+          documentOwners.set(id, authReq.user!.userId);
           if (analysis) {
             analyses.set(id, analysis);
           }
@@ -428,7 +514,14 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 // GET /api/documents/:id/visualizations/:type - Get existing visualization
 router.get('/:id/visualizations/:type', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id, type } = req.params;
+
+    // Verify ownership first
+    const docRecord = await documentRepository.findById(id);
+    if (!docRecord || docRecord.userId !== authReq.user!.userId) {
+       return res.status(404).json({ error: 'Visualization not found' });
+    }
 
     // Try to get from DynamoDB using new service
     const existingVisualization = await visualizationService.findByDocumentIdAndType(id, type);
@@ -452,7 +545,14 @@ router.get('/:id/visualizations/:type', async (req: Request, res: Response) => {
 // GET /api/documents/:id/visualizations - Get all visualizations for a document
 router.get('/:id/visualizations', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
+
+    // Verify ownership first
+    const docRecord = await documentRepository.findById(id);
+    if (!docRecord || docRecord.userId !== authReq.user!.userId) {
+       return res.status(404).json({ error: 'Visualizations not found' });
+    }
 
     // Get all visualizations for the document
     const visualizations = await visualizationService.findByDocumentId(id);
@@ -492,41 +592,50 @@ router.get('/:id/progress', (req: Request, res: Response) => {
 // GET /api/documents/:id/full - Get document with all data
 router.get('/:id/full', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const { id } = req.params;
 
     // Try DynamoDB first
     try {
       const docRecord = await documentRepository.findById(id);
-      const analysisRecord = await analysisRepository.findByDocumentId(id);
+      
+      // Ownership Check
+      if (docRecord) {
+        if (docRecord.userId !== authReq.user!.userId) {
+           return res.status(404).json({ error: 'Document not found' });
+        }
 
-      if (docRecord && analysisRecord) {
-        // Update access metadata
-        await documentRepository.updateAccessMetadata(id);
+        const analysisRecord = await analysisRepository.findByDocumentId(id);
 
-        // Load content from S3 and reconstruct document with proper structure
-        const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
-        const content = contentBuffer.toString('utf-8');
+        if (analysisRecord) {
+            // Update access metadata
+            await documentRepository.updateAccessMetadata(id);
 
-        // Import documentParser to properly reconstruct structure
-        const { documentParser } = await import('../services/documentParser.js');
+            // Load content from S3 and reconstruct document with proper structure
+            const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
+            const content = contentBuffer.toString('utf-8');
 
-        // Reconstruct Document object from DynamoDB record with proper structure, preserving original ID
-        const document = await documentParser.parseDocument(
-          contentBuffer,
-          docRecord.filename,
-          docRecord.documentId,  // Pass the original document ID to preserve it
-        );
+            // Import documentParser to properly reconstruct structure
+            const { documentParser } = await import('../services/documentParser.js');
 
-        // Extract visualizations from analysis if they exist
-        const docVisualizations: Record<string, any> = {};
-        // Visualizations are stored in the analysis object
-        // For now, return empty visualizations as they're generated on-demand
+            // Reconstruct Document object from DynamoDB record with proper structure, preserving original ID
+            const document = await documentParser.parseDocument(
+            contentBuffer,
+            docRecord.filename,
+            docRecord.documentId,  // Pass the original document ID to preserve it
+            );
 
-        return res.json({
-          document,
-          analysis: analysisRecord.analysis,
-          visualizations: docVisualizations,
-        });
+            // Extract visualizations from analysis if they exist
+            const docVisualizations: Record<string, any> = {};
+            // Visualizations are stored in the analysis object
+            // For now, return empty visualizations as they're generated on-demand
+
+            return res.json({
+            document,
+            analysis: analysisRecord.analysis,
+            visualizations: docVisualizations,
+            });
+        }
       }
     } catch (dbError) {
       console.error('DynamoDB fetch error (falling back to memory):', dbError);
@@ -537,6 +646,11 @@ router.get('/:id/full', async (req: Request, res: Response) => {
     const document = documents.get(id);
     if (!document) {
       return res.status(404).json({ error: 'Document not found' });
+    }
+    
+    // Ownership check for in-memory
+    if (documentOwners.get(id) !== authReq.user!.userId) {
+        return res.status(404).json({ error: 'Document not found' });
     }
 
     const analysis = analyses.get(id);
@@ -560,13 +674,14 @@ router.get('/:id/full', async (req: Request, res: Response) => {
 // GET /api/documents - List all documents (must be last to not conflict with other routes)
 router.get('/', async (req: Request, res: Response) => {
   try {
+    const authReq = req as AuthenticatedRequest;
     const limit = parseInt(req.query.limit as string) || 50;
     const offset = parseInt(req.query.offset as string) || 0;
 
     // Fetch from DynamoDB
     try {
       console.log('📋 Fetching documents from DynamoDB...');
-      const userId = '1'; // Default anonymous user
+      const userId = authReq.user!.userId;
       const result = await documentRepository.listByUserId(userId, limit);
 
       // Fetch analyses for each document
@@ -586,7 +701,7 @@ router.get('/', async (req: Request, res: Response) => {
         }),
       );
 
-      console.log(`✅ Found ${documentList.length} documents in DynamoDB`);
+      console.log(`✅ Found ${documentList.length} documents in DynamoDB for user ${userId}`);
 
       const total = documentList.length;
 
@@ -603,6 +718,7 @@ router.get('/', async (req: Request, res: Response) => {
 
     // Fallback to in-memory storage
     const allDocs = Array.from(documents.values())
+      .filter(doc => documentOwners.get(doc.id) === authReq.user!.userId)
       .sort((a, b) => new Date(b.metadata.uploadDate).getTime() - new Date(a.metadata.uploadDate).getTime());
 
     const total = allDocs.length;

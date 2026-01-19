@@ -7,7 +7,7 @@ const COMMON_WORDS: Record<string, string[]> = {
   es: ['el', 'la', 'de', 'que', 'en', 'los', 'las', 'por', 'para', 'con'],
   fr: ['le', 'la', 'les', 'des', 'est', 'une', 'dans', 'pour', 'plus', 'avec'],
   de: ['der', 'die', 'das', 'und', 'mit', 'ist', 'von', 'eine', 'den', 'auf'],
-  it: ['il', 'la', 'le', 'di', 'che', 'in', 'per', 'una', 'nella', 'con']
+  it: ['il', 'la', 'le', 'di', 'che', 'in', 'per', 'una', 'nella', 'con'],
 };
 
 /**
@@ -20,7 +20,7 @@ export function detectLanguage(text: string): string {
 
   const lowerText = text.toLowerCase();
   const words = lowerText.split(/\W+/);
-  
+
   const scores: Record<string, number> = {};
 
   for (const [lang, commonWords] of Object.entries(COMMON_WORDS)) {

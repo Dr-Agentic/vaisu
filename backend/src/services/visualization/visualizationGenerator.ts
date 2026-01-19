@@ -1,6 +1,5 @@
 import { DEPTH_ANALYSIS_PROMPT } from '../../prompts/depthAnalysisPrompt.js';
 import { visualizationService } from '../../repositories/visualizationService.js';
-import { parseDate } from '../../utils/dateParser';
 
 import type {
   Document,
