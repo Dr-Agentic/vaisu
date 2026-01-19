@@ -46,6 +46,91 @@ const buildTree = (nodes: MindMapGraphNode[], rootId: string): TreeNode | null =
   return nodeMap.get(rootId) || null;
 };
 
+// Extracted Component to prevent re-creation on every render
+const MindMapNode = React.memo(({ 
+  node, 
+  store, 
+  cardRefs, 
+  onLayoutUpdate 
+}: { 
+  node: TreeNode; 
+  store: any; // Using the store type would be better, but 'any' is safe for now given the context import
+  cardRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
+  onLayoutUpdate: () => void;
+}) => {
+  const isExpanded = store.expandedNodeIds.has(node.id);
+  const isSelected = store.selectedNodeId === node.id;
+  
+  // Aurora Logic
+  const isAurora = useMemo(() => {
+      if (!store.selectedNodeId) return false;
+      const selectedNode = store.nodes.find((n: any) => n.id === store.selectedNodeId);
+      return selectedNode?.metadata.childrenIds.includes(node.id);
+  }, [store.selectedNodeId, node.id, store.nodes]);
+
+  const auroraClass = isAurora
+    ? 'ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200'
+    : '';
+
+  return (
+    <div className="flex flex-row items-center">
+      {/* Node Card Wrapper */}
+      <div className="relative flex flex-col items-center z-10">
+        <div ref={el => (cardRefs.current[node.id] = el)}>
+          <GraphEntityCard
+            node={node}
+            isSelected={isSelected}
+            isRelated={false}
+            isDimmed={store.selectedNodeId !== null && !isSelected && !isAurora}
+            onClick={(id) => store.selectNode(id)}
+            className={auroraClass}
+            // Allow card to size itself naturally
+            style={{ position: 'relative', width: '320px', left: 'auto', top: 'auto' }}
+            onMouseEnter={() => setTimeout(onLayoutUpdate, 350)} 
+            onMouseLeave={() => setTimeout(onLayoutUpdate, 350)}
+          />
+        </div>
+
+        {/* Expansion Toggle Button */}
+        {node.children.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              store.toggleNodeExpansion(node.id);
+            }}
+            className={`
+              mt-2 z-20 flex items-center justify-center w-6 h-6 rounded-full 
+              border shadow-sm transition-all duration-200
+              ${isExpanded 
+                ? 'bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]' 
+                : 'bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md'}
+            `}
+          >
+            <span className="text-[10px] font-bold leading-none">
+              {isExpanded ? '−' : '+'}
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Children Column */}
+      {isExpanded && node.children.length > 0 && (
+        <div className="flex flex-col gap-8 ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
+          {node.children.map(child => (
+            <MindMapNode 
+              key={child.id} 
+              node={child} 
+              store={store} 
+              cardRefs={cardRefs}
+              onLayoutUpdate={onLayoutUpdate}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+});
+
 export const MindMap: React.FC<MindMapProps> = ({ data }) => {
   const store = useMindMapStore();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -101,76 +186,6 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
     return () => clearTimeout(timer);
   }, [store.expandedNodeIds, updateCoords]);
 
-
-  // Recursive Node Renderer
-  const RenderNode = ({ node }: { node: TreeNode }) => {
-    const isExpanded = store.expandedNodeIds.has(node.id);
-    const isSelected = store.selectedNodeId === node.id;
-    
-    // Aurora Logic
-    const isAurora = useMemo(() => {
-        if (!store.selectedNodeId) return false;
-        const selectedNode = store.nodes.find(n => n.id === store.selectedNodeId);
-        return selectedNode?.metadata.childrenIds.includes(node.id);
-    }, [store.selectedNodeId, node.id, store.nodes]);
-
-    const auroraClass = isAurora
-      ? 'ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200'
-      : '';
-
-    return (
-      <div className="flex flex-row items-center">
-        {/* Node Card Wrapper */}
-        <div className="relative flex flex-col items-center z-10">
-          <div ref={el => (cardRefs.current[node.id] = el)}>
-            <GraphEntityCard
-              node={node}
-              isSelected={isSelected}
-              isRelated={false}
-              isDimmed={store.selectedNodeId !== null && !isSelected && !isAurora}
-              onClick={(id) => store.selectNode(id)}
-              className={auroraClass}
-              // Allow card to size itself naturally
-              style={{ position: 'relative', width: '320px', left: 'auto', top: 'auto' }}
-              onMouseEnter={() => setTimeout(updateCoords, 350)} 
-              onMouseLeave={() => setTimeout(updateCoords, 350)}
-            />
-          </div>
-
-          {/* Expansion Toggle Button */}
-          {node.children.length > 0 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                store.toggleNodeExpansion(node.id);
-              }}
-              className={`
-                mt-2 z-20 flex items-center justify-center w-6 h-6 rounded-full 
-                border shadow-sm transition-all duration-200
-                ${isExpanded 
-                  ? 'bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]' 
-                  : 'bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md'}
-              `}
-            >
-              <span className="text-[10px] font-bold leading-none">
-                {isExpanded ? '−' : '+'}
-              </span>
-            </button>
-          )}
-        </div>
-
-        {/* Children Column */}
-        {isExpanded && node.children.length > 0 && (
-          <div className="flex flex-col gap-8 ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
-            {node.children.map(child => (
-              <RenderNode key={child.id} node={child} />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
   const handleBackgroundClick = () => {
     store.selectNode(null);
   };
@@ -198,7 +213,14 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
             className="relative min-w-max min-h-full p-16"
         >
              {/* Render Root (and recursively children) */}
-             {rootNode && <RenderNode node={rootNode} />}
+             {rootNode && (
+               <MindMapNode 
+                 node={rootNode} 
+                 store={store} 
+                 cardRefs={cardRefs}
+                 onLayoutUpdate={updateCoords}
+               />
+             )}
 
              {/* Edges Layer */}
              <GraphEdgeLayer>

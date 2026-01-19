@@ -49,6 +49,66 @@ const mapSectionToNode = (section: Section): GraphNode => ({
   y: 0,
 });
 
+// Extracted Component
+const RenderTree = React.memo(({ 
+  nodes, 
+  depth = 0,
+  cardRefs,
+  selectedNode,
+  onSelectNode,
+  onLayoutUpdate
+}: { 
+  nodes: TreeNode[]; 
+  depth?: number;
+  cardRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
+  selectedNode: GraphNode | null;
+  onSelectNode: (node: GraphNode) => void;
+  onLayoutUpdate: () => void;
+}) => {
+  if (!nodes || nodes.length === 0) return null;
+
+  return (
+    <div className="flex flex-col gap-8">
+      {nodes.map(node => {
+        const graphNode = mapSectionToNode(node);
+        const isSelected = selectedNode?.id === node.id;
+
+        return (
+          <div key={node.id} className="flex flex-row items-center">
+            {/* Node Card */}
+            <div ref={el => (cardRefs.current[node.id] = el)} className="relative z-10">
+              <GraphEntityCard
+                node={graphNode}
+                onClick={() => onSelectNode(graphNode)}
+                isSelected={isSelected}
+                // Override style to be relative
+                style={{ position: 'relative', width: '320px', left: 'auto', top: 'auto' }} 
+                // Trigger layout update on interaction (e.g. expansion)
+                onMouseEnter={() => setTimeout(onLayoutUpdate, 350)} // Wait for animation
+                onMouseLeave={() => setTimeout(onLayoutUpdate, 350)}
+              />
+            </div>
+
+            {/* Children */}
+            {node.subSections.length > 0 && (
+              <div className="ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
+                <RenderTree 
+                  nodes={node.subSections} 
+                  depth={depth + 1} 
+                  cardRefs={cardRefs}
+                  selectedNode={selectedNode}
+                  onSelectNode={onSelectNode}
+                  onLayoutUpdate={onLayoutUpdate}
+                />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+});
+
 export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) => {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   
@@ -117,46 +177,6 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) 
     return () => observer.disconnect();
   }, [updateCoords]);
 
-
-  // Recursive Tree Renderer Component
-  const RenderTree = ({ nodes, depth = 0 }: { nodes: TreeNode[]; depth?: number }) => {
-    if (!nodes || nodes.length === 0) return null;
-
-    return (
-      <div className="flex flex-col gap-8">
-        {nodes.map(node => {
-          const graphNode = mapSectionToNode(node);
-          const isSelected = selectedNode?.id === node.id;
-
-          return (
-            <div key={node.id} className="flex flex-row items-center">
-              {/* Node Card */}
-              <div ref={el => (cardRefs.current[node.id] = el)} className="relative z-10">
-                <GraphEntityCard
-                  node={graphNode}
-                  onClick={() => setSelectedNode(graphNode)}
-                  isSelected={isSelected}
-                  // Override style to be relative
-                  style={{ position: 'relative', width: '320px', left: 'auto', top: 'auto' }} 
-                  // Trigger layout update on interaction (e.g. expansion)
-                  onMouseEnter={() => setTimeout(updateCoords, 350)} // Wait for animation
-                  onMouseLeave={() => setTimeout(updateCoords, 350)}
-                />
-              </div>
-
-              {/* Children */}
-              {node.subSections.length > 0 && (
-                <div className="ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
-                  <RenderTree nodes={node.subSections} depth={depth + 1} />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-
   return (
     <GraphViewerLayout
       title="Document Structure"
@@ -168,7 +188,13 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({ data }) 
           ref={contentRef}
         >
           {/* Render Nodes (Natural Flow) */}
-          <RenderTree nodes={roots} />
+          <RenderTree 
+            nodes={roots} 
+            cardRefs={cardRefs}
+            selectedNode={selectedNode}
+            onSelectNode={setSelectedNode}
+            onLayoutUpdate={updateCoords}
+          />
 
           {/* Render Edges (Overlay) */}
           <GraphEdgeLayer>
