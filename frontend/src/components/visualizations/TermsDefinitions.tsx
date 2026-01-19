@@ -109,7 +109,7 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
       title="Terms & Definitions"
       description={`Glossary of ${data.metadata?.totalTerms || 0} key terms extracted from the document.`}
     >
-      <div className="h-full flex flex-col overflow-auto bg-[var(--color-background-primary)]">
+      <div className="absolute inset-0 flex flex-col overflow-hidden bg-[var(--color-background-primary)]">
         {/* Toolbar */}
         <div className="p-4 border-b border-[var(--color-border-subtle)] bg-[var(--color-surface-base)] space-y-4">
           {/* Search Bar */}
@@ -150,7 +150,7 @@ export const TermsDefinitions: React.FC<TermsDefinitionsProps> = ({ data }) => {
         </div>
 
         {/* Grid Content */}
-        <div className="flex-1 p-6">
+        <div className="flex-1 p-6 overflow-auto custom-scrollbar">
           {filteredTerms.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-[1920px] mx-auto">
               {filteredTerms.map((term) => (

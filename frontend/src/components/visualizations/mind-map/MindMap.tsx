@@ -1,5 +1,11 @@
-import { MindMapData } from '@shared/types';
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { MindMapData } from "@shared/types";
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
 
 import {
   GraphViewerLayout,
@@ -7,11 +13,11 @@ import {
   GraphEdgeLayer,
   DynamicBezierPath,
   GraphEntityCard,
-} from '../toolkit';
-import { MindMapGraphNode } from './types';
+} from "../toolkit";
+import { MindMapGraphNode } from "./types";
 
-import { useMindMapStore } from './stores/mindMapStore';
-import { transformMindMapData } from './utils/dataTransformers';
+import { useMindMapStore } from "./stores/mindMapStore";
+import { transformMindMapData } from "./utils/dataTransformers";
 
 interface MindMapProps {
   data: MindMapData;
@@ -22,16 +28,19 @@ interface TreeNode extends MindMapGraphNode {
   children: TreeNode[];
 }
 
-const buildTree = (nodes: MindMapGraphNode[], rootId: string): TreeNode | null => {
+const buildTree = (
+  nodes: MindMapGraphNode[],
+  rootId: string,
+): TreeNode | null => {
   const nodeMap = new Map<string, TreeNode>();
-  
+
   // 1. Create all TreeNode wrappers
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     nodeMap.set(node.id, { ...node, children: [] });
   });
 
   // 2. Link children
-  nodes.forEach(node => {
+  nodes.forEach((node) => {
     const treeNode = nodeMap.get(node.id);
     if (treeNode) {
       node.metadata.childrenIds.forEach((childId: string) => {
@@ -47,101 +56,116 @@ const buildTree = (nodes: MindMapGraphNode[], rootId: string): TreeNode | null =
 };
 
 // Extracted Component to prevent re-creation on every render
-const MindMapNode = React.memo(({ 
-  node, 
-  store, 
-  cardRefs, 
-  onLayoutUpdate 
-}: { 
-  node: TreeNode; 
-  store: any; // Using the store type would be better, but 'any' is safe for now given the context import
-  cardRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
-  onLayoutUpdate: () => void;
-}) => {
-  const isExpanded = store.expandedNodeIds.has(node.id);
-  const isSelected = store.selectedNodeId === node.id;
-  
-  // Aurora Logic
-  const isAurora = useMemo(() => {
+const MindMapNode = React.memo(
+  ({
+    node,
+    store,
+    cardRefs,
+    onLayoutUpdate,
+  }: {
+    node: TreeNode;
+    store: any; // Using the store type would be better, but 'any' is safe for now given the context import
+    cardRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
+    onLayoutUpdate: () => void;
+  }) => {
+    const isExpanded = store.expandedNodeIds.has(node.id);
+    const isSelected = store.selectedNodeId === node.id;
+
+    // Aurora Logic
+    const isAurora = useMemo(() => {
       if (!store.selectedNodeId) return false;
-      const selectedNode = store.nodes.find((n: any) => n.id === store.selectedNodeId);
+      const selectedNode = store.nodes.find(
+        (n: any) => n.id === store.selectedNodeId,
+      );
       return selectedNode?.metadata.childrenIds.includes(node.id);
-  }, [store.selectedNodeId, node.id, store.nodes]);
+    }, [store.selectedNodeId, node.id, store.nodes]);
 
-  const auroraClass = isAurora
-    ? 'ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200'
-    : '';
+    const auroraClass = isAurora
+      ? "ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200"
+      : "";
 
-  return (
-    <div className="flex flex-row items-center">
-      {/* Node Card Wrapper */}
-      <div className="relative flex flex-col items-center z-10">
-        <div ref={el => (cardRefs.current[node.id] = el)}>
-          <GraphEntityCard
-            node={node}
-            isSelected={isSelected}
-            isRelated={false}
-            isDimmed={store.selectedNodeId !== null && !isSelected && !isAurora}
-            onClick={(id) => store.selectNode(id)}
-            className={auroraClass}
-            // Allow card to size itself naturally
-            style={{ position: 'relative', width: '320px', left: 'auto', top: 'auto' }}
-            onMouseEnter={() => setTimeout(onLayoutUpdate, 350)} 
-            onMouseLeave={() => setTimeout(onLayoutUpdate, 350)}
-          />
-        </div>
+    return (
+      <div className="flex flex-row items-center">
+        {/* Node Card Wrapper */}
+        <div className="relative flex flex-col items-center z-10">
+          <div ref={(el) => (cardRefs.current[node.id] = el)}>
+            <GraphEntityCard
+              node={node}
+              isSelected={isSelected}
+              isRelated={false}
+              isDimmed={
+                store.selectedNodeId !== null && !isSelected && !isAurora
+              }
+              onClick={(id) => store.selectNode(id)}
+              className={auroraClass}
+              // Allow card to size itself naturally
+              style={{
+                position: "relative",
+                width: "320px",
+                left: "auto",
+                top: "auto",
+              }}
+              onMouseEnter={() => setTimeout(onLayoutUpdate, 350)}
+              onMouseLeave={() => setTimeout(onLayoutUpdate, 350)}
+            />
+          </div>
 
-        {/* Expansion Toggle Button */}
-        {node.children.length > 0 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              store.toggleNodeExpansion(node.id);
-            }}
-            className={`
+          {/* Expansion Toggle Button */}
+          {node.children.length > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                store.toggleNodeExpansion(node.id);
+              }}
+              className={`
               mt-2 z-20 flex items-center justify-center w-6 h-6 rounded-full 
               border shadow-sm transition-all duration-200
-              ${isExpanded 
-                ? 'bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]' 
-                : 'bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md'}
+              ${
+                isExpanded
+                  ? "bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]"
+                  : "bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md"
+              }
             `}
-          >
-            <span className="text-[10px] font-bold leading-none">
-              {isExpanded ? '−' : '+'}
-            </span>
-          </button>
+            >
+              <span className="text-[10px] font-bold leading-none">
+                {isExpanded ? "−" : "+"}
+              </span>
+            </button>
+          )}
+        </div>
+
+        {/* Children Column */}
+        {isExpanded && node.children.length > 0 && (
+          <div className="flex flex-col gap-8 ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
+            {node.children.map((child) => (
+              <MindMapNode
+                key={child.id}
+                node={child}
+                store={store}
+                cardRefs={cardRefs}
+                onLayoutUpdate={onLayoutUpdate}
+              />
+            ))}
+          </div>
         )}
       </div>
-
-      {/* Children Column */}
-      {isExpanded && node.children.length > 0 && (
-        <div className="flex flex-col gap-8 ml-24 border-l-2 border-[var(--color-border-subtle)]/30 pl-8 py-4">
-          {node.children.map(child => (
-            <MindMapNode 
-              key={child.id} 
-              node={child} 
-              store={store} 
-              cardRefs={cardRefs}
-              onLayoutUpdate={onLayoutUpdate}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  );
-});
+    );
+  },
+);
 
 export const MindMap: React.FC<MindMapProps> = ({ data }) => {
   const store = useMindMapStore();
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [coords, setCoords] = useState<Record<string, { x: number, y: number }>>({});
+  const [coords, setCoords] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
 
   // Initialize store with data
   useEffect(() => {
     if (data && data.root) {
       const { nodes, edges, rootId } = transformMindMapData(data);
-      store.setGraphData(nodes, edges, rootId || '');
+      store.setGraphData(nodes, edges, rootId || "");
     }
   }, [data]);
 
@@ -153,9 +177,9 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
   // Coordinate Tracking (ResizeObserver)
   const updateCoords = useCallback(() => {
     if (!contentRef.current) return;
-    
+
     const contentRect = contentRef.current.getBoundingClientRect();
-    const newCoords: Record<string, { x: number, y: number }> = {};
+    const newCoords: Record<string, { x: number; y: number }> = {};
 
     Object.entries(cardRefs.current).forEach(([id, el]) => {
       if (el) {
@@ -194,7 +218,9 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
   // We can just iterate over the full edges list and check if both ends are in `coords`
   // This is simpler than tracking "visibleNodes" manually
   const visibleEdges = useMemo(() => {
-    return store.edges.filter(edge => coords[edge.source] && coords[edge.target]);
+    return store.edges.filter(
+      (edge) => coords[edge.source] && coords[edge.target],
+    );
   }, [store.edges, coords]);
 
   return (
@@ -202,34 +228,41 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
       title="Mind Map"
       description="Hierarchical exploration of concepts with progressive disclosure."
     >
-      <div
-        className="relative w-full h-full overflow-auto bg-[var(--color-surface-base)] blueprint-grid"
-        onClick={handleBackgroundClick}
-      >
+      <div className="relative w-full h-full bg-[var(--color-surface-base)]">
         <GraphBackground />
 
-        <div 
-            ref={contentRef}
-            className="relative min-w-max min-h-full p-16"
+        <div
+          className="absolute inset-0 overflow-auto blueprint-grid"
+          onClick={handleBackgroundClick}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleBackgroundClick();
+            }
+          }}
         >
-             {/* Render Root (and recursively children) */}
-             {rootNode && (
-               <MindMapNode 
-                 node={rootNode} 
-                 store={store} 
-                 cardRefs={cardRefs}
-                 onLayoutUpdate={updateCoords}
-               />
-             )}
+          <div ref={contentRef} className="relative min-w-max min-h-full p-16">
+            {/* Render Root (and recursively children) */}
+            {rootNode && (
+              <MindMapNode
+                node={rootNode}
+                store={store}
+                cardRefs={cardRefs}
+                onLayoutUpdate={updateCoords}
+              />
+            )}
 
-             {/* Edges Layer */}
-             <GraphEdgeLayer>
-              {visibleEdges.map(edge => {
+            {/* Edges Layer */}
+            <GraphEdgeLayer>
+              {visibleEdges.map((edge) => {
                 const s = coords[edge.source];
                 const t = coords[edge.target];
                 if (!s || !t) return null;
 
-                const isSelected = store.selectedNodeId === edge.source || store.selectedNodeId === edge.target;
+                const isSelected =
+                  store.selectedNodeId === edge.source ||
+                  store.selectedNodeId === edge.target;
 
                 return (
                   <DynamicBezierPath
@@ -238,12 +271,13 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
                     y1={s.y}
                     x2={t.x}
                     y2={t.y}
-                    label={edge.type !== 'relates-to' ? edge.type : undefined}
+                    label={edge.type !== "relates-to" ? edge.type : undefined}
                     isActive={isSelected}
                   />
                 );
               })}
-             </GraphEdgeLayer>
+            </GraphEdgeLayer>
+          </div>
         </div>
       </div>
     </GraphViewerLayout>
