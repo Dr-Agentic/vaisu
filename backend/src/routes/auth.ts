@@ -299,13 +299,6 @@ router.post(
         message: "If an account exists, a reset link has been sent",
         // resetToken, // In production, don't return this (Removed for security)
       });
-
-      // TODO: Send reset email
-
-      res.json({
-        message: "If an account exists, a reset link has been sent",
-        resetToken, // In production, don't return this
-      });
     } catch (error) {
       console.error("Password reset request error:", error);
       res.status(500).json({ error: "Internal server error" });

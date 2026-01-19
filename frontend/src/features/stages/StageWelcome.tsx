@@ -10,10 +10,10 @@
  * ```
  */
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
-import { Button } from '../../components/primitives';
-import { cn } from '../../lib/utils';
+import { Button } from "../../components/primitives";
+import { cn } from "../../lib/utils";
 
 export interface StageWelcomeProps {
   /**
@@ -47,9 +47,9 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
   (
     {
       onGetStarted,
-      title = 'Vaisu',
-      subtitle = 'Transform text into intelligent visual representations',
-      buttonText = 'Get Started',
+      title = "Vaisu",
+      subtitle = "Transform text into intelligent visual representations",
+      buttonText = "Get Started",
     },
     ref,
   ) => {
@@ -57,31 +57,40 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
       <div
         ref={ref}
         className={cn(
-          'flex-1',
-          'flex',
-          'flex-col',
-          'items-center',
-          'justify-center',
-          'text-center',
-          'hero-bg',
+          "flex-1",
+          "flex",
+          "flex-col",
+          "items-center",
+          "justify-center",
+          "text-center",
+          "hero-bg",
         )}
         style={{
-          backgroundColor: 'var(--color-background-primary)',
+          backgroundColor: "var(--color-background-primary)",
         }}
       >
         <div className="max-w-3xl mx-auto p-8">
+          {/* Logo */}
+          <div className="flex justify-center mb-8">
+            <img
+              src="/vaisu-logo.png"
+              alt="Vaisu Logo"
+              className="w-32 h-32 rounded-2xl shadow-[0_0_30px_rgba(59,130,246,0.3)] animate-fade-in"
+            />
+          </div>
+
           {/* Hero Title with Gradient Text */}
           <h1
             className={cn(
-              'mb-4',
-              'text-gradient-glow',
-              'font-bold',
-              'leading-tight',
+              "mb-4",
+              "text-gradient-glow",
+              "font-bold",
+              "leading-tight",
             )}
             style={{
-              fontSize: 'var(--font-size-6xl)',
-              fontWeight: 'var(--font-weight-bold)',
-              lineHeight: 'var(--line-height-tight)',
+              fontSize: "var(--font-size-6xl)",
+              fontWeight: "var(--font-weight-bold)",
+              lineHeight: "var(--line-height-tight)",
             }}
           >
             {title}
@@ -91,9 +100,9 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
           <p
             className="mb-12 leading-normal"
             style={{
-              color: 'var(--color-text-secondary)',
-              fontSize: 'var(--font-size-xl)',
-              lineHeight: 'var(--line-height-normal)',
+              color: "var(--color-text-secondary)",
+              fontSize: "var(--font-size-xl)",
+              lineHeight: "var(--line-height-normal)",
             }}
           >
             {subtitle}
@@ -114,4 +123,4 @@ export const StageWelcome = forwardRef<HTMLDivElement, StageWelcomeProps>(
   },
 );
 
-StageWelcome.displayName = 'StageWelcome';
+StageWelcome.displayName = "StageWelcome";
