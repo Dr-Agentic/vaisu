@@ -93,37 +93,56 @@ const updateCoords = () => {
 
 This model is superior to Canvas for our use case because it allows rich, interactive HTML content within nodes (icons, formatted text, badges) while maintaining high-performance smooth curves for connections.
 
-### 3.2 Entity Graph (Depth Flow) Layout
+### 3.2 Entity Graph (Ranked Flow) Layout
 
-The **Entity Flow Graph** uses a specialized **Semantic Coordinate System** to visualize narrative trajectory and depth.
+The **Entity Flow Graph** uses a **Ranked Column Layout** (also known as Longest Path Layering) to visualize narrative flow and dependencies.
 
 **Key Characteristics:**
 
-1.  **X-Axis (Narrative Time):** Nodes are arranged strictly left-to-right based on their `sequenceIndex`.
-    - _Formula:_ `x = index * spacing + offset`
-2.  **Y-Axis (Conceptual Depth):** Nodes are positioned vertically based on their semantic `depth` score (0-10).
-    - _Formula:_ `y = (10 - depth) * 8% + 10%` (Inverted: Depth 10 is at the bottom).
-3.  **No Collisions:** Because the X-axis is sequence-based, nodes can never horizontally overlap. Vertical overlap is rare and acceptable as it indicates simultaneous concepts at similar depths.
+1.  **Layout Logic:** Nodes are grouped into vertical columns based on their topological rank.
+    - Roots (Rank 0) are in the first column.
+    - Dependencies (Rank N+1) are placed to the right of their sources.
+2.  **Implementation:**
+    - **Flexbox Grid:** Uses a native `flex-row` container with `flex-col` children for columns. This ensures natural responsiveness without manual coordinate math.
+    - **Centered Alignment:** Cards are centered within their columns to ensure connection lines (anchored to card centers) look symmetrical.
+3.  **Edge Strategy:**
+    - **Layered Rendering:**
+      - **Bottom Layer (z-0):** Inactive edges (dimmed).
+      - **Top Layer (z-60):** Active/Hovered edges (bright, overlapping cards).
+    - **Visibility:** Unrelated edges are dimmed (opacity 0.2) when a node is focused, but remain visible to provide context.
 
 **Implementation Pattern:**
 
 ```tsx
-// Render Loop
-{
-  nodes.map((node, index) => {
-    const x = index * 280 + 80;
-    const yPercent = 10 + node.depth * 8;
+// 1. Calculate Ranks (Kahn's Algorithm)
+const columns = useMemo(() => computeTopologicalSort(nodes, edges), [data]);
 
-    return (
-      <div style={{ left: `${x}px`, top: `${yPercent}%` }}>
-        <GraphEntityCard node={node} />
-      </div>
-    );
-  });
-}
+// 2. Render Flex Grid
+<div ref={layoutRef} className="flex flex-row gap-24">
+  {columns.map((colNodes) => (
+    <div className="flex flex-col gap-8 items-center">
+       {colNodes.map(node => (
+         <div ref={el => cardRefs.current[node.id] = el}>
+           <GraphEntityCard ... />
+         </div>
+       ))}
+    </div>
+  ))}
+</div>
+
+// 3. Render Edges (Two Layers)
+<GraphEdgeLayer>
+  {/* Layer 1: Inactive Edges (Dimmed) */}
+  {inactiveEdges.map(e => <DynamicBezierPath isDimmed={true} ... />)}
+</GraphEdgeLayer>
+
+<GraphEdgeLayer>
+  {/* Layer 2: Active Edges (Bright) */}
+  {activeEdges.map(e => <DynamicBezierPath isActive={true} ... />)}
+</GraphEdgeLayer>
 ```
 
-This model is preferred for any graph that represents a linear or semi-linear narrative progression.
+This model is preferred for dependency graphs, process flows, or any narrative structure where "A leads to B" is the primary relationship.
 
 ## 4. Implementation Checklist
 

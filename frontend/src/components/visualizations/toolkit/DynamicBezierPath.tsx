@@ -7,6 +7,7 @@ interface DynamicBezierPathProps {
   y2: number;
   label?: string;
   isActive?: boolean;
+  isDimmed?: boolean;
 }
 
 export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
@@ -16,10 +17,14 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
   y2,
   label,
   isActive = false,
+  isDimmed = false,
 }) => {
-  const strokeColor = isActive ? 'var(--color-interactive-primary-base)' : 'var(--color-border-strong)';
+  const strokeColor = isActive
+    ? 'var(--color-interactive-primary-base)'
+    : 'var(--color-border-strong)';
   const strokeWidth = isActive ? 2 : 1.5;
   const markerEnd = isActive ? 'url(#arrowhead-active)' : 'url(#arrowhead)';
+  const opacity = isDimmed ? 0.2 : 1;
 
   // Calculate Path
   const dx = Math.abs(x2 - x1);
@@ -57,13 +62,15 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
   const labelX = (x1 + x2) / 2;
   const labelY = (y1 + y2) / 2;
 
-  const activeStyle: React.CSSProperties = isActive ? {
-    strokeDasharray: '10 10',
-    animation: 'flow 1s linear infinite',
-  } : {};
+  const activeStyle: React.CSSProperties = isActive
+    ? {
+      strokeDasharray: '10 10',
+      animation: 'flow 1s linear infinite',
+    }
+    : {};
 
   return (
-    <g className="group">
+    <g className="group" style={{ opacity, transition: 'opacity 0.3s ease' }}>
       <path
         d={pathData}
         fill="none"
@@ -92,12 +99,16 @@ export const DynamicBezierPath: React.FC<DynamicBezierPathProps> = ({
           className="overflow-visible"
         >
           <div className="flex justify-center items-center">
-            <span className={`
+            <span
+              className={`
               px-2 py-0.5 text-[10px] rounded-full border shadow-sm truncate max-w-full
-              ${isActive
+              ${
+        isActive
           ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-200 dark:border-blue-800'
-          : 'bg-white text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'}
-            `}>
+          : 'bg-white text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+        }
+            `}
+            >
               {label}
             </span>
           </div>
