@@ -50,10 +50,23 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // 1. Prepare Nodes
-  const nodes = useMemo(() => {
-    if (!data?.nodes) return [];
-    return data.nodes.map(convertToGraphNode);
+  // 1. Prepare Nodes and Calculate Range
+  const { nodes, depthRange } = useMemo(() => {
+    if (!data?.nodes) return { nodes: [], depthRange: { min: 0, max: 10 } };
+
+    const convertedNodes = data.nodes.map(convertToGraphNode);
+    const depths = data.nodes.map((n) => n.depth);
+    const min = Math.min(...depths);
+    const max = Math.max(...depths);
+
+    // Ensure we have a span to avoid division by zero
+    // If all nodes are same depth (span=0), force a span of 2 to center them
+    const span = Math.max(2, max - min);
+
+    return {
+      nodes: convertedNodes,
+      depthRange: { min, max: min + span },
+    };
   }, [data]);
 
   // 2. Prepare Edges
@@ -136,22 +149,46 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
           {/* Main Layout Container */}
           <div
             className="relative min-w-max min-h-full"
-            style={{ width: `${nodes.length * 280 + 100}px`, height: "800px" }}
+            style={{
+              width: `${nodes.length * 320 + 200}px`,
+              minHeight: "800px",
+            }}
           >
             {/* Y-Axis Labels (Depth) */}
-            <div className="absolute left-4 top-0 bottom-0 flex flex-col justify-between text-xs text-slate-400 font-mono pointer-events-none z-0">
-              <span>Surface (Depth 0)</span>
-              <span>Foundational (Depth 10)</span>
+            <div className="absolute left-4 top-4 bottom-4 flex flex-col justify-between text-xs text-slate-400 font-mono pointer-events-none z-0">
+              <span>Surface / Context</span>
+              <span className="opacity-50">Operational</span>
+              <span className="opacity-50">Mechanism</span>
+              <span>Foundational Core</span>
+            </div>
+
+            {/* Depth Zones (Visual Guides) */}
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <div className="w-full h-full border-t border-dashed border-slate-200/50 dark:border-slate-800/50 absolute top-[25%]" />
+              <div className="w-full h-full border-t border-dashed border-slate-200/50 dark:border-slate-800/50 absolute top-[50%]" />
+              <div className="w-full h-full border-t border-dashed border-slate-200/50 dark:border-slate-800/50 absolute top-[75%]" />
             </div>
 
             {/* Nodes Rendered in "Depth Flow" Grid */}
             {data?.nodes.map((node, index) => {
               // Layout Logic:
-              // X: Sequence Index * Spacing
-              // Y: Depth (0-10) mapped to 10%-90% height
-              const x = index * 280 + 80;
-              // Invert Y so 10 is at bottom (deeper)
-              const yPercent = 10 + node.depth * 8;
+              // X: Sequence Index * Spacing (increased to 320px)
+              const x = index * 320 + 100;
+
+              // Y: Normalized Depth Mapping with Zig-Zag
+              // 1. Normalize depth to 0-1 range based on actual data variance
+              const normalizedDepth =
+                (node.depth - depthRange.min) /
+                (depthRange.max - depthRange.min);
+
+              // 2. Map to 15%-85% screen height (giving distinct buffer at top/bottom)
+              // We invert logic: High Depth -> Bottom, Low Depth -> Top
+              let yPercent = 15 + normalizedDepth * 70;
+
+              // 3. Add Zig-Zag offset to separate sequential nodes at similar depth
+              // If nodes are close in depth, this pushes them apart visually
+              const stagger = index % 2 === 0 ? -8 : 8;
+              yPercent = Math.max(10, Math.min(90, yPercent + stagger));
 
               const isDimmed =
                 hoveredNodeId !== null &&
@@ -166,12 +203,14 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
                 <div
                   key={node.id}
                   ref={(el) => (cardRefs.current[node.id] = el)}
-                  className="absolute w-[240px] transition-opacity duration-300"
+                  className="absolute w-[280px] transition-all duration-500 ease-out"
                   style={{
                     left: `${x}px`,
                     top: `${yPercent}%`,
-                    zIndex: 10,
+                    zIndex: hoveredNodeId === node.id ? 50 : 10,
                     opacity: isDimmed ? 0.3 : 1,
+                    transform:
+                      hoveredNodeId === node.id ? "scale(1.05)" : "scale(1)",
                   }}
                 >
                   <GraphEntityCard

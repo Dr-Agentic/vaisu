@@ -671,7 +671,8 @@ export type TaskType =
   | "argumentMapGeneration"
   | "uml-extraction"
   | "knowledge-graph-generation"
-  | "depthAnalysis";
+  | "depthAnalysis"
+  | "entityGraphGeneration";
 
 export interface LLMCallConfig {
   model: string;
