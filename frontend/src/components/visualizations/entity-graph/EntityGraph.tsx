@@ -81,18 +81,39 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
   const measuredCardHeights = useRef<Record<string, number>>({});
   const MIN_CARD_HEIGHT = 120;
 
+  // Guard clause for empty data
+  if (!data?.nodes || data.nodes.length === 0) {
+    return (
+      <GraphViewerLayout
+        title="Entity Flow Graph"
+        description="No data to display"
+      >
+        <div className="flex items-center justify-center h-full text-slate-500">
+          No entity data available
+        </div>
+      </GraphViewerLayout>
+    );
+  }
+
   // Measure card heights
-  const updateLayout = useCallback(() => {
+  const measureCardHeights = useCallback(() => {
     if (!contentRef.current) return;
 
-    // Measure actual heights
-    const newCoords: Record<string, { x: number; y: number }> = {};
-
-    data.nodes.forEach((node, index) => {
+    data.nodes.forEach((node) => {
       const el = cardRefs.current[node.id];
       const height = el ? el.offsetHeight : MIN_CARD_HEIGHT;
       measuredCardHeights.current[node.id] = height;
+    });
+  }, [data.nodes]);
 
+  // Calculate node positions based on sequence and depth
+  const calculateNodePositions = useCallback((): Record<
+    string,
+    { x: number; y: number }
+  > => {
+    const newCoords: Record<string, { x: number; y: number }> = {};
+
+    data.nodes.forEach((node, index) => {
       // Calculate X based on sequence
       const x = index * 320 + 100;
 
@@ -104,16 +125,15 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
       newCoords[node.id] = { x, y: baseY };
     });
 
-    setLayoutCoords(newCoords);
-    // Also update edge coords
-    // Using setTimeout to ensure layout state is processed before measuring edges
-    setTimeout(() => {
-      if (!contentRef.current) return;
+    return newCoords;
+  }, [data.nodes]);
+
+  // Update edge coordinates based on node positions
+  const updateEdgeCoordinates = useCallback(
+    (nodeCoords: Record<string, { x: number; y: number }>) => {
       const edgeCoords: Record<string, { x: number; y: number }> = {};
 
-      // We use the calculated layout coordinates for edges instead of re-measuring DOM immediately
-      // This avoids race conditions
-      Object.entries(newCoords).forEach(([id, pos]) => {
+      Object.entries(nodeCoords).forEach(([id, pos]) => {
         // Edges connect to center of card
         // Since we know width (280) and measured height...
         const h = measuredCardHeights.current[id] || MIN_CARD_HEIGHT;
@@ -122,9 +142,29 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
           y: pos.y + h / 2,
         };
       });
+
       setCoords(edgeCoords);
+    },
+    [],
+  );
+
+  // Main layout update function
+  const updateLayout = useCallback(() => {
+    if (!contentRef.current) return;
+
+    // Measure actual heights
+    measureCardHeights();
+
+    // Calculate positions
+    const newCoords = calculateNodePositions();
+    setLayoutCoords(newCoords);
+
+    // Update edge coordinates with setTimeout to ensure layout state is processed
+    setTimeout(() => {
+      if (!contentRef.current) return;
+      updateEdgeCoordinates(newCoords);
     }, 0);
-  }, [data.nodes]);
+  }, [measureCardHeights, calculateNodePositions, updateEdgeCoordinates]);
 
   useEffect(() => {
     // Initial measure after render
@@ -205,15 +245,27 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
                       hoveredNodeId === node.id ? "scale(1.05)" : "scale(1)",
                   }}
                 >
-                  <GraphEntityCard
-                    node={convertToGraphNode(node)}
-                    isSelected={selectedNodeId === node.id}
-                    isRelated={false}
-                    isDimmed={false} // Handled by parent opacity for smoother effect
-                    onClick={() => handleNodeClick(node.id)}
-                    onMouseEnter={() => setHoveredNodeId(node.id)}
-                    onMouseLeave={() => setHoveredNodeId(null)}
-                  />
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`Entity: ${node.label}`}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleNodeClick(node.id);
+                      }
+                    }}
+                  >
+                    <GraphEntityCard
+                      node={convertToGraphNode(node)}
+                      isSelected={selectedNodeId === node.id}
+                      isRelated={false}
+                      isDimmed={false} // Handled by parent opacity for smoother effect
+                      onClick={() => handleNodeClick(node.id)}
+                      onMouseEnter={() => setHoveredNodeId(node.id)}
+                      onMouseLeave={() => setHoveredNodeId(null)}
+                    />
+                  </div>
                 </div>
               );
             })}
