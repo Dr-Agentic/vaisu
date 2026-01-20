@@ -50,23 +50,10 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // 1. Prepare Nodes and Calculate Range
-  const { nodes, depthRange } = useMemo(() => {
-    if (!data?.nodes) return { nodes: [], depthRange: { min: 0, max: 10 } };
-
-    const convertedNodes = data.nodes.map(convertToGraphNode);
-    const depths = data.nodes.map((n) => n.depth);
-    const min = Math.min(...depths);
-    const max = Math.max(...depths);
-
-    // Ensure we have a span to avoid division by zero
-    // If all nodes are same depth (span=0), force a span of 2 to center them
-    const span = Math.max(2, max - min);
-
-    return {
-      nodes: convertedNodes,
-      depthRange: { min, max: min + span },
-    };
+  // 1. Prepare Nodes
+  const nodes = useMemo(() => {
+    if (!data?.nodes) return [];
+    return data.nodes.map(convertToGraphNode);
   }, [data]);
 
   // 2. Prepare Edges
@@ -88,47 +75,64 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
     [selectedNodeId, nodes],
   );
 
-  // 3. Coordinate Tracking
-  const updateCoords = useCallback(() => {
+  const [layoutCoords, setLayoutCoords] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
+  const measuredCardHeights = useRef<Record<string, number>>({});
+  const MIN_CARD_HEIGHT = 120;
+
+  // Measure card heights
+  const updateLayout = useCallback(() => {
     if (!contentRef.current) return;
 
-    const contentRect = contentRef.current.getBoundingClientRect();
+    // Measure actual heights
     const newCoords: Record<string, { x: number; y: number }> = {};
 
-    Object.entries(cardRefs.current).forEach(([id, el]) => {
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        newCoords[id] = {
-          x: rect.left - contentRect.left + rect.width / 2,
-          y: rect.top - contentRect.top + rect.height / 2,
-        };
-      }
+    data.nodes.forEach((node, index) => {
+      const el = cardRefs.current[node.id];
+      const height = el ? el.offsetHeight : MIN_CARD_HEIGHT;
+      measuredCardHeights.current[node.id] = height;
+
+      // Calculate X based on sequence
+      const x = index * 320 + 100;
+
+      // Determine Y based on Depth + Collision Avoidance
+      // Base Y is determined by depth (inverted)
+      // We map 0-10 depth to 0-800px range roughly
+      let baseY = (10 - node.depth) * 80 + 50;
+
+      newCoords[node.id] = { x, y: baseY };
     });
 
-    setCoords(newCoords);
-  }, []);
+    setLayoutCoords(newCoords);
+    // Also update edge coords
+    // Using setTimeout to ensure layout state is processed before measuring edges
+    setTimeout(() => {
+      if (!contentRef.current) return;
+      const edgeCoords: Record<string, { x: number; y: number }> = {};
+
+      // We use the calculated layout coordinates for edges instead of re-measuring DOM immediately
+      // This avoids race conditions
+      Object.entries(newCoords).forEach(([id, pos]) => {
+        // Edges connect to center of card
+        // Since we know width (280) and measured height...
+        const h = measuredCardHeights.current[id] || MIN_CARD_HEIGHT;
+        edgeCoords[id] = {
+          x: pos.x + 140, // 280/2
+          y: pos.y + h / 2,
+        };
+      });
+      setCoords(edgeCoords);
+    }, 0);
+  }, [data.nodes]);
 
   useEffect(() => {
-    const observer = new ResizeObserver(() => updateCoords());
-    if (contentRef.current) {
-      observer.observe(contentRef.current);
-    }
-    // Initial calculation
-    setTimeout(updateCoords, 100);
-    return () => observer.disconnect();
-  }, [updateCoords]);
+    // Initial measure after render
+    const timer = setTimeout(updateLayout, 100);
+    return () => clearTimeout(timer);
+  }, [updateLayout]);
 
-  // Recalculate on scroll
-  useEffect(() => {
-    const container = contentRef.current;
-    if (container) {
-      container.addEventListener("scroll", updateCoords, { capture: true });
-      return () =>
-        container.removeEventListener("scroll", updateCoords, {
-          capture: true,
-        });
-    }
-  }, [updateCoords]);
+  // No separate updateCoords needed as it is integrated into updateLayout
 
   const handleNodeClick = (id: string) => {
     setSelectedNodeId((prev) => (prev === id ? null : id));
@@ -170,25 +174,13 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
             </div>
 
             {/* Nodes Rendered in "Depth Flow" Grid */}
-            {data?.nodes.map((node, index) => {
-              // Layout Logic:
-              // X: Sequence Index * Spacing (increased to 320px)
-              const x = index * 320 + 100;
+            {data?.nodes.map((node) => {
+              // Use layout coords if available, else fallback to initial calculation
+              const pos = layoutCoords[node.id];
+              if (!pos) return null; // Wait for measurement
 
-              // Y: Normalized Depth Mapping with Zig-Zag
-              // 1. Normalize depth to 0-1 range based on actual data variance
-              const normalizedDepth =
-                (node.depth - depthRange.min) /
-                (depthRange.max - depthRange.min);
-
-              // 2. Map to 15%-85% screen height (giving distinct buffer at top/bottom)
-              // We invert logic: High Depth -> Bottom, Low Depth -> Top
-              let yPercent = 15 + normalizedDepth * 70;
-
-              // 3. Add Zig-Zag offset to separate sequential nodes at similar depth
-              // If nodes are close in depth, this pushes them apart visually
-              const stagger = index % 2 === 0 ? -8 : 8;
-              yPercent = Math.max(10, Math.min(90, yPercent + stagger));
+              const x = pos.x;
+              const y = pos.y;
 
               const isDimmed =
                 hoveredNodeId !== null &&
@@ -206,7 +198,7 @@ export const EntityGraph: React.FC<EntityGraphProps> = ({ data }) => {
                   className="absolute w-[280px] transition-all duration-500 ease-out"
                   style={{
                     left: `${x}px`,
-                    top: `${yPercent}%`,
+                    top: `${y}px`,
                     zIndex: hoveredNodeId === node.id ? 50 : 10,
                     opacity: isDimmed ? 0.3 : 1,
                     transform:

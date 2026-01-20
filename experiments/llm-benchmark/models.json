@@ -1,0 +1,12 @@
+[
+  "nvidia/nemotron-3-nano-30b-a3b:free",
+  "openai/gpt-oss-120b:free",
+  "openai/gpt-oss-20b:free",
+  "google/gemma-3-27b-it:free",
+  "mistralai/devstral-2512:free",
+  "z-ai/glm-4.5-air:free",
+  "qwen/qwen3-coder:free",
+  "xiaomi/mimo-v2-flash:free",
+  "tngtech/deepseek-r1t2-chimera:free",
+  "moonshotai/kimi-k2:free"
+]
