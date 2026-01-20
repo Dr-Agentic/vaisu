@@ -1,19 +1,25 @@
-import { Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
-import { ArgumentMap } from '../../components/visualizations/argument-map/ArgumentMap';
-import { DepthGraph } from '../../components/visualizations/depth-graph/DepthGraph';
-import { ExecutiveDashboard } from '../../components/visualizations/executive-dashboard/ExecutiveDashboard';
-import { Flowchart } from '../../components/visualizations/flowchart/Flowchart';
-import { KnowledgeGraph } from '../../components/visualizations/knowledge-graph/KnowledgeGraph';
-import { MindMap } from '../../components/visualizations/mind-map/MindMap';
-import { StructuredViewRenderer } from '../../components/visualizations/StructuredViewRenderer';
-import { TermsDefinitions } from '../../components/visualizations/TermsDefinitions';
-import { UMLClassDiagram } from '../../components/visualizations/uml-class-diagram/UMLClassDiagram';
-import { useDocumentStore } from '../../stores/documentStore';
+import { ArgumentMap } from "../../components/visualizations/argument-map/ArgumentMap";
+import { DepthGraph } from "../../components/visualizations/depth-graph/DepthGraph";
+import { EntityGraph } from "../../components/visualizations/entity-graph/EntityGraph";
+import { Flowchart } from "../../components/visualizations/flowchart/Flowchart";
+import { ExecutiveDashboard } from "../../components/visualizations/executive-dashboard/ExecutiveDashboard";
+import { KnowledgeGraph } from "../../components/visualizations/knowledge-graph/KnowledgeGraph";
+import { MindMap } from "../../components/visualizations/mind-map/MindMap";
+import { StructuredViewRenderer } from "../../components/visualizations/StructuredViewRenderer";
+import { TermsDefinitions } from "../../components/visualizations/TermsDefinitions";
+import { UMLClassDiagram } from "../../components/visualizations/uml-class-diagram/UMLClassDiagram";
+import { useDocumentStore } from "../../stores/documentStore";
 
 export function VisualizationRenderer() {
-  const { currentVisualization, visualizationData, document, loadVisualization } = useDocumentStore();
+  const {
+    currentVisualization,
+    visualizationData,
+    document,
+    loadVisualization,
+  } = useDocumentStore();
 
   const data = visualizationData.get(currentVisualization);
 
@@ -32,7 +38,9 @@ export function VisualizationRenderer() {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <p className="text-red-600 mb-2">Failed to generate visualization</p>
-          <p className="text-gray-500 text-sm">{data.message || 'Unknown error'}</p>
+          <p className="text-gray-500 text-sm">
+            {data.message || "Unknown error"}
+          </p>
         </div>
       </div>
     );
@@ -50,29 +58,33 @@ export function VisualizationRenderer() {
   }
 
   switch (currentVisualization) {
-    case 'structured-view':
+    case "structured-view":
       return <StructuredViewRenderer data={data} />;
-    case 'mind-map':
+    case "mind-map":
       return <MindMap data={data} />;
-    case 'flowchart':
+    case "flowchart":
       return <Flowchart data={data} />;
-    case 'knowledge-graph':
+    case "knowledge-graph":
       return <KnowledgeGraph data={data} />;
-    case 'terms-definitions':
+    case "terms-definitions":
       return <TermsDefinitions data={data} />;
-    case 'uml-class-diagram':
+    case "uml-class-diagram":
       return <UMLClassDiagram data={data} />;
-    case 'argument-map':
+    case "argument-map":
       return <ArgumentMap data={data} />;
-    case 'depth-graph':
+    case "depth-graph":
       return <DepthGraph data={data} />;
-    case 'executive-dashboard':
+    case "entity-graph":
+      return <EntityGraph data={data} />;
+    case "executive-dashboard":
       return <ExecutiveDashboard data={data} />;
     default:
       return (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-gray-600">Visualization not implemented: {currentVisualization}</p>
+            <p className="text-gray-600">
+              Visualization not implemented: {currentVisualization}
+            </p>
           </div>
         </div>
       );

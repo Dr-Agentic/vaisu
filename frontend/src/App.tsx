@@ -38,7 +38,8 @@ import ProfilePage from './pages/ProfilePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated, checkAuth } = useUserStore();
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+  const checkAuth = useUserStore((state) => state.checkAuth);
   const location = useLocation();
 
   useEffect(() => {
@@ -53,7 +54,7 @@ const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 
 // Public Only Route (redirects to home if logged in)
 const PublicRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated } = useUserStore();
+  const isAuthenticated = useUserStore((state) => state.isAuthenticated);
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
   }
@@ -75,7 +76,7 @@ export default function App() {
     removeToast,
   } = useDocumentStore();
 
-  const { checkAuth } = useUserStore();
+  const checkAuth = useUserStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();

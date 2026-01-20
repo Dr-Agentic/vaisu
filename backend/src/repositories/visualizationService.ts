@@ -1,15 +1,16 @@
-import * as analysisRepository from './analysisRepository.js';
-import * as argumentMapRepository from './argumentMapRepository.js';
-import * as depthGraphRepository from './depthGraphRepository.js';
-import * as executiveDashboardRepository from './executiveDashboardRepository.js';
-import * as flowchartRepository from './flowchartRepository.js';
-import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
-import * as mindMapRepository from './mindMapRepository.js';
-import * as termsDefinitionsRepository from './termsDefinitionsRepository.js';
-import * as timelineRepository from './timelineRepository.js';
-import * as umlClassRepository from './umlClassRepository.js';
+import * as analysisRepository from "./analysisRepository.js";
+import * as argumentMapRepository from "./argumentMapRepository.js";
+import * as depthGraphRepository from "./depthGraphRepository.js";
+import * as entityGraphRepository from "./entityGraphRepository.js";
+import * as executiveDashboardRepository from "./executiveDashboardRepository.js";
+import * as flowchartRepository from "./flowchartRepository.js";
+import * as knowledgeGraphRepository from "./knowledgeGraphRepository.js";
+import * as mindMapRepository from "./mindMapRepository.js";
+import * as termsDefinitionsRepository from "./termsDefinitionsRepository.js";
+import * as timelineRepository from "./timelineRepository.js";
+import * as umlClassRepository from "./umlClassRepository.js";
 
-import type { VisualizationRecord } from './types.js';
+import type { VisualizationRecord } from "./types.js";
 
 /**
  * Visualization service that coordinates between individual repository types
@@ -19,7 +20,9 @@ export class VisualizationService {
    * Create visualization based on type
    */
   async create(visualization: VisualizationRecord): Promise<void> {
-    const repository = this.getRepositoryForType(visualization.visualizationType);
+    const repository = this.getRepositoryForType(
+      visualization.visualizationType,
+    );
     await repository.create(visualization);
   }
 
@@ -39,23 +42,23 @@ export class VisualizationService {
    */
   async findByDocumentId(documentId: string): Promise<VisualizationRecord[]> {
     const types = [
-      'structured-view',
-      'argument-map',
-      'depth-graph',
-      'uml-class',
-      'uml-class-diagram',
-      'uml-sequence',
-      'uml-activity',
-      'mind-map',
-      'flowchart',
-      'knowledge-graph',
-      'executive-dashboard',
-      'timeline',
-      'terms-definitions',
-      'gantt',
-      'comparison-matrix',
-      'priority-matrix',
-      'raci-matrix',
+      "structured-view",
+      "argument-map",
+      "depth-graph",
+      "uml-class",
+      "uml-class-diagram",
+      "uml-sequence",
+      "uml-activity",
+      "mind-map",
+      "flowchart",
+      "knowledge-graph",
+      "executive-dashboard",
+      "timeline",
+      "terms-definitions",
+      "gantt",
+      "comparison-matrix",
+      "priority-matrix",
+      "raci-matrix",
     ];
 
     const results: VisualizationRecord[] = [];
@@ -91,58 +94,64 @@ export class VisualizationService {
   /**
    * Delete visualization by type
    */
-  async deleteVisualization(documentId: string, visualizationType: string): Promise<void> {
+  async deleteVisualization(
+    documentId: string,
+    visualizationType: string,
+  ): Promise<void> {
     const repository = this.getRepositoryForType(visualizationType);
     switch (visualizationType) {
-      case 'structured-view':
+      case "structured-view":
         await repository.deleteStructuredView(documentId);
         break;
-      case 'argument-map':
+      case "argument-map":
         await repository.deleteArgumentMap(documentId);
         break;
-      case 'depth-graph':
+      case "depth-graph":
         await repository.deleteDepthGraph(documentId);
         break;
-      case 'uml-class':
+      case "entity-graph":
+        await repository.deleteEntityGraph(documentId);
+        break;
+      case "uml-class":
         await repository.deleteUmlClass(documentId);
         break;
-      case 'uml-class-diagram':
+      case "uml-class-diagram":
         await repository.deleteUmlClass(documentId);
         break;
-      case 'uml-sequence':
+      case "uml-sequence":
         await repository.deleteUmlClass(documentId);
         break;
-      case 'uml-activity':
+      case "uml-activity":
         await repository.deleteUmlClass(documentId);
         break;
-      case 'mind-map':
+      case "mind-map":
         await repository.deleteMindMap(documentId);
         break;
-      case 'flowchart':
+      case "flowchart":
         await repository.deleteFlowchart(documentId);
         break;
-      case 'executive-dashboard':
+      case "executive-dashboard":
         await repository.deleteExecutiveDashboard(documentId);
         break;
-      case 'timeline':
+      case "timeline":
         await repository.deleteTimeline(documentId);
         break;
-      case 'knowledge-graph':
+      case "knowledge-graph":
         await repository.deleteKnowledgeGraph(documentId);
         break;
-      case 'terms-definitions':
+      case "terms-definitions":
         await repository.deleteTermsDefinitions(documentId);
         break;
-      case 'gantt':
+      case "gantt":
         await repository.deleteGantt(documentId);
         break;
-      case 'comparison-matrix':
+      case "comparison-matrix":
         await repository.deleteComparisonMatrix(documentId);
         break;
-      case 'priority-matrix':
+      case "priority-matrix":
         await repository.deletePriorityMatrix(documentId);
         break;
-      case 'raci-matrix':
+      case "raci-matrix":
         await repository.deleteRaciMatrix(documentId);
         break;
       default:
@@ -155,39 +164,41 @@ export class VisualizationService {
    */
   private getRepositoryForType(type: string): any {
     switch (type) {
-      case 'structured-view':
+      case "structured-view":
         return analysisRepository; // Use analysis repository for structured-view
-      case 'argument-map':
+      case "argument-map":
         return argumentMapRepository;
-      case 'depth-graph':
+      case "depth-graph":
         return depthGraphRepository;
-      case 'uml-class':
+      case "entity-graph":
+        return entityGraphRepository;
+      case "uml-class":
         return umlClassRepository;
-      case 'uml-class-diagram':
+      case "uml-class-diagram":
         return umlClassRepository; // Maps to same repository as uml-class
-      case 'uml-sequence':
+      case "uml-sequence":
         return umlClassRepository; // Maps to same repository as uml-class
-      case 'uml-activity':
+      case "uml-activity":
         return umlClassRepository; // Maps to same repository as uml-class
-      case 'mind-map':
+      case "mind-map":
         return mindMapRepository;
-      case 'flowchart':
+      case "flowchart":
         return flowchartRepository;
-      case 'knowledge-graph':
+      case "knowledge-graph":
         return knowledgeGraphRepository; // Use knowledge graph repository for knowledge-graph
-      case 'executive-dashboard':
+      case "executive-dashboard":
         return executiveDashboardRepository;
-      case 'timeline':
+      case "timeline":
         return timelineRepository;
-      case 'terms-definitions':
+      case "terms-definitions":
         return termsDefinitionsRepository;
-      case 'gantt':
+      case "gantt":
         return analysisRepository; // Use analysis repository for gantt
-      case 'comparison-matrix':
+      case "comparison-matrix":
         return analysisRepository; // Use analysis repository for comparison-matrix
-      case 'priority-matrix':
+      case "priority-matrix":
         return analysisRepository; // Use analysis repository for priority-matrix
-      case 'raci-matrix':
+      case "raci-matrix":
         return analysisRepository; // Use analysis repository for raci-matrix
       default:
         throw new Error(`Unknown visualization type: ${type}`);

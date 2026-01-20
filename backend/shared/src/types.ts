@@ -78,12 +78,20 @@ export interface KPI {
   label: string;
   value: number;
   unit: string;
-  trend?: 'up' | 'down' | 'stable';
+  trend?: "up" | "down" | "stable";
   trendValue?: number;
   confidence: number;
 }
 
-export type EntityType = 'person' | 'organization' | 'location' | 'concept' | 'product' | 'metric' | 'date' | 'technical';
+export type EntityType =
+  | "person"
+  | "organization"
+  | "location"
+  | "concept"
+  | "product"
+  | "metric"
+  | "date"
+  | "technical";
 
 export interface Entity {
   id: string;
@@ -100,7 +108,14 @@ export interface TextSpan {
   text: string;
 }
 
-export type RelationType = 'causes' | 'requires' | 'part-of' | 'relates-to' | 'implements' | 'uses' | 'depends-on';
+export type RelationType =
+  | "causes"
+  | "requires"
+  | "part-of"
+  | "relates-to"
+  | "implements"
+  | "uses"
+  | "depends-on";
 
 export interface Relationship {
   id: string;
@@ -122,7 +137,7 @@ export interface Metric {
 }
 
 export interface TrendIndicator {
-  direction: 'up' | 'down' | 'stable';
+  direction: "up" | "down" | "stable";
   percentage?: number;
 }
 
@@ -136,22 +151,23 @@ export interface SignalAnalysis {
 }
 
 export type VisualizationType =
-  | 'structured-view'
-  | 'mind-map'
-  | 'argument-map'
-  | 'depth-graph'
-  | 'flowchart'
-  | 'knowledge-graph'
-  | 'uml-class-diagram'
-  | 'uml-sequence'
-  | 'uml-activity'
-  | 'executive-dashboard'
-  | 'timeline'
-  | 'gantt'
-  | 'comparison-matrix'
-  | 'priority-matrix'
-  | 'raci-matrix'
-  | 'terms-definitions';
+  | "structured-view"
+  | "mind-map"
+  | "argument-map"
+  | "depth-graph"
+  | "flowchart"
+  | "knowledge-graph"
+  | "uml-class-diagram"
+  | "uml-sequence"
+  | "uml-activity"
+  | "executive-dashboard"
+  | "timeline"
+  | "gantt"
+  | "comparison-matrix"
+  | "priority-matrix"
+  | "raci-matrix"
+  | "terms-definitions"
+  | "entity-graph";
 
 export interface VisualizationRecommendation {
   type: VisualizationType;
@@ -163,7 +179,7 @@ export interface VisualizationRecommendation {
 
 export interface MindMapData {
   root: MindMapNode;
-  layout: 'radial' | 'timeline' | 'fishbone';
+  layout: "radial" | "timeline" | "fishbone";
   theme: ColorTheme;
 }
 
@@ -197,10 +213,16 @@ export interface FlowchartData {
   nodes: FlowNode[];
   edges: FlowEdge[];
   swimlanes?: Swimlane[];
-  layout: 'topToBottom' | 'leftToRight';
+  layout: "topToBottom" | "leftToRight";
 }
 
-export type FlowNodeType = 'process' | 'decision' | 'start' | 'end' | 'input' | 'output';
+export type FlowNodeType =
+  | "process"
+  | "decision"
+  | "start"
+  | "end"
+  | "input"
+  | "output";
 
 export interface FlowNode {
   id: string;
@@ -216,7 +238,7 @@ export interface FlowEdge {
   source: string;
   target: string;
   label?: string;
-  type?: 'solid' | 'dashed';
+  type?: "solid" | "dashed";
 }
 
 export interface Swimlane {
@@ -295,14 +317,14 @@ export interface DashboardData {
 }
 
 export interface ChartData {
-  type: 'waterfall' | 'sankey' | 'heatmap' | 'bar' | 'line';
+  type: "waterfall" | "sankey" | "heatmap" | "bar" | "line";
   title: string;
   data: any;
 }
 
 export interface TimelineData {
   events: TimelineEvent[];
-  scale: 'day' | 'week' | 'month' | 'year';
+  scale: "day" | "week" | "month" | "year";
 }
 
 export interface TimelineEvent {
@@ -328,7 +350,7 @@ export interface GlossaryTerm {
   id: string;
   term: string;
   definition: string;
-  type: 'acronym' | 'technical' | 'jargon' | 'concept';
+  type: "acronym" | "technical" | "jargon" | "concept";
   confidence: number;
   mentions: number;
   context?: string;
@@ -345,8 +367,14 @@ export interface ArgumentMapData {
   };
 }
 
-export type ArgumentType = 'claim' | 'argument' | 'evidence' | 'counterargument' | 'rebuttal' | 'alternative';
-export type ArgumentPolarity = 'support' | 'attack' | 'neutral';
+export type ArgumentType =
+  | "claim"
+  | "argument"
+  | "evidence"
+  | "counterargument"
+  | "rebuttal"
+  | "alternative";
+export type ArgumentPolarity = "support" | "attack" | "neutral";
 
 export interface ArgumentNode {
   id: string;
@@ -355,7 +383,7 @@ export interface ArgumentNode {
   summary: string; // 1-2 lines max
   polarity: ArgumentPolarity;
   confidence: number; // 0-1
-  impact: 'low' | 'medium' | 'high';
+  impact: "low" | "medium" | "high";
   depthMetrics?: {
     cohesion: number;
     nuance: number;
@@ -374,7 +402,12 @@ export interface ArgumentNode {
   isCollapsed?: boolean;
 }
 
-export type ArgumentEdgeType = 'supports' | 'attacks' | 'rebuts' | 'is-alternative-to' | 'depends-on';
+export type ArgumentEdgeType =
+  | "supports"
+  | "attacks"
+  | "rebuts"
+  | "is-alternative-to"
+  | "depends-on";
 
 export interface ArgumentEdge {
   id: string;
@@ -429,7 +462,6 @@ export interface ClaritySignals {
   nuance: string[];
 }
 
-
 // UML Class Diagram Types
 
 export interface UMLDiagramData {
@@ -442,7 +474,7 @@ export interface UMLDiagramData {
 export interface ClassEntity {
   id: string;
   name: string;
-  type: 'class' | 'interface' | 'abstract' | 'enum';
+  type: "class" | "interface" | "abstract" | "enum";
   stereotype?: string;
   package?: string;
 
@@ -465,7 +497,7 @@ export interface Attribute {
   id: string;
   name: string;
   type: string;
-  visibility: 'public' | 'private' | 'protected' | 'package';
+  visibility: "public" | "private" | "protected" | "package";
   isStatic: boolean;
   defaultValue?: string;
 }
@@ -474,7 +506,7 @@ export interface Method {
   id: string;
   name: string;
   returnType: string;
-  visibility: 'public' | 'private' | 'protected' | 'package';
+  visibility: "public" | "private" | "protected" | "package";
   isStatic: boolean;
   isAbstract: boolean;
   parameters: Parameter[];
@@ -490,7 +522,13 @@ export interface UMLRelationship {
   id: string;
   source: string; // Class ID
   target: string; // Class ID
-  type: 'inheritance' | 'realization' | 'composition' | 'aggregation' | 'association' | 'dependency';
+  type:
+    | "inheritance"
+    | "realization"
+    | "composition"
+    | "aggregation"
+    | "association"
+    | "dependency";
 
   // Optional properties
   sourceMultiplicity?: string;
@@ -612,27 +650,27 @@ export interface GenerateVisualizationResponse {
 export interface ExportRequest {
   documentId: string;
   visualizationType: VisualizationType;
-  format: 'pdf' | 'png' | 'svg' | 'pptx' | 'html' | 'json' | 'csv';
+  format: "pdf" | "png" | "svg" | "pptx" | "html" | "json" | "csv";
 }
 
 // LLM Types
 
 export type TaskType =
-  | 'tldr'
-  | 'executiveSummary'
-  | 'entityExtraction'
-  | 'relationshipDetection'
-  | 'sectionSummary'
-  | 'signalAnalysis'
-  | 'vizRecommendation'
-  | 'kpiExtraction'
-  | 'glossary'
-  | 'qa'
-  | 'mindMapGeneration'
-  | 'argumentMapGeneration'
-  | 'uml-extraction'
-  | 'knowledge-graph-generation'
-  | 'depthAnalysis';
+  | "tldr"
+  | "executiveSummary"
+  | "entityExtraction"
+  | "relationshipDetection"
+  | "sectionSummary"
+  | "signalAnalysis"
+  | "vizRecommendation"
+  | "kpiExtraction"
+  | "glossary"
+  | "qa"
+  | "mindMapGeneration"
+  | "argumentMapGeneration"
+  | "uml-extraction"
+  | "knowledge-graph-generation"
+  | "depthAnalysis";
 
 export interface LLMCallConfig {
   model: string;
@@ -642,7 +680,7 @@ export interface LLMCallConfig {
 }
 
 export interface LLMMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -660,9 +698,39 @@ export interface ModelConfig {
   systemPrompt: string;
 }
 
+// Entity Graph Types
+export interface EntityGraphData {
+  nodes: EntityGraphNode[];
+  edges: EntityGraphEdge[];
+  metadata: {
+    trajectory: string;
+    depthScore: number;
+    totalUnits: number;
+  };
+}
+
+export interface EntityGraphNode {
+  id: string;
+  label: string;
+  summary: string;
+  depth: number; // 0-10
+  sequenceIndex: number; // X-axis position
+  type: "concept" | "mechanism" | "evidence";
+  clarityScore: number;
+}
+
+export interface EntityGraphEdge {
+  id: string;
+  source: string;
+  target: string;
+  type: "leads-to" | "supports" | "contrasts" | "expands" | "relates-to";
+  label?: string;
+  strength: number;
+}
+
 // Knowledge Graph State Management Types
 
-export type LayoutAlgorithm = 'force-directed' | 'hierarchical' | 'circular';
+export type LayoutAlgorithm = "force-directed" | "hierarchical" | "circular";
 
 export interface FilterState {
   visibleEntityTypes: Set<EntityType>;
@@ -738,4 +806,4 @@ export interface GraphState {
   setPerformanceMode: (enabled: boolean) => void;
 }
 
-export type ExportFormat = 'png' | 'svg' | 'html' | 'json';
+export type ExportFormat = "png" | "svg" | "html" | "json";

@@ -1,13 +1,13 @@
-import type { TaskType, ModelConfig } from '../../shared/src/types.js';
+import type { TaskType, ModelConfig } from "../../shared/src/types.js";
 
 // LLM Model Constants - single source of truth for model identifiers
 export const LLM_MODELS = {
-  GROK_FAST: 'x-ai/grok-4.1-fast',
-  GPT_35_TURBO: 'openai/gpt-3.5-turbo',
-  GPT_4O: 'openai/gpt-4o',
-  GPT_45_MINI: 'openai/gpt-4.5-mini',
-  GEMINI_FLASH: 'google/gemini-2.0-flash-exp:free',
-  MIMO_FLASH: 'xiaomi/mimo-v2-flash:free',
+  GROK_FAST: "x-ai/grok-4.1-fast",
+  GPT_35_TURBO: "openai/gpt-3.5-turbo",
+  GPT_4O: "openai/gpt-4o",
+  GPT_45_MINI: "openai/gpt-4.5-mini",
+  GEMINI_FLASH: "google/gemini-2.0-flash-exp:free",
+  MIMO_FLASH: "xiaomi/mimo-v2-flash:free",
 } as const;
 
 // LLM Selection Constants - easily switch between different model configurations
@@ -21,7 +21,8 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
-    systemPrompt: 'Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
+    systemPrompt:
+      "Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.",
   },
   executiveSummary: {
     primary: LLM_PRIMARY,
@@ -194,7 +195,8 @@ Return as JSON array with (no markdown): term, definition, domain, confidence.`,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.6,
-    systemPrompt: 'Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.',
+    systemPrompt:
+      "Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.",
   },
   mindMapGeneration: {
     primary: LLM_PRIMARY,
@@ -324,7 +326,7 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
   }
 }`,
   },
-  'uml-extraction': {
+  "uml-extraction": {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
@@ -418,7 +420,7 @@ Return as JSON with this structure (do not use markdown code blocks):
 
 Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`,
   },
-  'knowledge-graph-generation': {
+  "knowledge-graph-generation": {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
@@ -506,8 +508,17 @@ Extract 10-50 entities and 15-40 relationships based on document complexity. Foc
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.2,
-    systemPrompt: 'You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the provided text.',
+    systemPrompt:
+      "You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the provided text.",
   },
+  entityGraphGeneration: {
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
+    maxTokens: LLM_MAXTOKENS,
+    temperature: 0.3,
+    systemPrompt:
+      "You are a Lead Network Theorist specializing in the topology of arguments and concept drift. Build a directed graph of Logical Units and Causal Links.",
+  } as ModelConfig,
 };
 
 export function getModelForTask(task: TaskType): ModelConfig {

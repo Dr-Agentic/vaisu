@@ -97,6 +97,8 @@ export const useUserStore = create<UserState>()(
           const response = await apiClient.getMe();
           set({ user: response.user, isAuthenticated: true });
         } catch (error) {
+          // Token is invalid or user is not active, clear everything
+          apiClient.logout(); // Use the existing logout method to clear tokens
           set({ user: null, isAuthenticated: false });
         }
       },
