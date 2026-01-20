@@ -16,8 +16,37 @@ const client = axios.create({
 });
 
 function isLoginPage() {
+  // Check if we're on the login page using both pathname and search params
   const path = window.location.pathname.replace(/\/$/, '');
-  return path === '/login';
+  const search = window.location.search;
+  const hash = window.location.hash;
+  
+  // Direct path check
+  if (path === '/login') return true;
+  
+  // Handle React Router's SPA behavior and edge cases
+  // Check if search contains login-related params
+  if (search.includes('redirect=login') || search.includes('from=login')) return true;
+  
+  // Check hash routing (unlikely but safe)
+  if (hash.includes('login')) return true;
+  
+  return false;
+}
+
+// Helper to check if we should suppress auth redirects
+function shouldSuppressRedirect(url: string | undefined, statusCode: number): boolean {
+  // Don't redirect if already on login page
+  if (isLoginPage()) return true;
+  
+  // Don't redirect if the request was a login attempt itself
+  // (This handles the case where wrong password returns 403)
+  if (url?.includes('auth/login')) return true;
+  
+  // Don't redirect on 403 from auth endpoints (wrong password returns 403)
+  if (statusCode === 403 && url?.includes('auth')) return true;
+  
+  return false;
 }
 
 // Add auth token to requests
@@ -29,15 +58,24 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle token refresh on 401
+// Handle token refresh on 401 and auth errors on 403
 client.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    // Check if the URL is for login, handling potential base URL prefix
-    const isLoginRequest = originalRequest.url?.includes('auth/login');
+    const status = error.response?.status;
+    const url = originalRequest?.url;
+    const isLoginRequest = url?.includes('auth/login');
     
-    if (error.response?.status === 401 && !originalRequest._retry && !isLoginRequest) {
+    // DON'T handle auth errors if:
+    // 1. Already on login page (we're in the right place)
+    // 2. The request was a login attempt itself (wrong password - error should bubble to component)
+    if (isLoginPage() || isLoginRequest) {
+      return Promise.reject(error);
+    }
+    
+    // Handle 401 Unauthorized - attempt token refresh
+    if (status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -49,16 +87,24 @@ client.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
         return client(originalRequest);
       } catch (refreshError) {
+        // Token refresh failed - clear everything and redirect to login
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        
-        if (!isLoginPage()) {
-          window.location.href = '/login';
-        }
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
+    
+    // Handle 403 Forbidden - clear auth state and redirect to login
+    // (This includes wrong password scenarios from /auth/me or stale tokens)
+    if (status === 403) {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    
     return Promise.reject(error);
   },
 );
