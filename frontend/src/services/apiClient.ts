@@ -15,6 +15,11 @@ const client = axios.create({
   },
 });
 
+function isLoginPage() {
+  const path = window.location.pathname.replace(/\/$/, '');
+  return path === '/login';
+}
+
 // Add auth token to requests
 client.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken');
@@ -29,7 +34,10 @@ client.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('auth/login')) {
+    // Check if the URL is for login, handling potential base URL prefix
+    const isLoginRequest = originalRequest.url?.includes('auth/login');
+    
+    if (error.response?.status === 401 && !originalRequest._retry && !isLoginRequest) {
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem('refreshToken');
@@ -44,7 +52,8 @@ client.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        if (window.location.pathname !== '/login') {
+        
+        if (!isLoginPage()) {
           window.location.href = '/login';
         }
         return Promise.reject(refreshError);
@@ -75,7 +84,7 @@ export const apiClient = {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    if (window.location.pathname !== '/login') {
+    if (!isLoginPage()) {
       window.location.href = '/login';
     }
   },

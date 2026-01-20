@@ -28,7 +28,7 @@ interface UserState {
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -44,8 +44,9 @@ export const useUserStore = create<UserState>()(
             isLoading: false,
           });
         } catch (error: any) {
+          const errorMsg = error.response?.data?.error || 'Login failed';
           set({
-            error: error.response?.data?.error || 'Login failed',
+            error: errorMsg,
             isLoading: false,
           });
           throw error;
@@ -90,7 +91,11 @@ export const useUserStore = create<UserState>()(
 
       checkAuth: async () => {
         if (!apiClient.isAuthenticated()) {
-          set({ user: null, isAuthenticated: false });
+          // If we are already not authenticated, do nothing to avoid resetting potential error states
+          const { isAuthenticated } = get();
+          if (isAuthenticated) {
+             set({ user: null, isAuthenticated: false });
+          }
           return;
         }
         try {
@@ -98,7 +103,7 @@ export const useUserStore = create<UserState>()(
           set({ user: response.user, isAuthenticated: true });
         } catch (error) {
           // Token is invalid or user is not active, clear everything
-          apiClient.logout(); // Use the existing logout method to clear tokens
+          apiClient.logout();
           set({ user: null, isAuthenticated: false });
         }
       },
