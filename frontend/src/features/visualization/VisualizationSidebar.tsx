@@ -16,12 +16,12 @@
  * ```
  */
 
-import { forwardRef } from 'react';
+import { forwardRef } from "react";
 
-import { Badge } from '../../components/primitives';
-import { cn } from '../../lib/utils';
+import { Badge } from "../../components/primitives";
+import { cn } from "../../lib/utils";
 
-import type { VisualizationType as SharedVisualizationType } from '@shared/types';
+import type { VisualizationType as SharedVisualizationType } from "@shared/types";
 
 // Re-export the shared type for convenience
 export type VisualizationType = SharedVisualizationType;
@@ -112,67 +112,67 @@ export interface VisualizationSidebarProps {
  */
 const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   {
-    id: 'executive-dashboard',
-    name: 'Executive View',
-    description: 'High-level summary, KPIs, and strategic insights',
-    icon: '💼',
-    badge: 'Recommended',
+    id: "executive-dashboard",
+    name: "Executive View",
+    description: "High-level summary, KPIs, and strategic insights",
+    icon: "💼",
+    badge: "Recommended",
     shortcut: 1,
   },
   {
-    id: 'mind-map',
-    name: 'Mind Map',
-    description: 'Hierarchical structure of key concepts',
-    icon: '🧠',
+    id: "mind-map",
+    name: "Mind Map",
+    description: "Hierarchical structure of key concepts",
+    icon: "🧠",
     shortcut: 2,
   },
   {
-    id: 'knowledge-graph',
-    name: 'Knowledge Graph',
-    description: 'Entity relationships and connections',
-    icon: '🕸️',
+    id: "knowledge-graph",
+    name: "Knowledge Graph",
+    description: "Entity relationships and connections",
+    icon: "🕸️",
     shortcut: 3,
   },
   {
-    id: 'timeline',
-    name: 'Timeline',
-    description: 'Chronological flow of arguments',
-    icon: '📅',
+    id: "entity-graph",
+    name: "Entity Flow Graph",
+    description: "Narrative trajectory and conceptual depth",
+    icon: "⚡",
     shortcut: 4,
   },
   {
-    id: 'argument-map',
-    name: 'Argument Map',
-    description: 'Depth Graph of argument structure',
-    icon: '🏔️',
+    id: "argument-map",
+    name: "Argument Map",
+    description: "Depth Graph of argument structure",
+    icon: "🏔️",
     shortcut: 5,
   },
   {
-    id: 'uml-class-diagram',
-    name: 'UML Class Diagram',
-    description: 'Class relationships and structure',
-    icon: '📐',
+    id: "uml-class-diagram",
+    name: "UML Class Diagram",
+    description: "Class relationships and structure",
+    icon: "📐",
     shortcut: 6,
   },
   {
-    id: 'structured-view',
-    name: 'Structured View',
-    description: 'Formatted document overview',
-    icon: '📋',
+    id: "structured-view",
+    name: "Structured View",
+    description: "Formatted document overview",
+    icon: "📋",
     shortcut: 7,
   },
   {
-    id: 'terms-definitions',
-    name: 'Terms & Definitions',
-    description: 'Extracted terms, acronyms, and technical jargon',
-    icon: '📖',
+    id: "terms-definitions",
+    name: "Terms & Definitions",
+    description: "Extracted terms, acronyms, and technical jargon",
+    icon: "📖",
     shortcut: 8,
   },
   {
-    id: 'depth-graph',
-    name: 'Depth Graph',
-    description: 'Visualization of argument depth and complexity',
-    icon: '🧊',
+    id: "depth-graph",
+    name: "Depth Graph",
+    description: "Visualization of argument depth and complexity",
+    icon: "🧊",
     shortcut: 9,
   },
 ];
@@ -183,7 +183,10 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
  * Collapsible sidebar with visualization list and summary panel.
  * Uses SOTA void background colors and viz-item pattern.
  */
-export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSidebarProps>(
+export const VisualizationSidebar = forwardRef<
+  HTMLDivElement,
+  VisualizationSidebarProps
+>(
   (
     {
       currentViz,
@@ -197,39 +200,37 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
       <aside
         ref={ref}
         className={cn(
-          'flex',
-          'flex-col',
-          'transition-all',
-          'duration-[var(--duration-normal)]',
-          'ease-[var(--ease-out)]',
-          collapsed ? 'w-0' : 'w-[280px]',
-          collapsed ? 'overflow-hidden' : 'overflow-y-auto',
+          "flex",
+          "flex-col",
+          "transition-all",
+          "duration-[var(--duration-normal)]",
+          "ease-[var(--ease-out)]",
+          collapsed ? "w-0" : "w-[280px]",
+          collapsed ? "overflow-hidden" : "overflow-y-auto",
         )}
         style={{
-          backgroundColor: 'var(--color-surface-base)',
-          borderRightColor: 'var(--color-border-subtle)',
-          borderRightWidth: '1px',
-          borderRightStyle: 'solid',
+          backgroundColor: "var(--color-surface-base)",
+          borderRightColor: "var(--color-border-subtle)",
+          borderRightWidth: "1px",
+          borderRightStyle: "solid",
         }}
       >
-
-
         {/* Header */}
         <div
           className={cn(
-            'px-4',
-            'py-3',
-            'border-b',
-            'text-xs',
-            'uppercase',
-            'tracking-wider',
-            'font-medium',
+            "px-4",
+            "py-3",
+            "border-b",
+            "text-xs",
+            "uppercase",
+            "tracking-wider",
+            "font-medium",
           )}
           style={{
-            borderColor: 'var(--color-border-subtle)',
-            color: 'var(--color-text-secondary)',
-            fontSize: 'var(--font-size-xs)',
-            fontWeight: 'var(--font-weight-medium)',
+            borderColor: "var(--color-border-subtle)",
+            color: "var(--color-text-secondary)",
+            fontSize: "var(--font-size-xs)",
+            fontWeight: "var(--font-weight-medium)",
           }}
         >
           Visualizations
@@ -243,24 +244,26 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
               type="button"
               onClick={() => onVizChange(viz.id)}
               className={cn(
-                'w-full',
-                'text-left',
-                'viz-item',
-                currentViz === viz.id && 'active',
-                'transition-all',
-                'duration-[var(--duration-fast)]',
-                'ease-[var(--ease-out)]',
-                'p-2',
+                "w-full",
+                "text-left",
+                "viz-item",
+                currentViz === viz.id && "active",
+                "transition-all",
+                "duration-[var(--duration-fast)]",
+                "ease-[var(--ease-out)]",
+                "p-2",
               )}
               aria-label={`Switch to ${viz.name}`}
-              aria-current={currentViz === viz.id ? 'true' : undefined}
+              aria-current={currentViz === viz.id ? "true" : undefined}
             >
               {/* Compact one-line layout */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">{viz.icon}</span>
-                    <span className="font-medium text-sm truncate">{viz.name}</span>
+                    <span className="font-medium text-sm truncate">
+                      {viz.name}
+                    </span>
                     {viz.badge && (
                       <Badge variant="aurora" size="sm">
                         {viz.badge}
@@ -277,22 +280,22 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
                   <div
                     className="flex-shrink-0"
                     style={{
-                      color: 'var(--color-text-tertiary)',
-                      fontSize: 'var(--font-size-xs)',
+                      color: "var(--color-text-tertiary)",
+                      fontSize: "var(--font-size-xs)",
                     }}
                   >
                     <kbd
                       className={cn(
-                        'px-1',
-                        'py-0.5',
-                        'border',
-                        'rounded',
-                        'font-mono',
-                        'text-xs',
+                        "px-1",
+                        "py-0.5",
+                        "border",
+                        "rounded",
+                        "font-mono",
+                        "text-xs",
                       )}
                       style={{
-                        backgroundColor: 'var(--color-surface-elevated)',
-                        borderColor: 'var(--color-border-subtle)',
+                        backgroundColor: "var(--color-surface-elevated)",
+                        borderColor: "var(--color-border-subtle)",
                       }}
                     >
                       {viz.shortcut}
@@ -310,4 +313,4 @@ export const VisualizationSidebar = forwardRef<HTMLDivElement, VisualizationSide
   },
 );
 
-VisualizationSidebar.displayName = 'VisualizationSidebar';
+VisualizationSidebar.displayName = "VisualizationSidebar";

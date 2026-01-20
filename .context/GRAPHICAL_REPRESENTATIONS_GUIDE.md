@@ -93,6 +93,38 @@ const updateCoords = () => {
 
 This model is superior to Canvas for our use case because it allows rich, interactive HTML content within nodes (icons, formatted text, badges) while maintaining high-performance smooth curves for connections.
 
+### 3.2 Entity Graph (Depth Flow) Layout
+
+The **Entity Flow Graph** uses a specialized **Semantic Coordinate System** to visualize narrative trajectory and depth.
+
+**Key Characteristics:**
+
+1.  **X-Axis (Narrative Time):** Nodes are arranged strictly left-to-right based on their `sequenceIndex`.
+    - _Formula:_ `x = index * spacing + offset`
+2.  **Y-Axis (Conceptual Depth):** Nodes are positioned vertically based on their semantic `depth` score (0-10).
+    - _Formula:_ `y = (10 - depth) * 8% + 10%` (Inverted: Depth 10 is at the bottom).
+3.  **No Collisions:** Because the X-axis is sequence-based, nodes can never horizontally overlap. Vertical overlap is rare and acceptable as it indicates simultaneous concepts at similar depths.
+
+**Implementation Pattern:**
+
+```tsx
+// Render Loop
+{
+  nodes.map((node, index) => {
+    const x = index * 280 + 80;
+    const yPercent = 10 + node.depth * 8;
+
+    return (
+      <div style={{ left: `${x}px`, top: `${yPercent}%` }}>
+        <GraphEntityCard node={node} />
+      </div>
+    );
+  });
+}
+```
+
+This model is preferred for any graph that represents a linear or semi-linear narrative progression.
+
 ## 4. Implementation Checklist
 
 ### 4.1 Data Layer
@@ -112,3 +144,24 @@ This model is superior to Canvas for our use case because it allows rich, intera
 - [ ] **Empty State:** Show a loading skeleton or meaningful empty state.
 - [ ] **Error State:** Handle rendering errors gracefully with a retry option.
 - [ ] **Responsive:** Graph must adapt to container size changes.
+
+## 5. Testing Requirements
+
+All visualization implementations must include the following test coverage:
+
+### 5.1 Unit Tests (Generator/Logic)
+
+- [ ] Verify data structure generation matches the defined Types.
+- [ ] Test edge cases (empty text, single node, disconnected graph).
+- [ ] Mock LLM responses to ensure resilience against malformed JSON.
+
+### 5.2 Module Tests (Repository/Service)
+
+- [ ] Verify CRUD operations (Create, Read, Update, Delete) against the persistence layer.
+- [ ] Mock DynamoDB calls to isolate logic.
+
+### 5.3 Integration Tests (API Endpoint)
+
+- [ ] Test the full `POST /api/documents/:id/visualizations/:type` flow.
+- [ ] Ensure `404` and `500` error states are handled correctly.
+- [ ] Verify that selecting the visualization type returns the correct data structure.

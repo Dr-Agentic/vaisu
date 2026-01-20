@@ -186,6 +186,14 @@ export class VisualizationGenerator {
           llmMetadata.model = "depth-analysis";
           break;
 
+        case "entity-graph":
+          visualizationData = await this.generateEntityGraph(
+            document,
+            analysis,
+          );
+          llmMetadata.model = "entityGraphGeneration";
+          break;
+
         default:
           throw new Error(`Visualization type ${type} not yet implemented`);
       }
@@ -942,8 +950,7 @@ ${contentSample}
     document: Document,
     analysis: DocumentAnalysis,
   ): Promise<EntityGraphData> {
-    const { getOpenRouterClient } =
-      await import("../../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
     const llmClient = getOpenRouterClient();
 
     // Prepare context

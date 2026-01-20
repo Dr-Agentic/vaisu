@@ -1,8 +1,13 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
-import { VisualizationGenerator } from '../visualizationGenerator';
+import { VisualizationGenerator } from "../visualizationGenerator";
 
-import type { Document, DocumentAnalysis, MindMapData, UMLDiagramData } from '../../../../../shared/src/types';
+import type {
+  Document,
+  DocumentAnalysis,
+  MindMapData,
+  UMLDiagramData,
+} from "../../../../../shared/src/types";
 
 // Use vi.hoisted to ensure mock variables are initialized before vi.mock()
 const mocks = vi.hoisted(() => ({
@@ -19,7 +24,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock the OpenRouter client
-vi.mock('../../llm/openRouterClient', () => ({
+vi.mock("../../llm/openRouterClient", () => ({
   getOpenRouterClient: () => ({
     callWithFallback: mocks.callWithFallback,
     parseJSONResponse: mocks.parseJSONResponse,
@@ -27,7 +32,7 @@ vi.mock('../../llm/openRouterClient', () => ({
 }));
 
 // Mock visualizationService to prevent DynamoDB access
-vi.mock('../../../repositories/visualizationService', () => ({
+vi.mock("../../../repositories/visualizationService", () => ({
   visualizationService: {
     create: mocks.create,
     findByDocumentIdAndType: mocks.findByDocumentIdAndType,
@@ -37,7 +42,7 @@ vi.mock('../../../repositories/visualizationService', () => ({
   },
 }));
 
-describe('VisualizationGenerator', () => {
+describe("VisualizationGenerator", () => {
   let generator: VisualizationGenerator;
   let mockDocument: Document;
   let mockAnalysis: DocumentAnalysis;
@@ -46,31 +51,31 @@ describe('VisualizationGenerator', () => {
   const defaultMindMapResponse = {
     nodes: [
       {
-        id: 'root',
-        label: 'Test Document',
-        subtitle: 'A test document for mind map',
-        icon: '📄',
-        summary: 'A test document for mind map generation',
-        detailedExplanation: 'Details...',
-        sourceTextExcerpt: 'Excerpt...',
+        id: "root",
+        label: "Test Document",
+        subtitle: "A test document for mind map",
+        icon: "📄",
+        summary: "A test document for mind map generation",
+        detailedExplanation: "Details...",
+        sourceTextExcerpt: "Excerpt...",
         importance: 1.0,
         children: [
           {
-            id: 'node-1',
-            label: 'Section 1',
-            icon: '📊',
-            summary: 'First section',
-            detailedExplanation: 'Details 1...',
-            sourceTextExcerpt: 'Excerpt 1...',
+            id: "node-1",
+            label: "Section 1",
+            icon: "📊",
+            summary: "First section",
+            detailedExplanation: "Details 1...",
+            sourceTextExcerpt: "Excerpt 1...",
             importance: 0.8,
             children: [
               {
-                id: 'node-1-1',
-                label: 'Subsection 1.1',
-                icon: '🔧',
-                summary: 'First subsection',
-                detailedExplanation: 'Details 1.1...',
-                sourceTextExcerpt: 'Excerpt 1.1...',
+                id: "node-1-1",
+                label: "Subsection 1.1",
+                icon: "🔧",
+                summary: "First subsection",
+                detailedExplanation: "Details 1.1...",
+                sourceTextExcerpt: "Excerpt 1.1...",
                 importance: 0.6,
                 children: [],
               },
@@ -102,40 +107,42 @@ describe('VisualizationGenerator', () => {
     mocks.callWithFallback.mockResolvedValue({
       content: JSON.stringify(defaultMindMapResponse),
     });
-    mocks.parseJSONResponse.mockImplementation((response) => JSON.parse(response.content));
+    mocks.parseJSONResponse.mockImplementation((response) =>
+      JSON.parse(response.content),
+    );
 
     mockDocument = {
-      id: 'test-doc-1',
-      title: 'Test Document',
-      content: 'This is a test document with some content.',
+      id: "test-doc-1",
+      title: "Test Document",
+      content: "This is a test document with some content.",
       metadata: {
         wordCount: 8,
         uploadDate: new Date(),
-        fileType: 'txt',
-        language: 'en',
+        fileType: "txt",
+        language: "en",
       },
       structure: {
         sections: [
           {
-            id: 'section-1',
+            id: "section-1",
             level: 1,
-            title: 'Introduction',
-            content: 'Introduction content',
+            title: "Introduction",
+            content: "Introduction content",
             startIndex: 0,
             endIndex: 100,
-            summary: 'Intro summary',
-            keywords: ['intro'],
+            summary: "Intro summary",
+            keywords: ["intro"],
             children: [],
           },
           {
-            id: 'section-2',
+            id: "section-2",
             level: 1,
-            title: 'Conclusion',
-            content: 'Conclusion content',
+            title: "Conclusion",
+            content: "Conclusion content",
             startIndex: 200,
             endIndex: 300,
-            summary: 'Conclusion summary',
-            keywords: ['conclusion'],
+            summary: "Conclusion summary",
+            keywords: ["conclusion"],
             children: [],
           },
         ],
@@ -144,14 +151,14 @@ describe('VisualizationGenerator', () => {
     };
 
     mockAnalysis = {
-      tldr: 'This is a test document summary',
+      tldr: "This is a test document summary",
       executiveSummary: {
-        headline: 'Test Document',
-        keyIdeas: ['Idea 1', 'Idea 2'],
+        headline: "Test Document",
+        keyIdeas: ["Idea 1", "Idea 2"],
         kpis: [],
         risks: [],
         opportunities: [],
-        callToAction: 'Review the document',
+        callToAction: "Review the document",
       },
       entities: [],
       relationships: [],
@@ -168,35 +175,35 @@ describe('VisualizationGenerator', () => {
     };
   });
 
-  describe('generateVisualization', () => {
-    it('should generate structured view', async () => {
+  describe("generateVisualization", () => {
+    it("should generate structured view", async () => {
       const result = await generator.generateVisualization(
-        'structured-view',
+        "structured-view",
         mockDocument,
         mockAnalysis,
       );
 
       expect(result).toBeDefined();
-      expect(result.type).toBe('structured-view');
+      expect(result.type).toBe("structured-view");
       expect(result.sections).toBeDefined();
       expect(result.sections).toHaveLength(2);
     });
 
-    it('should generate mind map with LLM', async () => {
+    it("should generate mind map with LLM", async () => {
       const result = await generator.generateVisualization(
-        'mind-map',
+        "mind-map",
         mockDocument,
         mockAnalysis,
       );
 
       expect(result).toBeDefined();
       expect(result.root).toBeDefined();
-      expect(result.layout).toBe('radial');
+      expect(result.layout).toBe("radial");
     });
 
-    it('should generate flowchart', async () => {
+    it("should generate flowchart", async () => {
       const result = await generator.generateVisualization(
-        'flowchart',
+        "flowchart",
         mockDocument,
         mockAnalysis,
       );
@@ -204,18 +211,18 @@ describe('VisualizationGenerator', () => {
       expect(result).toBeDefined();
       expect(result.nodes).toBeDefined();
       expect(result.edges).toBeDefined();
-      expect(result.layout).toBe('topToBottom');
+      expect(result.layout).toBe("topToBottom");
     });
 
-    it('should generate knowledge graph', async () => {
+    it("should generate knowledge graph", async () => {
       // Override mock for Knowledge Graph
       const kgResponse = {
         nodes: [
-          { id: 'n1', label: 'Node 1', type: 'concept', importance: 0.8 },
-          { id: 'n2', label: 'Node 2', type: 'concept', importance: 0.7 },
+          { id: "n1", label: "Node 1", type: "concept", importance: 0.8 },
+          { id: "n2", label: "Node 2", type: "concept", importance: 0.7 },
         ],
         edges: [
-          { source: 'n1', target: 'n2', type: 'relates-to', strength: 0.5 },
+          { source: "n1", target: "n2", type: "relates-to", strength: 0.5 },
         ],
         clusters: [],
         hierarchy: {},
@@ -225,7 +232,7 @@ describe('VisualizationGenerator', () => {
       });
 
       const result = await generator.generateVisualization(
-        'knowledge-graph',
+        "knowledge-graph",
         mockDocument,
         mockAnalysis,
       );
@@ -235,14 +242,14 @@ describe('VisualizationGenerator', () => {
       expect(result.edges).toHaveLength(1);
     });
 
-    it('should force regeneration when force flag is true', async () => {
+    it("should force regeneration when force flag is true", async () => {
       // Override cache to return something
       mocks.findByDocumentIdAndType.mockResolvedValue({
-        visualizationData: { some: 'cached data' },
+        visualizationData: { some: "cached data" },
       } as any);
 
       await generator.generateVisualization(
-        'mind-map',
+        "mind-map",
         mockDocument,
         mockAnalysis,
         true, // force=true
@@ -252,33 +259,35 @@ describe('VisualizationGenerator', () => {
       expect(mocks.findByDocumentIdAndType).not.toHaveBeenCalled();
     });
 
-    it('should throw error for unsupported visualization type', async () => {
+    it("should throw error for unsupported visualization type", async () => {
       await expect(
         generator.generateVisualization(
-          'unsupported-type' as any,
+          "unsupported-type" as any,
           mockDocument,
           mockAnalysis,
         ),
-      ).rejects.toThrowError('Visualization type unsupported-type not yet implemented');
+      ).rejects.toThrowError(
+        "Visualization type unsupported-type not yet implemented",
+      );
     });
   });
 
-  describe('Mind Map Generation', () => {
-    it('should create hierarchical structure from LLM response', async () => {
+  describe("Mind Map Generation", () => {
+    it("should create hierarchical structure from LLM response", async () => {
       const result = (await generator.generateVisualization(
-        'mind-map',
+        "mind-map",
         mockDocument,
         mockAnalysis,
       )) as MindMapData;
 
       expect(result.root).toBeDefined();
       expect(result.root.children).toHaveLength(1); // Based on default mock
-      expect(result.root.children[0].label).toBe('Section 1');
+      expect(result.root.children[0].label).toBe("Section 1");
     });
 
-    it('should assign colors based on hierarchy level', async () => {
+    it("should assign colors based on hierarchy level", async () => {
       const result = (await generator.generateVisualization(
-        'mind-map',
+        "mind-map",
         mockDocument,
         mockAnalysis,
       )) as MindMapData;
@@ -287,37 +296,45 @@ describe('VisualizationGenerator', () => {
       expect(result.root.children[0].color).toBeDefined();
     });
 
-    it('should throw error on LLM failure', async () => {
-      mocks.callWithFallback.mockRejectedValue(new Error('LLM failed'));
+    it("should throw error on LLM failure", async () => {
+      mocks.callWithFallback.mockRejectedValue(new Error("LLM failed"));
 
       await expect(
-        generator.generateVisualization(
-          'mind-map',
-          mockDocument,
-          mockAnalysis,
-        ),
-      ).rejects.toThrow('LLM failed');
+        generator.generateVisualization("mind-map", mockDocument, mockAnalysis),
+      ).rejects.toThrow("LLM failed");
     });
   });
 
-  describe('Terms & Definitions Generation', () => {
+  describe("Terms & Definitions Generation", () => {
     beforeEach(() => {
       // Override mock for Terms
       const termsResponse = {
         terms: [
-          { term: 'API', definition: 'App Interface', type: 'acronym', confidence: 0.9, mentions: 5 },
-          { term: 'Microservices', definition: 'Arch style', type: 'technical', confidence: 0.8, mentions: 3 },
+          {
+            term: "API",
+            definition: "App Interface",
+            type: "acronym",
+            confidence: 0.9,
+            mentions: 5,
+          },
+          {
+            term: "Microservices",
+            definition: "Arch style",
+            type: "technical",
+            confidence: 0.8,
+            mentions: 3,
+          },
         ],
-        domain: 'software',
+        domain: "software",
       };
       mocks.callWithFallback.mockResolvedValue({
         content: JSON.stringify(termsResponse),
       });
     });
 
-    it('should generate terms definitions with LLM', async () => {
+    it("should generate terms definitions with LLM", async () => {
       const result = await generator.generateVisualization(
-        'terms-definitions',
+        "terms-definitions",
         mockDocument,
         mockAnalysis,
       );
@@ -327,12 +344,12 @@ describe('VisualizationGenerator', () => {
       expect(result.metadata.totalTerms).toBe(2);
     });
 
-    it('should sort terms alphabetically', async () => {
+    it("should sort terms alphabetically", async () => {
       // Mock unsorted response
       const termsResponse = {
         terms: [
-          { term: 'Zebra', definition: 'Z', type: 'concept' },
-          { term: 'Alpha', definition: 'A', type: 'concept' },
+          { term: "Zebra", definition: "Z", type: "concept" },
+          { term: "Alpha", definition: "A", type: "concept" },
         ],
       };
       mocks.callWithFallback.mockResolvedValue({
@@ -340,38 +357,38 @@ describe('VisualizationGenerator', () => {
       });
 
       const result = await generator.generateVisualization(
-        'terms-definitions',
+        "terms-definitions",
         mockDocument,
         mockAnalysis,
       );
 
-      expect(result.terms[0].term).toBe('Alpha');
-      expect(result.terms[1].term).toBe('Zebra');
+      expect(result.terms[0].term).toBe("Alpha");
+      expect(result.terms[1].term).toBe("Zebra");
     });
 
-    it('should throw error on LLM failure', async () => {
-      mocks.callWithFallback.mockRejectedValue(new Error('LLM failed'));
+    it("should throw error on LLM failure", async () => {
+      mocks.callWithFallback.mockRejectedValue(new Error("LLM failed"));
 
       await expect(
         generator.generateVisualization(
-          'terms-definitions',
+          "terms-definitions",
           mockDocument,
           mockAnalysis,
         ),
-      ).rejects.toThrow('LLM failed');
+      ).rejects.toThrow("LLM failed");
     });
   });
 
-  describe('UML Class Diagram Generation', () => {
+  describe("UML Class Diagram Generation", () => {
     beforeEach(() => {
       // Override mock for UML
       const umlResponse = {
         classes: [
-          { name: 'User', type: 'class', attributes: [], methods: [] },
-          { name: 'Order', type: 'class', attributes: [], methods: [] },
+          { name: "User", type: "class", attributes: [], methods: [] },
+          { name: "Order", type: "class", attributes: [], methods: [] },
         ],
         relationships: [
-          { source: 'Order', target: 'User', type: 'association' },
+          { source: "Order", target: "User", type: "association" },
         ],
         packages: [],
       };
@@ -380,66 +397,67 @@ describe('VisualizationGenerator', () => {
       });
     });
 
-    it('should generate UML class diagram with LLM', async () => {
-      const result = await generator.generateVisualization(
-        'uml-class-diagram',
+    it("should generate UML class diagram with LLM", async () => {
+      const result = (await generator.generateVisualization(
+        "uml-class-diagram",
         mockDocument,
         mockAnalysis,
-      ) as UMLDiagramData;
+      )) as UMLDiagramData;
 
       expect(result).toBeDefined();
       expect(result.classes).toHaveLength(2);
       expect(result.relationships).toHaveLength(1);
     });
 
-    it('should filter out invalid relationships', async () => {
+    it("should filter out invalid relationships", async () => {
       const umlResponse = {
-        classes: [
-          { name: 'User', type: 'class', attributes: [], methods: [] },
-        ],
+        classes: [{ name: "User", type: "class", attributes: [], methods: [] }],
         relationships: [
-          { source: 'User', target: 'Unknown', type: 'association' },
+          { source: "User", target: "Unknown", type: "association" },
         ],
       };
       mocks.callWithFallback.mockResolvedValue({
         content: JSON.stringify(umlResponse),
       });
 
-      const result = await generator.generateVisualization(
-        'uml-class-diagram',
+      const result = (await generator.generateVisualization(
+        "uml-class-diagram",
         mockDocument,
         mockAnalysis,
-      ) as UMLDiagramData;
+      )) as UMLDiagramData;
 
       expect(result.classes).toHaveLength(1);
       expect(result.relationships).toHaveLength(0);
     });
   });
 
-  describe('Depth Graph Generation', () => {
+  describe("Depth Graph Generation", () => {
     beforeEach(() => {
       const depthResponse = {
         analysis_metadata: {
           total_logical_units: 1,
-          overall_text_depth_trajectory: 'Linear increase in complexity.',
+          overall_text_depth_trajectory: "Linear increase in complexity.",
         },
         logical_units: [
           {
             id: 1,
-            topic: 'Thesis',
-            topic_summary: 'Main thesis.',
-            extended_summary: 'Detailed thesis...',
+            topic: "Thesis",
+            topic_summary: "Main thesis.",
+            extended_summary: "Detailed thesis...",
             true_depth: 7.5,
             dimensions: {
-              cognitive: { score: 7, rationale: 'R', evidence: ['E'] },
-              epistemic: { score: 8, rationale: 'R', evidence: ['E'] },
-              causal: { score: 7, rationale: 'R', evidence: ['E'] },
-              rigor: { score: 8, rationale: 'R', evidence: ['E'] },
-              coherence: { score: 8, rationale: 'R', evidence: ['E'] },
+              cognitive: { score: 7, rationale: "R", evidence: ["E"] },
+              epistemic: { score: 8, rationale: "R", evidence: ["E"] },
+              causal: { score: 7, rationale: "R", evidence: ["E"] },
+              rigor: { score: 8, rationale: "R", evidence: ["E"] },
+              coherence: { score: 8, rationale: "R", evidence: ["E"] },
             },
-            clarity_signals: { grounding: ['G'], nuance: ['N'] },
-            actionable_feedback: 'Feedback.',
-            additional_data: { text_preview: 'Text...', coherence_analysis: 'Coh...' },
+            clarity_signals: { grounding: ["G"], nuance: ["N"] },
+            actionable_feedback: "Feedback.",
+            additional_data: {
+              text_preview: "Text...",
+              coherence_analysis: "Coh...",
+            },
           },
         ],
       };
@@ -448,9 +466,9 @@ describe('VisualizationGenerator', () => {
       });
     });
 
-    it('should generate depth graph with LLM', async () => {
+    it("should generate depth graph with LLM", async () => {
       const result = await generator.generateVisualization(
-        'depth-graph',
+        "depth-graph",
         mockDocument,
         mockAnalysis,
       );
@@ -460,16 +478,76 @@ describe('VisualizationGenerator', () => {
       expect(result.analysis_metadata.total_logical_units).toBe(1);
     });
 
-    it('should throw error on LLM failure', async () => {
-      mocks.callWithFallback.mockRejectedValue(new Error('LLM failed'));
+    it("should throw error on LLM failure", async () => {
+      mocks.callWithFallback.mockRejectedValue(new Error("LLM failed"));
 
       await expect(
         generator.generateVisualization(
-          'depth-graph',
+          "depth-graph",
           mockDocument,
           mockAnalysis,
         ),
-      ).rejects.toThrow('LLM failed');
+      ).rejects.toThrow("LLM failed");
+    });
+  });
+
+  describe("Entity Graph Generation", () => {
+    beforeEach(() => {
+      const entityGraphResponse = {
+        nodes: [
+          {
+            id: "node-1",
+            label: "Node 1",
+            summary: "Summary 1",
+            depth: 8,
+            sequenceIndex: 0,
+            type: "concept",
+            clarityScore: 0.9,
+          },
+        ],
+        edges: [
+          {
+            id: "edge-1",
+            source: "node-1",
+            target: "node-2",
+            type: "leads-to",
+            strength: 0.8,
+          },
+        ],
+        metadata: {
+          trajectory: "Trajectory",
+          depthScore: 8.5,
+          totalUnits: 1,
+        },
+      };
+      mocks.callWithFallback.mockResolvedValue({
+        content: JSON.stringify(entityGraphResponse),
+      });
+    });
+
+    it("should generate entity graph with LLM", async () => {
+      const result = await generator.generateVisualization(
+        "entity-graph",
+        mockDocument,
+        mockAnalysis,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.nodes).toHaveLength(1);
+      expect(result.edges).toHaveLength(1);
+      expect(result.metadata.totalUnits).toBe(1);
+    });
+
+    it("should throw error on LLM failure", async () => {
+      mocks.callWithFallback.mockRejectedValue(new Error("LLM failed"));
+
+      await expect(
+        generator.generateVisualization(
+          "entity-graph",
+          mockDocument,
+          mockAnalysis,
+        ),
+      ).rejects.toThrow("LLM failed");
     });
   });
 });
