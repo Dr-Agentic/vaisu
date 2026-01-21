@@ -8,11 +8,14 @@ export const LLM_MODELS = {
   GPT_45_MINI: "openai/gpt-4.5-mini",
   GEMINI_FLASH: "google/gemini-2.0-flash-exp:free",
   MIMO_FLASH: "xiaomi/mimo-v2-flash:free",
+  GPT_OSS_120B: "openai/gpt-oss-120b:free",
+  NEMOTRON_30B: "nvidia/nemotron-3-nano-30b-a3b:free",
+  QWEN_CODER: "qwen/qwen3-coder:free",
 } as const;
 
 // LLM Selection Constants - easily switch between different model configurations
-export const LLM_PRIMARY = LLM_MODELS.GEMINI_FLASH;
-export const LLM_FALLBACK = LLM_MODELS.MIMO_FLASH;
+export const LLM_PRIMARY = LLM_MODELS.GPT_OSS_120B;
+export const LLM_FALLBACK = LLM_MODELS.NEMOTRON_30B;
 const LLM_MAXTOKENS = 50000;
 
 export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
@@ -327,8 +330,8 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 }`,
   },
   "uml-extraction": {
-    primary: LLM_PRIMARY,
-    fallback: LLM_FALLBACK,
+    primary: LLM_MODELS.QWEN_CODER,
+    fallback: LLM_PRIMARY,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical document and extract object-oriented structures.
