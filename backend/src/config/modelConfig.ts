@@ -330,8 +330,8 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 }`,
   },
   "uml-extraction": {
-    primary: LLM_MODELS.QWEN_CODER,
-    fallback: LLM_PRIMARY,
+    primary: LLM_PRIMARY,
+    fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical document and extract object-oriented structures.
