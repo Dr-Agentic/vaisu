@@ -1,16 +1,16 @@
-import type { TaskType, ModelConfig } from "../../shared/src/types.js";
+import type { TaskType, ModelConfig } from '../../shared/src/types.js';
 
 // LLM Model Constants - single source of truth for model identifiers
 export const LLM_MODELS = {
-  GROK_FAST: "x-ai/grok-4.1-fast",
-  GPT_35_TURBO: "openai/gpt-3.5-turbo",
-  GPT_4O: "openai/gpt-4o",
-  GPT_45_MINI: "openai/gpt-4.5-mini",
-  GEMINI_FLASH: "google/gemini-2.0-flash-exp:free",
-  MIMO_FLASH: "xiaomi/mimo-v2-flash:free",
-  GPT_OSS_120B: "openai/gpt-oss-120b:free",
-  NEMOTRON_30B: "nvidia/nemotron-3-nano-30b-a3b:free",
-  QWEN_CODER: "qwen/qwen3-coder:free",
+  GROK_FAST: 'x-ai/grok-4.1-fast',
+  GPT_35_TURBO: 'openai/gpt-3.5-turbo',
+  GPT_4O: 'openai/gpt-4o',
+  GPT_45_MINI: 'openai/gpt-4.5-mini',
+  GEMINI_FLASH: 'google/gemini-2.0-flash-exp:free',
+  MIMO_FLASH: 'xiaomi/mimo-v2-flash:free',
+  GPT_OSS_120B: 'openai/gpt-oss-120b:free',
+  NEMOTRON_30B: 'nvidia/nemotron-3-nano-30b-a3b:free',
+  QWEN_CODER: 'qwen/qwen3-coder:free',
 } as const;
 
 // LLM Selection Constants - easily switch between different model configurations
@@ -25,7 +25,8 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt:
-      "Generate a concise TLDR summary of the following text. Focus on the main point in 2-3 sentences maximum. Be clear and direct.",
+      'Generate a concise TLDR summary of the following text. ' +
+      'Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
   },
   executiveSummary: {
     primary: LLM_PRIMARY,
@@ -69,7 +70,8 @@ Ensure "value" in KPIs is a number (not a string). Extract 3-5 items for lists.`
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.1,
-    systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, organizations, locations, concepts, products, technologies, and key terms.
+    systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, 
+organizations, locations, concepts, products, technologies, and key terms.
 
 For each entity provide:
 - id: unique identifier (e.g., "entity-1", "entity-2")
@@ -110,7 +112,8 @@ Extract at least 10-30 entities if the document is substantial. Be thorough.`,
     temperature: 0.3,
     systemPrompt: `Analyze relationships between the provided entities based on the text.
 
-CRITICAL: You will be given a list of entities with their IDs. You MUST use the exact entity ID (e.g., "entity-1", "entity-2") in the source and target fields, NOT the entity text/name.
+CRITICAL: You will be given a list of entities with their IDs. You MUST use the exact entity ID 
+(e.g., "entity-1", "entity-2") in the source and target fields, NOT the entity text/name.
 
 For each relationship provide:
 - id: unique identifier (e.g., "rel-1", "rel-2")
@@ -134,7 +137,8 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
   ]
 }
 
-REMEMBER: Use entity IDs (entity-1, entity-2, etc.) NOT entity names (AWS, Machine Learning, etc.) in source and target fields!
+REMEMBER: Use entity IDs (entity-1, entity-2, etc.) NOT entity names (AWS, Machine Learning, etc.) 
+in source and target fields!
 
 Extract at least 5-20 relationships if entities are connected. Focus on meaningful connections.`,
   },
@@ -181,8 +185,8 @@ Return as JSON array. Do not use markdown.`,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.1,
     systemPrompt: `Extract key performance indicators (KPIs) from the text.
-For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), and confidence (0-1).
-Deduplicate similar metrics. Return as JSON array. Do not use markdown.`,
+For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), 
+and confidence (0-1). Deduplicate similar metrics. Return as JSON array. Do not use markdown.`,
   },
   glossary: {
     primary: LLM_PRIMARY,
@@ -199,14 +203,16 @@ Return as JSON array with (no markdown): term, definition, domain, confidence.`,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.6,
     systemPrompt:
-      "Answer questions about the document content. Be helpful, accurate, and concise. Cite specific parts of the text when relevant.",
+      'Answer questions about the document content. Be helpful, accurate, and concise. ' +
+      'Cite specific parts of the text when relevant.',
   },
   mindMapGeneration: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.4,
-    systemPrompt: `Analyze the document and create a hierarchical mind map structure with 3-5 levels of depth.
+    systemPrompt: `Analyze the document and create a hierarchical mind map structure with 3-5 
+levels of depth.
 
 Create a tree structure where:
 - Root node: Main topic/title
@@ -240,7 +246,7 @@ Return ONLY valid JSON matching this structure (do not use markdown code blocks)
       "subtitle": "Quick context in 40 chars or less",
       "icon": "🎯",
       "summary": "Brief description",
-      "detailedExplanation": "Comprehensive explanation with more context and details for users who want to learn more.",
+      "detailedExplanation": "Comprehensive explanation with more context and details for users...",
       "sourceTextExcerpt": "Relevant quote from the original document...",
       "children": [
         {
@@ -259,14 +265,15 @@ Return ONLY valid JSON matching this structure (do not use markdown code blocks)
   ]
 }
 
-    Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure of information.`,
+Focus on creating a meaningful hierarchy with clear visual metaphors and progressive disclosure.`,
   },
   argumentMapGeneration: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
-    systemPrompt: `Analyze the text to generate an interactive argument map based on the specific schema provided.
+    systemPrompt: `Analyze the text to generate an interactive argument map based on the 
+specific schema provided.
 
 The goal is to map the claims, arguments, evidence, and their relationships.
 
@@ -329,19 +336,20 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
   }
 }`,
   },
-  "uml-extraction": {
-    primary: LLM_PRIMARY,
+  'uml-extraction': {
+    primary: LLM_MODELS.QWEN_CODER,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
-    systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical document and extract object-oriented structures.
+    systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical 
+document and extract object-oriented structures.
 
 Extract the following:
 
 1. **Classes**: Identify classes, interfaces, abstract classes, and enumerations
    - For each class, extract:
      - Name
-     - Type (class/interface/abstract/enum)
+     - Type (class|interface|abstract|enum)
      - Stereotype (if mentioned: entity, service, controller, repository, etc.)
      - Package/namespace
      - Description (purpose and responsibilities)
@@ -421,18 +429,20 @@ Return as JSON with this structure (do not use markdown code blocks):
   ]
 }
 
-Extract 5-30 classes based on document complexity. Focus on the most important classes and their relationships.`,
+Extract 5-30 classes based on document complexity. Focus on the most important classes.`,
   },
-  "knowledge-graph-generation": {
+  'knowledge-graph-generation': {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.4,
-    systemPrompt: `You are a knowledge graph generation expert. Analyze the document and create a comprehensive knowledge graph visualization.
+    systemPrompt: `You are a knowledge graph generation expert. Analyze the document and create 
+a comprehensive knowledge graph visualization.
 
 Extract the following:
 
-1. **Entities**: Identify key entities (people, organizations, concepts, products, technologies, locations, dates, metrics)
+1. **Entities**: Identify key entities (people, organizations, concepts, products, 
+technologies, locations, dates, metrics)
    - For each entity, extract:
      - id: unique identifier
      - label: display name
@@ -446,7 +456,7 @@ Extract the following:
      - id: unique identifier
      - source: source entity id
      - target: target entity id
-     - type: relationship type (causes, requires, part-of, relates-to, implements, uses, depends-on, etc.)
+     - type: relationship type (causes, requires, part-of, relates-to, etc.)
      - strength: 0.0-1.0 based on importance
      - label: relationship label
      - evidence: source text excerpt
@@ -468,11 +478,7 @@ Return as JSON with this exact structure (do not use markdown code blocks):
         "connections": 5,
         "description": "Entity description",
         "sourceQuote": "Relevant quote from text",
-        "sourceSpan": {
-          "start": 0,
-          "end": 50,
-          "text": "Quote text"
-        }
+        "sourceSpan": { "start": 0, "end": 50, "text": "Quote text" }
       }
     }
   ],
@@ -485,11 +491,7 @@ Return as JSON with this exact structure (do not use markdown code blocks):
       "strength": 0.8,
       "label": "relates-to",
       "evidence": [
-        {
-          "start": 100,
-          "end": 150,
-          "text": "Evidence text from document"
-        }
+        { "start": 100, "end": 150, "text": "Evidence text from document" }
       ]
     }
   ],
@@ -497,14 +499,11 @@ Return as JSON with this exact structure (do not use markdown code blocks):
   "hierarchy": {
     "rootNodes": ["entity-1"],
     "maxDepth": 3,
-    "nodeDepths": {
-      "entity-1": 0,
-      "entity-2": 1
-    }
+    "nodeDepths": { "entity-1": 0, "entity-2": 1 }
   }
 }
 
-Extract 10-50 entities and 15-40 relationships based on document complexity. Focus on meaningful connections that reveal the document's knowledge structure.`,
+Extract 10-50 entities and 15-40 relationships. Focus on meaningful connections.`,
   },
   depthAnalysis: {
     primary: LLM_PRIMARY,
@@ -512,7 +511,7 @@ Extract 10-50 entities and 15-40 relationships based on document complexity. Foc
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.2,
     systemPrompt:
-      "You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the provided text.",
+      'You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the text.',
   },
   entityGraphGeneration: {
     primary: LLM_PRIMARY,
@@ -520,7 +519,8 @@ Extract 10-50 entities and 15-40 relationships based on document complexity. Foc
     maxTokens: LLM_MAXTOKENS,
     temperature: 0.3,
     systemPrompt:
-      "You are a Lead Network Theorist specializing in the topology of arguments and concept drift. Build a directed graph of Logical Units and Causal Links.",
+      'You are a Lead Network Theorist specializing in the topology of arguments and ' +
+      'concept drift. Build a directed graph of Logical Units and Causal Links.',
   } as ModelConfig,
 };
 
