@@ -524,12 +524,12 @@ export interface UMLRelationship {
   source: string; // Class ID
   target: string; // Class ID
   type:
-    | "inheritance"
-    | "realization"
-    | "composition"
-    | "aggregation"
-    | "association"
-    | "dependency";
+  | "inheritance"
+  | "realization"
+  | "composition"
+  | "aggregation"
+  | "association"
+  | "dependency";
 
   // Optional properties
   sourceMultiplicity?: string;
@@ -809,3 +809,10 @@ export interface GraphState {
 }
 
 export type ExportFormat = "png" | "svg" | "html" | "json";
+export interface DashboardStats {
+  totalDocuments: number;
+  totalGraphs: number;
+  documentsThisWeek: number;
+  totalWords: number;
+  averageConfidence?: number;
+}

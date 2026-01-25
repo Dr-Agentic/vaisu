@@ -21,7 +21,7 @@ export const designTokens = {
     '4xl': '6rem',     // 96px
   },
 
-  // SOTA Gradient Colors (Electron UI)
+  // Vaisu Gradient Colors (Vaisu UI)
   gradients: {
     aurora: {
       1: '#6366F1',
@@ -45,7 +45,7 @@ export const designTokens = {
     },
   },
 
-  // Void System (Electron UI Background)
+  // Vaisu UI (Vaisu UI Background)
   void: {
     deepest: '#1A1A1F',
     dark: '#202028',
@@ -152,7 +152,7 @@ export const designTokens = {
     },
     easing: {
       linear: 'linear',
-      easeOut: 'cubic-bezier(0.22, 0.61, 0.36, 1)', // SOTA easing
+      easeOut: 'cubic-bezier(0.22, 0.61, 0.36, 1)', // Vaisu easing
       easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
       easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
       bounce: 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',

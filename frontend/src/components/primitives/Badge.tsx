@@ -84,7 +84,7 @@ const variantStyles: Record<BadgeVariant, string> = {
     text-[var(--color-text-secondary)]
     border border-[var(--color-border-base)]
   `,
-  // SOTA Electron UI variants with gradient colors
+  // Vaisu Vaisu UI variants with gradient colors
   aurora: `
     bg-[color-mix(in_srgb,var(--color-interactive-primary-base)_25%,transparent)]
     text-[var(--color-interactive-secondary-hover)]

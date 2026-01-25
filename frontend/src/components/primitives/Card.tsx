@@ -61,7 +61,7 @@ const variantStyles: Record<CardVariant, string> = {
     bg-[var(--color-background-secondary)]
     border border-[var(--color-border-base)]
   `,
-  // SOTA Electron UI variants with mesh glow and gradient borders
+  // Vaisu Vaisu UI variants with mesh glow and gradient borders
   'mesh-glow': `
     mesh-glow
   `,
@@ -111,7 +111,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={cn(
           'rounded-[var(--radius-xl)]',
-          'design-system-card', // Add specific class to avoid Electron UI conflicts
+          'design-system-card', // Add specific class to avoid Vaisu UI conflicts
           variantStyles[variant],
           paddingStyles[padding],
           ...(interactive
@@ -229,7 +229,7 @@ export const CardContent = forwardRef<HTMLDivElement, CardContentProps>(
           'text-[var(--color-text-primary)]',
           // Font consistency
           'font-[var(--font-family-sans)]',
-          'design-system-card-content', // Add specific class to avoid Electron UI conflicts
+          'design-system-card-content', // Add specific class to avoid Vaisu UI conflicts
           className,
         )}
         {...props}

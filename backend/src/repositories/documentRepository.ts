@@ -141,3 +141,44 @@ export async function listByUserId(
     lastEvaluatedKey: response.LastEvaluatedKey,
   };
 }
+
+/**
+ * Get dashboard statistics for a user
+ */
+export async function getStatsByUserId(userId: string): Promise<{
+  totalDocuments: number;
+  totalWords: number;
+  documentsThisWeek: number;
+  totalGraphs: number;
+}> {
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
+
+  const command = new ScanCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    FilterExpression: 'userId = :userId AND SK = :sk',
+    ExpressionAttributeValues: {
+      ':userId': userId,
+      ':sk': 'METADATA',
+    },
+  });
+
+  const response = await dynamoDBClient.send(command);
+  const docs = response.Items || [];
+
+  const totalDocuments = docs.length;
+  // Note: wordCount is not stored in DocumentRecord currently, it's in the full Document object content
+  // We'll return 0 for now or try to estimate if possible.
+  // Actually, looking at documents.ts, wordCount is 0 in the list view too.
+  const totalWords = docs.reduce((acc: number, doc: any) => acc + (doc.fileSize || 0) / 5, 0); // Crude estimate: 5 chars per word
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const docsThisWeek = docs.filter((doc: any) => new Date(doc.uploadedAt) > oneWeekAgo).length;
+
+  return {
+    totalDocuments,
+    totalWords: Math.round(totalWords),
+    documentsThisWeek: docsThisWeek,
+    totalGraphs: 0, // Placeholder
+  };
+}

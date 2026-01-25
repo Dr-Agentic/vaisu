@@ -3,7 +3,7 @@
 ## 2026-01-07 - UI Component Consolidation
 
 ### Summary
-Major refactoring to consolidate the `/export/ui-theme/` directory into the main frontend directory structure. This effort improves code organization by moving all Electron UI components to `frontend/src/electron/components/` and removing the separate theme export package.
+Major refactoring to consolidate the `/export/ui-theme/` directory into the main frontend directory structure. This effort improves code organization by moving all Vaisu UI components to `frontend/src/electron/components/` and removing the separate theme export package.
 
 ### Changes Made
 - **Date Started**: 2026-01-07

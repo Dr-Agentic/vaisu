@@ -2,7 +2,7 @@
  * ComponentSampler Demo Page
  *
  * Standalone demo page for testing the ComponentSampler component.
- * This can be used to showcase all Electron UI components and test readability.
+ * This can be used to showcase all Vaisu UI components and test readability.
  */
 
 import { useEffect } from 'react';

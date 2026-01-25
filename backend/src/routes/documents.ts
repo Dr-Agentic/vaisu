@@ -343,6 +343,19 @@ router.get('/search', (req: Request, res: Response) => {
   }
 });
 
+// GET /api/documents/stats - Get dashboard statistics
+router.get('/stats', async (req: Request, res: Response) => {
+  try {
+    const authReq = req as AuthenticatedRequest;
+    const userId = authReq.user!.userId;
+    const stats = await documentRepository.getStatsByUserId(userId);
+    res.json(stats);
+  } catch (error: any) {
+    console.error('Get stats error:', error);
+    res.status(500).json({ error: error.message || 'Failed to get statistics' });
+  }
+});
+
 // GET /api/documents/:id
 router.get('/:id', async (req: Request, res: Response) => {
   const authReq = req as AuthenticatedRequest;
@@ -389,7 +402,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     // So I should keep it that way for consistency, or improve it?
     // The user didn't ask to improve this specific route, but if I'm fixing security...
     // If I leave it as memory-only, it's safe because of the check above.
-    
+
     // However, if the user lists documents (from DB), clicks one, and this route is called,
     // it will fail if not in memory.
     // The previous implementation of `GET /:id` was strictly memory-based.
@@ -420,8 +433,8 @@ router.post('/:id/visualizations/:type', async (req: Request, res: Response) => 
 
     // Security check for in-memory
     if (document && documentOwners.get(id) !== authReq.user!.userId) {
-       document = undefined; // Pretend we didn't find it
-       analysis = undefined;
+      document = undefined; // Pretend we didn't find it
+      analysis = undefined;
     }
 
     // If not in memory (or denied), try loading from DynamoDB
@@ -520,7 +533,7 @@ router.get('/:id/visualizations/:type', async (req: Request, res: Response) => {
     // Verify ownership first
     const docRecord = await documentRepository.findById(id);
     if (!docRecord || docRecord.userId !== authReq.user!.userId) {
-       return res.status(404).json({ error: 'Visualization not found' });
+      return res.status(404).json({ error: 'Visualization not found' });
     }
 
     // Try to get from DynamoDB using new service
@@ -551,7 +564,7 @@ router.get('/:id/visualizations', async (req: Request, res: Response) => {
     // Verify ownership first
     const docRecord = await documentRepository.findById(id);
     if (!docRecord || docRecord.userId !== authReq.user!.userId) {
-       return res.status(404).json({ error: 'Visualizations not found' });
+      return res.status(404).json({ error: 'Visualizations not found' });
     }
 
     // Get all visualizations for the document
@@ -598,43 +611,43 @@ router.get('/:id/full', async (req: Request, res: Response) => {
     // Try DynamoDB first
     try {
       const docRecord = await documentRepository.findById(id);
-      
+
       // Ownership Check
       if (docRecord) {
         if (docRecord.userId !== authReq.user!.userId) {
-           return res.status(404).json({ error: 'Document not found' });
+          return res.status(404).json({ error: 'Document not found' });
         }
 
         const analysisRecord = await analysisRepository.findByDocumentId(id);
 
         if (analysisRecord) {
-            // Update access metadata
-            await documentRepository.updateAccessMetadata(id);
+          // Update access metadata
+          await documentRepository.updateAccessMetadata(id);
 
-            // Load content from S3 and reconstruct document with proper structure
-            const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
-            const content = contentBuffer.toString('utf-8');
+          // Load content from S3 and reconstruct document with proper structure
+          const contentBuffer = await s3Storage.downloadDocument(docRecord.s3Key);
+          const content = contentBuffer.toString('utf-8');
 
-            // Import documentParser to properly reconstruct structure
-            const { documentParser } = await import('../services/documentParser.js');
+          // Import documentParser to properly reconstruct structure
+          const { documentParser } = await import('../services/documentParser.js');
 
-            // Reconstruct Document object from DynamoDB record with proper structure, preserving original ID
-            const document = await documentParser.parseDocument(
+          // Reconstruct Document object from DynamoDB record with proper structure, preserving original ID
+          const document = await documentParser.parseDocument(
             contentBuffer,
             docRecord.filename,
             docRecord.documentId,  // Pass the original document ID to preserve it
-            );
+          );
 
-            // Extract visualizations from analysis if they exist
-            const docVisualizations: Record<string, any> = {};
-            // Visualizations are stored in the analysis object
-            // For now, return empty visualizations as they're generated on-demand
+          // Extract visualizations from analysis if they exist
+          const docVisualizations: Record<string, any> = {};
+          // Visualizations are stored in the analysis object
+          // For now, return empty visualizations as they're generated on-demand
 
-            return res.json({
+          return res.json({
             document,
             analysis: analysisRecord.analysis,
             visualizations: docVisualizations,
-            });
+          });
         }
       }
     } catch (dbError) {
@@ -647,10 +660,10 @@ router.get('/:id/full', async (req: Request, res: Response) => {
     if (!document) {
       return res.status(404).json({ error: 'Document not found' });
     }
-    
+
     // Ownership check for in-memory
     if (documentOwners.get(id) !== authReq.user!.userId) {
-        return res.status(404).json({ error: 'Document not found' });
+      return res.status(404).json({ error: 'Document not found' });
     }
 
     const analysis = analyses.get(id);

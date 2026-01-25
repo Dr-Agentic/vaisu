@@ -3,13 +3,13 @@
  * App Component
  *
  * Main application entry point using Stage-based architecture.
- * Integrates the new Electron UI Design System with core application logic.
+ * Integrates the new Vaisu UI Design System with core application logic.
  *
  * Flow: Welcome → Input → Analysis → Visualization
  * Plus: UI Sampler route for design system exploration
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 import { StageContainer, Stage } from './components/patterns';
@@ -35,6 +35,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import ProfilePage from './pages/ProfilePage';
+import DashboardPage from './pages/dashboard/DashboardPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -60,6 +61,48 @@ const PublicRoute = ({ children }: { children: JSX.Element }) => {
   }
   return children;
 };
+
+/**
+ * SplashOrchestrator
+ *
+ * Shows the welcome screen as a splash screen while loading vital dashboard data.
+ * Redirects to dashboard once ready.
+ */
+const SplashOrchestrator = () => {
+  const { fetchDocumentList, fetchDashboardStats } = useDocumentStore();
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await Promise.all([
+          fetchDocumentList(),
+          fetchDashboardStats()
+        ]);
+      } catch (e) {
+        console.error("Failed to preload data", e);
+      }
+      // Guarantee minimum visibility for splash screen
+      setTimeout(() => setIsLoaded(true), 2000);
+    };
+    loadData();
+  }, [fetchDocumentList, fetchDashboardStats]);
+
+  if (isLoaded) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return (
+    <div className="h-screen w-full">
+      <StageWelcome
+        onGetStarted={() => { }}
+        subtitle="Initializing your intelligent workspace..."
+        buttonText="Syncing Data..."
+      />
+    </div>
+  );
+};
+
 
 /**
  * App
@@ -102,9 +145,9 @@ export default function App() {
   };
 
   const handleBackFromVisualization = () => {
-    // Clear document and return to welcome
+    // Clear document and return to dashboard
     useDocumentStore.getState().clearDocument();
-    setStage('welcome');
+    window.location.href = '/dashboard';
   };
 
   return (
@@ -128,29 +171,23 @@ export default function App() {
             {/* Protected Routes */}
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
-            {/* Main application routes (Protected) */}
-            <Route path="/" element={
+            {/* Dashboard - The new centralized UI */}
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+
+            {/* Legacy Stage Flow - Kept for specific workflows if needed, but redirected by default */}
+            <Route path="/stages" element={
               <ProtectedRoute>
                 <StageContainer currentStage={currentStage}>
-                  {/* Toast Notifications */}
                   <ToastContainer toasts={toasts} onClose={removeToast} />
-
-                  {/* Welcome Stage */}
                   <Stage active={currentStage === 'welcome'}>
                     <StageWelcome onGetStarted={handleGetStarted} />
                   </Stage>
-
-                  {/* Input Stage */}
                   <Stage active={currentStage === 'input'}>
                     <StageInput />
                   </Stage>
-
-                  {/* Analysis Stage */}
                   <Stage active={currentStage === 'analysis'}>
                     <StageAnalysis />
                   </Stage>
-
-                  {/* Visualization Stage */}
                   <Stage active={currentStage === 'visualization'}>
                     <StageVisualization onBack={handleBackFromVisualization} />
                   </Stage>
@@ -161,6 +198,13 @@ export default function App() {
             {/* UI Sampler routes */}
             <Route path="/ui-sampler" element={<UISamplerPage />} />
             <Route path="/theme/sampler" element={<SimpleValidator />} />
+
+            {/* Root redirect for logged in users to Dashboard via Splash */}
+            <Route path="/" element={
+              <ProtectedRoute>
+                <SplashOrchestrator />
+              </ProtectedRoute>
+            } />
 
             {/* Redirect unknown routes to main app */}
             <Route path="*" element={<Navigate to="/" replace />} />

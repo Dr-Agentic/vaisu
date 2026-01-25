@@ -181,7 +181,7 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
  * VisualizationSidebar
  *
  * Collapsible sidebar with visualization list and summary panel.
- * Uses SOTA void background colors and viz-item pattern.
+ * Uses Vaisu void background colors and viz-item pattern.
  */
 export const VisualizationSidebar = forwardRef<
   HTMLDivElement,

@@ -132,7 +132,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     disabled:cursor-not-allowed
     disabled:opacity-60
   `,
-  // SOTA Electron UI variants with gradient borders
+  // Vaisu Vaisu UI variants with gradient borders
   // These use inline styles for complex gradient animations
   aurora: `
     gradient-border-animated

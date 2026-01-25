@@ -2,7 +2,7 @@
  * DocumentBrowserPanel Component
  *
  * Panel for browsing existing documents from the database.
- * Features search, document list with SOTA design system styling.
+ * Features search, document list with Vaisu design system styling.
  *
  * @example
  * ```tsx
@@ -30,7 +30,7 @@ export interface DocumentBrowserPanelProps {
 /**
  * DocumentBrowserPanel
  *
- * Document browser with search and SOTA void theme styling.
+ * Document browser with search and Vaisu void theme styling.
  * Uses mesh glow effects and aurora gradients for interactive states.
  */
 export const DocumentBrowserPanel = ({ onDocumentLoad }: DocumentBrowserPanelProps) => {

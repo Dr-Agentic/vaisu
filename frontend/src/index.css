@@ -25,7 +25,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI - SOTA GRADIENT SYSTEM
+   Vaisu GRADIENT SYSTEM
    ============================================ */
 
 /* CSS @property for animated gradient angles */
@@ -36,7 +36,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI - SOTA COLOR SYSTEM
+   Vaisu COLOR SYSTEM
    ============================================ */
 :root {
   /* Aurora Gradient (Primary) */
@@ -59,14 +59,14 @@ code {
   --ember-2: #ec4899;
   --ember-3: #db2777;
 
-  /* Animation durations (SOTA) */
+  /* Animation durations (Vaisu) */
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --duration-slow: 400ms;
   --duration-gradient: 4s;
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
-  /* Spacing tokens (SOTA) */
+  /* Spacing tokens (Vaisu) */
   --space-2xs: 4px;
   --space-xs: 8px;
   --space-sm: 12px;
@@ -421,7 +421,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI - SOTA UTILITY CLASSES
+   Vaisu UTILITY CLASSES
    ============================================ */
 
 .floating {
@@ -441,7 +441,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI BUTTONS
+   Vaisu BUTTONS
    ============================================ */
 
 .btn {
@@ -539,7 +539,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI CARDS
+   Vaisu CARDS
    ============================================ */
 
 .card {
@@ -567,7 +567,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI BADGES
+   Vaisu BADGES
    ============================================ */
 
 .badge {
@@ -601,7 +601,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI STAGE INDICATORS
+   Vaisu STAGE INDICATORS
    ============================================ */
 
 .stage-indicators {
@@ -631,7 +631,7 @@ code {
 }
 
 /* ============================================
-   ELECTRON UI VISUALIZATION ITEMS
+   Vaisu VISUALIZATION ITEMS
    ============================================ */
 
 .viz-item {
@@ -1104,7 +1104,7 @@ code {
     scroll-behavior: auto !important;
   }
 
-  /* Disable Electron UI animations */
+  /* Disable Vaisu UI animations */
   .gradient-border-animated,
   .gradient-border-animated-fast,
   .hero-bg,

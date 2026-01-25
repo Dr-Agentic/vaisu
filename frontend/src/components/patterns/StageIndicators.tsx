@@ -49,7 +49,7 @@ const STAGE_ORDER: readonly StageName[] = ['welcome', 'input', 'analysis', 'visu
  * - Active: Glowing accent color
  * - Completed: Muted color (previous stages)
  * - Inactive: Dim color (future stages)
- * Uses SOTA stage-dot pattern from CSS.
+ * Uses Vaisu stage-dot pattern from CSS.
  */
 export const StageIndicators = forwardRef<HTMLDivElement, StageIndicatorsProps>(
   ({ currentStage, stages = STAGE_ORDER as StageName[], onStageClick, interactive = false, className, ...props }, ref) => {

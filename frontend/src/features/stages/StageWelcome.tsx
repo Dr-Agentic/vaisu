@@ -2,7 +2,7 @@
  * StageWelcome Component
  *
  * Welcome stage with hero section featuring void mesh glow background.
- * Serves as entry point to Electron UI.
+ * Serves as entry point to Vaisu UI.
  *
  * @example
  * ```tsx

@@ -37,7 +37,7 @@ export interface StageVisualizationProps {
  *
  * Full visualization workspace with header, sidebar, canvas, and toolbar.
  * Includes keyboard shortcuts (1-6 for viz, F for fullscreen, Esc to exit).
- * Uses SOTA void background colors and mesh-glow effects.
+ * Uses Vaisu void background colors and mesh-glow effects.
  */
 export const StageVisualization = forwardRef<
   HTMLDivElement,

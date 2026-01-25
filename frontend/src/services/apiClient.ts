@@ -243,6 +243,11 @@ export const apiClient = {
     return response.data;
   },
 
+  async getDashboardStats() {
+    const response = await client.get("/documents/stats");
+    return response.data;
+  },
+
   async getProgress(
     documentId: string,
   ): Promise<{ step: string; progress: number; message: string }> {

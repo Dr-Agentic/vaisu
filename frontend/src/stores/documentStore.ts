@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { apiClient } from '../services/apiClient';
 
-import type { Document, DocumentAnalysis, VisualizationType } from '../../../shared/src/types';
+import type { Document, DocumentAnalysis, VisualizationType, DashboardStats } from '../../../shared/src/types';
 import type { ToastType } from '../features/feedback/Toast';
 
 export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
@@ -38,7 +38,7 @@ interface DocumentStore {
   progressMessage: string;
   toasts: ToastMessage[];
 
-  // Stage state (Electron UI)
+  // Stage state (Vaisu UI)
   currentStage: AppStage;
   setStage: (stage: AppStage) => void;
 
@@ -46,6 +46,10 @@ interface DocumentStore {
   documentList: DocumentListItem[];
   isLoadingList: boolean;
   searchQuery: string;
+
+  // Dashboard stats
+  stats: DashboardStats | null;
+  isLoadingStats: boolean;
 
   uploadDocument: (file: File) => Promise<void>;
   uploadText: (text: string) => Promise<void>;
@@ -62,6 +66,7 @@ interface DocumentStore {
   loadDocumentById: (id: string) => Promise<void>;
   setSearchQuery: (query: string) => void;
   searchDocuments: (query: string) => Promise<void>;
+  fetchDashboardStats: () => Promise<void>;
 }
 
 export const useDocumentStore = create<DocumentStore>((set, get) => ({
@@ -77,7 +82,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   progressMessage: '',
   toasts: [],
 
-  // Stage state (Electron UI)
+  // Stage state (Vaisu UI)
   currentStage: 'welcome',
   setStage: (stage: AppStage) => set({ currentStage: stage }),
 
@@ -85,6 +90,10 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   documentList: [],
   isLoadingList: false,
   searchQuery: '',
+
+  // Dashboard stats
+  stats: null,
+  isLoadingStats: false,
 
   uploadDocument: async (file: File) => {
     set({ isLoading: true, error: null });
@@ -425,6 +434,23 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       get().addToast({
         type: 'error',
         title: 'Search failed',
+        message: error.message,
+        duration: 5000,
+      });
+    }
+  },
+
+  fetchDashboardStats: async () => {
+    set({ isLoadingStats: true });
+    try {
+      const stats = await apiClient.getDashboardStats();
+      set({ stats, isLoadingStats: false });
+    } catch (error: any) {
+      console.error('Failed to fetch dashboard stats:', error);
+      set({ isLoadingStats: false });
+      get().addToast({
+        type: 'error',
+        title: 'Failed to load statistics',
         message: error.message,
         duration: 5000,
       });
