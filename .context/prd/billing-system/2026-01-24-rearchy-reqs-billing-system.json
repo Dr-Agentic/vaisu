@@ -1,0 +1,122 @@
+{
+  "metadata": {
+    "agent": "Rearchy",
+    "created_at": "2026-01-24T00:00:00.000Z",
+    "source_prompt_file": "2026-01-24-maestro-prompt-feature-1769317950587.json"
+  },
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "category": "Backend",
+      "title": "Extend User Model",
+      "description": "Update the User interface and repository to store subscription details.",
+      "acceptance_criteria": [
+        "User interface includes subscriptionProvider, subscriptionId, subscriptionStatus, currentPeriodEnd",
+        "Repository can save and retrieve these fields"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-002",
+      "category": "Backend",
+      "title": "Daily Analysis Usage Tracking",
+      "description": "Modify UsageLimitsRepository to support daily buckets (YYYY-MM-DD) for tracking analysis requests.",
+      "acceptance_criteria": [
+        "Repository accepts a daily period key format",
+        "Incrementing usage updates the correct daily bucket"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-003",
+      "category": "Backend",
+      "title": "Document Storage Counting",
+      "description": "Implement a method to count total active documents for a user to enforce storage limits.",
+      "acceptance_criteria": [
+        "Efficiently query count of documents for a userId",
+        "Count excludes deleted documents (if soft delete is implemented)"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-004",
+      "category": "Backend",
+      "title": "Stripe Checkout Integration",
+      "description": "Implement StripeService to generate checkout session URLs for the Pro plan.",
+      "acceptance_criteria": [
+        "Endpoint returns a valid Stripe Checkout URL",
+        "Session includes correct metadata (userId) for webhook matching"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-005",
+      "category": "Backend",
+      "title": "Stripe Webhook Handling",
+      "description": "Implement webhook handler for Stripe events to update user subscription status.",
+      "acceptance_criteria": [
+        "Handle checkout.session.completed to activate Pro",
+        "Handle customer.subscription.updated/deleted to update status",
+        "Verify Stripe webhook signature"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-006",
+      "category": "Backend",
+      "title": "RevenueCat Webhook Handling",
+      "description": "Implement webhook handler for RevenueCat events to sync iOS subscriptions.",
+      "acceptance_criteria": [
+        "Endpoint accepts RevenueCat webhook payload",
+        "Updates user subscription status based on RevenueCat event"
+      ],
+      "priority": "Medium"
+    },
+    {
+      "id": "REQ-007",
+      "category": "Backend",
+      "title": "Usage Enforcement Middleware",
+      "description": "Create middleware or service logic to block actions when limits are reached.",
+      "acceptance_criteria": [
+        "Block analysis if Free user > 3/day",
+        "Block analysis if Pro user > 100/day",
+        "Block upload if Free user > 10 docs",
+        "Return appropriate 402/403 error codes"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-008",
+      "category": "Frontend",
+      "title": "Upgrade UI & Pricing Page",
+      "description": "Add UI for users to view plans and initiate upgrade.",
+      "acceptance_criteria": [
+        "Pricing page lists Free vs Pro features",
+        "Upgrade button triggers backend to get Stripe URL and redirects"
+      ],
+      "priority": "High"
+    },
+    {
+      "id": "REQ-009",
+      "category": "Frontend",
+      "title": "Usage Indicators",
+      "description": "Show current usage stats to the user.",
+      "acceptance_criteria": [
+        "Display 'X/3 daily analyses' for Free users",
+        "Display 'X/10 documents' for Free users",
+        "Indicate Pro status if active"
+      ],
+      "priority": "Medium"
+    },
+    {
+      "id": "REQ-010",
+      "category": "Infrastructure",
+      "title": "Environment Configuration",
+      "description": "Add necessary API keys and secrets to environment variables.",
+      "acceptance_criteria": [
+        "STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, REVENUECAT_WEBHOOK_SECRET defined in .env"
+      ],
+      "priority": "High"
+    }
+  ]
+}

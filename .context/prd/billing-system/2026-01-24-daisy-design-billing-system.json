@@ -1,0 +1,157 @@
+{
+  "metadata": {
+    "agent": "Daisy",
+    "created_at": "2026-01-24T12:00:00.000Z",
+    "source_reqs_file": "2026-01-24-rearchy-reqs-feature-1769317950587.json"
+  },
+  "design": {
+    "overview": "Implement a subscription-based monetization system with usage limits. The system will track daily analysis usage and total document storage. It integrates with Stripe for payments and uses webhooks for subscription status updates.",
+    "decisions": [
+      {
+        "topic": "Usage Tracking Granularity",
+        "decision": "Track analysis usage on a daily basis (YYYY-MM-DD) and document storage on a total count basis.",
+        "rationale": "Allows for finer-grained control and resetting of daily limits (e.g., 3/day for free users) compared to monthly buckets."
+      },
+      {
+        "topic": "Document Counting",
+        "decision": "Implement a direct count query in DocumentRepository rather than relying solely on increment/decrement counters in UsageLimitsRepository.",
+        "rationale": "Ensures the count is always accurate even if sync issues occur. UsageLimitsRepository will still track 'storageUsed' for bytes, but document count enforcement will check the actual table count."
+      },
+      {
+        "topic": "Subscription State",
+        "decision": "Store subscription status directly on the User model.",
+        "rationale": "Allows for fast permission checks without querying a separate subscription table on every request."
+      }
+    ],
+    "components": [
+      {
+        "name": "Shared Types",
+        "type": "Modified",
+        "path": "shared/src/types.d.ts",
+        "responsibilities": "Define User subscription fields and UsageLimit interfaces.",
+        "interface_changes": "Add subscriptionProvider, subscriptionId, subscriptionStatus, currentPeriodEnd to User interface."
+      },
+      {
+        "name": "User Repository",
+        "type": "Modified",
+        "path": "backend/src/repositories/userRepository.ts",
+        "responsibilities": "Persist new subscription fields.",
+        "interface_changes": "Update User interface and mapper to handle new fields."
+      },
+      {
+        "name": "Usage Limits Repository",
+        "type": "Modified",
+        "path": "backend/src/repositories/usageLimitsRepository.ts",
+        "responsibilities": "Track usage with daily granularity.",
+        "interface_changes": "Update getUsageLimits/increment methods to accept/default to YYYY-MM-DD period format."
+      },
+      {
+        "name": "Document Repository",
+        "type": "Modified",
+        "path": "backend/src/repositories/documentRepository.ts",
+        "responsibilities": "Count active documents for a user.",
+        "interface_changes": "Add countByUserId(userId): Promise<number>."
+      },
+      {
+        "name": "Stripe Service",
+        "type": "New",
+        "path": "backend/src/services/billing/stripeService.ts",
+        "responsibilities": "Handle Stripe Checkout session creation and signature verification.",
+        "interface_changes": "createCheckoutSession(userId, priceId): Promise<string>; verifyWebhookSignature(payload, signature): Event;"
+      },
+      {
+        "name": "Webhook Routes",
+        "type": "New",
+        "path": "backend/src/routes/webhooks.ts",
+        "responsibilities": "Receive and process Stripe and RevenueCat webhooks.",
+        "interface_changes": "POST /stripe, POST /revenuecat"
+      },
+      {
+        "name": "Usage Enforcement Middleware",
+        "type": "New",
+        "path": "backend/src/middleware/usageEnforcement.ts",
+        "responsibilities": "Check limits before allowing sensitive actions.",
+        "interface_changes": "checkAnalysisLimit, checkStorageLimit middleware functions."
+      },
+      {
+        "name": "Document Routes",
+        "type": "Modified",
+        "path": "backend/src/routes/documents.ts",
+        "responsibilities": "Apply usage enforcement middleware.",
+        "interface_changes": "Apply checkStorageLimit to POST /upload, checkAnalysisLimit to POST /analyze."
+      },
+      {
+        "name": "Frontend User Store",
+        "type": "Modified",
+        "path": "frontend/src/stores/userStore.ts",
+        "responsibilities": "Fetch and expose usage stats to UI.",
+        "interface_changes": "Add usageStats state and fetchUsageStats action."
+      },
+      {
+        "name": "Pricing Page",
+        "type": "New",
+        "path": "frontend/src/pages/PricingPage.tsx",
+        "responsibilities": "Display plans and initiate upgrade flow.",
+        "interface_changes": "New page component."
+      },
+      {
+        "name": "Usage Stats Component",
+        "type": "New",
+        "path": "frontend/src/components/dashboard/UsageStats.tsx",
+        "responsibilities": "Visual display of daily analysis and storage limits.",
+        "interface_changes": "New UI component."
+      }
+    ]
+  },
+  "test_plan": [
+    {
+      "id": "TEST-001",
+      "target_component": "backend/src/repositories/usageLimitsRepository.ts",
+      "scenario": "Daily Bucket Creation",
+      "input": "incrementAnalysisCount for new day",
+      "expected_outcome": "Creates a new record with key userId#YYYY-MM-DD and count 1"
+    },
+    {
+      "id": "TEST-002",
+      "target_component": "backend/src/middleware/usageEnforcement.ts",
+      "scenario": "Free User Exceeds Analysis Limit",
+      "input": "User with 3 analyses today attempts 4th",
+      "expected_outcome": "Returns 402/403 error, blocks execution"
+    },
+    {
+      "id": "TEST-003",
+      "target_component": "backend/src/middleware/usageEnforcement.ts",
+      "scenario": "Pro User Within Limit",
+      "input": "User with 'active' subscription attempts 10th analysis",
+      "expected_outcome": "Allows execution, increments count"
+    },
+    {
+      "id": "TEST-004",
+      "target_component": "backend/src/repositories/documentRepository.ts",
+      "scenario": "Count Documents",
+      "input": "User with 5 documents",
+      "expected_outcome": "countByUserId returns 5"
+    },
+    {
+      "id": "TEST-005",
+      "target_component": "backend/src/services/billing/stripeService.ts",
+      "scenario": "Create Checkout Session",
+      "input": "Valid userId and priceId",
+      "expected_outcome": "Returns a valid Stripe URL with client_reference_id = userId"
+    },
+    {
+      "id": "TEST-006",
+      "target_component": "backend/src/routes/webhooks.ts",
+      "scenario": "Stripe Webhook Success",
+      "input": "checkout.session.completed event",
+      "expected_outcome": "Updates user subscriptionStatus to 'active'"
+    },
+    {
+      "id": "TEST-007",
+      "target_component": "frontend/src/pages/PricingPage.tsx",
+      "scenario": "Upgrade Button Click",
+      "input": "User clicks upgrade",
+      "expected_outcome": "Calls API to get Stripe URL and redirects window.location"
+    }
+  ]
+}

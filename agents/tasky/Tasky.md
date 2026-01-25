@@ -48,6 +48,7 @@ Generate a task execution plan JSON file in the same directory as the input.
     {
       "step_id": 1,
       "type": "Development",
+      "status": "PENDING",
       "title": "Create UserInterface definition",
       "description": "Define the TS interface in shared/types.d.ts matching the design spec...",
       "files_to_touch": ["shared/src/types.d.ts"],

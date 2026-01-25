@@ -1,0 +1,175 @@
+{
+  "metadata": {
+    "agent": "Tasky",
+    "created_at": "2026-01-24T12:05:00.000Z",
+    "source_design_file": "2026-01-24-daisy-design-billing-system.json"
+  },
+  "execution_plan": [
+    {
+      "step_id": 1,
+      "status": "COMPLETED",
+      "type": "Development",
+      "title": "Update Shared Types",
+      "description": "Add subscription fields (subscriptionProvider, subscriptionId, subscriptionStatus, currentPeriodEnd) to the User interface.",
+      "files_to_touch": ["shared/src/types.d.ts"],
+      "verification": {
+        "type": "Static Analysis",
+        "command": "npm run lint",
+        "scenarios": []
+      }
+    },
+    {
+      "step_id": 2,
+      "status": "COMPLETED",
+      "type": "Implementation",
+      "title": "Update User Repository",
+      "description": "Modify the User repository to persist and retrieve the new subscription fields from DynamoDB.",
+      "files_to_touch": ["backend/src/repositories/userRepository.ts"],
+      "verification": {
+        "type": "Integration Test",
+        "scenarios": [
+          "Case: Create user with subscription fields persists correctly",
+          "Case: Update user subscription status updates DB"
+        ]
+      }
+    },
+    {
+      "step_id": 3,
+      "status": "COMPLETED",
+      "type": "Implementation",
+      "title": "Implement Document Counting",
+      "description": "Add countByUserId method to DocumentRepository to efficiently count active documents for a user.",
+      "files_to_touch": ["backend/src/repositories/documentRepository.ts"],
+      "verification": {
+        "type": "Integration Test",
+        "scenarios": [
+          "Case: countByUserId returns 0 for new user",
+          "Case: countByUserId returns correct count after N insertions"
+        ]
+      }
+    },
+    {
+      "step_id": 4,
+      "status": "COMPLETED",
+      "type": "Implementation",
+      "title": "Implement Daily Usage Tracking",
+      "description": "Update UsageLimitsRepository to handle daily buckets (YYYY-MM-DD) for analysis usage.",
+      "files_to_touch": ["backend/src/repositories/usageLimitsRepository.ts"],
+      "verification": {
+        "type": "Unit Test",
+        "scenarios": [
+          "Case: incrementAnalysisCount creates new record for new day",
+          "Case: incrementAnalysisCount increments existing record for same day"
+        ]
+      }
+    },
+    {
+      "step_id": 5,
+      "status": "COMPLETED",
+      "type": "Implementation",
+      "title": "Create Stripe Service",
+      "description": "Implement StripeService to handle Checkout Session creation and Webhook signature verification.",
+      "files_to_touch": ["backend/src/services/billing/stripeService.ts"],
+      "verification": {
+        "type": "Unit Test",
+        "scenarios": [
+          "Case: createCheckoutSession returns session URL",
+          "Case: verifyWebhookSignature throws error on invalid signature"
+        ]
+      }
+    },
+    {
+      "step_id": 6,
+      "status": "COMPLETED",
+      "type": "Implementation",
+      "title": "Create Webhook Routes",
+      "description": "Implement POST /webhooks/stripe endpoint to receive events and update user subscription status.",
+      "files_to_touch": [
+        "backend/src/routes/webhooks.ts",
+        "backend/src/server.ts"
+      ],
+      "verification": {
+        "type": "Integration Test",
+        "scenarios": [
+          "Case: POST /stripe with valid checkout.session.completed updates user to active"
+        ]
+      }
+    },
+    {
+      "step_id": 7,
+      "status": "PENDING",
+      "type": "Implementation",
+      "title": "Implement Usage Enforcement Middleware",
+      "description": "Create middleware to check analysis limits (daily) and storage limits (total count) before allowing actions.",
+      "files_to_touch": ["backend/src/middleware/usageEnforcement.ts"],
+      "verification": {
+        "type": "Unit Test",
+        "scenarios": [
+          "Case: checkAnalysisLimit calls next() if under limit",
+          "Case: checkAnalysisLimit returns 403 if limit exceeded",
+          "Case: checkStorageLimit returns 403 if document count exceeded"
+        ]
+      }
+    },
+    {
+      "step_id": 8,
+      "status": "PENDING",
+      "type": "Integration",
+      "title": "Protect Document Routes",
+      "description": "Apply usage enforcement middleware to /analyze and /upload endpoints.",
+      "files_to_touch": ["backend/src/routes/documents.ts"],
+      "verification": {
+        "type": "Integration Test",
+        "scenarios": [
+          "Case: POST /upload rejected when storage limit reached",
+          "Case: POST /analyze rejected when daily limit reached"
+        ]
+      }
+    },
+    {
+      "step_id": 9,
+      "status": "PENDING",
+      "type": "Implementation",
+      "title": "Update Frontend User Store",
+      "description": "Add usage stats state and fetching logic to the frontend UserStore.",
+      "files_to_touch": ["frontend/src/stores/userStore.ts"],
+      "verification": {
+        "type": "Unit Test",
+        "scenarios": ["Case: fetchUsageStats updates state with backend data"]
+      }
+    },
+    {
+      "step_id": 10,
+      "status": "PENDING",
+      "type": "Implementation",
+      "title": "Create Usage Stats Component",
+      "description": "Build a UI component to display daily analysis usage and total storage usage.",
+      "files_to_touch": ["frontend/src/components/dashboard/UsageStats.tsx"],
+      "verification": {
+        "type": "Manual/Storybook",
+        "scenarios": [
+          "Case: Displays correct progress bars",
+          "Case: Shows warning when near limit"
+        ]
+      }
+    },
+    {
+      "step_id": 11,
+      "status": "PENDING",
+      "type": "Implementation",
+      "title": "Create Pricing Page",
+      "description": "Implement the Pricing page with plan details and Upgrade button wired to the backend.",
+      "files_to_touch": [
+        "frontend/src/pages/PricingPage.tsx",
+        "frontend/src/App.tsx"
+      ],
+      "verification": {
+        "type": "Manual/E2E",
+        "scenarios": [
+          "Case: Clicking Upgrade redirects to Stripe",
+          "Case: Page displays current plan status"
+        ]
+      }
+    }
+  ]
+}

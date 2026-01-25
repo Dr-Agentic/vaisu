@@ -7,6 +7,7 @@ export async function runAgent(
   skillPath: string,
   taskPrompt: string,
   logger: Logger,
+  projectRoot: string,
 ): Promise<void> {
   if (!fs.existsSync(skillPath)) {
     throw new Error(`Skill definition not found at: ${skillPath}`);
@@ -14,12 +15,17 @@ export async function runAgent(
 
   const skillContent = fs.readFileSync(skillPath, "utf-8");
 
-  // Construct a super-prompt that forces the persona
-  // We escape double quotes to avoid breaking the CLI arg if we were using exec,
-  // but spawn handles args safer.
-  // However, the prompt might be very long.
   const fullPrompt = `
-SYSTEM INSTRUCTION: Adopt the following persona and execute the task.
+SYSTEM INSTRUCTION: 
+1. Adopt the following persona and execute the task.
+2. You are running in a HEADLESS automation environment. 
+3. DO NOT ask for user confirmation. DO NOT ask clarifying questions.
+4. Make the best technical decision you can and PROCEED.
+5. If you are writing code or files, do it immediately.
+6. CRITICAL: When using file tools (Read, Write, Edit, Glob), ALWAYS use ABSOLUTE PATHS.
+   The project root is: ${projectRoot}
+   Example: If you want to read 'backend/package.json', use '${projectRoot}/backend/package.json'.
+
 ${skillContent}
 
 ---
@@ -30,10 +36,11 @@ ${taskPrompt}
   logger.log(`🤖 Awakening Agent: ${agentName}`);
 
   return new Promise((resolve, reject) => {
-    // 'opencode run' accepts the message as arguments
+    // stdio: ['ignore', 'inherit', 'inherit'] closes stdin
     const cp = spawn("opencode", ["run", fullPrompt], {
-      stdio: "inherit", // Important: lets the user interact with the agent if needed
+      stdio: ["ignore", "inherit", "inherit"],
       shell: false,
+      cwd: projectRoot,
     });
 
     cp.on("close", (code) => {

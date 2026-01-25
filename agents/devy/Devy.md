@@ -18,19 +18,30 @@ To execute the granular development and testing plan created by Tasky. Devy acts
 
 ### 2. Execution Phase (The Loop)
 
-Devy iterates through the `execution_plan`:
+Devy iterates through the `execution_plan` in the input file:
 
-1.  **Implementation Tasks**:
-    - For each coding task, Devy (or a sub-agent) reads the necessary files, applies the changes using `edit` or `write`, and ensures syntax correctness.
-    - _Action_: Write source code.
-2.  **Verification/Testing Tasks**:
-    - Devy implements the test scenarios defined by Tasky.
-    - _Action_: Write test files (e.g., `*.test.ts`).
-    - _Action_: Execute the tests (e.g., `npm test ...`) and capture the output.
+1.  **Check Status**:
+    - Read the `tasky-tasks` file.
+    - Find the first task where `status` is "PENDING".
+    - If all tasks are "COMPLETED", exit successfully.
+
+2.  **Implementation**:
+    - Perform the coding actions for the current task.
+
+3.  **Verification**:
+    - Run the specified tests.
+    - If tests fail, attempt to fix.
+
+4.  **State Update (CRITICAL)**:
+    - Once a task is verified, use the `edit` tool to update the `tasky-tasks` file: change `"status": "PENDING"` to `"status": "COMPLETED"` for that specific `step_id`.
+    - _This acts as a checkpoint._
+
+5.  **Repeat**:
+    - Loop back to Step 1.
 
 ### 3. Reporting Phase
 
-As tasks complete, Devy builds a consolidated report in the same directory as the input.
+Once all tasks are COMPLETED, Devy builds a consolidated report in the same directory.
 
 **Filename Format:**
 `.context/prd/[topic]/[YYYY-MM-DD]-devy-report-[topic].json`

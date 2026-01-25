@@ -16,7 +16,7 @@ export const LLM_MODELS = {
 // LLM Selection Constants - easily switch between different model configurations
 export const LLM_PRIMARY = LLM_MODELS.GPT_OSS_120B;
 export const LLM_FALLBACK = LLM_MODELS.NEMOTRON_30B;
-const LLM_MAXTOKENS = 50000;
+const LLM_MAXTOKENS = 10000000;
 
 export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
   tldr: {

@@ -1,8 +1,14 @@
-import { PutCommand, GetCommand, QueryCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
+import {
+  PutCommand,
+  GetCommand,
+  QueryCommand,
+  UpdateCommand,
+  DeleteCommand,
+} from "@aws-sdk/lib-dynamodb";
 
-import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from '../config/aws.js';
+import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from "../config/aws.js";
 
-import type { DocumentRecord } from './types.js';
+import type { DocumentRecord } from "./types.js";
 
 /**
  * Find document by content hash and filename (deduplication check)
@@ -13,11 +19,11 @@ export async function findByHashAndFilename(
 ): Promise<DocumentRecord | null> {
   const command = new QueryCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    IndexName: 'GSI1',
-    KeyConditionExpression: 'contentHash = :hash AND filename = :filename',
+    IndexName: "GSI1",
+    KeyConditionExpression: "contentHash = :hash AND filename = :filename",
     ExpressionAttributeValues: {
-      ':hash': hash,
-      ':filename': filename,
+      ":hash": hash,
+      ":filename": filename,
     },
     Limit: 1,
   });
@@ -39,7 +45,7 @@ export async function create(document: DocumentRecord): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Item: {
       ...document,
-      SK: 'METADATA',
+      SK: "METADATA",
     },
   });
 
@@ -49,12 +55,14 @@ export async function create(document: DocumentRecord): Promise<void> {
 /**
  * Find document by ID
  */
-export async function findById(documentId: string): Promise<DocumentRecord | null> {
+export async function findById(
+  documentId: string,
+): Promise<DocumentRecord | null> {
   const command = new GetCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: 'METADATA',
+      SK: "METADATA",
     },
   });
 
@@ -75,13 +83,14 @@ export async function updateAccessMetadata(documentId: string): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: 'METADATA',
+      SK: "METADATA",
     },
-    UpdateExpression: 'SET lastAccessedAt = :now, accessCount = if_not_exists(accessCount, :zero) + :one',
+    UpdateExpression:
+      "SET lastAccessedAt = :now, accessCount = if_not_exists(accessCount, :zero) + :one",
     ExpressionAttributeValues: {
-      ':now': new Date().toISOString(),
-      ':zero': 0,
-      ':one': 1,
+      ":now": new Date().toISOString(),
+      ":zero": 0,
+      ":one": 1,
     },
   });
 
@@ -96,7 +105,7 @@ export async function deleteDocument(documentId: string): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: 'METADATA',
+      SK: "METADATA",
     },
   });
 
@@ -112,15 +121,18 @@ export async function listByUserId(
   userId: string,
   limit: number = 50,
   lastEvaluatedKey?: Record<string, any>,
-): Promise<{ documents: DocumentRecord[]; lastEvaluatedKey?: Record<string, any> }> {
-  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
+): Promise<{
+  documents: DocumentRecord[];
+  lastEvaluatedKey?: Record<string, any>;
+}> {
+  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
 
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    FilterExpression: 'userId = :userId AND SK = :sk',
+    FilterExpression: "userId = :userId AND SK = :sk",
     ExpressionAttributeValues: {
-      ':userId': userId,
-      ':sk': 'METADATA',
+      ":userId": userId,
+      ":sk": "METADATA",
     },
     Limit: limit,
     ExclusiveStartKey: lastEvaluatedKey,
@@ -129,17 +141,35 @@ export async function listByUserId(
   const response = await dynamoDBClient.send(command);
 
   // Sort by uploadedAt (newest first) since Scan doesn't guarantee order
-  const sortedDocuments = (response.Items || [])
-    .sort((a: any, b: any) => {
-      const dateA = new Date(a.uploadedAt).getTime();
-      const dateB = new Date(b.uploadedAt).getTime();
-      return dateB - dateA;
-    });
+  const sortedDocuments = (response.Items || []).sort((a: any, b: any) => {
+    const dateA = new Date(a.uploadedAt).getTime();
+    const dateB = new Date(b.uploadedAt).getTime();
+    return dateB - dateA;
+  });
 
   return {
     documents: sortedDocuments as DocumentRecord[],
     lastEvaluatedKey: response.LastEvaluatedKey,
   };
+}
+
+/**
+ * Count active documents for a user
+ */
+export async function countByUserId(userId: string): Promise<number> {
+  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
+  const command = new ScanCommand({
+    TableName: DYNAMODB_DOCUMENTS_TABLE,
+    FilterExpression: "userId = :userId AND SK = :sk",
+    ExpressionAttributeValues: {
+      ":userId": userId,
+      ":sk": "METADATA",
+    },
+    Select: "COUNT",
+  });
+
+  const response = await dynamoDBClient.send(command);
+  return response.Count || 0;
 }
 
 /**
@@ -151,14 +181,14 @@ export async function getStatsByUserId(userId: string): Promise<{
   documentsThisWeek: number;
   totalGraphs: number;
 }> {
-  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
+  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
 
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    FilterExpression: 'userId = :userId AND SK = :sk',
+    FilterExpression: "userId = :userId AND SK = :sk",
     ExpressionAttributeValues: {
-      ':userId': userId,
-      ':sk': 'METADATA',
+      ":userId": userId,
+      ":sk": "METADATA",
     },
   });
 
@@ -166,11 +196,16 @@ export async function getStatsByUserId(userId: string): Promise<{
   const docs = response.Items || [];
 
   const totalDocuments = docs.length;
-  const totalWords = docs.reduce((acc: number, doc: any) => acc + (doc.wordCount || 0), 0);
+  const totalWords = docs.reduce(
+    (acc: number, doc: any) => acc + (doc.wordCount || 0),
+    0,
+  );
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-  const docsThisWeek = docs.filter((doc: any) => new Date(doc.uploadedAt) > oneWeekAgo).length;
+  const docsThisWeek = docs.filter(
+    (doc: any) => new Date(doc.uploadedAt) > oneWeekAgo,
+  ).length;
 
   // Total graphs generated across all user documents
   // We'll count analysis records as a proxy for now, or just return a placeholder

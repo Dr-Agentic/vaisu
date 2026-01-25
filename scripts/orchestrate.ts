@@ -27,7 +27,7 @@ async function main() {
 
   if (!promptFilePath) {
     console.error(
-      "Usage: npx tsx scripts/orchestrate.ts <path-to-prompt-file>",
+      "Usage: npx tsx scripts/orchestrate.ts <path-to-prompt-file> [optional-slug]",
     );
     process.exit(1);
   }
@@ -36,8 +36,11 @@ async function main() {
   const rawPrompt = fs.readFileSync(promptFilePath, "utf-8");
 
   // 1. Identify Feature
-  console.log("🔮 Analyzing request to determine feature slug...");
-  const slug = await generateFeatureSlug(rawPrompt, config);
+  let slug = process.argv[3];
+  if (!slug) {
+    console.log("🔮 Analyzing request to determine feature slug...");
+    slug = await generateFeatureSlug(rawPrompt, config);
+  }
   console.log(`Cb Identifier: ${slug}`);
 
   // 2. Setup Workspace
@@ -53,104 +56,158 @@ async function main() {
 
   try {
     // --- Step 1: Maestro ---
-    // Reads user prompt, generates Super-Prompt
-    const maestroSkill = path.join(
-      config.projectRoot,
-      "agents/maestro/Maestro.md",
-    );
-    const maestroPrompt = `
-      The user has submitted a new request.
-      Analyze the request and generate the initial JSON prompt file.
-      
-      USER REQUEST:
-      "${rawPrompt}"
-      
-      FEATURE SLUG: ${slug}
-      OUTPUT DIRECTORY: .context/prd/${slug}
-    `;
-
-    await runAgent("Maestro", maestroSkill, maestroPrompt, logger);
-
-    const maestroFile = await findLatestFile(
+    let maestroFile = await findLatestFile(
       featureDir,
       /maestro-prompt.*\.json$/,
     );
-    if (!maestroFile)
-      throw new Error("Maestro failed to generate output file.");
-    logger.success(`Maestro output found: ${path.basename(maestroFile)}`);
+
+    if (maestroFile) {
+      logger.success(
+        `Skipping Maestro (Output exists: ${path.basename(maestroFile)})`,
+      );
+    } else {
+      const maestroSkill = path.join(
+        config.projectRoot,
+        "agents/maestro/Maestro.md",
+      );
+      const maestroPrompt = `
+        The user has submitted a new request.
+        Analyze the request and generate the initial JSON prompt file.
+        
+        USER REQUEST:
+        "${rawPrompt}"
+        
+        FEATURE SLUG: ${slug}
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent(
+        "Maestro",
+        maestroSkill,
+        maestroPrompt,
+        logger,
+        config.projectRoot,
+      );
+
+      maestroFile = await findLatestFile(featureDir, /maestro-prompt.*\.json$/);
+      if (!maestroFile)
+        throw new Error("Maestro failed to generate output file.");
+      logger.success(`Maestro output found: ${path.basename(maestroFile)}`);
+    }
 
     // --- Step 2: Rearchy ---
-    // Reads Maestro prompt, generates Requirements
-    const rearchySkill = path.join(
-      config.projectRoot,
-      "agents/rearchy/Rearchy.md",
-    );
-    const rearchyPrompt = `
-      Take the Maestro prompt file and decompose it into requirements.
-      
-      INPUT FILE: ${maestroFile}
-    `;
+    let rearchyFile = await findLatestFile(featureDir, /rearchy-reqs.*\.json$/);
 
-    await runAgent("Rearchy", rearchySkill, rearchyPrompt, logger);
+    if (rearchyFile) {
+      logger.success(
+        `Skipping Rearchy (Output exists: ${path.basename(rearchyFile)})`,
+      );
+    } else {
+      const rearchySkill = path.join(
+        config.projectRoot,
+        "agents/rearchy/Rearchy.md",
+      );
+      const rearchyPrompt = `
+        Take the Maestro prompt file and decompose it into requirements.
+        
+        INPUT FILE: ${maestroFile}
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent(
+        "Rearchy",
+        rearchySkill,
+        rearchyPrompt,
+        logger,
+        config.projectRoot,
+      );
 
-    const rearchyFile = await findLatestFile(
-      featureDir,
-      /rearchy-reqs.*\.json$/,
-    );
-    if (!rearchyFile)
-      throw new Error("Rearchy failed to generate output file.");
-    logger.success(`Rearchy output found: ${path.basename(rearchyFile)}`);
+      rearchyFile = await findLatestFile(featureDir, /rearchy-reqs.*\.json$/);
+      if (!rearchyFile)
+        throw new Error("Rearchy failed to generate output file.");
+      logger.success(`Rearchy output found: ${path.basename(rearchyFile)}`);
+    }
 
     // --- Step 3: Daisy ---
-    // Reads Requirements, generates Design & Test Plan
-    const daisySkill = path.join(config.projectRoot, "agents/daisy/Daisy.md");
-    const daisyPrompt = `
-      Take the Requirements file and create a technical design and test plan.
-      
-      INPUT FILE: ${rearchyFile}
-    `;
+    let daisyFile = await findLatestFile(featureDir, /daisy-design.*\.json$/);
 
-    await runAgent("Daisy", daisySkill, daisyPrompt, logger);
+    if (daisyFile) {
+      logger.success(
+        `Skipping Daisy (Output exists: ${path.basename(daisyFile)})`,
+      );
+    } else {
+      const daisySkill = path.join(config.projectRoot, "agents/daisy/Daisy.md");
+      const daisyPrompt = `
+        Take the Requirements file and create a technical design and test plan.
+        
+        INPUT FILE: ${rearchyFile}
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent(
+        "Daisy",
+        daisySkill,
+        daisyPrompt,
+        logger,
+        config.projectRoot,
+      );
 
-    const daisyFile = await findLatestFile(featureDir, /daisy-design.*\.json$/);
-    if (!daisyFile) throw new Error("Daisy failed to generate output file.");
-    logger.success(`Daisy output found: ${path.basename(daisyFile)}`);
+      daisyFile = await findLatestFile(featureDir, /daisy-design.*\.json$/);
+      if (!daisyFile) throw new Error("Daisy failed to generate output file.");
+      logger.success(`Daisy output found: ${path.basename(daisyFile)}`);
+    }
 
     // --- Step 4: Tasky ---
-    // Reads Design, generates Tasks
-    const taskySkill = path.join(config.projectRoot, "agents/tasky/Tasky.md");
-    const taskyPrompt = `
-      Take the Design file and break it down into atomic development tasks.
-      
-      INPUT FILE: ${daisyFile}
-    `;
+    let taskyFile = await findLatestFile(featureDir, /tasky-tasks.*\.json$/);
 
-    await runAgent("Tasky", taskySkill, taskyPrompt, logger);
+    if (taskyFile) {
+      logger.success(
+        `Skipping Tasky (Output exists: ${path.basename(taskyFile)})`,
+      );
+    } else {
+      const taskySkill = path.join(config.projectRoot, "agents/tasky/Tasky.md");
+      const taskyPrompt = `
+        Take the Design file and break it down into atomic development tasks.
+        
+        INPUT FILE: ${daisyFile}
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent(
+        "Tasky",
+        taskySkill,
+        taskyPrompt,
+        logger,
+        config.projectRoot,
+      );
 
-    const taskyFile = await findLatestFile(featureDir, /tasky-tasks.*\.json$/);
-    if (!taskyFile) throw new Error("Tasky failed to generate output file.");
-    logger.success(`Tasky output found: ${path.basename(taskyFile)}`);
+      taskyFile = await findLatestFile(featureDir, /tasky-tasks.*\.json$/);
+      if (!taskyFile) throw new Error("Tasky failed to generate output file.");
+      logger.success(`Tasky output found: ${path.basename(taskyFile)}`);
+    }
 
     // --- Step 5: Devy ---
-    // Reads Tasks, Executes Code
-    const devySkill = path.join(config.projectRoot, "agents/devy/Devy.md");
-    const devyPrompt = `
-      Take the Task Execution Plan and start implementing the feature.
-      Execute the tasks sequentially.
-      
-      INPUT FILE: ${taskyFile}
-    `;
+    let devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
 
-    await runAgent("Devy", devySkill, devyPrompt, logger);
-
-    const devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
-    if (!devyFile) {
-      logger.error(
-        "Devy finished but no final report was found. Check the logs.",
+    if (devyFile) {
+      logger.success(
+        `Skipping Devy (Output exists: ${path.basename(devyFile)})`,
       );
-      // We don't throw here, as Devy might have partially succeeded.
     } else {
-      logger.success(`Devy output found: ${path.basename(devyFile)}`);
+      const devySkill = path.join(config.projectRoot, "agents/devy/Devy.md");
+      const devyPrompt = `
+        Take the Task Execution Plan and start implementing the feature.
+        Execute the tasks sequentially.
+        
+        INPUT FILE: ${taskyFile}
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent("Devy", devySkill, devyPrompt, logger, config.projectRoot);
+
+      devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
+      if (!devyFile) {
+        logger.error(
+          "Devy finished but no final report was found. It might have partially succeeded.",
+        );
+      } else {
+        logger.success(`Devy output found: ${path.basename(devyFile)}`);
+      }
     }
 
     logger.success("🏁 Orchestration Complete!");

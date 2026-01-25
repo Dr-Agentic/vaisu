@@ -1,4 +1,5 @@
 import { Config } from "./config.js";
+import { LLM_MODEL } from "./constants.js";
 
 export async function generateFeatureSlug(
   prompt: string,
@@ -15,11 +16,11 @@ export async function generateFeatureSlug(
         headers: {
           Authorization: `Bearer ${config.openRouterApiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://vaisu.dev", // Required by OpenRouter
+          "HTTP-Referer": "https://vaisu.dev",
           "X-Title": "Vaisu Agent Orchestrator",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.0-flash-lite-preview-02-05:free", // Using a fast, cheap model
+          model: LLM_MODEL,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: prompt },
@@ -42,7 +43,6 @@ export async function generateFeatureSlug(
       throw new Error("LLM returned empty slug");
     }
 
-    // Clean up slug to ensure it's safe for filenames
     return slug
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, "-")
@@ -50,7 +50,6 @@ export async function generateFeatureSlug(
       .replace(/^-|-$/g, "");
   } catch (error) {
     console.error("Failed to generate feature slug:", error);
-    // Fallback
     return `feature-${Date.now()}`;
   }
 }
