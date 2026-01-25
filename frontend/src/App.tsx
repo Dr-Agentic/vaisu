@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { StageContainer, Stage } from './components/patterns';
 import { ThemeProvider } from './design-system/ThemeProvider';
@@ -125,19 +125,31 @@ export default function App() {
     checkAuth();
   }, [checkAuth]);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   // Auto-transition to analysis stage when document is uploaded and analysis starts
   useEffect(() => {
-    if (document && isAnalyzing && currentStage === 'input') {
+    if (document && isAnalyzing && (currentStage === 'input' || currentStage === 'welcome')) {
       setStage('analysis');
     }
   }, [document, isAnalyzing, currentStage, setStage]);
 
   // Auto-transition to visualization stage when analysis completes
   useEffect(() => {
-    if (document && !isAnalyzing && currentStage === 'analysis') {
+    if (document && !isAnalyzing && (currentStage === 'analysis' || currentStage === 'input' || currentStage === 'welcome')) {
       setStage('visualization');
     }
   }, [document, isAnalyzing, currentStage, setStage]);
+
+  // Handle URL redirection when starting from Dashboard
+  useEffect(() => {
+    if (location.pathname === '/dashboard' && document) {
+      if (currentStage === 'analysis' || currentStage === 'visualization' || isAnalyzing) {
+        navigate('/stages');
+      }
+    }
+  }, [location.pathname, document, currentStage, isAnalyzing, navigate]);
 
   // Stage transition handlers
   const handleGetStarted = () => {
@@ -147,70 +159,68 @@ export default function App() {
   const handleBackFromVisualization = () => {
     // Clear document and return to dashboard
     useDocumentStore.getState().clearDocument();
-    window.location.href = '/dashboard';
+    navigate('/dashboard');
   };
 
   return (
-    <Router>
-      <ThemeProvider>
-        <div className="relative min-h-screen bg-gray-900">
-          {/* Floating Theme Switcher & User Menu */}
-          <div className="fixed top-6 right-6 z-50 flex items-center space-x-4">
-            <ThemeSwitcher />
-            <UserMenu />
-          </div>
-
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-            <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
-            <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
-            <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
-
-            {/* Protected Routes */}
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-
-            {/* Dashboard - The new centralized UI */}
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-
-            {/* Legacy Stage Flow - Kept for specific workflows if needed, but redirected by default */}
-            <Route path="/stages" element={
-              <ProtectedRoute>
-                <StageContainer currentStage={currentStage}>
-                  <ToastContainer toasts={toasts} onClose={removeToast} />
-                  <Stage active={currentStage === 'welcome'}>
-                    <StageWelcome onGetStarted={handleGetStarted} />
-                  </Stage>
-                  <Stage active={currentStage === 'input'}>
-                    <StageInput />
-                  </Stage>
-                  <Stage active={currentStage === 'analysis'}>
-                    <StageAnalysis />
-                  </Stage>
-                  <Stage active={currentStage === 'visualization'}>
-                    <StageVisualization onBack={handleBackFromVisualization} />
-                  </Stage>
-                </StageContainer>
-              </ProtectedRoute>
-            } />
-
-            {/* UI Sampler routes */}
-            <Route path="/ui-sampler" element={<UISamplerPage />} />
-            <Route path="/theme/sampler" element={<SimpleValidator />} />
-
-            {/* Root redirect for logged in users to Dashboard via Splash */}
-            <Route path="/" element={
-              <ProtectedRoute>
-                <SplashOrchestrator />
-              </ProtectedRoute>
-            } />
-
-            {/* Redirect unknown routes to main app */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+    <ThemeProvider>
+      <div className="relative min-h-screen bg-gray-900">
+        {/* Floating Theme Switcher & User Menu */}
+        <div className="fixed top-6 right-6 z-50 flex items-center space-x-4">
+          <ThemeSwitcher />
+          <UserMenu />
         </div>
-      </ThemeProvider>
-    </Router>
+
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+          <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
+          <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
+
+          {/* Protected Routes */}
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+
+          {/* Dashboard - The new centralized UI */}
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+
+          {/* Legacy Stage Flow - Kept for specific workflows if needed, but redirected by default */}
+          <Route path="/stages" element={
+            <ProtectedRoute>
+              <StageContainer currentStage={currentStage}>
+                <ToastContainer toasts={toasts} onClose={removeToast} />
+                <Stage active={currentStage === 'welcome'}>
+                  <StageWelcome onGetStarted={handleGetStarted} />
+                </Stage>
+                <Stage active={currentStage === 'input'}>
+                  <StageInput />
+                </Stage>
+                <Stage active={currentStage === 'analysis'}>
+                  <StageAnalysis />
+                </Stage>
+                <Stage active={currentStage === 'visualization'}>
+                  <StageVisualization onBack={handleBackFromVisualization} />
+                </Stage>
+              </StageContainer>
+            </ProtectedRoute>
+          } />
+
+          {/* UI Sampler routes */}
+          <Route path="/ui-sampler" element={<UISamplerPage />} />
+          <Route path="/theme/sampler" element={<SimpleValidator />} />
+
+          {/* Root redirect for logged in users to Dashboard via Splash */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <SplashOrchestrator />
+            </ProtectedRoute>
+          } />
+
+          {/* Redirect unknown routes to main app */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </ThemeProvider>
   );
 }

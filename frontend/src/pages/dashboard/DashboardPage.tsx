@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     FileText,
     BarChart3,
-    Plus,
     Upload,
     Sparkles,
     Clock,
@@ -14,7 +14,7 @@ import { IndicatorCard } from '@/components/dashboard/IndicatorCard';
 import { DocListVisualizer } from '@/components/dashboard/DocListVisualizer';
 import { FileUploader } from '@/features/document/FileUploader';
 import { TextInputArea } from '@/features/document/TextInputArea';
-import { Card, Badge } from '@/components/primitives';
+import { Card } from '@/components/primitives';
 import { cn } from '@/lib/utils';
 
 export const DashboardPage: React.FC = () => {
@@ -29,6 +29,7 @@ export const DashboardPage: React.FC = () => {
         setStage
     } = useDocumentStore();
 
+    const navigate = useNavigate();
     const { user } = useUserStore();
     const [activeTab, setActiveTab] = useState<'upload' | 'paste'>('upload');
 
@@ -40,6 +41,7 @@ export const DashboardPage: React.FC = () => {
     const handleDocClick = async (id: string) => {
         await loadDocumentById(id);
         setStage('visualization');
+        navigate('/stages');
     };
 
     return (
@@ -55,11 +57,6 @@ export const DashboardPage: React.FC = () => {
                             <p className="text-[var(--color-text-secondary)] text-lg max-w-2xl">
                                 Ready to transform your documents into intelligent visual representations?
                             </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <Badge variant="aurora" size="lg" className="px-4 py-2 rounded-xl font-semibold">
-                                Pro Account
-                            </Badge>
                         </div>
                     </div>
                 </div>
@@ -173,21 +170,6 @@ export const DashboardPage: React.FC = () => {
 
                             {/* Decorative accent */}
                             <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-[var(--color-interactive-primary-base)] to-transparent opacity-10" />
-                        </Card>
-
-                        {/* Quick Tips or Info */}
-                        <Card padding="lg" className="border-dashed border-2 border-[var(--color-border-subtle)] bg-transparent">
-                            <div className="flex gap-4">
-                                <div className="mt-1 p-2 rounded-lg bg-[var(--color-surface-elevated)]">
-                                    <Plus className="w-4 h-4 text-[var(--color-text-tertiary)]" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-sm">Pro Tip</h4>
-                                    <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed mt-1">
-                                        Upload long PDF reports to get instant Knowledge Graphs and Argument Maps. Our AI detects complex relationships automatically.
-                                    </p>
-                                </div>
-                            </div>
                         </Card>
                     </div>
                 </div>
