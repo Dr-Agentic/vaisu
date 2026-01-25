@@ -26,19 +26,12 @@ describe("PricingPage", () => {
   // if we are unsure about when jsdom loads.
   // However, with @vitest-environment jsdom, it should be there.
 
-  let originalLocation: Location;
-
   beforeEach(() => {
     vi.clearAllMocks();
-    originalLocation = window.location;
-
-    // Mock window.location
-    delete (window as any).location;
-    window.location = { href: "" } as any;
   });
 
   afterEach(() => {
-    window.location = originalLocation;
+    vi.restoreAllMocks();
   });
 
   it("renders pricing plans", () => {
