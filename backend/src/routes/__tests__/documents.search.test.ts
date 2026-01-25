@@ -3,6 +3,8 @@ import request from 'supertest';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 import { documentsRouter, documents, analyses } from '../documents.js';
+import { generateTestToken } from '../../../../test/utils/auth.js';
+import { userRepository } from '../../repositories/userRepository.js';
 
 // Mock the repositories to prevent hitting DynamoDB during tests
 vi.mock('../../repositories/documentRepository.js', () => ({
@@ -19,6 +21,7 @@ vi.mock('../../repositories/documentRepository.js', () => ({
     return Promise.resolve({ documents: docs, total: docs.length });
   }),
   findById: vi.fn().mockResolvedValue(null),
+  deleteDocument: vi.fn(),
 }));
 
 vi.mock('../../repositories/analysisRepository.js', () => ({
@@ -30,7 +33,10 @@ vi.mock('../../repositories/analysisRepository.js', () => ({
     return Promise.resolve(null);
   }),
   create: vi.fn().mockResolvedValue({}),
+  deleteAnalysis: vi.fn(),
 }));
+
+vi.mock('../../repositories/userRepository.js');
 
 // Mock the dependencies
 vi.mock('../../services/documentParser.js', () => ({
@@ -50,8 +56,8 @@ vi.mock('../../services/documentParser.js', () => ({
         hierarchy: [],
       },
     })),
-    },
-  }));
+  },
+}));
 
 vi.mock('../../services/analysis/textAnalyzer.js', () => ({
   textAnalyzer: {
@@ -93,23 +99,33 @@ vi.mock('../../services/visualization/visualizationGenerator.js', () => ({
 }));
 
 describe('Documents API - Search and List', () => {
-    let app: express.Application;
+  let app: express.Application;
 
   beforeEach(async () => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     // Clear in-memory stores
     documents.clear();
     analyses.clear();
+
+    // Mock authenticated user
+    vi.mocked(userRepository.getUserById).mockResolvedValue({
+      userId: 'test-user-id',
+      email: 'test@example.com',
+      status: 'active',
+    } as any);
 
     app = express();
     app.use(express.json());
     app.use('/api/documents', documentsRouter);
   }, 10000);
 
+  const token = generateTestToken('test-user-id');
+
   describe('GET /api/documents/search', () => {
     it('should return empty results for empty query', async () => {
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: '' });
 
       expect(response.status).toBe(200);
@@ -121,7 +137,9 @@ describe('Documents API - Search and List', () => {
     });
 
     it('should return empty results when no query provided', async () => {
-      const response = await request(app).get('/api/documents/search');
+      const response = await request(app)
+        .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({
@@ -135,10 +153,12 @@ describe('Documents API - Search and List', () => {
       // First, analyze a document to add it to the in-memory store
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Machine learning content' });
 
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'machine' });
 
       expect(response.status).toBe(200);
@@ -151,10 +171,12 @@ describe('Documents API - Search and List', () => {
       // Analyze a document
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Test content' });
 
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'summary' });
 
       expect(response.status).toBe(200);
@@ -167,10 +189,12 @@ describe('Documents API - Search and List', () => {
       // Analyze a document
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Test content' });
 
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'overview' });
 
       expect(response.status).toBe(200);
@@ -181,10 +205,12 @@ describe('Documents API - Search and List', () => {
     it('should be case-insensitive', async () => {
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Machine learning content' });
 
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'MACHINE' });
 
       expect(response.status).toBe(200);
@@ -194,6 +220,7 @@ describe('Documents API - Search and List', () => {
     it('should return documents sorted by upload date (newest first)', async () => {
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'test' });
 
       expect(response.status).toBe(200);
@@ -215,6 +242,7 @@ describe('Documents API - Search and List', () => {
       // This test ensures the error handling works
       const response = await request(app)
         .get('/api/documents/search')
+        .set('Authorization', `Bearer ${token}`)
         .query({ q: 'test' });
 
       expect(response.status).toBe(200);
@@ -226,7 +254,9 @@ describe('Documents API - Search and List', () => {
 
   describe('GET /api/documents', () => {
     it('should return list of documents', async () => {
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('documents');
@@ -240,9 +270,12 @@ describe('Documents API - Search and List', () => {
       // Analyze a document
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Test content' });
 
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.total).toBe(1);
@@ -256,11 +289,13 @@ describe('Documents API - Search and List', () => {
       for (let i = 0; i < 3; i++) {
         await request(app)
           .post('/api/documents/analyze')
+          .set('Authorization', `Bearer ${token}`)
           .send({ text: `Document ${i}` });
       }
 
       const response = await request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`)
         .query({ limit: 2 });
 
       expect(response.status).toBe(200);
@@ -273,11 +308,13 @@ describe('Documents API - Search and List', () => {
       for (let i = 0; i < 3; i++) {
         await request(app)
           .post('/api/documents/analyze')
+          .set('Authorization', `Bearer ${token}`)
           .send({ text: `Document ${i}` });
       }
 
       const response = await request(app)
         .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`)
         .query({ offset: 1, limit: 2 });
 
       expect(response.status).toBe(200);
@@ -286,7 +323,9 @@ describe('Documents API - Search and List', () => {
     });
 
     it('should return documents sorted by upload date (newest first)', async () => {
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
 
@@ -306,9 +345,12 @@ describe('Documents API - Search and List', () => {
     it('should include TLDR as object in document list items', async () => {
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Test content' });
 
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body.documents[0].tldr).toBeDefined();
@@ -321,9 +363,12 @@ describe('Documents API - Search and List', () => {
     it('should include all required fields in document list items', async () => {
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: 'Test content' });
 
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       const doc = response.body.documents[0];
@@ -337,7 +382,9 @@ describe('Documents API - Search and List', () => {
     });
 
     it('should handle list errors gracefully', async () => {
-      const response = await request(app).get('/api/documents');
+      const response = await request(app)
+        .get('/api/documents')
+        .set('Authorization', `Bearer ${token}`);
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('documents');

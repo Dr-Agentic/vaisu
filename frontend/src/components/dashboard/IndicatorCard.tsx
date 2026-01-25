@@ -21,22 +21,22 @@ const colorClasses = {
     aurora: {
         border: 'from-[#6366F1] via-[#8B5CF6] to-[#EC4899]',
         bg: 'bg-gradient-to-br from-[#6366F1]/10 via-[#8B5CF6]/10 to-[#EC4899]/10',
-        text: 'text-gradient bg-clip-text text-transparent bg-gradient-to-r from-[#6366F1] to-[#EC4899]',
+        text: 'text-[#8B5CF6]',
     },
     nova: {
         border: 'from-[#06B6D4] via-[#3B82F6] to-[#8B5CF6]',
         bg: 'bg-gradient-to-br from-[#06B6D4]/10 via-[#3B82F6]/10 to-[#8B5CF6]/10',
-        text: 'text-gradient bg-clip-text text-transparent bg-gradient-to-r from-[#06B6D4] to-[#8B5CF6]',
+        text: 'text-[#3B82F6]',
     },
     solar: {
         border: 'from-[#F59E0B] via-[#F97316] to-[#EF4444]',
         bg: 'bg-gradient-to-br from-[#F59E0B]/10 via-[#F97316]/10 to-[#EF4444]/10',
-        text: 'text-gradient bg-clip-text text-transparent bg-gradient-to-r from-[#F59E0B] to-[#EF4444]',
+        text: 'text-[#F97316]',
     },
     ember: {
         border: 'from-[#F43F5E] via-[#EC4899] to-[#DB2777]',
         bg: 'bg-gradient-to-br from-[#F43F5E]/10 via-[#EC4899]/10 to-[#DB2777]/10',
-        text: 'text-gradient bg-clip-text text-transparent bg-gradient-to-r from-[#F43F5E] to-[#DB2777]',
+        text: 'text-[#EC4899]',
     },
 };
 

@@ -30,13 +30,17 @@ Construct a **Super-Prompt** that includes:
 - **Directives**: Step-by-step implementation instructions.
 - **Technical Constraints**: Specific patterns to follow (e.g., "Use DynamoDB Repository pattern", "Strict TypeScript interfaces").
 - **Verification**: Exact test commands to run (from `AGENTS.md` or inferred from `package.json`).
+- **User Stories**: A comprehensive list of user stories (As a [actor], I want to [action], so that [benefit]) covering the full scope of the request.
 
 ### 3. Output Phase
 
 Generate a JSON file to formalize the task.
 
 **Filename Format:**
-`[YYYY-MM-DD]-maestro-prompt-[topic-of-the-user-prompt].json` (e.g., `2026-01-24-maestro-prompt-fix-login-bug.json`)
+`.context/prd/[topic]/[YYYY-MM-DD]-maestro-prompt-[topic].json`
+(e.g., `.context/prd/billing-system/2026-01-24-maestro-prompt-billing-system.json`)
+
+_Note: Create the directory `.context/prd/[topic]` if it does not exist._
 
 **JSON Structure:**
 
@@ -50,7 +54,19 @@ Generate a JSON file to formalize the task.
   },
   "task": {
     "title": "Short descriptive title",
-    "revised_prompt": "The full, detailed Super-Prompt text..."
+    "revised_prompt": "The full, detailed Super-Prompt text...",
+    "user_stories": [
+      {
+        "title": "Upgrade to Pro",
+        "as_a": "Free User",
+        "i_want_to": "pay $4.99/month",
+        "so_that": "I can analyze more than 3 documents a day",
+        "acceptance_criteria": [
+          "Stripe checkout page opens",
+          "Successful payment updates DB role to 'pro'"
+        ]
+      }
+    ]
   }
 }
 ```

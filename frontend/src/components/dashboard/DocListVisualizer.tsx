@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, FileText, Clock } from 'lucide-react';
+import { Search, FileText, Clock, FileCode, FileJson, FileType } from 'lucide-react';
 import { Card, Badge } from '@/components/primitives';
 import { cn } from '@/lib/utils';
 import { DocumentListItem } from '@/stores/documentStore';
@@ -62,6 +62,14 @@ export const DocListVisualizer: React.FC<DocListVisualizerProps> = ({
     const formatDate = (date: Date | string) => {
         const d = new Date(date);
         return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
+    const getDocIcon = (fileType: string) => {
+        const type = fileType.toLowerCase();
+        if (type.includes('pdf')) return <FileType className="w-5 h-5 text-[var(--color-interactive-primary-base)]" />;
+        if (type.includes('markdown') || type.includes('md')) return <FileCode className="w-5 h-5 text-[var(--color-interactive-accent-base)]" />;
+        if (type.includes('json')) return <FileJson className="w-5 h-5 text-[var(--color-interactive-primary-base)]" />;
+        return <FileText className="w-5 h-5 text-[var(--color-interactive-primary-base)]" />;
     };
 
     return (
@@ -136,14 +144,14 @@ export const DocListVisualizer: React.FC<DocListVisualizerProps> = ({
                         >
                             <div className="flex items-start justify-between mb-3">
                                 <div className="p-2 rounded-lg bg-[var(--color-surface-elevated)] group-hover:bg-[var(--color-background-primary)] transition-colors">
-                                    <FileText className="w-5 h-5 text-[var(--color-interactive-primary-base)]" />
+                                    {getDocIcon(doc.fileType)}
                                 </div>
                                 <Badge variant="neutral" className="text-[10px] uppercase">
                                     {doc.fileType.split('/')[1] || doc.fileType}
                                 </Badge>
                             </div>
 
-                            <h3 className="font-bold text-[var(--color-text-primary)] mb-2 line-clamp-1">
+                            <h3 className="font-bold text-[var(--color-text-primary)] mb-2 line-clamp-2">
                                 {doc.title}
                             </h3>
 

@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "creator": "Maestro",
+    "created_at": "2026-01-24T10:30:00Z",
+    "original_prompt": "Add billing to the app, free tier allows for a max of 10 docs per user, and 3 docs to analyze per 24h period. Pro tier is $4.99 and allows for unlimited numebr of docs, and 100 docs to analyze per 24h period. web billing will use stripe - i will supply keys. mobile billing will use RevenueCat and native iOS billing. Android is not required now.",
+    "status": "ready-to-process"
+  },
+  "task": {
+    "title": "Implement Billing System (Stripe & RevenueCat) with Usage Limits",
+    "revised_prompt": "# Feature: Billing System & Usage Limits\n\n## Context\nVaisu is a Document Intelligence Platform (React/Node/DynamoDB). We need to monetize user usage by implementing a tiered billing system (Free vs. Pro). This builds upon the existing User Management architecture defined in `2026-01-15-user-management-prd.json`.\n\n## Core Objectives\n1.  **Enforce Usage Limits**: \n    *   **Free Tier**: Max 10 documents total (lifetime storage limit), Max 3 document analyses per 24-hour period.\n    *   **Pro Tier**: Unlimited document storage, Max 100 document analyses per 24-hour period.\n2.  **Web Payments (Stripe)**:\n    *   Implement Stripe Checkout/Elements for upgrading to Pro ($4.99/month).\n    *   Handle Stripe Webhooks to update user role/subscription status.\n3.  **Mobile Payments (RevenueCat)**:\n    *   Prepare backend to receive RevenueCat webhooks for iOS subscription sync (even if mobile app codebase isn't present, backend must support the sync).\n\n## Technical Implementation Guidelines\n\n### 1. Database (DynamoDB)\n*   Update/Utilize `vaisu-users` table to track `subscriptionStatus`, `subscriptionTier` ('free', 'pro'), and `stripeCustomerId`.\n*   Utilize `vaisu-usage-limits` table (partitionKey: `userId`, sortKey: `period` e.g., '2026-01-24').\n    *   Need specific logic to track \"Rolling 24h\" or \"Daily\" analysis counts. Suggest using 'YYYY-MM-DD' sort keys for daily quotas.\n    *   Need a separate record or attribute for \"Total Documents\" (Lifetime limit for Free tier).\n\n### 2. Backend (`/backend`)\n*   **Dependencies**: Install `stripe` SDK.\n*   **Services**: \n    *   Create `src/services/billing/stripeService.ts`: Handle checkout session creation, customer management.\n    *   Create `src/services/billing/revenueCatService.ts`: Handle webhook verification and status updates.\n    *   Update `src/services/analysis/textAnalyzer.ts` (or middleware) to check limits *before* processing.\n*   **Routes**: \n    *   `POST /api/billing/checkout` (Create Stripe session)\n    *   `POST /api/billing/portal` (Manage subscription)\n    *   `POST /api/webhooks/stripe`\n    *   `POST /api/webhooks/revenuecat`\n*   **Repository**: Ensure `src/repositories/usageRepository.ts` correctly handles atomic increments for usage counters.\n\n### 3. Frontend (`/frontend`)\n*   **UI**: \n    *   Add \"Upgrade to Pro\" banner/modal.\n    *   Show usage stats (e.g., \"1/3 analyses used today\").\n    *   Integrate Stripe Checkout redirection.\n\n## Constraints & Best Practices\n*   **Strict Types**: Define all Billing related interfaces in `shared/src/types.d.ts`.\n*   **Security**: Validate all webhooks signatures (Stripe & RevenueCat).\n*   **Performance**: Usage checks must be fast. Avoid scanning full document lists to check \"total docs\"; maintain a counter.\n\n## Verification\n*   **Unit Tests**: Test usage limit logic (boundary values: 2 vs 3 vs 4 analyses).\n*   **Integration**: Test the full flow of \"Start Checkout\" -> \"Webhook Received\" -> \"User Upgraded\".",
+    "user_stories": [
+      {
+        "title": "Free User Analysis Limit",
+        "as_a": "Free User",
+        "i_want_to": "know when I've reached my daily analysis limit",
+        "so_that": "I understand why I cannot analyze more documents today",
+        "acceptance_criteria": [
+          "Attempting 4th analysis in 24h fails",
+          "UI displays 'Daily limit reached (3/3)'",
+          "Prompt to upgrade is shown"
+        ]
+      },
+      {
+        "title": "Free User Storage Limit",
+        "as_a": "Free User",
+        "i_want_to": "be prevented from uploading more than 10 documents",
+        "so_that": "I stay within the free tier storage quotas",
+        "acceptance_criteria": [
+          "Attempting 11th upload fails",
+          "UI displays 'Storage limit reached (10/10)'"
+        ]
+      },
+      {
+        "title": "Upgrade to Pro (Web)",
+        "as_a": "Free User",
+        "i_want_to": "pay $4.99 via Stripe",
+        "so_that": "I can unlock unlimited documents and higher analysis limits",
+        "acceptance_criteria": [
+          "Clicking upgrade redirects to Stripe Checkout",
+          "Successful payment redirects back to success page",
+          "User status updates to 'pro' immediately"
+        ]
+      },
+      {
+        "title": "Pro User Analysis Limit",
+        "as_a": "Pro User",
+        "i_want_to": "analyze up to 100 documents a day",
+        "so_that": "I can process my high volume workload",
+        "acceptance_criteria": [
+          "Can analyze > 3 documents",
+          "Attempting 101st analysis in 24h fails"
+        ]
+      },
+      {
+        "title": "Manage Subscription",
+        "as_a": "Pro User",
+        "i_want_to": "access a billing portal",
+        "so_that": "I can update my card or cancel my subscription",
+        "acceptance_criteria": [
+          "Link to Stripe Customer Portal exists in settings",
+          "Portal opens in new tab"
+        ]
+      },
+      {
+        "title": "Mobile Subscription Sync",
+        "as_a": "Mobile User",
+        "i_want_to": "have my iOS subscription recognized on the web",
+        "so_that": "I get Pro benefits across all platforms",
+        "acceptance_criteria": [
+          "Backend accepts RevenueCat webhooks",
+          "User tier updates when RevenueCat signals 'SUBSCRIBED'"
+        ]
+      }
+    ]
+  }
+}

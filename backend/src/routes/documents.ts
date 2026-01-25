@@ -248,6 +248,8 @@ router.post('/analyze', async (req: Request, res: Response) => {
           s3Key: s3Result.key,
           contentType: document.metadata.fileType,
           fileSize: buffer.length,
+          wordCount: document.metadata.wordCount || 0,
+          hasAnalysis: true,
           uploadedAt: new Date().toISOString(),
           lastAccessedAt: new Date().toISOString(),
           accessCount: 1,
@@ -709,7 +711,7 @@ router.get('/', async (req: Request, res: Response) => {
             uploadDate: docRecord.uploadedAt,
             tldr: analysisRecord?.analysis?.tldr,
             summaryHeadline: analysisRecord?.analysis?.executiveSummary?.headline,
-            wordCount: 0, // Not stored in DynamoDB record
+            wordCount: docRecord.wordCount || 0,
           };
         }),
       );

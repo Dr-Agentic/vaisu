@@ -1,0 +1,6 @@
+Add billing to the app, free tier allows for a max of 10 docs per user, and 3 docs to analyze per 24h period.
+
+Pro tier is $4.99 and allows for unlimited numebr of docs, and 100 docs to analyze per 24h period.
+
+web billing will use stripe - i will supply keys.
+mobile billing will use RevenueCat and native iOS billing. Android is not required now.

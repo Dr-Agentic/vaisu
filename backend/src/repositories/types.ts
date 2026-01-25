@@ -13,6 +13,8 @@ export interface DocumentRecord {
   s3Key: string;
   contentType: string;
   fileSize: number;
+  wordCount: number;
+  hasAnalysis?: boolean;
   uploadedAt: string;
   lastAccessedAt: string;
   accessCount: number;

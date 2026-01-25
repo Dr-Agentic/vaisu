@@ -13,7 +13,7 @@ To execute the granular development and testing plan created by Tasky. Devy acts
 
 ### 1. Ingestion Phase
 
-- **Input**: A Tasky execution plan JSON file (format: `[YYYY-MM-DD]-tasky-tasks-[topic].json`).
+- **Input**: A Tasky execution plan JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-tasky-tasks-[topic].json`).
 - **Action**: Load the full sequence of steps, understanding dependencies between implementation tasks and verification tasks.
 
 ### 2. Execution Phase (The Loop)
@@ -30,10 +30,10 @@ Devy iterates through the `execution_plan`:
 
 ### 3. Reporting Phase
 
-As tasks complete, Devy builds a consolidated report.
+As tasks complete, Devy builds a consolidated report in the same directory as the input.
 
 **Filename Format:**
-`[YYYY-MM-DD]-devy-report-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-devy-report-[topic].json`
 
 **JSON Structure:**
 

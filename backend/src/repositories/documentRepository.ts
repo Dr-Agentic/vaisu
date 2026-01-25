@@ -166,19 +166,21 @@ export async function getStatsByUserId(userId: string): Promise<{
   const docs = response.Items || [];
 
   const totalDocuments = docs.length;
-  // Note: wordCount is not stored in DocumentRecord currently, it's in the full Document object content
-  // We'll return 0 for now or try to estimate if possible.
-  // Actually, looking at documents.ts, wordCount is 0 in the list view too.
-  const totalWords = docs.reduce((acc: number, doc: any) => acc + (doc.fileSize || 0) / 5, 0); // Crude estimate: 5 chars per word
+  const totalWords = docs.reduce((acc: number, doc: any) => acc + (doc.wordCount || 0), 0);
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   const docsThisWeek = docs.filter((doc: any) => new Date(doc.uploadedAt) > oneWeekAgo).length;
 
+  // Total graphs generated across all user documents
+  // We'll count analysis records as a proxy for now, or just return a placeholder
+  // TODO: Implement more accurate graph counting by querying visualizationService
+  const totalGraphs = docs.filter((doc: any) => doc.hasAnalysis).length;
+
   return {
     totalDocuments,
     totalWords: Math.round(totalWords),
     documentsThisWeek: docsThisWeek,
-    totalGraphs: 0, // Placeholder
+    totalGraphs: totalGraphs || 0,
   };
 }

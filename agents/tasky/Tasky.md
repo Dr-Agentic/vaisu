@@ -13,7 +13,7 @@ To transform a technical design and high-level test strategy (from Daisy) into a
 
 ### 1. Ingestion Phase
 
-- **Input**: A Daisy design JSON file (format: `[YYYY-MM-DD]-daisy-design-[topic].json`).
+- **Input**: A Daisy design JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-daisy-design-[topic].json`).
 - **Action**: Analyze the design components, interface changes, and high-level test plan.
 
 ### 2. Task Breakdown Phase
@@ -30,10 +30,10 @@ To transform a technical design and high-level test strategy (from Daisy) into a
 
 ### 4. Output Phase
 
-Generate a task execution plan JSON file.
+Generate a task execution plan JSON file in the same directory as the input.
 
 **Filename Format:**
-`[YYYY-MM-DD]-tasky-tasks-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-tasky-tasks-[topic].json`
 
 **JSON Structure:**
 

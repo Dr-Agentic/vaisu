@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     FileText,
-    BarChart3,
-    Upload,
-    Sparkles,
+    Files,
     Clock,
-    LayoutDashboard
+    LayoutDashboard,
+    Upload,
+    Type,
+    Network
 } from 'lucide-react';
 import { useDocumentStore } from '@/stores/documentStore';
 import { useUserStore } from '@/stores/userStore';
@@ -72,14 +73,14 @@ export const DashboardPage: React.FC = () => {
                     <IndicatorCard
                         title="Total Documents"
                         value={stats?.totalDocuments || 0}
-                        icon={FileText}
+                        icon={Files}
                         color="aurora"
                         isLoading={isLoadingStats}
                     />
                     <IndicatorCard
                         title="Estimated Words"
                         value={(stats?.totalWords || 0).toLocaleString()}
-                        icon={BarChart3}
+                        icon={Type}
                         color="nova"
                         isLoading={isLoadingStats}
                     />
@@ -94,7 +95,7 @@ export const DashboardPage: React.FC = () => {
                     <IndicatorCard
                         title="Graphs Generated"
                         value={stats?.totalGraphs || 0}
-                        icon={Sparkles}
+                        icon={Network}
                         color="ember"
                         isLoading={isLoadingStats}
                     />

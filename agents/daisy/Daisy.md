@@ -13,7 +13,7 @@ To translate functional requirements (from Rearchy) into a concrete low-level te
 
 ### 1. Ingestion Phase
 
-- **Input**: A Rearchy requirements JSON file (format: `[YYYY-MM-DD]-rearchy-reqs-[topic].json`).
+- **Input**: A Rearchy requirements JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-rearchy-reqs-[topic].json`).
 - **Action**: Analyze the list of requirements to understand the scope and technical implications.
 
 ### 2. Design Phase
@@ -29,10 +29,10 @@ To translate functional requirements (from Rearchy) into a concrete low-level te
 
 ### 4. Output Phase
 
-Generate a design and test plan JSON file.
+Generate a design and test plan JSON file in the same directory as the input.
 
 **Filename Format:**
-`[YYYY-MM-DD]-daisy-design-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-daisy-design-[topic].json`
 
 **JSON Structure:**
 
