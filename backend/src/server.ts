@@ -10,6 +10,7 @@ import { env } from "./config/env.js";
 import authRouter from "./routes/auth.js";
 import documentsRouter from "./routes/documents.js";
 import webhooksRouter from "./routes/webhooks.js";
+import billingRouter from "./routes/billing.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -42,6 +43,7 @@ app.use((req, res, next) => {
 // API Routes
 app.use("/api/documents", documentsRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/billing", billingRouter);
 
 // Health check
 app.all("/api/health", (req: any, res: any) => {

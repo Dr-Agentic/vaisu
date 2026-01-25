@@ -61,9 +61,11 @@ Vaisu is a text-to-visual intelligence application.
 
 ## 4. Development Rules
 
-1. **Performance**: The `/analyze` endpoint is heavy. Avoid adding more synchronous blocking calls. Prefer asynchronous processing where possible.
-2. **Environment**: Secrets go in `.env`. Never commit API keys.
-3. **Tests**: When adding new features, add corresponding unit tests in `__tests__` directories co-located with source.
+1. **Fail Fast**: Never silently swallow configuration errors. Use strict validation for environment variables and startup dependencies. The application should crash immediately if misconfigured, rather than running in a broken state.
+2. **Performance**: The `/analyze` endpoint is heavy. Avoid adding more synchronous blocking calls. Prefer asynchronous processing where possible.
+3. **Environment**: Secrets go in `.env`. Never commit API keys.
+4. **Tests**: When adding new features, add corresponding unit tests in `__tests__` directories co-located with source.
+5. **Smoke Tests**: Always ensure the application can boot successfully (`npm run dev`) as the final verification step.
 
 ## 5. Key Files
 

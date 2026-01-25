@@ -1,29 +1,12 @@
-/**
- * StageVisualization Component
- *
- * Full visualization stage with sidebar, canvas, and toolbar.
- * Supports keyboard shortcuts and fullscreen mode.
- *
- * @example
- * ```tsx
- * <StageVisualization
- *   onBack={() => setStage('input')}
- *   onToggleSidebar={() => setSidebarCollapsed(!sidebarCollapsed)}
- * />
- * ```
- */
-
-import { ArrowLeft, Menu, Info } from "lucide-react";
 import { useEffect, useState, forwardRef, useCallback } from "react";
-
-import { Button } from "../../components/primitives";
-import { cn } from "../../lib/utils";
 import { useDocumentStore } from "../../stores/documentStore";
 import { VisualizationRenderer } from "../visualization/VisualizationRenderer";
 import {
   VisualizationSidebar,
   type VisualizationType,
 } from "../visualization/VisualizationSidebar";
+import { StageHeader } from "./StageHeader";
+import { GraphViewerLayout } from "../../components/visualizations/toolkit";
 
 export interface StageVisualizationProps {
   /**
@@ -35,9 +18,8 @@ export interface StageVisualizationProps {
 /**
  * StageVisualization
  *
- * Full visualization workspace with header, sidebar, canvas, and toolbar.
- * Includes keyboard shortcuts (1-6 for viz, F for fullscreen, Esc to exit).
- * Uses Vaisu void background colors and mesh-glow effects.
+ * Full visualization workspace using StageHeader and GraphViewerLayout.
+ * Integrated with VisualizationSidebar and VisualizationRenderer.
  */
 export const StageVisualization = forwardRef<
   HTMLDivElement,
@@ -88,7 +70,7 @@ export const StageVisualization = forwardRef<
         setSidebarCollapsed(!sidebarCollapsed);
       }
     },
-    [currentVisualization, sidebarCollapsed, setCurrentVisualization],
+    [setCurrentVisualization, sidebarCollapsed],
   );
 
   useEffect(() => {
@@ -96,148 +78,74 @@ export const StageVisualization = forwardRef<
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
-
-  const toggleSummary = () => {
-    setSummaryVisible(!summaryVisible);
-  };
-
-  const handleVizChange = (viz: VisualizationType) => {
-    setCurrentVisualization(viz);
-  };
+  const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
+  const toggleSummary = () => setSummaryVisible(!summaryVisible);
+  const handleVizChange = (viz: VisualizationType) => setCurrentVisualization(viz);
 
   // Summary data for sidebar
   const summary = document
     ? {
-        tlrd: document.analysis?.tldr
-          ? typeof document.analysis.tldr === "string"
-            ? document.analysis.tldr
-            : document.analysis.tldr.text
-          : "",
-        keyEntities:
-          document.analysis?.entities?.slice(0, 5).map((e) => e.text) || [],
-        wordCount: document.metadata.wordCount,
-      }
+      tlrd: document.analysis?.tldr
+        ? typeof document.analysis.tldr === "string"
+          ? document.analysis.tldr
+          : document.analysis.tldr.text
+        : "",
+      keyEntities:
+        document.analysis?.entities?.slice(0, 5).map((e) => e.text) || [],
+      wordCount: document.metadata.wordCount,
+    }
     : undefined;
 
   if (!document) {
     return (
       <div
         ref={ref}
-        className={cn(
-          "flex-1",
-          "flex",
-          "flex-col",
-          "items-center",
-          "justify-center",
-        )}
-        style={{
-          backgroundColor: "var(--color-background-primary)",
-          color: "var(--color-text-primary)",
-        }}
+        className="flex-1 flex items-center justify-center bg-[var(--color-background-primary)] text-[var(--color-text-secondary)]"
       >
-        <p style={{ color: "var(--color-text-secondary)" }}>
-          No document loaded
-        </p>
+        <p>No document loaded</p>
       </div>
     );
   }
 
+  const vizOption: string = ((): string => {
+    switch (currentVisualization) {
+      case "executive-dashboard": return "Executive View";
+      case "mind-map": return "Mind Map";
+      case "knowledge-graph": return "Knowledge Graph";
+      case "entity-graph": return "Entity Flow Graph";
+      case "argument-map": return "Argument Map";
+      case "uml-class-diagram": return "UML Class Diagram";
+      case "structured-view": return "Structured View";
+      case "terms-definitions": return "Terms & Definitions";
+      case "depth-graph": return "Depth Graph";
+      case "flowchart": return "Flowchart";
+      case "comparison-matrix": return "Comparison Matrix";
+      case "priority-matrix": return "Priority Matrix";
+      case "raci-matrix": return "RACI Matrix";
+      case "timeline": return "Timeline";
+      case "uml-sequence": return "UML Sequence";
+      case "uml-activity": return "UML Activity";
+      case "gantt": return "Gantt Chart";
+      default: return "Visualization";
+    }
+  })();
+
   return (
     <div
       ref={ref}
-      className={cn("flex-1", "flex", "flex-col")}
-      style={{
-        backgroundColor: "var(--color-background-primary)",
-        color: "var(--color-text-primary)",
-      }}
+      className="flex-1 flex flex-col bg-[var(--color-background-primary)]"
     >
-      {/* Header */}
-      <header
-        className={cn(
-          "h-[60px]",
-          "px-6",
-          "border-b",
-          "flex",
-          "items-center",
-          "justify-between",
-        )}
-        style={{
-          borderColor: "var(--color-border-subtle)",
-          backgroundColor: "var(--color-surface-base)",
-        }}
-      >
-        {/* Document Info */}
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col">
-            <h3
-              className={cn("text-base", "font-semibold")}
-              style={{
-                color: "var(--color-text-primary)",
-                fontSize: "var(--font-size-base)",
-                fontWeight: "var(--font-weight-semibold)",
-              }}
-            >
-              {document.title || "Untitled Document"}
-            </h3>
-            <span
-              className="font-mono opacity-50"
-              style={{ fontSize: "10px", color: "var(--color-text-tertiary)" }}
-            >
-              ID: {document.id}
-            </span>
-          </div>
-          <span
-            className="text-sm"
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "var(--font-size-sm)",
-            }}
-          >
-            {document.metadata.wordCount?.toLocaleString()} words ·{" "}
-            {visualizationData.size} viz
-          </span>
-        </div>
+      <StageHeader
+        title={document.title}
+        documentId={document.id}
+        wordCount={document.metadata.wordCount}
+        vizCount={visualizationData.size}
+        onBack={onBack}
+        onToggleSidebar={toggleSidebar}
+        onToggleSummary={toggleSummary}
+      />
 
-        {/* Header Actions */}
-        <div className="flex items-center gap-2">
-          {onBack && (
-            <Button
-              variant="outline"
-              size="sm"
-              leftIcon={<ArrowLeft className="w-4 h-4" />}
-              onClick={onBack}
-              title="Back"
-            >
-              <span />
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Menu className="w-4 h-4" />}
-            onClick={toggleSidebar}
-            title="Toggle Sidebar (S)"
-          >
-            <span />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon={<Info className="w-4 h-4" />}
-            onClick={toggleSummary}
-            title="Toggle Summary"
-          >
-            <span />
-          </Button>
-        </div>
-      </header>
-
-      {/* Main Workspace */}
-      <div className="flex-1 flex">
-        {/* Visualization Sidebar */}
+      <div className="flex-1 flex overflow-hidden">
         <VisualizationSidebar
           currentViz={currentVisualization}
           onVizChange={handleVizChange}
@@ -248,21 +156,12 @@ export const StageVisualization = forwardRef<
           onToggleCollapse={toggleSidebar}
         />
 
-        {/* Visualization Canvas */}
-        <div
-          className={cn("flex-1", "relative", "overflow-auto", "mesh-glow")}
-          style={{
-            backgroundColor: "var(--color-background-primary)",
-          }}
-        >
-          {/* Visualization Renderer */}
-          <div className="w-full h-full">
+        <main className="flex-1 relative overflow-hidden">
+          <GraphViewerLayout title={vizOption}>
             <VisualizationRenderer />
-          </div>
-        </div>
+          </GraphViewerLayout>
+        </main>
       </div>
-
-      {/* Keyboard Shortcuts Hint - Removed as requested */}
     </div>
   );
 });

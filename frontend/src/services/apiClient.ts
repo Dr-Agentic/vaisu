@@ -322,4 +322,10 @@ export const apiClient = {
     });
     return response.data;
   },
+
+  // Billing Methods
+  async createCheckoutSession(): Promise<{ url: string }> {
+    const response = await client.post("/billing/checkout-session");
+    return response.data;
+  },
 };

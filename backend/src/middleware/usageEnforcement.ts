@@ -1,79 +1,104 @@
 import { Request, Response, NextFunction } from "express";
 import { usageLimitsRepository } from "../repositories/usageLimitsRepository.js";
-import * as documentRepository from "../repositories/documentRepository.js";
+import { countByUserId } from "../repositories/documentRepository.js";
 
-// Limits - could be moved to config or user role based
+// Extend Request to include user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId: string;
+    role?: string;
+    subscriptionStatus?: string;
+  };
+}
+
+// Limits configuration
 const LIMITS = {
-  free: {
+  FREE: {
     dailyAnalysis: 5,
-    maxDocuments: 20,
+    totalDocuments: 10,
   },
-  pro: {
+  PRO: {
     dailyAnalysis: 100,
-    maxDocuments: 1000,
+    totalDocuments: 1000,
   },
 };
 
+const getLimits = (req: AuthenticatedRequest) => {
+  const user = req.user;
+  const isPro =
+    user?.subscriptionStatus === "active" ||
+    user?.role === "pro" ||
+    user?.role === "admin";
+
+  return isPro ? LIMITS.PRO : LIMITS.FREE;
+};
+
 export const checkAnalysisLimit = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
-    const user = (req as any).user;
-    if (!user || !user.userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
 
-    const role = (user.role as "free" | "pro") || "free";
-    const limit = LIMITS[role]?.dailyAnalysis || LIMITS.free.dailyAnalysis;
-
-    const dailyUsage = await usageLimitsRepository.getDailyUsage(user.userId);
+    const limits = getLimits(req);
+    const dailyUsage = await usageLimitsRepository.getDailyUsage(userId);
     const currentCount = dailyUsage?.analysisCount || 0;
 
-    if (currentCount >= limit) {
-      return res.status(403).json({
+    if (currentCount >= limits.dailyAnalysis) {
+      res.status(403).json({
         error: "Daily analysis limit exceeded",
-        limit,
-        current: currentCount,
+        details: {
+          current: currentCount,
+          limit: limits.dailyAnalysis,
+          resetAt: "tomorrow",
+        },
       });
+      return;
     }
 
     next();
   } catch (error) {
-    console.error("Usage check error:", error);
-    next(error);
+    console.error("Error checking analysis limit:", error);
+    res.status(500).json({ error: "Internal server error checking limits" });
   }
 };
 
 export const checkStorageLimit = async (
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
-    const user = (req as any).user;
-    if (!user || !user.userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
 
-    const role = (user.role as "free" | "pro") || "free";
-    const limit = LIMITS[role]?.maxDocuments || LIMITS.free.maxDocuments;
+    const limits = getLimits(req);
+    const totalDocs = await countByUserId(userId);
 
-    // Check count
-    const count = await documentRepository.countByUserId(user.userId);
-
-    if (count >= limit) {
-      return res.status(403).json({
-        error: "Document storage limit exceeded",
-        limit,
-        current: count,
+    if (totalDocs >= limits.totalDocuments) {
+      res.status(403).json({
+        error: "Storage limit exceeded (maximum documents reached)",
+        details: {
+          current: totalDocs,
+          limit: limits.totalDocuments,
+        },
       });
+      return;
     }
 
     next();
   } catch (error) {
-    console.error("Storage check error:", error);
-    next(error);
+    console.error("Error checking storage limit:", error);
+    res.status(500).json({ error: "Internal server error checking limits" });
   }
 };

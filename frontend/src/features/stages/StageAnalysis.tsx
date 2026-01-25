@@ -14,7 +14,6 @@
  */
 
 import { forwardRef } from 'react';
-
 import { cn } from '../../lib/utils';
 import { useDocumentStore } from '../../stores/documentStore';
 
@@ -34,8 +33,8 @@ export interface StageAnalysisProps {
 /**
  * StageAnalysis
  *
- * Analysis stage with animated progress ring.
- * Uses CSS spinner animation from index.css with aurora-1 color.
+ * Analysis stage with premium animated progress ring and mesh-glow background.
+ * Uses the Elite design system tokens and mesh-glow-strong utility.
  */
 export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
   (
@@ -50,84 +49,93 @@ export const StageAnalysis = forwardRef<HTMLDivElement, StageAnalysisProps>(
     return (
       <div
         ref={ref}
-        style={{
-          backgroundColor: 'var(--color-background-primary)',
-          color: 'var(--color-text-primary)',
-        }}
         className={cn(
-          'flex-1',
-          'flex',
-          'flex-col',
-          'items-center',
-          'justify-center',
-          'text-center',
+          'flex-1 flex flex-col items-center justify-center text-center p-8 mesh-glow-strong'
         )}
       >
         {document && (
-          <div
-            className="mb-4 font-mono opacity-50 text-xs"
-            style={{ color: 'var(--color-text-tertiary)' }}
-          >
-            ID: {document.id}
+          <div className="mb-6 flex flex-col items-center gap-1">
+            <span className="px-3 py-1 rounded-full bg-[var(--color-surface-elevated)]/50 border border-[var(--color-border-subtle)] text-[10px] uppercase tracking-widest font-bold text-[var(--color-text-tertiary)]">
+              Preprocessing
+            </span>
+            <div
+              className="font-mono opacity-40 text-[10px]"
+              style={{ color: 'var(--color-text-tertiary)' }}
+            >
+              ID: {document.id}
+            </div>
           </div>
         )}
-        {/* Progress Ring */}
-        <div
-          className={cn('progress-ring', 'mb-8')}
-          style={{
-            border: '3px solid var(--color-border-subtle)',
-            borderTopColor: 'var(--aurora-1)',
-          }}
-          aria-label="Loading"
-        />
+
+        {/* Premium Progress Ring */}
+        <div className="relative mb-12">
+          <div
+            className={cn('progress-ring')}
+            style={{
+              width: '140px',
+              height: '140px',
+              border: '4px solid var(--color-border-subtle)',
+              borderTopColor: 'var(--nova-1)',
+              filter: 'drop-shadow(0 0 15px rgba(6, 182, 212, 0.3))',
+            }}
+            aria-label="Loading"
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-xl font-bold font-mono text-gradient nova">
+              {progressPercent || 0}%
+            </span>
+          </div>
+        </div>
 
         {/* Progress Text */}
-        <h2
-          className="mb-2 text-xl font-semibold"
-          style={{
-            color: 'var(--color-text-primary)',
-            fontSize: 'var(--font-size-xl)',
-            fontWeight: 'var(--font-weight-semibold)',
-          }}
-        >
-          {message}
-        </h2>
+        <div className="space-y-3 max-w-md">
+          <h2
+            className="text-2xl font-bold tracking-tight text-gradient"
+            style={{
+              fontSize: 'var(--font-size-2xl)',
+              fontWeight: 'var(--font-weight-bold)',
+            }}
+          >
+            {message}
+          </h2>
 
-        {/* Progress Sub-message */}
-        <p
-          className="base"
-          style={{
-            color: 'var(--color-text-secondary)',
-          }}
-        >
-          {subMessage}
-        </p>
+          <p
+            className="text-lg opacity-80"
+            style={{
+              color: 'var(--color-text-secondary)',
+            }}
+          >
+            {subMessage}
+          </p>
+        </div>
 
-        {/* Progress Bar (if available) */}
+        {/* Modern Progress Bar */}
         {progressPercent > 0 && (
-          <div className="w-64 mt-6">
+          <div className="w-80 mt-12 space-y-4">
             <div
-              className="h-2 rounded-full overflow-hidden"
-              style={{
-                backgroundColor: 'var(--color-border-subtle)',
-              }}
+              className="h-2.5 rounded-full overflow-hidden p-[1px] bg-[var(--color-surface-elevated)] border border-[var(--color-border-subtle)]"
             >
               <div
-                className={cn('h-full', 'transition-all', 'duration-300', 'ease-out')}
+                className={cn('h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(6,182,212,0.4)]')}
                 style={{
                   width: `${progressPercent}%`,
-                  backgroundColor: 'var(--aurora-1)',
+                  background: 'var(--gradient-nova)',
                 }}
               />
             </div>
-            <p
-              className="mt-2 text-sm"
-              style={{
-                color: 'var(--color-text-secondary)',
-              }}
-            >
-              {progressMessage}
-            </p>
+            <div className="flex items-center justify-between px-1">
+              <span
+                className="text-xs font-medium animate-pulse"
+                style={{
+                  color: 'var(--color-text-secondary)',
+                }}
+              >
+                {progressMessage || 'Synthesizing knowledge...'}
+              </span>
+              <span className="text-[10px] font-mono opacity-50 text-[var(--color-text-tertiary)]">
+                AI ENGINE ACTIVE
+              </span>
+            </div>
           </div>
         )}
       </div>

@@ -13,7 +13,7 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 function getRequiredEnv(key: string): string {
   const value = process.env[key];
   if (!value) {
-    throw new Error(`FATAL: Missing required environment variable: ${key}`);
+    throw new Error(`FATAL: Missing required environment variable: "${key}"`);
   }
   return value;
 }
@@ -23,7 +23,7 @@ function getRequiredIntEnv(key: string): number {
   const parsed = parseInt(value, 10);
   if (isNaN(parsed)) {
     throw new Error(
-      `FATAL: Environment variable ${key} must be a number, got: ${value}`,
+      `FATAL: Environment variable "${key}" must be a number, got: "${value}"`,
     );
   }
   return parsed;
@@ -68,7 +68,7 @@ export const env = {
   JWT_SECRET: process.env.JWT_SECRET || "your-secret-key-change-in-production",
 
   // Stripe
-  STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || "",
-  STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET || "",
-  STRIPE_PRICE_ID_PRO: process.env.STRIPE_PRICE_ID_PRO || "",
+  STRIPE_SECRET_KEY: getRequiredEnv("STRIPE_SECRET_KEY"),
+  STRIPE_WEBHOOK_SECRET: getRequiredEnv("STRIPE_WEBHOOK_SECRET"),
+  STRIPE_PRICE_ID_PRO: getRequiredEnv("STRIPE_PRICE_ID_PRO"),
 };

@@ -1,4 +1,3 @@
-
 /**
  * App Component
  *
@@ -9,33 +8,40 @@
  * Plus: UI Sampler route for design system exploration
  */
 
-import { useEffect, useState } from 'react';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import {
+  Routes,
+  Route,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 
-import { StageContainer, Stage } from './components/patterns';
-import { ThemeProvider } from './design-system/ThemeProvider';
-import { ThemeSwitcher } from './components/UISampler/ThemeSwitcher';
+import { StageContainer, Stage } from "./components/patterns";
+import { ThemeProvider } from "./design-system/ThemeProvider";
+import { ThemeSwitcher } from "./components/UISampler/ThemeSwitcher";
 import {
   StageWelcome,
   StageInput,
   StageAnalysis,
   StageVisualization,
   ToastContainer,
-} from './features';
-import UISamplerPage from './pages/UISamplerPage';
-import { SimpleValidator } from './components/UISampler/SimpleValidator';
-import { useDocumentStore } from './stores/documentStore';
-import { useUserStore } from './stores/userStore';
-import { UserMenu } from './components/UserMenu';
+} from "./features";
+import UISamplerPage from "./pages/UISamplerPage";
+import { SimpleValidator } from "./components/UISampler/SimpleValidator";
+import { useDocumentStore } from "./stores/documentStore";
+import { useUserStore } from "./stores/userStore";
+import { UserMenu } from "./components/UserMenu";
 
 // Pages
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
-import VerifyEmailPage from './pages/VerifyEmailPage';
-import ProfilePage from './pages/ProfilePage';
-import DashboardPage from './pages/dashboard/DashboardPage';
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
+import ProfilePage from "./pages/ProfilePage";
+import DashboardPage from "./pages/dashboard/DashboardPage";
+import PricingPage from "./pages/PricingPage";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -75,10 +81,7 @@ const SplashOrchestrator = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        await Promise.all([
-          fetchDocumentList(),
-          fetchDashboardStats()
-        ]);
+        await Promise.all([fetchDocumentList(), fetchDashboardStats()]);
       } catch (e) {
         console.error("Failed to preload data", e);
       }
@@ -95,7 +98,7 @@ const SplashOrchestrator = () => {
   return (
     <div className="h-screen w-full">
       <StageWelcome
-        onGetStarted={() => { }}
+        onGetStarted={() => {}}
         subtitle="Initializing your intelligent workspace..."
         buttonText="Syncing Data..."
       />
@@ -103,21 +106,14 @@ const SplashOrchestrator = () => {
   );
 };
 
-
 /**
  * App
  *
  * Main app component that manages stage transitions and integrates all stage components.
  */
 export default function App() {
-  const {
-    currentStage,
-    setStage,
-    document,
-    isAnalyzing,
-    toasts,
-    removeToast,
-  } = useDocumentStore();
+  const { currentStage, setStage, document, isAnalyzing, toasts, removeToast } =
+    useDocumentStore();
 
   const checkAuth = useUserStore((state) => state.checkAuth);
 
@@ -130,36 +126,50 @@ export default function App() {
 
   // Auto-transition to analysis stage when document is uploaded and analysis starts
   useEffect(() => {
-    if (document && isAnalyzing && (currentStage === 'input' || currentStage === 'welcome')) {
-      setStage('analysis');
+    if (
+      document &&
+      isAnalyzing &&
+      (currentStage === "input" || currentStage === "welcome")
+    ) {
+      setStage("analysis");
     }
   }, [document, isAnalyzing, currentStage, setStage]);
 
   // Auto-transition to visualization stage when analysis completes
   useEffect(() => {
-    if (document && !isAnalyzing && (currentStage === 'analysis' || currentStage === 'input' || currentStage === 'welcome')) {
-      setStage('visualization');
+    if (
+      document &&
+      !isAnalyzing &&
+      (currentStage === "analysis" ||
+        currentStage === "input" ||
+        currentStage === "welcome")
+    ) {
+      setStage("visualization");
     }
   }, [document, isAnalyzing, currentStage, setStage]);
 
   // Handle URL redirection when starting from Dashboard
   useEffect(() => {
-    if (location.pathname === '/dashboard' && document) {
-      if (currentStage === 'analysis' || currentStage === 'visualization' || isAnalyzing) {
-        navigate('/stages');
+    if (location.pathname === "/dashboard" && document) {
+      if (
+        currentStage === "analysis" ||
+        currentStage === "visualization" ||
+        isAnalyzing
+      ) {
+        navigate("/stages");
       }
     }
   }, [location.pathname, document, currentStage, isAnalyzing, navigate]);
 
   // Stage transition handlers
   const handleGetStarted = () => {
-    setStage('input');
+    setStage("input");
   };
 
   const handleBackFromVisualization = () => {
     // Clear document and return to dashboard
     useDocumentStore.getState().clearDocument();
-    navigate('/dashboard');
+    navigate("/dashboard");
   };
 
   return (
@@ -173,49 +183,112 @@ export default function App() {
 
         <Routes>
           {/* Public Routes */}
-          <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-          <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
-          <Route path="/reset-password" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
-          <Route path="/verify-email" element={<PublicRoute><VerifyEmailPage /></PublicRoute>} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/verify-email"
+            element={
+              <PublicRoute>
+                <VerifyEmailPage />
+              </PublicRoute>
+            }
+          />
 
           {/* Protected Routes */}
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Dashboard - The new centralized UI */}
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/pricing"
+            element={
+              <ProtectedRoute>
+                <PricingPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Legacy Stage Flow - Kept for specific workflows if needed, but redirected by default */}
-          <Route path="/stages" element={
-            <ProtectedRoute>
-              <StageContainer currentStage={currentStage}>
-                <ToastContainer toasts={toasts} onClose={removeToast} />
-                <Stage active={currentStage === 'welcome'}>
-                  <StageWelcome onGetStarted={handleGetStarted} />
-                </Stage>
-                <Stage active={currentStage === 'input'}>
-                  <StageInput />
-                </Stage>
-                <Stage active={currentStage === 'analysis'}>
-                  <StageAnalysis />
-                </Stage>
-                <Stage active={currentStage === 'visualization'}>
-                  <StageVisualization onBack={handleBackFromVisualization} />
-                </Stage>
-              </StageContainer>
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/stages"
+            element={
+              <ProtectedRoute>
+                <StageContainer currentStage={currentStage}>
+                  <ToastContainer toasts={toasts} onClose={removeToast} />
+                  <Stage active={currentStage === "welcome"}>
+                    <StageWelcome onGetStarted={handleGetStarted} />
+                  </Stage>
+                  <Stage active={currentStage === "input"}>
+                    <StageInput />
+                  </Stage>
+                  <Stage active={currentStage === "analysis"}>
+                    <StageAnalysis />
+                  </Stage>
+                  <Stage active={currentStage === "visualization"}>
+                    <StageVisualization onBack={handleBackFromVisualization} />
+                  </Stage>
+                </StageContainer>
+              </ProtectedRoute>
+            }
+          />
 
           {/* UI Sampler routes */}
           <Route path="/ui-sampler" element={<UISamplerPage />} />
           <Route path="/theme/sampler" element={<SimpleValidator />} />
 
           {/* Root redirect for logged in users to Dashboard via Splash */}
-          <Route path="/" element={
-            <ProtectedRoute>
-              <SplashOrchestrator />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <SplashOrchestrator />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Redirect unknown routes to main app */}
           <Route path="*" element={<Navigate to="/" replace />} />

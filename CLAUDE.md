@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Core Architecture Rules
 
 #### Module Structure
+
 - **Architecture Pattern**: Use routes/services architecture (Express routes for HTTP handling, services for business logic, repositories for data access)
 - **File Naming**:
   - Routes: `*.ts` (e.g., `documents.ts`)
@@ -23,6 +24,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - No cross-layer violations (e.g., routes should not access database directly)
 
 #### Function Design
+
 - **Modularity**: Each function must be modular, reusable, and well-commented
 - **Size Limit**: Functions should fit within ~30 lines. If longer, refactor into smaller units
 - **Naming Conventions**:
@@ -31,27 +33,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Organization**: Place exported functions/methods at top, private functions at bottom
 
 #### Code Quality Standards
+
 - **Reusability**: Always reuse existing functions and modules. Avoid duplicating logic
 - **Production Quality**: Avoid hacks and quick fixes. Implement clean, idiomatic code
 - **Backend Preference**: Implement logic in backend when possible. Avoid complex client-side code
 - **API Reuse**: Before creating new APIs, examine existing APIs for required functionality
 
 #### Data Handling
+
 - **No Fake Data**: Do not implement default values or fake data
-- **Fail Fast**: Prefer code failure over working with fake data for effective debugging
+- **Fail Fast**: Prefer code failure over working with fake data for effective debugging. Use strict validation for environment variables and startup dependencies. The application should crash immediately if misconfigured, rather than running in a broken state.
 - **Strong Typing**: Use strong typing throughout. Avoid `any` unless absolutely necessary
 - **Interfaces**: Prefer interfaces for complex objects
 
 #### Development Process
+
 - **Certainty Requirement**: Do not implement or change code without being 95% confident
 - **Ask Questions**: If there is doubt, ask questions before proceeding
 - **Clear Instructions**: Do not start changing code without clear instructions
 
 #### Communication
+
 - **Brevity**: Always be brief in communications. Avoid repetition
 - **Focus**: Mention only the main facts
 
 #### Documentation Requirements
+
 - **Journal Entries**: Add entry to `./.context/journal.md` when each feature is finished
 - **Required Details**:
   - What the feature is
@@ -69,12 +76,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **All context documentation** goes to the .context folder of either the project, or the subfolder that is pertinent to that documentation. For example, if UI, it should go to `./frontend/.context/`
 
 #### Project Structure
+
 - **Tests**: Test files use `*.test.ts` or `*.integration.test.ts` naming, collocated with source or in test directories
 - **Documentation**: Project-specific documentation in `.context/` folder
 
 ### Repository Pattern (Backend)
 
 #### Repository Isolation Rules (Mandatory)
+
 - **Repositories are the ONLY modules that can access database/storage services directly** (AWS SDK for DynamoDB, S3)
 - **All database/storage operations must be encapsulated in repositories**
 - **Repositories export business-focused functions, not raw storage operations**
@@ -83,24 +92,41 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 #### Repository Function Naming (Mandatory Database Verbs)
 
 ##### Database Action Verbs (Required)
+
 - **Read Operations**: `fetch`, `retrieve`, `find`, `search`, `list`
 - **Write Operations**: `create`, `insert`, `save`, `store`
 - **Update Operations**: `update`, `modify`, `patch`
 - **Delete Operations**: `delete`, `remove`, `destroy`
 
 ##### Function Naming Pattern
+
 ```typescript
 // DocumentRepository.ts
-export const createDocument = (documentData) => { /* INSERT/PUT to DynamoDB */ }
-export const fetchDocumentById = (documentId) => { /* SELECT by ID */ }
-export const retrieveDocumentsByUser = (userId) => { /* SELECT with filter */ }
-export const updateDocumentMetadata = (documentId, metadata) => { /* UPDATE */ }
-export const deleteDocument = (documentId) => { /* DELETE */ }
-export const searchDocumentsByName = (searchTerm) => { /* SELECT with LIKE/scan */ }
-export const listDocumentsByDateRange = (startDate, endDate) => { /* SELECT with range */ }
+export const createDocument = (documentData) => {
+  /* INSERT/PUT to DynamoDB */
+};
+export const fetchDocumentById = (documentId) => {
+  /* SELECT by ID */
+};
+export const retrieveDocumentsByUser = (userId) => {
+  /* SELECT with filter */
+};
+export const updateDocumentMetadata = (documentId, metadata) => {
+  /* UPDATE */
+};
+export const deleteDocument = (documentId) => {
+  /* DELETE */
+};
+export const searchDocumentsByName = (searchTerm) => {
+  /* SELECT with LIKE/scan */
+};
+export const listDocumentsByDateRange = (startDate, endDate) => {
+  /* SELECT with range */
+};
 ```
 
 ##### Naming Rules (Mandatory)
+
 - **Single Record**: `fetchUserById()`, `retrieveFileById()`
 - **Multiple Records**: `listUsers()`, `retrieveFilesByUser()`
 - **Search Operations**: `searchUsersByName()`, `findFilesByType()`
@@ -108,30 +134,34 @@ export const listDocumentsByDateRange = (startDate, endDate) => { /* SELECT with
 - **Always include database intent** in function name
 
 #### Repository Import Pattern (Mandatory)
+
 ```typescript
 // In services/routes - ONLY way to access data
-import { documentRepository } from '../repositories/documentRepository.js'
-import { s3Repository } from '../repositories/s3Repository.js'
+import { documentRepository } from "../repositories/documentRepository.js";
+import { s3Repository } from "../repositories/s3Repository.js";
 
 // Usage in services - explicit database action verbs
-const document = await documentRepository.createDocument(documentData)
-const documents = await documentRepository.retrieveDocumentsByUser(userId)
+const document = await documentRepository.createDocument(documentData);
+const documents = await documentRepository.retrieveDocumentsByUser(userId);
 ```
 
 ### Code Reusability Rules (Mandatory)
 
 #### Before Creating New Functions
+
 1. **Search existing utilities**: `grep -r "function_name" backend/src/services/`
 2. **Check repositories**: `grep -r "function_name" backend/src/repositories/`
 3. **Examine services**: Check for similar business logic patterns
 4. **Check frontend services**: `grep -r "function_name" frontend/src/services/`
 
 #### Search Performance Optimization
+
 - **Always exclude build folders** when using find/grep to accelerate search:
   - `grep -r "pattern" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=dist --exclude-dir=build`
   - `find . -name "*.ts" -not -path "*/node_modules/*" -not -path "*/.*/*"`
 
 #### When to Extract to Utilities
+
 - **After 2nd duplication**: Move to appropriate utility file
 - **Cross-module usage**: Any function used by 2+ modules
 - **Complex logic**: Any function longer than 10 lines doing generic operations
@@ -175,6 +205,7 @@ vaisu/
 ## Development Commands
 
 ### Essential Commands
+
 ```bash
 # Start development servers (frontend + backend)
 npm run dev
@@ -202,6 +233,7 @@ npm run type-check        # TypeScript type checking
 ```
 
 ### Testing Commands
+
 - **Non-Interactive Mode**: Always run tests in non-interactive mode using the `--run` flag (e.g., `npm test -- --run` or `vitest run`) to prevent the process from waiting for user input to quit.
 
 ```bash
@@ -222,6 +254,7 @@ npx vitest run path/to/file.test.ts
 ```
 
 ### Individual Service Commands
+
 ```bash
 # Backend
 cd backend && npm run dev    # Development with tsx watch
@@ -237,24 +270,28 @@ cd frontend && npm run preview # Preview built files
 ## Architecture Patterns
 
 ### State Management (Zustand)
+
 - Global stores in `/frontend/src/stores/`
 - Pattern: `set({ ... })` and `get()` for state updates
 - Actions handle async operations with loading states
 - Error handling with toast notifications
 
 ### Service Layer
+
 - Backend services in `/backend/src/services/`
 - Class-based with lazy initialization: `private get client()`
 - Singleton exports: `export const service = new Service()`
 - Fallback patterns for LLM calls
 
 ### API Client Pattern
+
 - Frontend API clients in `/frontend/src/services/`
 - Object literal with method collection
 - Axios-based HTTP requests
 - Progress callbacks for long-running operations
 
 ### Component Architecture
+
 - Design system in `/frontend/src/design-system/`
 - ForwardRef pattern with displayName
 - JSDoc documentation for public APIs
@@ -262,6 +299,7 @@ cd frontend && npm run preview # Preview built files
 - WCAG 2.2 AA accessibility compliance
 
 ### Error Handling
+
 - Try-catch with explicit error logging
 - Fallback patterns for LLM service failures
 - Cache error markers to prevent infinite retries
@@ -270,6 +308,7 @@ cd frontend && npm run preview # Preview built files
 ## Code Conventions
 
 ### TypeScript
+
 ```typescript
 // Strict mode always enabled
 {
@@ -285,52 +324,61 @@ import type { Type } from '../types.js';
 ```
 
 ### Import Patterns
+
 ```typescript
 // Type-only imports
-import type { DocumentAnalysis } from '@shared/types';
+import type { DocumentAnalysis } from "@shared/types";
 
 // Regular imports
-import { textAnalyzer } from '../services/analysis/textAnalyzer.js';
-import { Button } from '@/design-system/components';
+import { textAnalyzer } from "../services/analysis/textAnalyzer.js";
+import { Button } from "@/design-system/components";
 ```
 
 ### File Naming
+
 - Components: PascalCase (`Button.tsx`, `ThemeProvider.tsx`)
 - Utilities: camelCase (`apiClient.ts`, `documentStore.ts`)
 - Hooks: `use` prefix (`useTheme.ts`, `useDebounce.ts`)
 - Tests: `*.test.ts` or `*.integration.test.ts`
 
 ### Testing Standards
+
 - 80% coverage threshold for all metrics
 - Vitest with Node environment
 - Mock setup in `/test/setup.ts`
 - Unit tests collocated with source code
 - Integration tests for API endpoints
+- **Smoke Tests**: Always ensure the application can boot successfully (`npm run dev`) as the final verification step. This catches runtime configuration errors that unit tests might miss.
 
 ## Key Files and Directories
 
 ### Frontend Entry Points
+
 - `/frontend/src/main.tsx` - App initialization
 - `/frontend/src/App.tsx` - Main component
 - `/frontend/src/design-system/ThemeProvider.tsx` - Theme provider
 
 ### Backend Entry Points
+
 - `/backend/src/server.ts` - Express server setup
 - `/backend/src/routes/documents.ts` - API routes
 - `/backend/src/config/aws.js` - AWS/OpenRouter configuration
 
 ### Critical Services
+
 - `/backend/src/services/llm/openRouterClient.ts` - LLM client
 - `/backend/src/services/analysis/textAnalyzer.ts` - Document analysis
 - `/backend/src/services/visualization/visualizationGenerator.js` - Visualization generation
 
 ### Shared Types
+
 - `/shared/src/types.d.ts` - Central type definitions
 - Imported as `@shared/types` in both frontend and backend
 
 ## Environment Configuration
 
 ### Backend (.env)
+
 ```env
 PORT=7001
 OPENROUTER_API_KEY=...
@@ -341,12 +389,14 @@ AWS_REGION=us-east-1
 ```
 
 ### Frontend
+
 - Proxy configured to backend at `http://localhost:7001`
 - Path alias: `@shared` → `../shared/src`
 
 ## Common Development Tasks
 
 ### Adding a New Visualization Type
+
 1. Add to `/backend/src/services/visualization/` with generator function
 2. Update `/backend/src/services/analysis/textAnalyzer.ts` to call new generator
 3. Add frontend component in `/frontend/src/components/visualizations/`
@@ -354,6 +404,7 @@ AWS_REGION=us-east-1
 5. Add tests for both backend and frontend
 
 ### Adding a New API Endpoint
+
 1. Create route handler in `/backend/src/routes/documents.ts`
 2. Add service method in `/backend/src/services/`
 3. Add repository method if needed
@@ -362,6 +413,7 @@ AWS_REGION=us-east-1
 6. Write tests for all layers
 
 ### Adding a New Component
+
 1. Create component in `/frontend/src/design-system/components/`
 2. Add TypeScript types and JSDoc documentation
 3. Export from `/frontend/src/design-system/components/index.ts`
@@ -379,6 +431,7 @@ AWS_REGION=us-east-1
 ## Specialized Sub-Agents
 
 ### Graphy Agent - Graphical Representation Design
+
 - **Purpose**: Design state-of-the-art visualizations and graphical representations
 - **Location**: `/agents/graphy/`
 - **Capabilities**:
@@ -391,6 +444,7 @@ AWS_REGION=us-east-1
 - **Reference**: `.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md` for complete design system guidelines
 
 ### Graphical Representations Design System
+
 - **Location**: `.context/GRAPHICAL_REPRESENTATIONS_GUIDE.md`
 - **Covers**:
   - State-of-the-Art Semantic Argument Map UI/UX
@@ -403,6 +457,7 @@ AWS_REGION=us-east-1
 ## Skills System
 
 ### Graphical Representation Designer Skill
+
 - **Command**: `/skill graphical-representation-designer`
 - **Location**: `/.claude/skills/graphical-representation-designer/`
 - **Purpose**: Provides comprehensive capabilities for designing state-of-the-art graphical representations
@@ -414,6 +469,7 @@ AWS_REGION=us-east-1
   - Implementation planning and timeline estimation
 
 **Usage Examples:**
+
 ```bash
 # Basic usage
 /skill graphical-representation-designer
@@ -427,6 +483,7 @@ AWS_REGION=us-east-1
 ```
 
 **Output Includes:**
+
 - Design rationale and user experience flow
 - Technical architecture and implementation plan
 - Visual design system with dual-mode aesthetics
@@ -437,12 +494,14 @@ AWS_REGION=us-east-1
 ## Debugging
 
 ### Common Issues
+
 - **CORS errors**: Check backend `.env` APP_URL configuration
 - **File upload failures**: Verify file size (<1GB) and type (.txt, .pdf, .md)
 - **LLM errors**: Check OpenRouter API key and rate limits
 - **TypeScript errors**: Run `npm run type-check` for full analysis
 
 ### Logging Patterns
+
 - Console logging with emoji prefixes for visibility
 - Error logging with context in backend services
 - Progress callbacks for user feedback
@@ -451,12 +510,14 @@ AWS_REGION=us-east-1
 ## Deployment
 
 ### Production Build
+
 ```bash
 npm run build:prod  # Install deps and build both services
 npm run start:prod  # Start production backend server
 ```
 
 ### Environment Variables
+
 - Required: `OPENROUTER_API_KEY` for LLM functionality
 - Optional: `PORT`, `APP_URL`, `NODE_ENV`, `AWS_REGION`
 - AWS credentials via environment or IAM roles

@@ -7,6 +7,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 
 import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from "../config/aws.js";
+import { usageLimitsRepository } from "./usageLimitsRepository.js";
 
 import type { DocumentRecord } from "./types.js";
 
@@ -180,6 +181,8 @@ export async function getStatsByUserId(userId: string): Promise<{
   totalWords: number;
   documentsThisWeek: number;
   totalGraphs: number;
+  dailyAnalysisUsage: number;
+  storageUsed: number;
 }> {
   const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
 
@@ -212,10 +215,21 @@ export async function getStatsByUserId(userId: string): Promise<{
   // TODO: Implement more accurate graph counting by querying visualizationService
   const totalGraphs = docs.filter((doc: any) => doc.hasAnalysis).length;
 
+  // Get daily usage from UsageLimitsRepository
+  const dailyUsage = await usageLimitsRepository.getDailyUsage(userId);
+
+  // Calculate storage used (sum of file sizes)
+  const storageUsed = docs.reduce(
+    (acc: number, doc: any) => acc + (doc.fileSize || 0),
+    0,
+  );
+
   return {
     totalDocuments,
     totalWords: Math.round(totalWords),
     documentsThisWeek: docsThisWeek,
     totalGraphs: totalGraphs || 0,
+    dailyAnalysisUsage: dailyUsage?.analysisCount || 0,
+    storageUsed,
   };
 }

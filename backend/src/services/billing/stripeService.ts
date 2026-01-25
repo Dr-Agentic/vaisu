@@ -7,10 +7,6 @@ const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
 
 export class StripeService {
   async createCheckoutSession(userId: string, email: string): Promise<string> {
-    if (!env.STRIPE_PRICE_ID_PRO) {
-      throw new Error("STRIPE_PRICE_ID_PRO is not configured");
-    }
-
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       payment_method_types: ["card"],
@@ -40,9 +36,6 @@ export class StripeService {
     payload: string | Buffer,
     signature: string,
   ): Promise<Stripe.Event> {
-    if (!env.STRIPE_WEBHOOK_SECRET) {
-      throw new Error("STRIPE_WEBHOOK_SECRET is not configured");
-    }
     try {
       return stripe.webhooks.constructEvent(
         payload,

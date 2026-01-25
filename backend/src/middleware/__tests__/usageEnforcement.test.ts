@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { checkAnalysisLimit, checkStorageLimit } from "../usageEnforcement.js";
 import { usageLimitsRepository } from "../../repositories/usageLimitsRepository.js";
 import * as documentRepository from "../../repositories/documentRepository.js";
+import { Request, Response } from "express";
 
 // Mock repositories
 vi.mock("../../repositories/usageLimitsRepository.js", () => ({
@@ -15,72 +16,115 @@ vi.mock("../../repositories/documentRepository.js", () => ({
 }));
 
 describe("Usage Enforcement Middleware", () => {
-  let req: any;
-  let res: any;
+  let mockReq: any;
+  let mockRes: Partial<Response>;
   let next: any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    req = {
+    mockReq = {
       user: {
-        userId: "user1",
-        role: "free",
-      },
+        userId: "test-user",
+        subscriptionStatus: "inactive", // Default to FREE
+      } as any,
     };
-    res = {
+    mockRes = {
       status: vi.fn().mockReturnThis(),
       json: vi.fn(),
     };
     next = vi.fn();
+    vi.clearAllMocks();
   });
 
   describe("checkAnalysisLimit", () => {
-    it("should call next if under limit", async () => {
+    it("calls next() if under limit (Free tier)", async () => {
+      // Mock daily usage < 5
       (usageLimitsRepository.getDailyUsage as any).mockResolvedValue({
-        analysisCount: 0,
+        analysisCount: 4,
       });
 
-      await checkAnalysisLimit(req, res, next);
+      await checkAnalysisLimit(mockReq as Request, mockRes as Response, next);
 
       expect(next).toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
+      expect(mockRes.status).not.toHaveBeenCalled();
     });
 
-    it("should return 403 if limit exceeded", async () => {
+    it("returns 403 if limit exceeded (Free tier)", async () => {
+      // Mock daily usage >= 5
       (usageLimitsRepository.getDailyUsage as any).mockResolvedValue({
-        analysisCount: 10,
-      }); // Free limit is 5
+        analysisCount: 5,
+      });
 
-      await checkAnalysisLimit(req, res, next);
+      await checkAnalysisLimit(mockReq as Request, mockRes as Response, next);
 
       expect(next).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: "Daily analysis limit exceeded" }),
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: "Daily analysis limit exceeded",
+        }),
       );
+    });
+
+    it("allows higher limit for PRO users", async () => {
+      mockReq.user = {
+        userId: "pro-user",
+        subscriptionStatus: "active",
+      } as any;
+
+      // Mock daily usage > 5 but < 100
+      (usageLimitsRepository.getDailyUsage as any).mockResolvedValue({
+        analysisCount: 50,
+      });
+
+      await checkAnalysisLimit(mockReq as Request, mockRes as Response, next);
+
+      expect(next).toHaveBeenCalled();
+    });
+
+    it("returns 401 if no user", async () => {
+      mockReq.user = undefined;
+      await checkAnalysisLimit(mockReq as Request, mockRes as Response, next);
+      expect(mockRes.status).toHaveBeenCalledWith(401);
     });
   });
 
   describe("checkStorageLimit", () => {
-    it("should call next if under limit", async () => {
-      (documentRepository.countByUserId as any).mockResolvedValue(10);
+    it("calls next() if under limit (Free tier)", async () => {
+      // Mock total docs < 10
+      (documentRepository.countByUserId as any).mockResolvedValue(9);
 
-      await checkStorageLimit(req, res, next);
+      await checkStorageLimit(mockReq as Request, mockRes as Response, next);
 
       expect(next).toHaveBeenCalled();
-      expect(res.status).not.toHaveBeenCalled();
     });
 
-    it("should return 403 if document count exceeded", async () => {
-      (documentRepository.countByUserId as any).mockResolvedValue(25); // Free limit is 20
+    it("returns 403 if limit exceeded (Free tier)", async () => {
+      // Mock total docs >= 10
+      (documentRepository.countByUserId as any).mockResolvedValue(10);
 
-      await checkStorageLimit(req, res, next);
+      await checkStorageLimit(mockReq as Request, mockRes as Response, next);
 
       expect(next).not.toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(403);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({ error: "Document storage limit exceeded" }),
+      expect(mockRes.status).toHaveBeenCalledWith(403);
+      expect(mockRes.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: "Storage limit exceeded (maximum documents reached)",
+        }),
       );
+    });
+
+    it("allows higher limit for PRO users", async () => {
+      mockReq.user = {
+        userId: "pro-user",
+        subscriptionStatus: "active",
+      } as any;
+
+      // Mock total docs > 10 but < 1000
+      (documentRepository.countByUserId as any).mockResolvedValue(500);
+
+      await checkStorageLimit(mockReq as Request, mockRes as Response, next);
+
+      expect(next).toHaveBeenCalled();
     });
   });
 });

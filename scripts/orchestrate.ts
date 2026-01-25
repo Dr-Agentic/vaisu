@@ -183,6 +183,8 @@ async function main() {
     }
 
     // --- Step 5: Devy ---
+    // Devy loops until all tasks are COMPLETED.
+    // Each runAgent call handles exactly one task (per updated Devy.md).
     let devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
 
     if (devyFile) {
@@ -193,18 +195,71 @@ async function main() {
       const devySkill = path.join(config.projectRoot, "agents/devy/Devy.md");
       const devyPrompt = `
         Take the Task Execution Plan and start implementing the feature.
-        Execute the tasks sequentially.
+        Execute the next PENDING task.
         
         INPUT FILE: ${taskyFile}
         OUTPUT DIRECTORY: ${featureDir}
       `;
-      await runAgent("Devy", devySkill, devyPrompt, logger, config.projectRoot);
+
+      let hasPendingTasks = true;
+      let taskLoopCount = 0;
+      const MAX_TASKS = 50; // Safety brake
+
+      // Read the tasky file to check for pending tasks
+      // Helper function to check status
+      const checkPending = () => {
+        try {
+          if (!fs.existsSync(taskyFile!)) return false;
+          const content = JSON.parse(fs.readFileSync(taskyFile!, "utf-8"));
+          return content.execution_plan.some(
+            (t: any) => t.status === "PENDING",
+          );
+        } catch (e) {
+          logger.error(`Failed to parse tasky file: ${e}`);
+          return false;
+        }
+      };
+
+      while (hasPendingTasks && taskLoopCount < MAX_TASKS) {
+        hasPendingTasks = checkPending();
+        if (!hasPendingTasks) break;
+
+        taskLoopCount++;
+        logger.log(`🔄 Devy Loop #${taskLoopCount}: Starting next task...`);
+
+        // We run Devy. It will exit after one task.
+        await runAgent(
+          "Devy",
+          devySkill,
+          devyPrompt,
+          logger,
+          config.projectRoot,
+        );
+
+        // Re-check status
+        hasPendingTasks = checkPending();
+      }
+
+      // After all tasks are done, Devy (or we) should generate the report.
+      // Currently Devy prompt says "Reporting Phase: Once all tasks are COMPLETED...".
+      // We might need one final run to generate the report if the last task didn't do it?
+      // Or simply check if report exists.
+
+      // Let's run one final time to let Devy see "All Completed" and generate the report.
+      if (!hasPendingTasks) {
+        logger.log("✅ All tasks completed. Generating final report...");
+        await runAgent(
+          "Devy",
+          devySkill,
+          devyPrompt,
+          logger,
+          config.projectRoot,
+        );
+      }
 
       devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
       if (!devyFile) {
-        logger.error(
-          "Devy finished but no final report was found. It might have partially succeeded.",
-        );
+        logger.error("Devy finished but no final report was found.");
       } else {
         logger.success(`Devy output found: ${path.basename(devyFile)}`);
       }

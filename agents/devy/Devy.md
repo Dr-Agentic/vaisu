@@ -16,32 +16,33 @@ To execute the granular development and testing plan created by Tasky. Devy acts
 - **Input**: A Tasky execution plan JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-tasky-tasks-[topic].json`).
 - **Action**: Load the full sequence of steps, understanding dependencies between implementation tasks and verification tasks.
 
-### 2. Execution Phase (The Loop)
+### 2. Execution Phase (Single Task Mode)
 
-Devy iterates through the `execution_plan` in the input file:
+Devy executes **only the next pending task** and then exits.
 
 1.  **Check Status**:
     - Read the `tasky-tasks` file.
-    - Find the first task where `status` is "PENDING".
-    - If all tasks are "COMPLETED", exit successfully.
+    - Find the **first** task where `status` is "PENDING".
+    - If no pending tasks found, exit immediately with a success message.
 
 2.  **Implementation**:
-    - Perform the coding actions for the current task.
+    - Perform the coding actions for this specific task.
 
-3.  **Verification**:
-    - Run the specified tests.
-    - If tests fail, attempt to fix.
+3.  **Verification (MANDATORY)**:
+    - **Execute** the verification command specified in the task (e.g., `npm test ...`) using the `bash` tool.
+    - _Constraint_: You MUST run the command. Do not simulate it.
+    - _Constraint for Smoke Tests_: If the task is to start the server, use background execution (`npm run dev &`), wait for a few seconds (`sleep 10`), check the endpoint (`curl localhost:PORT`), and then kill the process (`kill $!`).
+    - If tests fail: specificy the failure, attempt to fix the code, and re-run the test. Repeat until pass.
 
-4.  **State Update (CRITICAL)**:
-    - Once a task is verified, use the `edit` tool to update the `tasky-tasks` file: change `"status": "PENDING"` to `"status": "COMPLETED"` for that specific `step_id`.
-    - _This acts as a checkpoint._
+4.  **State Update**:
+    - Once verified, use the `edit` tool to update the `tasky-tasks` file: change `"status": "PENDING"` to `"status": "COMPLETED"` for this `step_id`.
 
-5.  **Repeat**:
-    - Loop back to Step 1.
+5.  **Exit**:
+    - Report the result of this single task and terminate.
 
 ### 3. Reporting Phase
 
-Once all tasks are COMPLETED, Devy builds a consolidated report in the same directory.
+(Handled by the orchestrator)
 
 **Filename Format:**
 `.context/prd/[topic]/[YYYY-MM-DD]-devy-report-[topic].json`

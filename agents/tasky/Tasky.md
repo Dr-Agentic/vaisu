@@ -19,7 +19,13 @@ To transform a technical design and high-level test strategy (from Daisy) into a
 ### 2. Task Breakdown Phase
 
 - Convert the design into a linear or dependency-mapped sequence of development tasks.
-- Ensure tasks are small enough to be atomic (e.g., "Implement Interface", "Create Repository Method", "Build UI Component").
+- Ensure tasks are small enough to be atomic.
+- **MANDATORY FINAL TASK**: You MUST include a final task titled "System Smoke Test".
+  - This task must involve:
+    1. Building the project (if applicable).
+    2. Starting the server/application in a test mode.
+    3. Verifying it starts successfully without crashing (e.g., checking health endpoint).
+    4. This catches runtime configuration errors (like missing env vars) that unit tests miss.
 
 ### 3. Test Expansion Phase
 

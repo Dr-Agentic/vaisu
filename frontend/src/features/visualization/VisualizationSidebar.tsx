@@ -135,21 +135,21 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   },
   {
     id: "entity-graph",
-    name: "Entity Flow Graph",
-    description: "Narrative trajectory and conceptual depth",
+    name: "Entity Flow",
+    description: "Narrative trajectory and depth",
     icon: "⚡",
     shortcut: 4,
   },
   {
     id: "argument-map",
     name: "Argument Map",
-    description: "Depth Graph of argument structure",
+    description: "Depth Graph of logic structure",
     icon: "🏔️",
     shortcut: 5,
   },
   {
     id: "uml-class-diagram",
-    name: "UML Class Diagram",
+    name: "UML Class",
     description: "Class relationships and structure",
     icon: "📐",
     shortcut: 6,
@@ -163,15 +163,15 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
   },
   {
     id: "terms-definitions",
-    name: "Terms & Definitions",
-    description: "Extracted terms, acronyms, and technical jargon",
+    name: "Terms",
+    description: "Extracted glossary and jargon",
     icon: "📖",
     shortcut: 8,
   },
   {
     id: "depth-graph",
     name: "Depth Graph",
-    description: "Visualization of argument depth and complexity",
+    description: "Argument depth and complexity",
     icon: "🧊",
     shortcut: 9,
   },
@@ -180,8 +180,12 @@ const DEFAULT_VISUALIZATIONS: VisualizationOption[] = [
 /**
  * VisualizationSidebar
  *
- * Collapsible sidebar with visualization list and summary panel.
- * Uses Vaisu void background colors and viz-item pattern.
+ * Premium collapsible sidebar with "Elite" design aesthetics.
+ * Features:
+ * - Glassmorphism surface
+ * - Card-based navigation items
+ * - Active state with aurora glow
+ * - Dynamic badges for recommendations
  */
 export const VisualizationSidebar = forwardRef<
   HTMLDivElement,
@@ -200,114 +204,92 @@ export const VisualizationSidebar = forwardRef<
       <aside
         ref={ref}
         className={cn(
-          "flex",
-          "flex-col",
-          "transition-all",
-          "duration-[var(--duration-normal)]",
-          "ease-[var(--ease-out)]",
-          collapsed ? "w-0" : "w-[280px]",
-          collapsed ? "overflow-hidden" : "overflow-y-auto",
+          "flex flex-col transition-all duration-500 ease-[var(--ease-out)] relative z-30",
+          collapsed ? "w-0 opacity-0" : "w-[300px] opacity-100",
+          collapsed ? "overflow-hidden" : "overflow-y-auto"
         )}
         style={{
-          backgroundColor: "var(--color-surface-base)",
-          borderRightColor: "var(--color-border-subtle)",
-          borderRightWidth: "1px",
-          borderRightStyle: "solid",
+          background: "linear-gradient(to right, var(--color-surface-base), var(--color-surface-secondary))",
+          borderRight: "1px solid var(--color-border-subtle)",
         }}
       >
-        {/* Header */}
-        <div
-          className={cn(
-            "px-4",
-            "py-3",
-            "border-b",
-            "text-xs",
-            "uppercase",
-            "tracking-wider",
-            "font-medium",
-          )}
-          style={{
-            borderColor: "var(--color-border-subtle)",
-            color: "var(--color-text-secondary)",
-            fontSize: "var(--font-size-xs)",
-            fontWeight: "var(--font-weight-medium)",
-          }}
-        >
-          Visualizations
+        {/* Section Header */}
+        <div className="px-6 py-4 flex items-center justify-between border-b border-[var(--color-border-subtle)] bg-[var(--color-surface-base)]/50 backdrop-blur-sm sticky top-0 z-10">
+          <span className="text-[10px] items-center flex gap-2 uppercase tracking-[0.2em] font-bold text-[var(--color-text-tertiary)]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--aurora-1)] shadow-[0_0_8px_var(--aurora-1)]" />
+            Perspectives
+          </span>
+          <span className="text-[10px] font-mono opacity-30 text-[var(--color-text-tertiary)]">
+            VAISU-V2
+          </span>
         </div>
 
         {/* Visualization List */}
-        <div className="flex-1 p-2 space-y-1">
-          {visualizations.map((viz) => (
-            <button
-              key={viz.id}
-              type="button"
-              onClick={() => onVizChange(viz.id)}
-              className={cn(
-                "w-full",
-                "text-left",
-                "viz-item",
-                currentViz === viz.id && "active",
-                "transition-all",
-                "duration-[var(--duration-fast)]",
-                "ease-[var(--ease-out)]",
-                "p-2",
-              )}
-              aria-label={`Switch to ${viz.name}`}
-              aria-current={currentViz === viz.id ? "true" : undefined}
-            >
-              {/* Compact one-line layout */}
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{viz.icon}</span>
-                    <span className="font-medium text-sm truncate">
-                      {viz.name}
+        <div className="flex-1 p-4 space-y-3">
+          {visualizations.map((viz) => {
+            const isActive = currentViz === viz.id;
+            return (
+              <button
+                key={viz.id}
+                type="button"
+                onClick={() => onVizChange(viz.id)}
+                className={cn(
+                  "w-full text-left group relative p-3 rounded-xl transition-all duration-300",
+                  "border border-transparent",
+                  isActive
+                    ? "bg-[var(--color-surface-elevated)] border-[var(--aurora-1)]/30 shadow-lg shadow-black/20"
+                    : "hover:bg-[var(--color-surface-secondary)]/80 hover:border-[var(--color-border-subtle)]"
+                )}
+                aria-label={`Switch to ${viz.name}`}
+                aria-current={isActive ? "true" : undefined}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={cn(
+                    "flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center text-xl transition-all duration-300",
+                    isActive
+                      ? "bg-[var(--gradient-aurora)] shadow-[0_0_15px_rgba(99,102,241,0.3)] text-white"
+                      : "bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)] group-hover:scale-110"
+                  )}>
+                    {viz.icon}
+                  </div>
+
+                  <div className="flex-1 min-w-0 flex flex-col pt-0.5">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className={cn(
+                        "text-sm font-bold truncate tracking-tight transition-colors",
+                        isActive ? "text-[var(--color-text-primary)]" : "text-[var(--color-text-secondary)]"
+                      )}>
+                        {viz.name}
+                      </span>
+                      {viz.shortcut && (
+                        <kbd className="text-[10px] font-mono opacity-30 group-hover:opacity-60 transition-opacity">
+                          [{viz.shortcut}]
+                        </kbd>
+                      )}
+                    </div>
+                    <span className="text-[11px] leading-tight text-[var(--color-text-tertiary)] line-clamp-2 mt-0.5">
+                      {viz.description}
                     </span>
                     {viz.badge && (
-                      <Badge variant="aurora" size="sm">
-                        {viz.badge}
-                      </Badge>
+                      <div className="mt-2">
+                        <Badge variant="aurora" size="sm" className="font-mono text-[9px] py-0 px-2 min-h-0 h-5">
+                          {viz.badge}
+                        </Badge>
+                      </div>
                     )}
-                  </div>
-                  <div className="text-xs text-gray-600 truncate mt-1">
-                    {viz.description}
                   </div>
                 </div>
 
-                {/* Keyboard shortcut hint - inline */}
-                {viz.shortcut && (
-                  <div
-                    className="flex-shrink-0"
-                    style={{
-                      color: "var(--color-text-tertiary)",
-                      fontSize: "var(--font-size-xs)",
-                    }}
-                  >
-                    <kbd
-                      className={cn(
-                        "px-1",
-                        "py-0.5",
-                        "border",
-                        "rounded",
-                        "font-mono",
-                        "text-xs",
-                      )}
-                      style={{
-                        backgroundColor: "var(--color-surface-elevated)",
-                        borderColor: "var(--color-border-subtle)",
-                      }}
-                    >
-                      {viz.shortcut}
-                    </kbd>
-                  </div>
+                {/* Active Indicator Glow */}
+                {isActive && (
+                  <div className="absolute -left-1 top-3 bottom-3 w-1 rounded-full bg-[var(--aurora-1)] shadow-[0_0_10px_var(--aurora-1)]" />
                 )}
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Summary Panel - Removed as requested */}
+        {/* Footer info or stats could go here */}
       </aside>
     );
   },

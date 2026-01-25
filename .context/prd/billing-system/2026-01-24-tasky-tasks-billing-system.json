@@ -97,7 +97,7 @@
     },
     {
       "step_id": 7,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "type": "Implementation",
       "title": "Implement Usage Enforcement Middleware",
       "description": "Create middleware to check analysis limits (daily) and storage limits (total count) before allowing actions.",
@@ -113,7 +113,7 @@
     },
     {
       "step_id": 8,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "type": "Integration",
       "title": "Protect Document Routes",
       "description": "Apply usage enforcement middleware to /analyze and /upload endpoints.",
@@ -128,7 +128,7 @@
     },
     {
       "step_id": 9,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "type": "Implementation",
       "title": "Update Frontend User Store",
       "description": "Add usage stats state and fetching logic to the frontend UserStore.",
@@ -140,7 +140,7 @@
     },
     {
       "step_id": 10,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "type": "Implementation",
       "title": "Create Usage Stats Component",
       "description": "Build a UI component to display daily analysis usage and total storage usage.",
@@ -155,7 +155,7 @@
     },
     {
       "step_id": 11,
-      "status": "PENDING",
+      "status": "COMPLETED",
       "type": "Implementation",
       "title": "Create Pricing Page",
       "description": "Implement the Pricing page with plan details and Upgrade button wired to the backend.",
