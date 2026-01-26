@@ -33,7 +33,6 @@ export const StageVisualization = forwardRef<
   } = useDocumentStore();
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [summaryVisible, setSummaryVisible] = useState(true);
 
   // Keyboard shortcuts
   const handleKeyDown = useCallback(
@@ -79,7 +78,6 @@ export const StageVisualization = forwardRef<
   }, [handleKeyDown]);
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
-  const toggleSummary = () => setSummaryVisible(!summaryVisible);
   const handleVizChange = (viz: VisualizationType) => setCurrentVisualization(viz);
 
   // Summary data for sidebar
@@ -107,34 +105,17 @@ export const StageVisualization = forwardRef<
     );
   }
 
-  const vizOption: string = ((): string => {
-    switch (currentVisualization) {
-      case "executive-dashboard": return "Executive View";
-      case "mind-map": return "Mind Map";
-      case "knowledge-graph": return "Knowledge Graph";
-      case "entity-graph": return "Entity Flow Graph";
-      case "argument-map": return "Argument Map";
-      case "uml-class-diagram": return "UML Class Diagram";
-      case "structured-view": return "Structured View";
-      case "terms-definitions": return "Terms & Definitions";
-      case "depth-graph": return "Depth Graph";
-      case "flowchart": return "Flowchart";
-      case "comparison-matrix": return "Comparison Matrix";
-      case "priority-matrix": return "Priority Matrix";
-      case "raci-matrix": return "RACI Matrix";
-      case "timeline": return "Timeline";
-      case "uml-sequence": return "UML Sequence";
-      case "uml-activity": return "UML Activity";
-      case "gantt": return "Gantt Chart";
-      default: return "Visualization";
-    }
-  })();
+
 
   return (
     <div
       ref={ref}
-      className="flex-1 flex flex-col bg-[var(--color-background-primary)]"
+      className="flex-1 flex flex-col bg-[var(--color-background-primary)] relative overflow-hidden"
     >
+      {/* Background decorative glow similar to Dashboard */}
+      <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[var(--color-interactive-primary-base)] to-transparent opacity-5 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-1/4 h-1/2 bg-gradient-to-r from-[var(--color-interactive-accent-base)] to-transparent opacity-5 blur-3xl pointer-events-none" />
+
       <StageHeader
         title={document.title}
         documentId={document.id}
@@ -142,24 +123,24 @@ export const StageVisualization = forwardRef<
         vizCount={visualizationData.size}
         onBack={onBack}
         onToggleSidebar={toggleSidebar}
-        onToggleSummary={toggleSummary}
+        className="z-50 relative"
       />
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden relative z-0">
         <VisualizationSidebar
           currentViz={currentVisualization}
           onVizChange={handleVizChange}
           summary={summary}
-          summaryVisible={summaryVisible}
-          onToggleSummary={toggleSummary}
           collapsed={sidebarCollapsed}
           onToggleCollapse={toggleSidebar}
         />
 
-        <main className="flex-1 relative overflow-hidden">
-          <GraphViewerLayout title={vizOption}>
-            <VisualizationRenderer />
-          </GraphViewerLayout>
+        <main className="flex-1 relative overflow-hidden flex flex-col p-4">
+          <div className="flex-1 rounded-xl overflow-hidden border border-[var(--color-border-subtle)] bg-[var(--color-surface-base)]/50 backdrop-blur-sm shadow-sm relative">
+            <GraphViewerLayout title="">
+              <VisualizationRenderer />
+            </GraphViewerLayout>
+          </div>
         </main>
       </div>
     </div>

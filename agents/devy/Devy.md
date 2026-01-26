@@ -13,7 +13,7 @@ To execute the granular development and testing plan created by Tasky. Devy acts
 
 ### 1. Ingestion Phase
 
-- **Input**: A Tasky execution plan JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-tasky-tasks-[topic].json`).
+- **Input**: A Tasky execution plan JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-04-tasky-tasks-[topic].json`).
 - **Action**: Load the full sequence of steps, understanding dependencies between implementation tasks and verification tasks.
 
 ### 2. Execution Phase (Single Task Mode)
@@ -45,7 +45,7 @@ Devy executes **only the next pending task** and then exits.
 (Handled by the orchestrator)
 
 **Filename Format:**
-`.context/prd/[topic]/[YYYY-MM-DD]-devy-report-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-05-devy-report-[topic].json`
 
 **JSON Structure:**
 

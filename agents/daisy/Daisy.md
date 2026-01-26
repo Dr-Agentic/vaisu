@@ -13,13 +13,14 @@ To translate functional requirements (from Rearchy) into a concrete low-level te
 
 ### 1. Ingestion Phase
 
-- **Input**: A Rearchy requirements JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-rearchy-reqs-[topic].json`).
+- **Input**: A Rearchy requirements JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-02-rearchy-reqs-[topic].json`).
 - **Action**: Analyze the list of requirements to understand the scope and technical implications.
 
 ### 2. Design Phase
 
 - **Architecture & Decisions**: Define specific technical approaches (e.g., "Use a Strategy Pattern for X", "Add field Y to DynamoDB Schema Z").
 - **Component Mapping**: detailed low-level specs for files, functions, classes, and API endpoints.
+- **Integration Wiring**: For every new UI component or Page, you must explicitly list the **Parent Component** or **Router** (e.g., `App.tsx` or `routes.tsx`) that needs to be modified to make this new component accessible/routable.
 - **Impact Analysis**: Identify existing code that requires modification vs. new code to be created.
 
 ### 3. Test Strategy Phase
@@ -32,7 +33,7 @@ To translate functional requirements (from Rearchy) into a concrete low-level te
 Generate a design and test plan JSON file in the same directory as the input.
 
 **Filename Format:**
-`.context/prd/[topic]/[YYYY-MM-DD]-daisy-design-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-03-daisy-design-[topic].json`
 
 **JSON Structure:**
 

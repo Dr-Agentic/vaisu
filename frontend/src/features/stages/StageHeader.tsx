@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowLeft, Menu, Info } from "lucide-react";
+import { ArrowLeft, Menu } from "lucide-react";
 import { Button } from "../../components/primitives";
 import { cn } from "../../lib/utils";
 
@@ -10,7 +10,6 @@ export interface StageHeaderProps {
     vizCount?: number;
     onBack?: () => void;
     onToggleSidebar?: () => void;
-    onToggleSummary?: () => void;
     className?: string;
 }
 
@@ -27,7 +26,6 @@ export const StageHeader: React.FC<StageHeaderProps> = ({
     vizCount,
     onBack,
     onToggleSidebar,
-    onToggleSummary,
     className,
 }) => {
     return (
@@ -102,17 +100,7 @@ export const StageHeader: React.FC<StageHeaderProps> = ({
                         <Menu className="w-4 h-4" />
                     </Button>
                 )}
-                {onToggleSummary && (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={onToggleSummary}
-                        className="hover:bg-[var(--color-surface-secondary)]"
-                        title="Toggle Summary"
-                    >
-                        <Info className="w-4 h-4" />
-                    </Button>
-                )}
+
             </div>
         </header>
     );

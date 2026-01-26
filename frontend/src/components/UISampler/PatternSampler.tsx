@@ -2,10 +2,9 @@
  * PatternSampler Component
  *
  * Interactive examples showing all Pattern component variants and usage.
- * Demonstrates StageContainer, TabGroup, and other pattern components.
+ * Demonstrates TabGroup and other pattern components.
  *
  * Features:
- * - StageContainer: all variants with different layouts and animations
  * - TabGroup: all variants with different orientations and styling
  * - Interactive examples with copyable code
  * - WCAG AA compliant with proper contrast ratios
@@ -16,7 +15,6 @@
 
 import { useState } from 'react';
 
-import { StageContainer, Stage, type StageName } from '../patterns/StageContainer';
 import { TabGroup } from '../patterns/TabGroup';
 import { Badge } from '../primitives/Badge';
 import { Button } from '../primitives/Button';
@@ -27,124 +25,7 @@ import { CopyToClipboard } from './CopyToClipboard';
 import { PreviewContainer } from './PreviewContainer';
 
 export function PatternSampler() {
-  const [activeStage, setActiveStage] = useState<StageName | null>(null);
   const [activeTab, setActiveTab] = useState<string>('tab1');
-
-  const handleStageClick = (stageName: StageName | string) => {
-    setActiveStage(activeStage === stageName ? null : (stageName as StageName));
-  };
-
-  // StageContainer examples with their properties
-  const stageExamples = [
-    {
-      title: 'Welcome Stage',
-      description: 'Welcome screen with stage container',
-      code: '<StageContainer currentStage="welcome"><Stage active={true}>Content</Stage></StageContainer>',
-      component: (
-        <StageContainer currentStage="welcome">
-          <Stage active>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Welcome Stage Content</h3>
-              <p className="text-[var(--color-text-secondary)]">This is the welcome stage layout.</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Section A</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Content for section A</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Section B</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Content for section B</p>
-                </div>
-              </div>
-            </div>
-          </Stage>
-        </StageContainer>
-      ),
-    },
-    {
-      title: 'Input Stage',
-      description: 'Input form stage with container',
-      code: '<StageContainer currentStage="input"><Stage active={true}>Input Content</Stage></StageContainer>',
-      component: (
-        <StageContainer currentStage="input">
-          <Stage active>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Input Stage Content</h3>
-              <p className="text-[var(--color-text-secondary)]">This is the input stage layout.</p>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Left</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Left section content</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Center</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Center section content</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Right</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Right section content</p>
-                </div>
-              </div>
-            </div>
-          </Stage>
-        </StageContainer>
-      ),
-    },
-    {
-      title: 'Analysis Stage',
-      description: 'Analysis results stage',
-      code: '<StageContainer currentStage="analysis"><Stage active={true}>Analysis Content</Stage></StageContainer>',
-      component: (
-        <StageContainer currentStage="analysis">
-          <Stage active>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Analysis Stage Content</h3>
-              <p className="text-[var(--color-text-secondary)]">This is the analysis stage layout.</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Content Area 1</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">First content area</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Content Area 2</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Second content area</p>
-                </div>
-              </div>
-            </div>
-          </Stage>
-        </StageContainer>
-      ),
-    },
-    {
-      title: 'Visualization Stage',
-      description: 'Visualization display stage',
-      code: '<StageContainer currentStage="visualization"><Stage active={true}>Visualization Content</Stage></StageContainer>',
-      component: (
-        <StageContainer currentStage="visualization">
-          <Stage active>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">Visualization Stage Content</h3>
-              <p className="text-[var(--color-text-secondary)]">This is the visualization stage layout.</p>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Viz 1</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">First visualization</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Viz 2</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Second visualization</p>
-                </div>
-                <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg border border-[var(--color-border-subtle)]">
-                  <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Viz 3</h4>
-                  <p className="text-sm text-[var(--color-text-secondary)]">Third visualization</p>
-                </div>
-              </div>
-            </div>
-          </Stage>
-        </StageContainer>
-      ),
-    },
-  ];
 
   // TabGroup examples with their properties
   const tabExamples = [
@@ -253,62 +134,14 @@ export function PatternSampler() {
             Interactive
           </Badge>
           <Badge variant="neutral" className="bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)]">
-            11 Examples
+            5 Examples
           </Badge>
         </div>
         <p className="text-[var(--color-text-secondary)] text-lg">
-          Complete Pattern component examples showing StageContainer and TabGroup variants with
+          Complete Pattern component examples showing TabGroup variants with
           accessibility features and keyboard navigation.
         </p>
       </div>
-
-      {/* StageContainer Examples */}
-      <PreviewContainer
-        title="StageContainer Examples"
-        description="All StageContainer variants with different layouts and styling options"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {stageExamples.map((stage, index) => (
-            <Card key={index} className="hover:shadow-xl transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{stage.title}</span>
-                  <Badge variant="neutral" className="bg-[var(--color-surface-secondary)] text-[var(--color-text-secondary)]">
-                    {stage.title.toLowerCase().replace(' ', '-')}
-                  </Badge>
-                </CardTitle>
-                <p className="text-sm text-[var(--color-text-secondary)]">{stage.description}</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="border border-[var(--color-border-subtle)] rounded-lg p-4 bg-[var(--color-surface-base)]">
-                  {stage.component}
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-[var(--color-text-secondary)]">Usage:</p>
-                  <CodeBlock
-                    code={stage.code}
-                    language="tsx"
-                    showCopyButton={false}
-                    className="text-sm"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <CopyToClipboard
-                    text={stage.code}
-                    tooltip="Copy Code"
-                    size="sm"
-                  />
-                  <CopyToClipboard
-                    text={`variant="${stage.title.toLowerCase().replace(' ', '-')}"`}
-                    tooltip="Copy Variant"
-                    size="sm"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </PreviewContainer>
 
       {/* TabGroup Examples */}
       <PreviewContainer
@@ -364,101 +197,6 @@ export function PatternSampler() {
         description="Test all pattern components with different configurations"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="hover:shadow-xl transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle>StageContainer Demo</CardTitle>
-              <p className="text-sm text-[var(--color-text-secondary)]">Interactive stage container with different variants</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => handleStageClick('welcome')}
-                >
-                  Welcome
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleStageClick('input')}
-                >
-                  Input
-                </Button>
-                <Button
-                  variant="accent"
-                  size="sm"
-                  onClick={() => handleStageClick('analysis')}
-                >
-                  Analysis
-                </Button>
-              </div>
-              <div className="border border-[var(--color-border-subtle)] rounded-lg p-4 bg-[var(--color-surface-base)]">
-                <StageContainer currentStage="welcome">
-                  <Stage active={activeStage === 'welcome'}>
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                        Welcome Stage
-                      </h3>
-                      <p className="text-[var(--color-text-secondary)]">
-                        This is an interactive demo showing the welcome stage variant.
-                      </p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Demo Content A</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Welcome stage content</p>
-                        </div>
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Demo Content B</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Stage container content</p>
-                        </div>
-                      </div>
-                    </div>
-                  </Stage>
-                  <Stage active={activeStage === 'input'}>
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                        Input Stage
-                      </h3>
-                      <p className="text-[var(--color-text-secondary)]">
-                        This is an interactive demo showing the input stage variant.
-                      </p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Input Content A</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Input form content</p>
-                        </div>
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Input Content B</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Form controls content</p>
-                        </div>
-                      </div>
-                    </div>
-                  </Stage>
-                  <Stage active={activeStage === 'analysis'}>
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                        Analysis Stage
-                      </h3>
-                      <p className="text-[var(--color-text-secondary)]">
-                        This is an interactive demo showing the analysis stage variant.
-                      </p>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Analysis Content A</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Analysis results</p>
-                        </div>
-                        <div className="p-4 bg-[var(--color-surface-secondary)] rounded-lg">
-                          <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Analysis Content B</h4>
-                          <p className="text-sm text-[var(--color-text-secondary)]">Data visualization</p>
-                        </div>
-                      </div>
-                    </div>
-                  </Stage>
-                </StageContainer>
-              </div>
-            </CardContent>
-          </Card>
 
           <Card className="hover:shadow-xl transition-shadow duration-300">
             <CardHeader>
@@ -497,7 +235,7 @@ export function PatternSampler() {
                     { id: 'tab3', label: 'Pill Demo', description: 'Pill tab style' },
                   ]}
                   activeTab="tab1"
-                  onTabChange={() => {}}
+                  onTabChange={() => { }}
                   size="md"
                   variant="default"
                 />
@@ -521,20 +259,6 @@ export function PatternSampler() {
         description="All pattern components include proper ARIA attributes and keyboard navigation"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="bg-green-50 border-green-200">
-            <CardContent className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-500 rounded-full" />
-                <h3 className="text-lg font-semibold text-green-900">StageContainer Accessibility</h3>
-              </div>
-              <ul className="text-green-800 text-sm space-y-1">
-                <li>• Proper semantic structure</li>
-                <li>• Keyboard navigation support</li>
-                <li>• Focus management</li>
-                <li>• ARIA attributes</li>
-              </ul>
-            </CardContent>
-          </Card>
 
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="space-y-3">
@@ -621,31 +345,6 @@ export function PatternSampler() {
         <Card className="hover:shadow-xl transition-shadow duration-300">
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-[var(--color-text-primary)] mb-3">When to Use StageContainer</h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="neutral" className="bg-[var(--color-success-100)] text-[var(--color-success-800)]">Basic</Badge>
-                    <span>Simple content containers</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="neutral" className="bg-[var(--color-secondary-100)] text-[var(--color-secondary-800)]">Elevated</Badge>
-                    <span>Important content sections</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="neutral" className="bg-[var(--color-accent-100)] text-[var(--color-accent-800)]">Border</Badge>
-                    <span>Content with visual separation</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="neutral" className="bg-[var(--color-warning-100)] text-[var(--color-warning-800)]">Gradient</Badge>
-                    <span>Highlight and emphasis</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="neutral" className="bg-[var(--color-error-100)] text-[var(--color-error-800)]">Card</Badge>
-                    <span>Card-like content presentation</span>
-                  </div>
-                </div>
-              </div>
 
               <div>
                 <h4 className="font-semibold text-[var(--color-text-primary)] mb-3">When to Use TabGroup</h4>
@@ -677,15 +376,6 @@ export function PatternSampler() {
             <div className="border-t border-[var(--color-border-subtle)] pt-4">
               <h4 className="font-semibold text-[var(--color-text-primary)] mb-3">Accessibility Checklist</h4>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                <div className="space-y-2">
-                  <h5 className="font-medium text-[var(--color-text-secondary)]">StageContainer</h5>
-                  <ul className="text-[var(--color-text-tertiary)] space-y-1">
-                    <li>• Use semantic HTML structure</li>
-                    <li>• Provide clear focus indicators</li>
-                    <li>• Ensure sufficient color contrast</li>
-                    <li>• Support keyboard navigation</li>
-                  </ul>
-                </div>
                 <div className="space-y-2">
                   <h5 className="font-medium text-[var(--color-text-secondary)]">TabGroup</h5>
                   <ul className="text-[var(--color-text-tertiary)] space-y-1">

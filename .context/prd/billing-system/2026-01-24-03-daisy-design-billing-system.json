@@ -2,7 +2,7 @@
   "metadata": {
     "agent": "Daisy",
     "created_at": "2026-01-24T12:00:00.000Z",
-    "source_reqs_file": "2026-01-24-rearchy-reqs-feature-1769317950587.json"
+    "source_reqs_file": "2026-01-24-02-rearchy-reqs-billing-system.json"
   },
   "design": {
     "overview": "Implement a subscription-based monetization system with usage limits. The system will track daily analysis usage and total document storage. It integrates with Stripe for payments and uses webhooks for subscription status updates.",

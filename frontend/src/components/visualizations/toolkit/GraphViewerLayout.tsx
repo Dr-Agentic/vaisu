@@ -21,25 +21,29 @@ export const GraphViewerLayout: React.FC<GraphViewerLayoutProps> = ({
   return (
     <div className={`flex flex-col h-full w-full overflow-hidden ${isDarkMode ? 'bg-[#0A0A0A]' : 'bg-[#FAFAFA]'}`}>
       {/* Header Section */}
-      <header className="flex-none px-6 py-4 border-b border-[var(--color-border-subtle)] bg-[var(--color-surface-base)]">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-[var(--color-text-primary)] tracking-tight">
-              {title}
-            </h1>
-            {description && (
-              <p className="mt-1 text-sm text-[var(--color-text-secondary)] max-w-2xl">
-                {description}
-              </p>
+      {(title || description || actions) && (
+        <header className="flex-none px-6 py-4 border-b border-[var(--color-border-subtle)] bg-[var(--color-surface-base)]">
+          <div className="flex items-start justify-between">
+            <div>
+              {title && (
+                <h1 className="text-xl font-semibold text-[var(--color-text-primary)] tracking-tight">
+                  {title}
+                </h1>
+              )}
+              {description && (
+                <p className="mt-1 text-sm text-[var(--color-text-secondary)] max-w-2xl">
+                  {description}
+                </p>
+              )}
+            </div>
+            {actions && (
+              <div className="flex items-center gap-2">
+                {actions}
+              </div>
             )}
           </div>
-          {actions && (
-            <div className="flex items-center gap-2">
-              {actions}
-            </div>
-          )}
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Visualization Area */}
       <main className="flex-1 relative">

@@ -37,8 +37,8 @@ Construct a **Super-Prompt** that includes:
 Generate a JSON file to formalize the task.
 
 **Filename Format:**
-`.context/prd/[topic]/[YYYY-MM-DD]-maestro-prompt-[topic].json`
-(e.g., `.context/prd/billing-system/2026-01-24-maestro-prompt-billing-system.json`)
+`.context/prd/[topic]/[YYYY-MM-DD]-01-maestro-prompt-[topic].json`
+(e.g., `.context/prd/billing-system/2026-01-24-01-maestro-prompt-billing-system.json`)
 
 _Note: Create the directory `.context/prd/[topic]` if it does not exist._
 

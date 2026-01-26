@@ -13,12 +13,13 @@ To transform a technical design and high-level test strategy (from Daisy) into a
 
 ### 1. Ingestion Phase
 
-- **Input**: A Daisy design JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-daisy-design-[topic].json`).
+- **Input**: A Daisy design JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-03-daisy-design-[topic].json`).
 - **Action**: Analyze the design components, interface changes, and high-level test plan.
 
 ### 2. Task Breakdown Phase
 
 - Convert the design into a linear or dependency-mapped sequence of development tasks.
+- **Orphaned Component Check**: Review the Design specs. If a 'New Page' is listed, verify that there is a corresponding task to **register the route** in the main application router. If the Design is missing this, create a specific task for 'Route Registration' and flag the omission.
 - Ensure tasks are small enough to be atomic.
 - **MANDATORY FINAL TASK**: You MUST include a final task titled "System Smoke Test".
   - This task must involve:
@@ -39,7 +40,7 @@ To transform a technical design and high-level test strategy (from Daisy) into a
 Generate a task execution plan JSON file in the same directory as the input.
 
 **Filename Format:**
-`.context/prd/[topic]/[YYYY-MM-DD]-tasky-tasks-[topic].json`
+`.context/prd/[topic]/[YYYY-MM-DD]-04-tasky-tasks-[topic].json`
 
 **JSON Structure:**
 

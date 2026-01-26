@@ -20,5 +20,5 @@ export * from './patterns';
 export * from './visualizations';
 
 // Type re-exports for convenience
-export type { StageName } from './patterns/StageContainer';
+
 export type { TabItem } from './patterns/TabGroup';

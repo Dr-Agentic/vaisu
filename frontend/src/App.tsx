@@ -1,10 +1,10 @@
 /**
  * App Component
  *
- * Main application entry point using Stage-based architecture.
+ * Main application entry point.
  * Integrates the new Vaisu UI Design System with core application logic.
  *
- * Flow: Welcome → Input → Analysis → Visualization
+ * Flow: Dashboard -> Visualization
  * Plus: UI Sampler route for design system exploration
  */
 
@@ -17,13 +17,9 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import { StageContainer, Stage } from "./components/patterns";
 import { ThemeProvider } from "./design-system/ThemeProvider";
 import { ThemeSwitcher } from "./components/UISampler/ThemeSwitcher";
 import {
-  StageWelcome,
-  StageInput,
-  StageAnalysis,
   StageVisualization,
   ToastContainer,
 } from "./features";
@@ -85,8 +81,7 @@ const SplashOrchestrator = () => {
       } catch (e) {
         console.error("Failed to preload data", e);
       }
-      // Guarantee minimum visibility for splash screen
-      setTimeout(() => setIsLoaded(true), 2000);
+      setIsLoaded(true);
     };
     loadData();
   }, [fetchDocumentList, fetchDashboardStats]);
@@ -96,12 +91,8 @@ const SplashOrchestrator = () => {
   }
 
   return (
-    <div className="h-screen w-full">
-      <StageWelcome
-        onGetStarted={() => {}}
-        subtitle="Initializing your intelligent workspace..."
-        buttonText="Syncing Data..."
-      />
+    <div className="h-screen w-full flex items-center justify-center bg-gray-900 text-white">
+      Initializing...
     </div>
   );
 };
@@ -109,10 +100,10 @@ const SplashOrchestrator = () => {
 /**
  * App
  *
- * Main app component that manages stage transitions and integrates all stage components.
+ * Main app component that manages navigation and authentication.
  */
 export default function App() {
-  const { currentStage, setStage, document, isAnalyzing, toasts, removeToast } =
+  const { toasts, removeToast } =
     useDocumentStore();
 
   const checkAuth = useUserStore((state) => state.checkAuth);
@@ -122,49 +113,6 @@ export default function App() {
   }, [checkAuth]);
 
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Auto-transition to analysis stage when document is uploaded and analysis starts
-  useEffect(() => {
-    if (
-      document &&
-      isAnalyzing &&
-      (currentStage === "input" || currentStage === "welcome")
-    ) {
-      setStage("analysis");
-    }
-  }, [document, isAnalyzing, currentStage, setStage]);
-
-  // Auto-transition to visualization stage when analysis completes
-  useEffect(() => {
-    if (
-      document &&
-      !isAnalyzing &&
-      (currentStage === "analysis" ||
-        currentStage === "input" ||
-        currentStage === "welcome")
-    ) {
-      setStage("visualization");
-    }
-  }, [document, isAnalyzing, currentStage, setStage]);
-
-  // Handle URL redirection when starting from Dashboard
-  useEffect(() => {
-    if (location.pathname === "/dashboard" && document) {
-      if (
-        currentStage === "analysis" ||
-        currentStage === "visualization" ||
-        isAnalyzing
-      ) {
-        navigate("/stages");
-      }
-    }
-  }, [location.pathname, document, currentStage, isAnalyzing, navigate]);
-
-  // Stage transition handlers
-  const handleGetStarted = () => {
-    setStage("input");
-  };
 
   const handleBackFromVisualization = () => {
     // Clear document and return to dashboard
@@ -252,26 +200,15 @@ export default function App() {
             }
           />
 
-          {/* Legacy Stage Flow - Kept for specific workflows if needed, but redirected by default */}
+          {/* Visualization Route - Replaces Legacy Stage Flow */}
           <Route
             path="/stages"
             element={
               <ProtectedRoute>
-                <StageContainer currentStage={currentStage}>
+                <div className="stage-container h-screen relative overflow-hidden flex flex-col">
                   <ToastContainer toasts={toasts} onClose={removeToast} />
-                  <Stage active={currentStage === "welcome"}>
-                    <StageWelcome onGetStarted={handleGetStarted} />
-                  </Stage>
-                  <Stage active={currentStage === "input"}>
-                    <StageInput />
-                  </Stage>
-                  <Stage active={currentStage === "analysis"}>
-                    <StageAnalysis />
-                  </Stage>
-                  <Stage active={currentStage === "visualization"}>
-                    <StageVisualization onBack={handleBackFromVisualization} />
-                  </Stage>
-                </StageContainer>
+                  <StageVisualization onBack={handleBackFromVisualization} />
+                </div>
               </ProtectedRoute>
             }
           />
