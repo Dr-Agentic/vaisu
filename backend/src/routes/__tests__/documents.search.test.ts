@@ -18,6 +18,7 @@ vi.mock('../../repositories/documentRepository.js', () => ({
       contentType: doc.metadata.fileType,
       uploadedAt: doc.metadata.uploadDate.toISOString(),
     }));
+    console.log(`[MOCK] listByUserId called for ${userId}, found ${docs.length} docs`);
     return Promise.resolve({ documents: docs, total: docs.length });
   }),
   findById: vi.fn().mockResolvedValue(null),
@@ -37,6 +38,15 @@ vi.mock('../../repositories/analysisRepository.js', () => ({
 }));
 
 vi.mock('../../repositories/userRepository.js');
+
+// Mock usageLimitsRepository
+vi.mock('../../repositories/usageLimitsRepository.js', () => ({
+  usageLimitsRepository: {
+    incrementAnalysisCount: vi.fn().mockResolvedValue({}),
+    getDailyUsage: vi.fn().mockResolvedValue({ analysisCount: 0 }),
+    checkStorageLimit: vi.fn().mockResolvedValue(true),
+  },
+}));
 
 // Mock the dependencies
 vi.mock('../../services/documentParser.js', () => ({
@@ -102,11 +112,15 @@ describe('Documents API - Search and List', () => {
   let app: express.Application;
 
   beforeEach(async () => {
-    vi.resetAllMocks();
     // Clear in-memory stores
     documents.clear();
     analyses.clear();
 
+    // Reset spy-related mocks but preserve the factory mocks
+    // Note: vi.mock() factory mocks are hoisted and not reset by resetAllMocks()
+    // But we should still reset any dynamic mocks
+    vi.clearAllTimers();
+    
     // Mock authenticated user
     vi.mocked(userRepository.getUserById).mockResolvedValue({
       userId: 'test-user-id',

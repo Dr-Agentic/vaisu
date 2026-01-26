@@ -141,7 +141,8 @@ describe("EntityGraph", () => {
   it("renders edges layer", () => {
     render(<EntityGraph data={mockData} />);
 
-    const edgeLayer = screen.getByTestId("graph-edge-layer");
-    expect(edgeLayer).toBeInTheDocument();
+    const edgeLayers = screen.getAllByTestId("graph-edge-layer");
+    expect(edgeLayers.length).toBeGreaterThan(0);
+    expect(edgeLayers[0]).toBeInTheDocument();
   });
 });

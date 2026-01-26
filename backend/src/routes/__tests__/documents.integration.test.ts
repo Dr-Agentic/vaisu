@@ -6,14 +6,45 @@ import { SMALL_BUSINESS_REPORT } from '../../../../test/fixtures/documents';
 import { createMockOpenRouterClient } from '../../../../test/mocks/openRouterMock';
 import { textAnalyzer } from '../../services/analysis/textAnalyzer';
 import { documentsRouter } from '../documents';
+import { generateTestToken, getAuthHeader } from '../../../../test/utils/auth.js';
+import { userRepository } from '../../repositories/userRepository.js';
+
+// Mock usageLimitsRepository
+vi.mock('../../repositories/usageLimitsRepository.js', () => ({
+  usageLimitsRepository: {
+    incrementAnalysisCount: vi.fn().mockResolvedValue({}),
+    getDailyUsage: vi.fn().mockResolvedValue({ analysisCount: 0 }),
+    checkStorageLimit: vi.fn().mockResolvedValue(true),
+  },
+}));
+
+// Mock documentRepository for checkStorageLimit
+vi.mock('../../repositories/documentRepository.js', () => ({
+  countByUserId: vi.fn().mockResolvedValue(0),
+  // Add other exports that might be needed
+  findByHashAndFilename: vi.fn().mockResolvedValue(null),
+  create: vi.fn().mockResolvedValue({}),
+  listByUserId: vi.fn().mockResolvedValue({ documents: [], total: 0 }),
+  findById: vi.fn().mockResolvedValue(null),
+  deleteDocument: vi.fn().mockResolvedValue({}),
+  updateAccessMetadata: vi.fn().mockResolvedValue({}),
+}));
 
 describe('Documents API Integration Tests', () => {
   let app: express.Application;
+  const token = generateTestToken('integration-test-user', 'integration@test.com');
 
   beforeAll(() => {
     // Mock the LLM client for integration tests
     const mockClient = createMockOpenRouterClient();
     (textAnalyzer as any)._llmClient = mockClient;
+
+    // Mock userRepository for auth
+    vi.spyOn(userRepository, 'getUserById').mockResolvedValue({
+      userId: 'integration-test-user',
+      email: 'integration@test.com',
+      status: 'active',
+    });
 
     app = express();
 
@@ -31,10 +62,15 @@ describe('Documents API Integration Tests', () => {
     app.use('/api/documents', documentsRouter);
   });
 
+  afterAll(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('POST /api/documents/analyze', () => {
     it('should analyze text document successfully', async () => {
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: SMALL_BUSINESS_REPORT })
         .expect(200);
 
@@ -47,6 +83,7 @@ describe('Documents API Integration Tests', () => {
     it('should return 400 for empty text', async () => {
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: '' })
         .expect(400);
 
@@ -56,6 +93,7 @@ describe('Documents API Integration Tests', () => {
     it('should return 400 for missing text field', async () => {
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({})
         .expect(400);
 
@@ -67,6 +105,7 @@ describe('Documents API Integration Tests', () => {
 
       await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: SMALL_BUSINESS_REPORT })
         .expect(200);
 
@@ -79,6 +118,7 @@ describe('Documents API Integration Tests', () => {
 
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: largeText })
         .expect(200);
 
@@ -90,6 +130,7 @@ describe('Documents API Integration Tests', () => {
     it('should accept file upload', async () => {
       const response = await request(app)
         .post('/api/documents/upload')
+        .set('Authorization', `Bearer ${token}`)
         .attach('file', Buffer.from(SMALL_BUSINESS_REPORT), 'test.txt')
         .expect(200);
 
@@ -99,6 +140,7 @@ describe('Documents API Integration Tests', () => {
     it('should reject invalid file types', async () => {
       const response = await request(app)
         .post('/api/documents/upload')
+        .set('Authorization', `Bearer ${token}`)
         .attach('file', Buffer.from('test'), 'test.exe')
         .expect(400);
 
@@ -110,6 +152,7 @@ describe('Documents API Integration Tests', () => {
 
       const response = await request(app)
         .post('/api/documents/upload')
+        .set('Authorization', `Bearer ${token}`)
         .attach('file', largeBuffer, 'large.txt')
         .expect(413);
 
@@ -123,6 +166,7 @@ describe('Documents API Integration Tests', () => {
       // First analyze a document
       const uploadResponse = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: SMALL_BUSINESS_REPORT });
 
       const documentId = uploadResponse.body.document.id;
@@ -130,6 +174,7 @@ describe('Documents API Integration Tests', () => {
       // Then retrieve it
       const response = await request(app)
         .get(`/api/documents/${documentId}`)
+        .set('Authorization', `Bearer ${token}`)
         .expect(200);
 
       expect(response.body).toHaveProperty('document');
@@ -139,6 +184,7 @@ describe('Documents API Integration Tests', () => {
     it('should return 404 for non-existent document', async () => {
       const response = await request(app)
         .get('/api/documents/non-existent-id')
+        .set('Authorization', `Bearer ${token}`)
         .expect(404);
 
       expect(response.body).toHaveProperty('error');
@@ -149,6 +195,7 @@ describe('Documents API Integration Tests', () => {
     it('should handle malformed JSON', async () => {
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
         .send('{ invalid json }')
         .expect(400);
@@ -161,6 +208,7 @@ describe('Documents API Integration Tests', () => {
       // For now, just verify error response structure
       const response = await request(app)
         .post('/api/documents/analyze')
+        .set('Authorization', `Bearer ${token}`)
         .send({ text: SMALL_BUSINESS_REPORT });
 
       if (response.status === 500) {
@@ -186,6 +234,7 @@ describe('Documents API Integration Tests', () => {
       const requests = Array(20).fill(null).map(() =>
         request(app)
           .post('/api/documents/analyze')
+          .set('Authorization', `Bearer ${token}`)
           .send({ text: 'test' }),
       );
 

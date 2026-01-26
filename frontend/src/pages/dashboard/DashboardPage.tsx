@@ -26,8 +26,7 @@ export const DashboardPage: React.FC = () => {
         stats,
         isLoadingStats,
         fetchDashboardStats,
-        loadDocumentById,
-        setStage
+        loadDocumentById
     } = useDocumentStore();
 
     const navigate = useNavigate();
@@ -41,7 +40,6 @@ export const DashboardPage: React.FC = () => {
 
     const handleDocClick = async (id: string) => {
         await loadDocumentById(id);
-        setStage('visualization');
         navigate('/stages');
     };
 
