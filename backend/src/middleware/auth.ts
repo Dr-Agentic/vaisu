@@ -33,24 +33,35 @@ export async function authenticate(req: AuthenticatedRequest, res: Response, nex
     const token = extractTokenFromHeader(req);
 
     if (!token) {
+      console.warn(`[${new Date().toISOString()}] Auth: No token provided for ${req.method} ${req.originalUrl}`);
       return res.status(401).json({ error: 'No token provided' });
     }
 
     // Verify access token
     const payload = authUtils.verifyAccessToken(token);
     if (!payload) {
+      console.warn(`[${new Date().toISOString()}] Auth: Invalid or expired token for ${req.method} ${req.originalUrl}`);
       return res.status(401).json({ error: 'Invalid or expired token' });
     }
 
     // Check if user exists
-    const user = await userRepository.getUserById(payload.userId);
+    let user;
+    try {
+      user = await userRepository.getUserById(payload.userId);
+    } catch (dbError) {
+      console.error(`[${new Date().toISOString()}] Auth: Database error looking up user ${payload.userId}:`, dbError);
+      return res.status(500).json({ error: 'Internal server error during authentication' });
+    }
+
     if (!user) {
+      console.warn(`[${new Date().toISOString()}] Auth: User not found for ID ${payload.userId}`);
       return res.status(401).json({ error: 'User not found' });
     }
 
     // Check if account is active
     if (user.status !== 'active') {
-      return res.status(403).json({ error: 'Account is not active' });
+      console.warn(`[${new Date().toISOString()}] Auth: Account ${user.userId} is ${user.status}`);
+      return res.status(403).json({ error: `Account is ${user.status.replace('_', ' ')}` });
     }
 
     // Attach user to request
@@ -61,8 +72,8 @@ export async function authenticate(req: AuthenticatedRequest, res: Response, nex
 
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(401).json({ error: 'Authentication failed' });
+    console.error(`[${new Date().toISOString()}] Auth: Unexpected error:`, error);
+    res.status(500).json({ error: 'Authentication failed due to an unexpected error' });
   }
 }
 

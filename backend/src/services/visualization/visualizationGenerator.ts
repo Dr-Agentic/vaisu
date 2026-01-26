@@ -56,12 +56,12 @@ interface UMLExtractionResult {
     source: string;
     target: string;
     type:
-      | "inheritance"
-      | "realization"
-      | "composition"
-      | "aggregation"
-      | "association"
-      | "dependency";
+    | "inheritance"
+    | "realization"
+    | "composition"
+    | "aggregation"
+    | "association"
+    | "dependency";
     sourceMultiplicity?: string;
     targetMultiplicity?: string;
     sourceRole?: string;
@@ -438,21 +438,51 @@ export class VisualizationGenerator {
     analysis: DocumentAnalysis,
   ): Promise<KnowledgeGraphData> {
     // Use LLM to generate a comprehensive knowledge graph
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient, OpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { MODEL_CONFIGS } = await import("../../config/modelConfig.js");
     const llmClient = getOpenRouterClient();
 
     try {
-      // Prepare document content for LLM (limit size)
-      const contentSample = document.content.substring(0, 10000);
-      const tldrText =
-        typeof analysis.tldr === "string" ? analysis.tldr : analysis.tldr.text;
+      const systemPrompt = `You are a knowledge graph generation expert. Analyze the document and create 
+a comprehensive knowledge graph JSON structure.
+Match the EXACT JSON schema provided below.
+Return ONLY valid JSON.
+DO NOT use markdown code blocks.
+Straight to the JSON data.
 
-      const prompt = `Document Title: ${document.title}\n\nTLDR: ${tldrText}\n\nContent:\n${contentSample}`;
+Schema:
+{
+  "nodes": [
+    { "id": "string", "label": "string", "type": "string", "metadata": { "description": "string", "sourceQuote": "string", "sourceSpan": { "start": "number", "end": "number" } } }
+  ],
+  "edges": [
+    { "source": "string", "target": "string", "type": "string", "label": "string", "evidence": ["string"] }
+  ],
+  "clusters": [
+    { "id": "string", "label": "string", "nodeIds": ["string"] }
+  ],
+  "hierarchy": {
+    "rootNodes": ["string"],
+    "maxDepth": "number",
+    "nodeDepths": { "nodeId": "number" }
+  }
+}`;
 
-      const response = await llmClient.callWithFallback(
-        "knowledge-graph-generation",
-        prompt,
-      );
+      // Compress content if it's too large (keeping intro and outro for context)
+      // Limit to ~30k chars (approx 8k tokens) to leave room for the graph
+      const compressedContent = OpenRouterClient.middleOutCompress(document.content, 30000);
+
+      const response = await llmClient.call({
+        model: MODEL_CONFIGS['knowledge-graph-generation'].primary,
+        messages: [
+          { role: "system", content: systemPrompt },
+          {
+            role: "user",
+            content: `Document Title: ${document.title}\n\n${compressedContent}\n\nExtract 15-50 entities and 20-60 relationships. Focus on meaningful connections.`,
+          },
+        ],
+        temperature: 0.2, // Lower temperature for structure
+      });
 
       // Parse LLM response
       const parsed = llmClient.parseJSONResponse<{

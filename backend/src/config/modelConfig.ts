@@ -11,19 +11,24 @@ export const LLM_MODELS = {
   GPT_OSS_120B: 'openai/gpt-oss-120b:free',
   NEMOTRON_30B: 'nvidia/nemotron-3-nano-30b-a3b:free',
   QWEN_CODER: 'qwen/qwen3-coder:free',
+  GLM_45_AIR: 'z-ai/glm-4.5-air:free',
+  META_LLAMA_405B_INSTRUCT: 'meta-llama/llama-3.1-405b-instruct:free',
 } as const;
 
 // LLM Selection Constants - easily switch between different model configurations
-export const LLM_PRIMARY = LLM_MODELS.GPT_OSS_120B;
-export const LLM_FALLBACK = LLM_MODELS.NEMOTRON_30B;
-const LLM_MAXTOKENS = 10000000;
+export const LLM_PRIMARY = LLM_MODELS.NEMOTRON_30B;
+export const LLM_FALLBACK = LLM_MODELS.QWEN_CODER;
+
+// Temperature Constants
+export const TEMP_PRECISION = 0.1; // For high-fidelity extraction
+export const TEMP_CREATIVE = 0.4;  // For brainstorming/ideation
+export const TEMP_BALANCED = 0.3; // For general summarization
 
 export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
   tldr: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt:
       'Generate a concise TLDR summary of the following text. ' +
       'Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
@@ -31,8 +36,7 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
   executiveSummary: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.5,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Create an executive summary of the document.
 Return ONLY valid JSON matching this exact format (do not use markdown code blocks):
 {
@@ -68,8 +72,7 @@ Ensure "value" in KPIs is a number (not a string). Extract 3-5 items for lists.`
   entityExtraction: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.1,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Extract ALL named entities from the text. Be comprehensive - extract people, 
 organizations, locations, concepts, products, technologies, and key terms.
 
@@ -108,8 +111,7 @@ Extract at least 10-30 entities if the document is substantial. Be thorough.`,
   relationshipDetection: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Analyze relationships between the provided entities based on the text.
 
 CRITICAL: You will be given a list of entities with their IDs. You MUST use the exact entity ID 
@@ -145,8 +147,7 @@ Extract at least 5-20 relationships if entities are connected. Focus on meaningf
   sectionSummary: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Analyze the section and provide a structured summary.
 Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 {
@@ -158,8 +159,7 @@ Extract 3-5 important keywords.`,
   signalAnalysis: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.2,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Analyze the text for the following signals (score each 0-1):
 - structural: presence of headings, lists, clear organization
 - process: workflow language, sequential steps, transitions
@@ -172,8 +172,7 @@ Return as JSON object with these six scores. Do not use markdown.`,
   vizRecommendation: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.4,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Recommend the top 3-5 most appropriate visualizations for this document.
 Available types: structured-view, mind-map, flowchart, knowledge-graph, executive-dashboard, timeline.
 For each recommendation include: type, score (0-1), and rationale (one sentence).
@@ -182,8 +181,7 @@ Return as JSON array. Do not use markdown.`,
   kpiExtraction: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.1,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Extract key performance indicators (KPIs) from the text.
 For each KPI include: label, value (number), unit, trend (up/down/stable if mentioned), 
 and confidence (0-1). Deduplicate similar metrics. Return as JSON array. Do not use markdown.`,
@@ -191,8 +189,7 @@ and confidence (0-1). Deduplicate similar metrics. Return as JSON array. Do not 
   glossary: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Extract keywords and acronyms with context-aware definitions.
 Analyze the domain and provide definitions appropriate to that context.
 Return as JSON array with (no markdown): term, definition, domain, confidence.`,
@@ -200,8 +197,7 @@ Return as JSON array with (no markdown): term, definition, domain, confidence.`,
   qa: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.6,
+    temperature: TEMP_PRECISION,
     systemPrompt:
       'Answer questions about the document content. Be helpful, accurate, and concise. ' +
       'Cite specific parts of the text when relevant.',
@@ -209,8 +205,7 @@ Return as JSON array with (no markdown): term, definition, domain, confidence.`,
   mindMapGeneration: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.4,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Analyze the document and create a hierarchical mind map structure with 3-5 
 levels of depth.
 
@@ -270,8 +265,7 @@ Focus on creating a meaningful hierarchy with clear visual metaphors and progres
   argumentMapGeneration: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt: `Analyze the text to generate an interactive argument map based on the 
 specific schema provided.
 
@@ -337,10 +331,9 @@ Return ONLY valid JSON in this exact format (do not use markdown code blocks):
 }`,
   },
   'uml-extraction': {
-    primary: LLM_MODELS.QWEN_CODER,
+    primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt: `You are a UML class diagram extraction expert. Analyze the following technical 
 document and extract object-oriented structures.
 
@@ -434,8 +427,7 @@ Extract 5-30 classes based on document complexity. Focus on the most important c
   'knowledge-graph-generation': {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.4,
+    temperature: TEMP_PRECISION,
     systemPrompt: `You are a knowledge graph generation expert. Analyze the document and create 
 a comprehensive knowledge graph visualization.
 
@@ -508,16 +500,14 @@ Extract 10-50 entities and 15-40 relationships. Focus on meaningful connections.
   depthAnalysis: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.2,
+    temperature: TEMP_PRECISION,
     systemPrompt:
       'You are a Lead Cognitive Analyst. Perform a granular True Depth Analysis of the text.',
   },
   entityGraphGeneration: {
     primary: LLM_PRIMARY,
     fallback: LLM_FALLBACK,
-    maxTokens: LLM_MAXTOKENS,
-    temperature: 0.3,
+    temperature: TEMP_PRECISION,
     systemPrompt:
       'You are a Lead Network Theorist specializing in the topology of arguments and ' +
       'concept drift. Build a directed graph of Logical Units and Causal Links.',

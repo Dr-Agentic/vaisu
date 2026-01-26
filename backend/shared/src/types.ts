@@ -523,12 +523,12 @@ export interface UMLRelationship {
   source: string; // Class ID
   target: string; // Class ID
   type:
-    | "inheritance"
-    | "realization"
-    | "composition"
-    | "aggregation"
-    | "association"
-    | "dependency";
+  | "inheritance"
+  | "realization"
+  | "composition"
+  | "aggregation"
+  | "association"
+  | "dependency";
 
   // Optional properties
   sourceMultiplicity?: string;
@@ -676,7 +676,7 @@ export type TaskType =
 export interface LLMCallConfig {
   model: string;
   messages: LLMMessage[];
-  maxTokens: number;
+  maxTokens?: number;
   temperature: number;
 }
 
@@ -694,7 +694,7 @@ export interface LLMResponse {
 export interface ModelConfig {
   primary: string;
   fallback: string;
-  maxTokens: number;
+  maxTokens?: number;
   temperature: number;
   systemPrompt: string;
 }

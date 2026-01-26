@@ -26,9 +26,19 @@ const mocks = vi.hoisted(() => ({
 // Mock the OpenRouter client
 vi.mock("../../llm/openRouterClient", () => ({
   getOpenRouterClient: () => ({
+    call: mocks.callWithFallback,
     callWithFallback: mocks.callWithFallback,
     parseJSONResponse: mocks.parseJSONResponse,
   }),
+  OpenRouterClient: {
+    middleOutCompress: (text: string, maxLength: number) => {
+      if (text.length <= maxLength) return text;
+      const keep = Math.floor(maxLength / 2);
+      const start = text.substring(0, keep);
+      const end = text.substring(text.length - keep);
+      return `${start}\n\n[...MIDDLE SECTION COMPRESSED FOR LENGTH...]\n\n${end}`;
+    },
+  },
 }));
 
 // Mock visualizationService to prevent DynamoDB access
