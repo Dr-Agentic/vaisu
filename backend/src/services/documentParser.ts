@@ -149,10 +149,11 @@ export class DocumentParser {
     let currentIndex = 0;
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
+      const rawLine = lines[i];
+      const line = rawLine.trim();
 
       // Detect headings
-      const headingMatch = this.detectHeading(line);
+      const headingMatch = this.detectHeading(rawLine);
 
       if (headingMatch) {
         // Save previous section
@@ -206,8 +207,14 @@ export class DocumentParser {
   }
 
   private detectHeading(line: string): { level: number; title: string } | null {
-    // Markdown style headings
-    const mdMatch = line.match(/^(#{1,5})\s+(.+)$/);
+    const trimmed = line.trim();
+
+    // Calculate indentation level (2 spaces or 1 tab = 1 extra level)
+    const indentation = line.match(/^(\s*)/)?.[1].length || 0;
+    const indentLevel = Math.floor(indentation / 2);
+
+    // Markdown style headings (allow missing space after # for leniency)
+    const mdMatch = trimmed.match(/^(#{1,5})\s*(.+)$/);
     if (mdMatch) {
       return {
         level: mdMatch[1].length,
@@ -216,9 +223,20 @@ export class DocumentParser {
     }
 
     // Numbered headings (1., 1.1., etc.)
-    const numberedMatch = line.match(/^(\d+(?:\.\d+)*)\.\s+(.+)$/);
+    const numberedMatch = trimmed.match(/^(\d+(?:\.\d+)*)\.\s+(.+)$/);
     if (numberedMatch) {
-      const level = numberedMatch[1].split('.').length;
+      const numberPart = numberedMatch[1];
+      // If it's just "1", "2" etc, rely on indentation + 1
+      // If it's "1.1", "1.2.1", calculate from dots
+      const dotLevel = numberPart.split('.').length;
+
+      // Use the greater of explicit numbering depth or indentation
+      // But if it's "1." (dotLevel=1) and indented, use indentation
+      let level = dotLevel;
+      if (dotLevel === 1 && indentLevel > 0) {
+        level = indentLevel + 1;
+      }
+
       return {
         level: Math.min(level, 5),
         title: numberedMatch[2].trim(),
@@ -226,10 +244,10 @@ export class DocumentParser {
     }
 
     // ALL CAPS headings (at least 3 words)
-    if (line === line.toUpperCase() && line.split(' ').length >= 3 && line.length < 100) {
+    if (trimmed === trimmed.toUpperCase() && trimmed.split(' ').length >= 3 && trimmed.length < 100) {
       return {
-        level: 1,
-        title: line,
+        level: 1 + indentLevel,
+        title: trimmed,
       };
     }
 

@@ -1,4 +1,5 @@
 import { DEPTH_ANALYSIS_PROMPT } from "../../prompts/depthAnalysisPrompt.js";
+import { STRUCTURE_ANALYSIS_PROMPT } from "../../prompts/structureAnalysisPrompt.js";
 import { visualizationService } from "../../repositories/visualizationService.js";
 
 import type {
@@ -56,12 +57,12 @@ interface UMLExtractionResult {
     source: string;
     target: string;
     type:
-    | "inheritance"
-    | "realization"
-    | "composition"
-    | "aggregation"
-    | "association"
-    | "dependency";
+      | "inheritance"
+      | "realization"
+      | "composition"
+      | "aggregation"
+      | "association"
+      | "dependency";
     sourceMultiplicity?: string;
     targetMultiplicity?: string;
     sourceRole?: string;
@@ -128,7 +129,7 @@ export class VisualizationGenerator {
           console.log(
             `🎯 Generating structured-view visualization for document ${document.id}`,
           );
-          visualizationData = this.generateStructuredView(document);
+          visualizationData = await this.generateStructuredView(document);
           console.log("✅ Structured-view generation completed");
           break;
 
@@ -230,41 +231,135 @@ export class VisualizationGenerator {
     }
   }
 
-  private generateStructuredView(document: Document) {
+  private async generateStructuredView(document: Document) {
     console.log(
       `🏗️ generateStructuredView called for document: ${document.title}`,
     );
     console.log("📊 Document structure:", {
       sectionsCount: document.structure.sections.length,
       hierarchyLength: document.structure.hierarchy.length,
-      totalLines: document.content.split("\\n").length,
+      totalLines: document.content.split("\n").length,
     });
 
-    // Debug document structure content
-    console.log(
-      "📋 First 3 sections:",
-      document.structure.sections.slice(0, 3).map((s) => ({
-        id: s.id,
-        title: s.title,
-        childrenCount: s.children?.length || 0,
-        contentLength: s.content.length,
-      })),
-    );
+    try {
+      const { getOpenRouterClient } =
+        await import("../llm/openRouterClient.js");
+      const llmClient = getOpenRouterClient();
 
-    // Return the document structure with sections
-    const result = {
-      type: "structured-view",
-      sections: document.structure.sections,
-      hierarchy: document.structure.hierarchy,
-    };
+      // Prepare content for LLM
+      const contentSample = document.content.substring(0, 25000);
+      const prompt = `${STRUCTURE_ANALYSIS_PROMPT}\n\nDocument Title: ${document.title}\n\nContent:\n${contentSample}`;
 
-    console.log("✅ generateStructuredView returning:", {
-      type: result.type,
-      sectionsCount: result.sections.length,
-      hierarchyLength: result.hierarchy.length,
+      const response = await llmClient.callWithFallback(
+        "sectionSummary",
+        prompt,
+      );
+
+      // Define interface for LLM response
+      interface FlatSection {
+        title: string;
+        level: number;
+        summary: string;
+        punching_message: string;
+      }
+
+      const flatSections = llmClient.parseJSONResponse<FlatSection[]>(response);
+
+      if (flatSections && flatSections.length > 0) {
+        const sections = this.reconstructHierarchy(
+          flatSections,
+          document.content,
+        );
+        const hierarchy = this.buildHierarchyNodes(sections);
+
+        const result = {
+          type: "structured-view",
+          sections,
+          hierarchy,
+        };
+
+        console.log("✅ Structured-view generation completed (AI-enhanced)", {
+          sectionsCount: sections.length,
+        });
+
+        return result;
+      }
+
+      throw new Error("Empty or invalid response from LLM");
+    } catch (error) {
+      console.error(
+        "❌ Structured View AI generation failed, falling back to regex parser:",
+        error,
+      );
+
+      // Fallback to existing structure
+      return {
+        type: "structured-view",
+        sections: document.structure.sections,
+        hierarchy: document.structure.hierarchy,
+      };
+    }
+  }
+
+  private reconstructHierarchy(
+    flatSections: any[],
+    fullContent: string,
+  ): any[] {
+    const sections: any[] = [];
+    const stack: any[] = [];
+
+    flatSections.forEach((item, index) => {
+      // Basic fuzzy search for start index (optional but nice to have)
+      const searchTitle = item.title.substring(0, 50);
+      const startIndex = fullContent.indexOf(searchTitle);
+
+      const section = {
+        id: `sec-ai-${index}-${Date.now()}`,
+        level: item.level,
+        title: item.title,
+        content: "", // LLM doesn't extract full content
+        startIndex: startIndex !== -1 ? startIndex : 0,
+        endIndex: startIndex !== -1 ? startIndex + item.title.length : 0,
+        summary: item.summary || "",
+        punchingMessage: item.punching_message || "",
+        keywords: [], // Could extract if prompted
+        children: [],
+      };
+
+      if (stack.length === 0) {
+        sections.push(section);
+        stack.push(section);
+      } else {
+        // Find the correct parent for this level
+        // Stack contains open sections. We pop until we find a parent with level < current level.
+        while (
+          stack.length > 0 &&
+          stack[stack.length - 1].level >= section.level
+        ) {
+          stack.pop();
+        }
+
+        if (stack.length > 0) {
+          stack[stack.length - 1].children.push(section);
+          stack.push(section);
+        } else {
+          // If stack empty after popping (e.g. L1 after L1, or L2 without L1), push to root
+          sections.push(section);
+          stack.push(section);
+        }
+      }
     });
 
-    return result;
+    return sections;
+  }
+
+  private buildHierarchyNodes(sections: any[]): any[] {
+    return sections.map((section) => ({
+      id: `node-${section.id}`,
+      sectionId: section.id,
+      level: section.level,
+      children: this.buildHierarchyNodes(section.children || []),
+    }));
   }
 
   private async generateMindMap(
@@ -438,7 +533,8 @@ export class VisualizationGenerator {
     analysis: DocumentAnalysis,
   ): Promise<KnowledgeGraphData> {
     // Use LLM to generate a comprehensive knowledge graph
-    const { getOpenRouterClient, OpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient, OpenRouterClient } =
+      await import("../llm/openRouterClient.js");
     const { MODEL_CONFIGS } = await import("../../config/modelConfig.js");
     const llmClient = getOpenRouterClient();
 
@@ -470,10 +566,13 @@ Schema:
 
       // Compress content if it's too large (keeping intro and outro for context)
       // Limit to ~30k chars (approx 8k tokens) to leave room for the graph
-      const compressedContent = OpenRouterClient.middleOutCompress(document.content, 30000);
+      const compressedContent = OpenRouterClient.middleOutCompress(
+        document.content,
+        30000,
+      );
 
       const response = await llmClient.call({
-        model: MODEL_CONFIGS['knowledge-graph-generation'].primary,
+        model: MODEL_CONFIGS["knowledge-graph-generation"].primary,
         messages: [
           { role: "system", content: systemPrompt },
           {

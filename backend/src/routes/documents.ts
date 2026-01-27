@@ -112,6 +112,8 @@ router.post(
     try {
       const authReq = req as AuthenticatedRequest;
       let document: Document;
+      let buffer: Buffer | undefined;
+      let filename: string;
 
       if (req.file) {
         // File upload
@@ -119,19 +121,64 @@ router.post(
           req.file.buffer,
           req.file.originalname,
         );
+        buffer = req.file.buffer;
+        filename = req.file.originalname;
       } else if (req.body.text) {
         // Text input
-        const buffer = Buffer.from(req.body.text, "utf-8");
-        document = await documentParser.parseDocument(
-          buffer,
-          "pasted-text.txt",
-        );
+        buffer = Buffer.from(req.body.text, "utf-8");
+        filename = "pasted-text.txt";
+        document = await documentParser.parseDocument(buffer, filename);
       } else {
         return res.status(400).json({ error: "No file or text provided" });
       }
 
+      // Store in memory for current session
       documents.set(document.id, document);
       documentOwners.set(document.id, authReq.user!.userId);
+
+      // Store in DynamoDB + S3 (if content is provided)
+      if (buffer) {
+        try {
+          const contentHash = calculateContentHash(buffer.toString("utf-8"));
+
+          console.log("💾 Storing document in S3 and DynamoDB...");
+
+          // Upload to S3
+          const s3Result = await s3Storage.uploadDocument(
+            contentHash,
+            filename,
+            buffer,
+          );
+
+          // Store document metadata in DynamoDB
+          const documentRecord: DocumentRecord = {
+            documentId: document.id,
+            userId: authReq.user!.userId,
+            contentHash,
+            filename,
+            s3Path: s3Result.path,
+            s3Bucket: s3Result.bucket,
+            s3Key: s3Result.key,
+            contentType: document.metadata.fileType,
+            fileSize: buffer.length,
+            wordCount: document.metadata.wordCount || 0,
+            hasAnalysis: false,
+            uploadedAt: new Date().toISOString(),
+            lastAccessedAt: new Date().toISOString(),
+            accessCount: 1,
+          };
+
+          await documentRepository.create(documentRecord);
+
+          console.log(`✅ Document stored with ID: ${document.id}`);
+        } catch (storageError) {
+          console.error("❌ Storage error:", storageError);
+          if (storageError instanceof Error) {
+            console.error("Stack:", storageError.stack);
+          }
+          // Don't fail the upload if storage fails, but log the error
+        }
+      }
 
       res.json({
         documentId: document.id,
@@ -812,7 +859,7 @@ router.get("/", async (req: Request, res: Response) => {
     try {
       console.log("📋 Fetching documents from DynamoDB...");
       const userId = authReq.user!.userId;
-      const result = await documentRepository.listByUserId(userId, limit);
+      const result = await documentRepository.listByUserId(userId, limit, offset);
 
       // Fetch analyses for each document
       const documentList = await Promise.all(
@@ -835,14 +882,12 @@ router.get("/", async (req: Request, res: Response) => {
       );
 
       console.log(
-        `✅ Found ${documentList.length} documents in DynamoDB for user ${userId}`,
+        `✅ Found ${result.total} documents (returning ${documentList.length}) in DynamoDB for user ${userId}`,
       );
-
-      const total = documentList.length;
 
       return res.json({
         documents: documentList,
-        total,
+        total: result.total,
         limit,
         offset,
       });

@@ -121,13 +121,16 @@ export async function deleteDocument(documentId: string): Promise<void> {
 export async function listByUserId(
   userId: string,
   limit: number = 50,
-  lastEvaluatedKey?: Record<string, any>,
+  offset: number = 0,
 ): Promise<{
   documents: DocumentRecord[];
-  lastEvaluatedKey?: Record<string, any>;
+  total: number;
 }> {
   const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
 
+  // Scan without Limit to find all user documents
+  // Note: This scans up to 1MB of data. For production with large datasets,
+  // we MUST add a GSI on userId and use QueryCommand.
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     FilterExpression: "userId = :userId AND SK = :sk",
@@ -135,22 +138,24 @@ export async function listByUserId(
       ":userId": userId,
       ":sk": "METADATA",
     },
-    Limit: limit,
-    ExclusiveStartKey: lastEvaluatedKey,
   });
 
   const response = await dynamoDBClient.send(command);
+  const allDocs = response.Items || [];
 
-  // Sort by uploadedAt (newest first) since Scan doesn't guarantee order
-  const sortedDocuments = (response.Items || []).sort((a: any, b: any) => {
+  // Sort by uploadedAt (newest first)
+  const sortedDocuments = allDocs.sort((a: any, b: any) => {
     const dateA = new Date(a.uploadedAt).getTime();
     const dateB = new Date(b.uploadedAt).getTime();
     return dateB - dateA;
   });
 
+  const total = sortedDocuments.length;
+  const paginatedDocs = sortedDocuments.slice(offset, offset + limit);
+
   return {
-    documents: sortedDocuments as DocumentRecord[],
-    lastEvaluatedKey: response.LastEvaluatedKey,
+    documents: paginatedDocs as DocumentRecord[],
+    total,
   };
 }
 
