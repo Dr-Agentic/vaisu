@@ -1,0 +1,241 @@
+import eslint from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
+import react from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import importPlugin from 'eslint-plugin-import';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+
+export default [
+  {
+    ignores: [
+      '**/node_modules/**',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      '**/dist/**',
+      '**/build/**',
+      '.cache/',
+      '.next/',
+      '.temp/',
+      '.env',
+      '.env.local',
+      '.env.development.local',
+      '.env.test.local',
+      '.env.production.local',
+      '.vscode/',
+      '.idea/',
+      '*.swp',
+      '*.swo',
+      '.DS_Store',
+      'Thumbs.db',
+    ],
+  },
+  eslint.configs.recommended,
+  {
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      parser: tsparser,
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+      react,
+      'react-hooks': reactHooks,
+      import: importPlugin,
+      'jsx-a11y': jsxA11y,
+    },
+    settings: {
+      react: {
+        version: 'detect',
+      },
+      'import/resolver': {
+        node: {
+          extensions: ['.js', '.jsx', '.ts', '.tsx', '.d.ts'],
+        },
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.json',
+        },
+      },
+    },
+    rules: {
+      // TypeScript-specific rules
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-namespace': 'off',
+      '@typescript-eslint/no-var-requires': 'off',
+      '@typescript-eslint/ban-ts-comment': 'warn',
+
+      // React-specific rules
+      'react/react-in-jsx-scope': 'off', // Not needed in React 17+
+      'react/prop-types': 'off', // Using TypeScript for prop validation
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
+      'react/self-closing-comp': 'error',
+      'react/jsx-uses-react': 'off',
+      'react/jsx-uses-vars': 'error',
+      'react/jsx-key': 'error',
+      'react/jsx-no-undef': 'error',
+      'react/jsx-boolean-value': ['error', 'never'],
+      'react/jsx-curly-brace-presence': ['error', { props: 'never', children: 'never' }],
+      'react/jsx-pascal-case': 'error',
+
+      // Import rules
+      'import/order': [
+        'error',
+        {
+          groups: [
+            'builtin',
+            'external',
+            'internal',
+            'parent',
+            'sibling',
+            'index',
+            'object',
+            'type',
+          ],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+      'import/no-unresolved': 'off', // Handled by TypeScript
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: [
+            '**/*.test.ts',
+            '**/*.test.tsx',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+            '**/vitest.config.ts',
+          ],
+        },
+      ],
+
+      // General code quality rules
+      'no-console': 'warn',
+      'no-debugger': 'error',
+      'no-unused-vars': 'off', // Handled by TypeScript version
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'prefer-arrow-callback': 'error',
+      'prefer-template': 'error',
+      'template-curly-spacing': 'error',
+      'arrow-spacing': 'error',
+      'comma-dangle': ['error', 'always-multiline'],
+      'semi': ['error', 'always'],
+      'quotes': ['error', 'single', { avoidEscape: true }],
+      'max-len': ['warn', { code: 100, ignoreUrls: true, ignoreStrings: true }],
+      'indent': ['error', 2, { SwitchCase: 1 }],
+      'no-trailing-spaces': 'error',
+      'eol-last': 'error',
+      'space-before-blocks': 'error',
+      'keyword-spacing': 'error',
+      'space-infix-ops': 'error',
+      'object-curly-spacing': ['error', 'always'],
+      'array-bracket-spacing': ['error', 'never'],
+      'comma-spacing': ['error', { before: false, after: true }],
+      'comma-style': ['error', 'last'],
+      'func-call-spacing': ['error', 'never'],
+      'key-spacing': ['error', { beforeColon: false, afterColon: true }],
+      'no-multiple-empty-lines': ['error', { max: 2, maxEOF: 1 }],
+      'no-whitespace-before-property': 'error',
+      'nonblock-statement-body-position': 'error',
+      'operator-linebreak': ['error', 'before'],
+      'padded-blocks': ['error', 'never'],
+      'semi-spacing': ['error', { before: false, after: true }],
+      'semi-style': ['error', 'last'],
+      'space-before-function-paren': [
+        'error',
+        {
+          anonymous: 'always',
+          named: 'never',
+          asyncArrow: 'always',
+        },
+      ],
+      'space-in-parens': ['error', 'never'],
+      'switch-colon-spacing': ['error', { after: true, before: false }],
+      'wrap-regex': 'error',
+      'yield-star-spacing': ['error', 'both'],
+    },
+  },
+  {
+    files: ['frontend/**/*.ts', 'frontend/**/*.tsx'],
+    rules: {
+      'no-console': 'off', // Allow console in frontend for development
+      '@typescript-eslint/no-explicit-any': 'off', // More lenient for frontend
+    },
+  },
+  {
+    files: ['backend/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn', // Stricter for backend
+      'no-console': 'warn', // Warn in backend
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx', '**/test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      'no-console': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
+  },
+  {
+    files: ['frontend/vite.config.ts'],
+    rules: {
+      'import/namespace': 'off',
+      'import/named': 'off',
+      'import/no-unresolved': 'off',
+    },
+  },
+  {
+    files: ['test/mocks/openRouterMock.ts'],
+    rules: {
+      'import/namespace': 'off',
+      'import/named': 'off',
+      'import/no-unresolved': 'off',
+    },
+  },
+  {
+    files: ['test/setup.ts'],
+    rules: {
+      'import/namespace': 'off',
+      'import/named': 'off',
+      'import/no-unresolved': 'off',
+    },
+  },
+  {
+    files: ['frontend/src/App.tsx', 'frontend/src/components/UISampler/SimpleValidator.tsx', 'frontend/src/pages/SimpleUISamplerPage.tsx'],
+    rules: {
+      'import/namespace': 'off',
+      'import/named': 'off',
+      'import/order': 'off',
+    },
+  },
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+];

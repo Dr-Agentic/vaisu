@@ -15,6 +15,7 @@ interface GraphEntityCardProps {
   onMouseLeave?: () => void;
   className?: string;
   style?: React.CSSProperties;
+  descriptionLabel?: string;
 }
 
 export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
@@ -26,6 +27,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
   onClick,
   className = '',
   style,
+  descriptionLabel = 'Context',
 }) => {
   // Use prop value for isHovered, only manage internal state if not controlled
   const [internalIsHovered, setInternalIsHovered] = useState(false);
@@ -120,7 +122,7 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
                 {(node.context || node.description) && (
                   <div>
                     <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">
-                      Context
+                      {descriptionLabel}
                     </label>
                     <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">
                       {node.context || node.description}

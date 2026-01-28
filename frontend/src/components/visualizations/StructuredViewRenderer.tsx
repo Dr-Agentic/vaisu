@@ -53,6 +53,7 @@ const mapSectionToNode = (section: Section): GraphNode => ({
     content: section.content,
     range: `Chars ${section.startIndex} - ${section.endIndex}`,
     punchingMessage: section.punchingMessage,
+    summary: section.summary,
   },
   x: 0, // Placeholder, will be ignored by relative layout
   y: 0,
@@ -94,6 +95,7 @@ const RenderTree = React.memo(
                   node={graphNode}
                   onClick={() => onSelectNode(graphNode)}
                   isSelected={isSelected}
+                  descriptionLabel="Key Takeaway"
                   // Override style to be relative
                   style={{
                     position: "relative",
@@ -278,7 +280,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                     id="detail-punching"
                     className="text-[10px] font-black text-[var(--color-accent)] uppercase tracking-[0.2em] block mb-2"
                   >
-                    Core Insight
+                    Key Takeaway
                   </h3>
                   <p className="text-sm leading-relaxed text-[var(--color-text-primary)] font-bold border-l-2 border-[var(--color-accent)] pl-3">
                     {selectedNode.metadata.punchingMessage}
@@ -286,7 +288,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                 </section>
               )}
 
-              {selectedNode.description && (
+              {selectedNode.metadata?.summary && (
                 <section aria-labelledby="detail-summary">
                   <h3
                     id="detail-summary"
@@ -295,7 +297,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                     Summary
                   </h3>
                   <p className="text-sm leading-relaxed text-[var(--color-text-secondary)] font-medium italic">
-                    {selectedNode.description}
+                    {selectedNode.metadata.summary}
                   </p>
                 </section>
               )}

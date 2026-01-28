@@ -1,4 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
+import fs from "fs/promises";
+import path from "path";
+import os from "os";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 
@@ -74,6 +77,27 @@ const upload = multer({
 export const documents = new Map<string, Document>();
 export const analyses = new Map<string, DocumentAnalysis>();
 export const documentOwners = new Map<string, string>(); // documentId -> userId
+
+
+
+// Helper to log graph JSON to /tmp
+async function logGraphJson(
+  documentId: string,
+  graphName: string,
+  data: any,
+) {
+  try {
+    const timestamp = Date.now();
+    const filename = `${timestamp}-${graphName}-${documentId}.json`;
+    const tmpDir = os.tmpdir();
+    const filePath = path.join(tmpDir, filename);
+
+    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+    console.log(`📊 Graph JSON saved to: file://${filePath}`);
+  } catch (error) {
+    console.error("Failed to log graph JSON:", error);
+  }
+}
 
 // Helper to create document list item
 function toDocumentListItem(doc: Document): any {
@@ -656,6 +680,9 @@ router.post(
       console.log(`📤 Response data type: ${typeof data}`);
       console.log("📊 Data keys:", Object.keys(data || {}));
 
+      // Log the graph JSON
+      await logGraphJson(id, type, data);
+
       res.json({
         type,
         data,
@@ -687,6 +714,9 @@ router.get("/:id/visualizations/:type", async (req: Request, res: Response) => {
       await visualizationService.findByDocumentIdAndType(id, type);
 
     if (existingVisualization) {
+      // Log the graph JSON
+      await logGraphJson(id, type, existingVisualization.visualizationData);
+
       res.json({
         type,
         data: existingVisualization.visualizationData,

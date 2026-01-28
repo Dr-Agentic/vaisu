@@ -1,0 +1,80 @@
+{
+  "metadata": {
+    "agent": "Tasky",
+    "created_at": "2026-01-27T12:00:00Z",
+    "source_design_file": "2026-01-27-03-daisy-design-structured-view-ai.json"
+  },
+  "execution_plan": [
+    {
+      "step_id": 1,
+      "type": "Development",
+      "status": "COMPLETED",
+      "title": "Update Shared Types",
+      "description": "Add optional 'punchingMessage' field to the Section interface in shared/src/types.ts to support the new AI-generated insights.",
+      "files_to_touch": ["shared/src/types.ts"],
+      "verification": {
+        "type": "Static Analysis",
+        "command": "npm run lint"
+      }
+    },
+    {
+      "step_id": 2,
+      "type": "Development",
+      "status": "COMPLETED",
+      "title": "Create Structure Analysis Prompt",
+      "description": "Create backend/src/prompts/structureAnalysisPrompt.ts. Define the system prompt that instructs the LLM to extract hierarchy levels (1-5) and 'punching messages' from text.",
+      "files_to_touch": ["backend/src/prompts/structureAnalysisPrompt.ts"],
+      "verification": {
+        "type": "Static Analysis",
+        "command": "npm run lint"
+      }
+    },
+    {
+      "step_id": 3,
+      "type": "Implementation",
+      "status": "COMPLETED",
+      "title": "Implement AI-Enhanced Visualization Logic",
+      "description": "Modify backend/src/services/visualization/visualizationGenerator.ts. 1) Make generateStructuredView async. 2) Implement LLM call using the new prompt. 3) Implement 'reconstructHierarchy' stack-based algorithm. 4) Add fallback to regex parser on failure.",
+      "files_to_touch": [
+        "backend/src/services/visualization/visualizationGenerator.ts"
+      ],
+      "verification": {
+        "type": "Unit Test",
+        "scenarios": [
+          "Case: reconstructHierarchy correctly builds tree from flat list [TEST-003]",
+          "Case: generateStructuredView returns correct structure on success [TEST-001]",
+          "Case: generateStructuredView falls back to regex on error [TEST-002]"
+        ]
+      }
+    },
+    {
+      "step_id": 4,
+      "type": "Development",
+      "status": "COMPLETED",
+      "title": "Update StructuredViewRenderer",
+      "description": "Update frontend/src/components/visualizations/StructuredViewRenderer.tsx to check for 'punchingMessage' in the node metadata. Display it as a 'Core Insight' in the details panel.",
+      "files_to_touch": [
+        "frontend/src/components/visualizations/StructuredViewRenderer.tsx"
+      ],
+      "verification": {
+        "type": "Component Test",
+        "scenarios": [
+          "Case: Renders 'Core Insight' when punchingMessage is present [TEST-004]",
+          "Case: Renders standard summary when punchingMessage is missing [TEST-005]"
+        ]
+      }
+    },
+    {
+      "step_id": 5,
+      "type": "System Smoke Test",
+      "status": "PENDING",
+      "title": "System Smoke Test",
+      "description": "Build the backend and frontend, start the server, and verify the health endpoint to ensure no runtime configuration errors.",
+      "files_to_touch": [],
+      "verification": {
+        "type": "Manual/Scripted",
+        "command": "npm run build && npm start"
+      }
+    }
+  ]
+}

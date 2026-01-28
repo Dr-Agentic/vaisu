@@ -1,0 +1,99 @@
+{
+  "metadata": {
+    "agent": "Daisy",
+    "created_at": "2026-01-27T11:55:00Z",
+    "source_reqs_file": "2026-01-27-02-rearchy-reqs-structured-view-ai.json"
+  },
+  "design": {
+    "overview": "Enhance Structured View by using LLM to extract a logical hierarchy and 'Punching Messages' (core insights), replacing the simple regex-based parser. The solution integrates with the existing Visualization Service and falls back to the original structure if AI generation fails.",
+    "decisions": [
+      {
+        "topic": "Data Model Extension",
+        "decision": "Add optional 'punchingMessage' field to Section interface in shared types.",
+        "rationale": "Avoids breaking existing clients while allowing the frontend to progressively enhance the UI with the new data."
+      },
+      {
+        "topic": "Hierarchy Reconstruction",
+        "decision": "Implement custom 'reconstructHierarchy' algorithm using a stack-based approach.",
+        "rationale": "LLM returns a flat list with levels (1-5). A stack is the most efficient way to rebuild the tree structure from a linear stream of depth-annotated items."
+      },
+      {
+        "topic": "Async Visualization",
+        "decision": "Convert generateStructuredView to async and update call chain.",
+        "rationale": "LLM calls are asynchronous. This aligns with other visualization types."
+      },
+      {
+        "topic": "Frontend Rendering",
+        "decision": "Modify StructuredViewRenderer to check for 'punchingMessage' in metadata.",
+        "rationale": "Allows displaying the new insight without creating a completely new component, maintaining visual consistency."
+      }
+    ],
+    "components": [
+      {
+        "name": "structureAnalysisPrompt.ts",
+        "type": "New",
+        "path": "backend/src/prompts/structureAnalysisPrompt.ts",
+        "responsibilities": "Defines the specific prompt to instruct the LLM to extract hierarchy and punching messages.",
+        "interface_changes": "N/A (New File)"
+      },
+      {
+        "name": "visualizationGenerator.ts",
+        "type": "Modified",
+        "path": "backend/src/services/visualization/visualizationGenerator.ts",
+        "responsibilities": "Orchestrates the visualization generation. Now handles 'structured-view' asynchronously via OpenRouter.",
+        "interface_changes": "generateStructuredView becomes async. Added private methods reconstructHierarchy and buildHierarchyNodes."
+      },
+      {
+        "name": "StructuredViewRenderer.tsx",
+        "type": "Modified",
+        "path": "frontend/src/components/visualizations/StructuredViewRenderer.tsx",
+        "responsibilities": "Renders the interactive node tree. Updated to display 'Core Insight' from punchingMessage.",
+        "interface_changes": "Updated mapSectionToNode to include punchingMessage in metadata."
+      },
+      {
+        "name": "types.ts",
+        "type": "Modified",
+        "path": "shared/src/types.ts",
+        "responsibilities": "Shared data models.",
+        "interface_changes": "Added optional 'punchingMessage' to Section interface."
+      }
+    ]
+  },
+  "test_plan": [
+    {
+      "id": "TEST-001",
+      "target_component": "visualizationGenerator.generateStructuredView",
+      "scenario": "Successful AI Generation",
+      "input": "Document with unstructured text",
+      "expected_outcome": "Returns 'structured-view' type with nested sections containing 'punchingMessage'. Hierarchy matches LLM levels."
+    },
+    {
+      "id": "TEST-002",
+      "target_component": "visualizationGenerator.generateStructuredView",
+      "scenario": "LLM Failure (Fallback)",
+      "input": "Simulated API Error",
+      "expected_outcome": "Returns regex-based structure (original implementation) without crashing. Error logged."
+    },
+    {
+      "id": "TEST-003",
+      "target_component": "visualizationGenerator.reconstructHierarchy",
+      "scenario": "Complex Nesting",
+      "input": "Flat list: [L1, L2, L2, L3, L1]",
+      "expected_outcome": "Tree: L1 -> [L2, L2 -> [L3]], L1. Correct parent-child relationships."
+    },
+    {
+      "id": "TEST-004",
+      "target_component": "StructuredViewRenderer",
+      "scenario": "Rendering New Data",
+      "input": "Section with punchingMessage",
+      "expected_outcome": "Details panel displays 'Core Insight' section with the message."
+    },
+    {
+      "id": "TEST-005",
+      "target_component": "StructuredViewRenderer",
+      "scenario": "Rendering Legacy Data",
+      "input": "Section without punchingMessage",
+      "expected_outcome": "Details panel renders standard summary only, no 'Core Insight' header."
+    }
+  ]
+}
