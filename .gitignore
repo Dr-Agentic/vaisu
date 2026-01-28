@@ -38,6 +38,10 @@ Thumbs.db
 # Experiments
 experiments/
 
+# Aider
+.aider*
+.aider.tags.cache.v4/
+
 # Misc
 .cache/
 .temp/
