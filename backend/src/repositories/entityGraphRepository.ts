@@ -1,8 +1,8 @@
-import { PutCommand, GetCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, GetCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
-import { dynamoDBClient, DYNAMODB_ENTITY_GRAPH_TABLE } from "../config/aws.js";
+import { dynamoDBClient, DYNAMODB_ENTITY_GRAPH_TABLE } from '../config/aws.js';
 
-import type { VisualizationRecord } from "./types.js";
+import type { VisualizationRecord } from './types.js';
 
 /**
  * Create new entity graph visualization record
@@ -12,7 +12,7 @@ export async function create(entityGraph: VisualizationRecord): Promise<void> {
     TableName: DYNAMODB_ENTITY_GRAPH_TABLE,
     Item: {
       ...entityGraph,
-      SK: "ENTITY_GRAPH",
+      SK: 'ENTITY_GRAPH',
     },
   });
 
@@ -29,7 +29,7 @@ export async function findByDocumentId(
     TableName: DYNAMODB_ENTITY_GRAPH_TABLE,
     Key: {
       documentId,
-      SK: "ENTITY_GRAPH",
+      SK: 'ENTITY_GRAPH',
     },
   });
 
@@ -53,7 +53,7 @@ export async function update(
     TableName: DYNAMODB_ENTITY_GRAPH_TABLE,
     Item: {
       documentId,
-      SK: "ENTITY_GRAPH",
+      SK: 'ENTITY_GRAPH',
       ...updates,
       updatedAt: new Date().toISOString(),
     },
@@ -70,7 +70,7 @@ export async function deleteEntityGraph(documentId: string): Promise<void> {
     TableName: DYNAMODB_ENTITY_GRAPH_TABLE,
     Key: {
       documentId,
-      SK: "ENTITY_GRAPH",
+      SK: 'ENTITY_GRAPH',
     },
   });
 

@@ -1,6 +1,7 @@
-import { DEPTH_ANALYSIS_PROMPT } from "../../prompts/depthAnalysisPrompt.js";
-import { STRUCTURE_ANALYSIS_PROMPT } from "../../prompts/structureAnalysisPrompt.js";
-import { visualizationService } from "../../repositories/visualizationService.js";
+import { DEPTH_ANALYSIS_PROMPT } from '../../prompts/depthAnalysisPrompt.js';
+import { ENTITY_GRAPH_PROMPT } from '../../prompts/entityGraphPrompt.js';
+import { STRUCTURE_ANALYSIS_PROMPT } from '../../prompts/structureAnalysisPrompt.js';
+import { visualizationService } from '../../repositories/visualizationService.js';
 
 import type {
   Document,
@@ -25,14 +26,13 @@ import type {
   ArgumentPolarity,
   DepthGraphData,
   EntityGraphData,
-} from "../../../../shared/src/types.js";
-import { ENTITY_GRAPH_PROMPT } from "../../prompts/entityGraphPrompt.js";
+} from '../../../../shared/src/types.js';
 
 // Internal types for LLM extraction
 interface UMLExtractionResult {
   classes: {
     name: string;
-    type?: "class" | "interface" | "abstract" | "enum";
+    type?: 'class' | 'interface' | 'abstract' | 'enum';
     stereotype?: string;
     package?: string;
     description?: string;
@@ -40,14 +40,14 @@ interface UMLExtractionResult {
     attributes?: {
       name: string;
       type: string;
-      visibility: "public" | "private" | "protected" | "package";
+      visibility: 'public' | 'private' | 'protected' | 'package';
       isStatic: boolean;
       defaultValue?: string;
     }[];
     methods?: {
       name: string;
       returnType: string;
-      visibility: "public" | "private" | "protected" | "package";
+      visibility: 'public' | 'private' | 'protected' | 'package';
       isStatic: boolean;
       isAbstract: boolean;
       parameters: { name: string; type: string; defaultValue?: string }[];
@@ -57,12 +57,12 @@ interface UMLExtractionResult {
     source: string;
     target: string;
     type:
-      | "inheritance"
-      | "realization"
-      | "composition"
-      | "aggregation"
-      | "association"
-      | "dependency";
+      | 'inheritance'
+      | 'realization'
+      | 'composition'
+      | 'aggregation'
+      | 'association'
+      | 'dependency';
     sourceMultiplicity?: string;
     targetMultiplicity?: string;
     sourceRole?: string;
@@ -88,9 +88,9 @@ export class VisualizationGenerator {
       // First, check if visualization already exists in DynamoDB (skip for structured-view as it's stored in analyses table)
       // If force is true, skip this check to regenerate
       let existingVisualization = null;
-      if (!force && type !== "structured-view") {
-        existingVisualization =
-          await visualizationService.findByDocumentIdAndType(document.id, type);
+      if (!force && type !== 'structured-view') {
+        existingVisualization
+          = await visualizationService.findByDocumentIdAndType(document.id, type);
       }
 
       if (existingVisualization) {
@@ -116,7 +116,7 @@ export class VisualizationGenerator {
       // Generate visualization based on type
       let visualizationData: any;
       const llmMetadata = {
-        model: "unknown",
+        model: 'unknown',
         tokensUsed: 0,
         processingTime: 0,
         timestamp: new Date().toISOString(),
@@ -125,74 +125,74 @@ export class VisualizationGenerator {
       const startTime = Date.now();
 
       switch (type) {
-        case "structured-view":
+        case 'structured-view':
           console.log(
             `🎯 Generating structured-view visualization for document ${document.id}`,
           );
           visualizationData = await this.generateStructuredView(document);
-          console.log("✅ Structured-view generation completed");
+          console.log('✅ Structured-view generation completed');
           break;
 
-        case "mind-map":
+        case 'mind-map':
           visualizationData = await this.generateMindMap(document, analysis);
-          llmMetadata.model = "mind-map-generation";
+          llmMetadata.model = 'mind-map-generation';
           break;
 
-        case "flowchart":
+        case 'flowchart':
           visualizationData = this.generateFlowchart(document, analysis);
           break;
 
-        case "knowledge-graph":
+        case 'knowledge-graph':
           visualizationData = await this.generateKnowledgeGraph(
             document,
             analysis,
           );
-          llmMetadata.model = "knowledge-graph-generation";
+          llmMetadata.model = 'knowledge-graph-generation';
           break;
 
-        case "executive-dashboard":
+        case 'executive-dashboard':
           visualizationData = this.generateDashboard(analysis);
           break;
 
-        case "timeline":
+        case 'timeline':
           visualizationData = this.generateTimeline(document, analysis);
           break;
 
-        case "terms-definitions":
+        case 'terms-definitions':
           visualizationData = await this.generateTermsDefinitions(
             document,
             analysis,
           );
-          llmMetadata.model = "glossary-generation";
+          llmMetadata.model = 'glossary-generation';
           break;
 
-        case "uml-class-diagram":
+        case 'uml-class-diagram':
           visualizationData = await this.generateUMLClassDiagram(
             document,
             analysis,
           );
-          llmMetadata.model = "uml-extraction";
+          llmMetadata.model = 'uml-extraction';
           break;
 
-        case "argument-map":
+        case 'argument-map':
           visualizationData = await this.generateArgumentMap(
             document,
             analysis,
           );
-          llmMetadata.model = "argument-map-generation";
+          llmMetadata.model = 'argument-map-generation';
           break;
 
-        case "depth-graph":
+        case 'depth-graph':
           visualizationData = await this.generateDepthGraph(document, analysis);
-          llmMetadata.model = "depth-analysis";
+          llmMetadata.model = 'depth-analysis';
           break;
 
-        case "entity-graph":
+        case 'entity-graph':
           visualizationData = await this.generateEntityGraph(
             document,
             analysis,
           );
-          llmMetadata.model = "entityGraphGeneration";
+          llmMetadata.model = 'entityGraphGeneration';
           break;
 
         default:
@@ -203,7 +203,7 @@ export class VisualizationGenerator {
       llmMetadata.processingTime = Date.now() - startTime;
 
       // Store the generated visualization in DynamoDB (skip for structured-view as it's stored in analyses table)
-      if (type !== "structured-view") {
+      if (type !== 'structured-view') {
         const visualizationRecord = {
           documentId: document.id,
           visualizationType: type,
@@ -226,7 +226,7 @@ export class VisualizationGenerator {
         error,
       );
       throw new Error(
-        `Failed to generate ${type} visualization: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Failed to generate ${type} visualization: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }
@@ -235,15 +235,15 @@ export class VisualizationGenerator {
     console.log(
       `🏗️ generateStructuredView called for document: ${document.title}`,
     );
-    console.log("📊 Document structure:", {
+    console.log('📊 Document structure:', {
       sectionsCount: document.structure.sections.length,
       hierarchyLength: document.structure.hierarchy.length,
-      totalLines: document.content.split("\n").length,
+      totalLines: document.content.split('\n').length,
     });
 
     try {
-      const { getOpenRouterClient } =
-        await import("../llm/openRouterClient.js");
+      const { getOpenRouterClient }
+        = await import('../llm/openRouterClient.js');
       const llmClient = getOpenRouterClient();
 
       // Prepare content for LLM
@@ -251,7 +251,7 @@ export class VisualizationGenerator {
       const prompt = `${STRUCTURE_ANALYSIS_PROMPT}\n\nDocument Title: ${document.title}\n\nContent:\n${contentSample}`;
 
       const response = await llmClient.callWithFallback(
-        "sectionSummary",
+        'sectionSummary',
         prompt,
       );
 
@@ -273,28 +273,28 @@ export class VisualizationGenerator {
         const hierarchy = this.buildHierarchyNodes(sections);
 
         const result = {
-          type: "structured-view",
+          type: 'structured-view',
           sections,
           hierarchy,
         };
 
-        console.log("✅ Structured-view generation completed (AI-enhanced)", {
+        console.log('✅ Structured-view generation completed (AI-enhanced)', {
           sectionsCount: sections.length,
         });
 
         return result;
       }
 
-      throw new Error("Empty or invalid response from LLM");
+      throw new Error('Empty or invalid response from LLM');
     } catch (error) {
       console.error(
-        "❌ Structured View AI generation failed, falling back to regex parser:",
+        '❌ Structured View AI generation failed, falling back to regex parser:',
         error,
       );
 
       // Fallback to existing structure
       return {
-        type: "structured-view",
+        type: 'structured-view',
         sections: document.structure.sections,
         hierarchy: document.structure.hierarchy,
       };
@@ -317,11 +317,11 @@ export class VisualizationGenerator {
         id: `sec-ai-${index}-${Date.now()}`,
         level: item.level,
         title: item.title,
-        content: "", // LLM doesn't extract full content
+        content: '', // LLM doesn't extract full content
         startIndex: startIndex !== -1 ? startIndex : 0,
         endIndex: startIndex !== -1 ? startIndex + item.title.length : 0,
-        summary: item.summary || "",
-        punchingMessage: item.punching_message || "",
+        summary: item.summary || '',
+        punchingMessage: item.punching_message || '',
         keywords: [], // Could extract if prompted
         children: [],
       };
@@ -333,8 +333,8 @@ export class VisualizationGenerator {
         // Find the correct parent for this level
         // Stack contains open sections. We pop until we find a parent with level < current level.
         while (
-          stack.length > 0 &&
-          stack[stack.length - 1].level >= section.level
+          stack.length > 0
+          && stack[stack.length - 1].level >= section.level
         ) {
           stack.pop();
         }
@@ -367,7 +367,7 @@ export class VisualizationGenerator {
     analysis: DocumentAnalysis,
   ): Promise<MindMapData> {
     // Use LLM to generate a meaningful mind map structure
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     try {
@@ -376,7 +376,7 @@ export class VisualizationGenerator {
       const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}`;
 
       const response = await llmClient.callWithFallback(
-        "mindMapGeneration",
+        'mindMapGeneration',
         prompt,
       );
 
@@ -389,59 +389,59 @@ export class VisualizationGenerator {
 
         return {
           root,
-          layout: "radial",
+          layout: 'radial',
           theme: {
-            primary: "#4F46E5",
-            secondary: "#7C3AED",
-            accent: "#10B981",
-            background: "#FFFFFF",
-            text: "#1F2937",
+            primary: '#4F46E5',
+            secondary: '#7C3AED',
+            accent: '#10B981',
+            background: '#FFFFFF',
+            text: '#1F2937',
           },
         };
       }
     } catch (error) {
-      console.error("LLM mind map generation failed:", error);
+      console.error('LLM mind map generation failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate mind map visualization. Please check your document content and try again. If the issue persists, the document may not contain sufficient structure for visualization.",
+      'Unable to generate mind map visualization. Please check your document content and try again. If the issue persists, the document may not contain sufficient structure for visualization.',
     );
   }
 
   private convertLLMNodeToMindMapNode(node: any, level: number): any {
     const colors = [
-      "#4F46E5",
-      "#7C3AED",
-      "#10B981",
-      "#F59E0B",
-      "#EF4444",
-      "#EC4899",
-      "#06B6D4",
+      '#4F46E5',
+      '#7C3AED',
+      '#10B981',
+      '#F59E0B',
+      '#EF4444',
+      '#EC4899',
+      '#06B6D4',
     ];
     const colorIndex = level % colors.length;
 
     // Fallback emojis if LLM doesn't provide one
-    const fallbackEmojis = ["📄", "📊", "🔧", "💡", "🌐", "📈", "⚙️"];
+    const fallbackEmojis = ['📄', '📊', '🔧', '💡', '🌐', '📈', '⚙️'];
 
     return {
       id: node.id || `node-${Math.random().toString(36).substr(2, 9)}`,
-      label: node.label || "Untitled",
-      subtitle: node.subtitle || (node.summary || "").substring(0, 40),
+      label: node.label || 'Untitled',
+      subtitle: node.subtitle || (node.summary || '').substring(0, 40),
       icon: node.icon || fallbackEmojis[level % fallbackEmojis.length],
-      summary: node.summary || "",
+      summary: node.summary || '',
       detailedExplanation:
-        node.detailedExplanation ||
-        node.summary ||
-        "No additional details available.",
+        node.detailedExplanation
+        || node.summary
+        || 'No additional details available.',
       sourceTextExcerpt: node.sourceTextExcerpt,
       children: (node.children || []).map((child: any) =>
         this.convertLLMNodeToMindMapNode(child, level + 1),
       ),
       level,
       color: colors[colorIndex],
-      sourceRef: { start: 0, end: 0, text: "" },
+      sourceRef: { start: 0, end: 0, text: '' },
       metadata: {
         importance: node.importance || Math.max(0.3, 0.9 - level * 0.15),
         confidence: 0.85,
@@ -451,20 +451,20 @@ export class VisualizationGenerator {
 
   private convertSectionsToMindMapNodes(sections: any[], level: number): any[] {
     const colors = [
-      "#4F46E5",
-      "#7C3AED",
-      "#10B981",
-      "#F59E0B",
-      "#EF4444",
-      "#EC4899",
-      "#06B6D4",
+      '#4F46E5',
+      '#7C3AED',
+      '#10B981',
+      '#F59E0B',
+      '#EF4444',
+      '#EC4899',
+      '#06B6D4',
     ];
-    const fallbackEmojis = ["📊", "🔧", "💡", "🌐", "📈", "⚙️", "🏗️"];
+    const fallbackEmojis = ['📊', '🔧', '💡', '🌐', '📈', '⚙️', '🏗️'];
 
     return sections.map((section, index) => {
       const colorIndex = level % colors.length;
-      const summary =
-        section.summary || `${section.content.substring(0, 100)}...`;
+      const summary
+        = section.summary || `${section.content.substring(0, 100)}...`;
 
       return {
         id: section.id,
@@ -502,12 +502,12 @@ export class VisualizationGenerator {
       id: section.id,
       type:
         index === 0
-          ? "start"
+          ? 'start'
           : index === document.structure.sections.length - 1
-            ? "end"
-            : ("process" as any),
+            ? 'end'
+            : ('process' as any),
       label: section.title,
-      description: section.summary || "",
+      description: section.summary || '',
       position: { x: 100, y: 100 + index * 150 },
     }));
 
@@ -517,14 +517,14 @@ export class VisualizationGenerator {
         id: `edge-${i}`,
         source: nodes[i].id,
         target: nodes[i + 1].id,
-        type: "solid" as any,
+        type: 'solid' as any,
       });
     }
 
     return {
       nodes,
       edges,
-      layout: "topToBottom",
+      layout: 'topToBottom',
     };
   }
 
@@ -533,9 +533,9 @@ export class VisualizationGenerator {
     analysis: DocumentAnalysis,
   ): Promise<KnowledgeGraphData> {
     // Use LLM to generate a comprehensive knowledge graph
-    const { getOpenRouterClient, OpenRouterClient } =
-      await import("../llm/openRouterClient.js");
-    const { MODEL_CONFIGS } = await import("../../config/modelConfig.js");
+    const { getOpenRouterClient, OpenRouterClient }
+      = await import('../llm/openRouterClient.js');
+    const { MODEL_CONFIGS } = await import('../../config/modelConfig.js');
     const llmClient = getOpenRouterClient();
 
     try {
@@ -572,11 +572,11 @@ Schema:
       );
 
       const response = await llmClient.call({
-        model: MODEL_CONFIGS["knowledge-graph-generation"].primary,
+        model: MODEL_CONFIGS['knowledge-graph-generation'].primary,
         messages: [
-          { role: "system", content: systemPrompt },
+          { role: 'system', content: systemPrompt },
           {
-            role: "user",
+            role: 'user',
             content: `Document Title: ${document.title}\n\n${compressedContent}\n\nExtract 15-50 entities and 20-60 relationships. Focus on meaningful connections.`,
           },
         ],
@@ -595,15 +595,15 @@ Schema:
         // Convert LLM nodes to knowledge graph structure
         const nodes = parsed.nodes.map((node: any, index: number) => ({
           id: node.id || `node-${index}`,
-          label: node.label || "Untitled",
-          type: node.type || "concept",
+          label: node.label || 'Untitled',
+          type: node.type || 'concept',
           size: node.size || Math.max(20, node.importance * 50 + 20) || 70,
           color: node.color || this.getEntityColor(node.type),
           metadata: {
             centrality: node.importance || 0.5,
             connections: 0,
-            description: node.description || "",
-            sourceQuote: node.sourceQuote || "",
+            description: node.description || '',
+            sourceQuote: node.sourceQuote || '',
             sourceSpan: node.sourceSpan || undefined,
           },
         }));
@@ -614,9 +614,9 @@ Schema:
             id: rel.id || `rel-${index}`,
             source: rel.source,
             target: rel.target,
-            type: rel.type || "relates-to",
+            type: rel.type || 'relates-to',
             strength: rel.strength || 0.5,
-            label: rel.label || rel.type || "relates-to",
+            label: rel.label || rel.type || 'relates-to',
             evidence: rel.evidence || [],
           }))
           .filter((edge: any) => edge.source && edge.target);
@@ -665,18 +665,18 @@ Schema:
         };
       }
     } catch (error) {
-      console.error("LLM knowledge graph generation failed:", error);
+      console.error('LLM knowledge graph generation failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate knowledge graph visualization. Please check your document content and try again. The document may not contain sufficient structure for knowledge graph generation.",
+      'Unable to generate knowledge graph visualization. Please check your document content and try again. The document may not contain sufficient structure for knowledge graph generation.',
     );
   }
 
   private extractSourceQuote(entity: Entity, document?: Document): string {
-    if (!document || entity.mentions.length === 0) return "";
+    if (!document || entity.mentions.length === 0) return '';
 
     const mention = entity.mentions[0];
     // Extract surrounding context (50 chars before/after)
@@ -739,8 +739,8 @@ Schema:
   private generateDashboard(analysis: DocumentAnalysis): DashboardData {
     const charts: any[] = [
       {
-        type: "bar",
-        title: "Key Metrics",
+        type: 'bar',
+        title: 'Key Metrics',
         data: analysis.executiveSummary.kpis.map((kpi) => ({
           name: kpi.label,
           value: kpi.value,
@@ -751,8 +751,8 @@ Schema:
     // Add Signals Chart if available
     if (analysis.signals) {
       charts.push({
-        type: "radar",
-        title: "Document DNA",
+        type: 'radar',
+        title: 'Document DNA',
         data: Object.entries(analysis.signals).map(([key, value]) => ({
           subject: key.charAt(0).toUpperCase() + key.slice(1),
           A: value,
@@ -773,20 +773,20 @@ Schema:
     analysis: DocumentAnalysis,
   ): TimelineData {
     // Extract dates from entities
-    const dateEntities = analysis.entities.filter((e) => e.type === "date");
+    const dateEntities = analysis.entities.filter((e) => e.type === 'date');
 
     const events = dateEntities.map((entity, index) => ({
       id: `event-${index}`,
       title: entity.text,
-      description: entity.context || "",
+      description: entity.context || '',
       date: new Date(), // TODO: parse actual date
-      category: "general",
-      color: "#4F46E5",
+      category: 'general',
+      color: '#4F46E5',
     }));
 
     return {
       events,
-      scale: "month",
+      scale: 'month',
     };
   }
 
@@ -794,7 +794,7 @@ Schema:
     document: Document,
     analysis: DocumentAnalysis,
   ): Promise<TermsDefinitionsData> {
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     try {
@@ -802,7 +802,7 @@ Schema:
       const contentSample = document.content.substring(0, 10000);
       const prompt = `Document Title: ${document.title}\n\nTLDR: ${analysis.tldr}\n\nContent:\n${contentSample}\n\nExtract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as raw JSON array with format (no markdown): { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }`;
 
-      const response = await llmClient.callWithFallback("glossary", prompt);
+      const response = await llmClient.callWithFallback('glossary', prompt);
       const parsed = llmClient.parseJSONResponse<{
         terms: any[];
         domain?: string;
@@ -813,9 +813,9 @@ Schema:
         const sortedTerms = parsed.terms
           .map((t, index) => ({
             id: `term-${index}`,
-            term: t.term || t.text || "Unknown",
-            definition: t.definition || "No definition provided",
-            type: t.type || "concept",
+            term: t.term || t.text || 'Unknown',
+            definition: t.definition || 'No definition provided',
+            type: t.type || 'concept',
             confidence: t.confidence || 0.8,
             mentions: t.mentions || 1,
             context: t.context,
@@ -827,18 +827,18 @@ Schema:
           metadata: {
             totalTerms: sortedTerms.length,
             extractionConfidence: 0.85,
-            documentDomain: parsed.domain || "general",
+            documentDomain: parsed.domain || 'general',
           },
         };
       }
     } catch (error) {
-      console.error("LLM glossary extraction failed:", error);
+      console.error('LLM glossary extraction failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate terms and definitions visualization. Please check your document content and try again. The document may not contain enough technical terms for extraction.",
+      'Unable to generate terms and definitions visualization. Please check your document content and try again. The document may not contain enough technical terms for extraction.',
     );
   }
 
@@ -846,13 +846,13 @@ Schema:
     document: Document,
     analysis: DocumentAnalysis,
   ): Promise<UMLDiagramData> {
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     // Prepare context
     const contentSample = document.content.substring(0, 15000);
-    const tldrText =
-      typeof analysis.tldr === "string" ? analysis.tldr : analysis.tldr.text;
+    const tldrText
+      = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
     const prompt = this.buildUMLExtractionPrompt(
       document,
       analysis,
@@ -861,7 +861,7 @@ Schema:
 
     try {
       const response = await llmClient.callWithFallback(
-        "uml-extraction",
+        'uml-extraction',
         prompt,
       );
       const parsed = llmClient.parseJSONResponse<UMLExtractionResult>(response);
@@ -870,13 +870,13 @@ Schema:
         return this.processUMLExtraction(parsed, document);
       }
     } catch (error) {
-      console.error("LLM UML extraction failed:", error);
+      console.error('LLM UML extraction failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate UML class diagram visualization. Please check your document content and try again. The document may not contain sufficient software architecture information for UML extraction.",
+      'Unable to generate UML class diagram visualization. Please check your document content and try again. The document may not contain sufficient software architecture information for UML extraction.',
     );
   }
 
@@ -885,8 +885,8 @@ Schema:
     analysis: DocumentAnalysis,
     content: string,
   ): string {
-    const tldrText =
-      typeof analysis.tldr === "string" ? analysis.tldr : analysis.tldr.text;
+    const tldrText
+      = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
     return `Document Title: ${document.title}
 TLDR: ${tldrText}
@@ -914,7 +914,7 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
     const classes: ClassEntity[] = parsed.classes.map((cls, index) => ({
       id: `class-${index}`,
       name: cls.name,
-      type: cls.type || "class",
+      type: cls.type || 'class',
       stereotype: cls.stereotype,
       package: cls.package,
       attributes: (cls.attributes || []).map((attr, attrIndex) => ({
@@ -925,9 +925,9 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
         ...method,
         id: `method-${index}-${methodIndex}`,
       })),
-      description: cls.description || "",
-      sourceQuote: cls.sourceQuote || "",
-      sourceSpan: this.findTextSpan(document.content, cls.sourceQuote || ""),
+      description: cls.description || '',
+      sourceQuote: cls.sourceQuote || '',
+      sourceSpan: this.findTextSpan(document.content, cls.sourceQuote || ''),
       documentLink: `#document-${document.id}`,
     }));
 
@@ -957,16 +957,16 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
           sourceRole: rel.sourceRole,
           targetRole: rel.targetRole,
           label: rel.label,
-          description: rel.description || "",
-          sourceQuote: rel.evidence || "",
-          evidence: [rel.evidence || ""],
+          description: rel.description || '',
+          sourceQuote: rel.evidence || '',
+          evidence: [rel.evidence || ''],
         };
       })
       .filter((rel): rel is UMLRelationship => rel !== null);
 
     // Process packages
-    const packages: Package[] =
-      parsed.packages?.map((pkg, index) => ({
+    const packages: Package[]
+      = parsed.packages?.map((pkg, index) => ({
         id: `pkg-${index}`,
         name: pkg.name,
         classes: pkg.classes
@@ -1004,22 +1004,22 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
 
   private getPackageColor(index: number): string {
     const colors = [
-      "#DBEAFE",
-      "#FEE2E2",
-      "#D1FAE5",
-      "#FEF3C7",
-      "#E0E7FF",
-      "#FCE7F3",
+      '#DBEAFE',
+      '#FEE2E2',
+      '#D1FAE5',
+      '#FEF3C7',
+      '#E0E7FF',
+      '#FCE7F3',
     ];
     return colors[index % colors.length];
   }
 
   private detectDomain(content: string): string {
     const keywords = {
-      web: ["http", "api", "rest", "endpoint", "controller"],
-      database: ["table", "query", "repository", "entity", "orm"],
-      business: ["service", "transaction", "workflow", "process"],
-      ui: ["component", "view", "render", "template", "widget"],
+      web: ['http', 'api', 'rest', 'endpoint', 'controller'],
+      database: ['table', 'query', 'repository', 'entity', 'orm'],
+      business: ['service', 'transaction', 'workflow', 'process'],
+      ui: ['component', 'view', 'render', 'template', 'widget'],
     };
 
     const lowerContent = content.toLowerCase();
@@ -1029,20 +1029,20 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
     }));
 
     scores.sort((a, b) => b.score - a.score);
-    return scores[0]?.domain || "general";
+    return scores[0]?.domain || 'general';
   }
 
   private async generateDepthGraph(
     document: Document,
     analysis: DocumentAnalysis,
   ): Promise<DepthGraphData> {
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     // Prepare context
     const contentSample = document.content.substring(0, 15000);
-    const tldrText =
-      typeof analysis.tldr === "string" ? analysis.tldr : analysis.tldr.text;
+    const tldrText
+      = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
     const prompt = `${DEPTH_ANALYSIS_PROMPT}
 
@@ -1056,7 +1056,7 @@ ${contentSample}
 
     try {
       const response = await llmClient.callWithFallback(
-        "depthAnalysis",
+        'depthAnalysis',
         prompt,
       );
       const parsed = llmClient.parseJSONResponse<DepthGraphData>(response);
@@ -1065,13 +1065,13 @@ ${contentSample}
         return parsed;
       }
     } catch (error) {
-      console.error("LLM depth graph generation failed:", error);
+      console.error('LLM depth graph generation failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate depth graph visualization. Please check your document content and try again.",
+      'Unable to generate depth graph visualization. Please check your document content and try again.',
     );
   }
 
@@ -1079,13 +1079,13 @@ ${contentSample}
     document: Document,
     analysis: DocumentAnalysis,
   ): Promise<EntityGraphData> {
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     // Prepare context
     const contentSample = document.content.substring(0, 15000);
-    const tldrText =
-      typeof analysis.tldr === "string" ? analysis.tldr : analysis.tldr.text;
+    const tldrText
+      = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
     const prompt = `${ENTITY_GRAPH_PROMPT}
 
@@ -1099,7 +1099,7 @@ ${contentSample}
 
     try {
       const response = await llmClient.callWithFallback(
-        "entityGraphGeneration",
+        'entityGraphGeneration',
         prompt,
       );
       const parsed = llmClient.parseJSONResponse<EntityGraphData>(response);
@@ -1108,40 +1108,40 @@ ${contentSample}
         return parsed;
       }
     } catch (error) {
-      console.error("LLM entity graph generation failed:", error);
+      console.error('LLM entity graph generation failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate entity graph visualization. Please check your document content and try again.",
+      'Unable to generate entity graph visualization. Please check your document content and try again.',
     );
   }
 
-  private mapRelationshipType(type: string): UMLRelationship["type"] {
-    const mapping: Record<string, UMLRelationship["type"]> = {
-      extends: "inheritance",
-      implements: "realization",
-      contains: "composition",
-      has: "aggregation",
-      uses: "dependency",
-      "relates-to": "association",
+  private mapRelationshipType(type: string): UMLRelationship['type'] {
+    const mapping: Record<string, UMLRelationship['type']> = {
+      extends: 'inheritance',
+      implements: 'realization',
+      contains: 'composition',
+      has: 'aggregation',
+      uses: 'dependency',
+      'relates-to': 'association',
     };
 
-    return mapping[type] || "association";
+    return mapping[type] || 'association';
   }
 
   private async generateArgumentMap(
     _document: Document,
     _analysis: DocumentAnalysis,
   ): Promise<ArgumentMapData> {
-    const { getOpenRouterClient } = await import("../llm/openRouterClient.js");
+    const { getOpenRouterClient } = await import('../llm/openRouterClient.js');
     const llmClient = getOpenRouterClient();
 
     // Prepare context
     const contentSample = _document.content.substring(0, 12000);
-    const tldrText =
-      typeof _analysis.tldr === "string" ? _analysis.tldr : _analysis.tldr.text;
+    const tldrText
+      = typeof _analysis.tldr === 'string' ? _analysis.tldr : _analysis.tldr.text;
 
     const prompt = `Document Title: ${_document.title}
 TLDR: ${tldrText}
@@ -1188,7 +1188,7 @@ Node Schema:
 
     try {
       const response = await llmClient.callWithFallback(
-        "argumentMapGeneration",
+        'argumentMapGeneration',
         prompt,
       );
       const parsed = llmClient.parseJSONResponse<{
@@ -1205,12 +1205,12 @@ Node Schema:
         // Ensure all nodes have required fields
         const nodes: ArgumentNode[] = parsed.nodes.map((node, index) => ({
           id: node.id || `node-${index}`,
-          type: node.type || "claim",
-          label: node.label || "Untitled",
-          summary: node.summary || "",
-          polarity: node.polarity || "neutral",
+          type: node.type || 'claim',
+          label: node.label || 'Untitled',
+          summary: node.summary || '',
+          polarity: node.polarity || 'neutral',
           confidence: node.confidence ?? 0.8,
-          impact: node.impact || "medium",
+          impact: node.impact || 'medium',
           depthMetrics: node.depthMetrics,
           source: node.source,
           parentId: node.parentId,
@@ -1223,7 +1223,7 @@ Node Schema:
             id: edge.id || `edge-${index}`,
             source: edge.source,
             target: edge.target,
-            type: edge.type || "supports",
+            type: edge.type || 'supports',
             strength: edge.strength ?? 0.8,
             rationale: edge.rationale,
           }),
@@ -1233,35 +1233,35 @@ Node Schema:
           nodes,
           edges,
           metadata: parsed.metadata || {
-            mainClaimId: nodes.length > 0 ? nodes[0].id : "",
-            totalClaims: nodes.filter((n) => n.type === "claim").length,
-            totalEvidence: nodes.filter((n) => n.type === "evidence").length,
+            mainClaimId: nodes.length > 0 ? nodes[0].id : '',
+            totalClaims: nodes.filter((n) => n.type === 'claim').length,
+            totalEvidence: nodes.filter((n) => n.type === 'evidence').length,
           },
         };
       }
     } catch (error) {
-      console.error("LLM argument map generation failed:", error);
+      console.error('LLM argument map generation failed:', error);
       throw error; // Fail fast - no fallback
     }
 
     // If we reach here, generation failed - throw error
     throw new Error(
-      "Unable to generate argument map visualization. Please check your document content and try again. The document may not contain sufficient argumentative structure for analysis.",
+      'Unable to generate argument map visualization. Please check your document content and try again. The document may not contain sufficient argumentative structure for analysis.',
     );
   }
 
   private getEntityColor(type: string): string {
     const colors: Record<string, string> = {
-      person: "#3B82F6",
-      organization: "#8B5CF6",
-      location: "#10B981",
-      concept: "#F59E0B",
-      product: "#EF4444",
-      metric: "#06B6D4",
-      date: "#EC4899",
-      technical: "#6366F1",
+      person: '#3B82F6',
+      organization: '#8B5CF6',
+      location: '#10B981',
+      concept: '#F59E0B',
+      product: '#EF4444',
+      metric: '#06B6D4',
+      date: '#EC4899',
+      technical: '#6366F1',
     };
-    return colors[type] || "#6B7280";
+    return colors[type] || '#6B7280';
   }
 }
 

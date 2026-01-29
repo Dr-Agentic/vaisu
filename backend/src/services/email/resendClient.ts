@@ -1,5 +1,6 @@
-import { Resend } from "resend";
-import { env } from "../../config/env.js";
+import { Resend } from 'resend';
+
+import { env } from '../../config/env.js';
 
 export class ResendClient {
   private resend: Resend;
@@ -9,7 +10,7 @@ export class ResendClient {
   constructor() {
     if (!env.RESEND_API_KEY) {
       console.warn(
-        "WARNING: RESEND_API_KEY is not set. Email sending will fail.",
+        'WARNING: RESEND_API_KEY is not set. Email sending will fail.',
       );
     }
     this.resend = new Resend(env.RESEND_API_KEY);
@@ -23,7 +24,7 @@ export class ResendClient {
   async sendEmail(to: string, subject: string, html: string, text?: string) {
     try {
       if (!env.RESEND_API_KEY) {
-        throw new Error("RESEND_API_KEY is missing configuration");
+        throw new Error('RESEND_API_KEY is missing configuration');
       }
 
       const { data, error } = await this.resend.emails.send({
@@ -31,7 +32,7 @@ export class ResendClient {
         to,
         subject,
         html,
-        text: text || html.replace(/<[^>]*>?/gm, ""), // Simple strip tags fallback
+        text: text || html.replace(/<[^>]*>?/gm, ''), // Simple strip tags fallback
       });
 
       if (error) {
@@ -45,7 +46,7 @@ export class ResendClient {
       return data;
     } catch (error: any) {
       // If it's the error we just threw, it's already logged. If it's a network/other error, log it.
-      if (!error.message?.startsWith("Resend Error:")) {
+      if (!error.message?.startsWith('Resend Error:')) {
         console.error(
           `[Email Error] Unexpected failure sending to ${to}. Reason: ${error.message || error}`,
         );
@@ -60,7 +61,7 @@ export class ResendClient {
   async sendPasswordResetEmail(to: string, resetToken: string) {
     const resetLink = `${this.appUrl}/reset-password?token=${resetToken}`;
 
-    const subject = "Reset your Vaisu password";
+    const subject = 'Reset your Vaisu password';
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Reset Password</h2>

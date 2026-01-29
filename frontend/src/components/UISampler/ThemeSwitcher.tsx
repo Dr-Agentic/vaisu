@@ -23,8 +23,6 @@ import { ThemeToggle } from '../primitives/ThemeToggle';
  * Uses the existing ThemeToggle component for consistency.
  */
 export function ThemeSwitcher() {
-
-
   return (
     <div className="flex items-center gap-3">
       {/* Current Theme Indicator */}

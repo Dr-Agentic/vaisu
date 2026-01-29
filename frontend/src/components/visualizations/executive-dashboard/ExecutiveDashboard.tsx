@@ -18,8 +18,6 @@ import {
 } from 'recharts';
 
 
-
-
 interface ExecutiveDashboardProps {
   data: DashboardData;
 }

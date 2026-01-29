@@ -1,12 +1,12 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   PutCommand,
   GetCommand,
   UpdateCommand,
   QueryCommand,
-} from "@aws-sdk/lib-dynamodb";
+} from '@aws-sdk/lib-dynamodb';
 
-import { env } from "../config/env.js";
+import { env } from '../config/env.js';
 
 export interface UsageLimits {
   userId: string;
@@ -37,15 +37,15 @@ export interface UsageLimitConfig {
 }
 
 const config = {
-  region: env.AWS_REGION || "us-east-1",
+  region: env.AWS_REGION || 'us-east-1',
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY || "",
+    accessKeyId: env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY || '',
   },
 };
 
 const dynamodb = new DynamoDBClient(config);
-const TABLE_NAME = "vaisu-usage-limits";
+const TABLE_NAME = 'vaisu-usage-limits';
 
 // Default usage limits
 const DEFAULT_LIMITS: UsageLimitConfig = {
@@ -77,13 +77,13 @@ export class UsageLimitsRepository {
 
   async getCurrentUsage(userId: string): Promise<UsageLimits | null> {
     const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     return this.getUsageLimits(userId, period);
   }
 
   async getDailyUsage(userId: string): Promise<UsageLimits | null> {
     const now = new Date();
-    const period = now.toISOString().split("T")[0];
+    const period = now.toISOString().split('T')[0];
     return this.getUsageLimits(userId, period);
   }
 
@@ -127,7 +127,7 @@ export class UsageLimitsRepository {
     amount: number = 1,
   ): Promise<UsageLimits> {
     const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     const existing = await this.getUsageLimits(userId, period);
     if (!existing) {
@@ -138,12 +138,12 @@ export class UsageLimitsRepository {
       TableName: TABLE_NAME,
       Key: { userId, period },
       UpdateExpression:
-        "SET documentCount = documentCount + :amount, updatedAt = :updatedAt",
+        'SET documentCount = documentCount + :amount, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ":amount": amount,
-        ":updatedAt": now.toISOString(),
+        ':amount': amount,
+        ':updatedAt': now.toISOString(),
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await dynamodb.send(command);
@@ -156,7 +156,7 @@ export class UsageLimitsRepository {
   ): Promise<UsageLimits> {
     const now = new Date();
     // Use daily bucket for analysis (YYYY-MM-DD)
-    const period = now.toISOString().split("T")[0];
+    const period = now.toISOString().split('T')[0];
 
     const existing = await this.getUsageLimits(userId, period);
     if (!existing) {
@@ -167,12 +167,12 @@ export class UsageLimitsRepository {
       TableName: TABLE_NAME,
       Key: { userId, period },
       UpdateExpression:
-        "SET analysisCount = analysisCount + :amount, updatedAt = :updatedAt",
+        'SET analysisCount = analysisCount + :amount, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ":amount": amount,
-        ":updatedAt": now.toISOString(),
+        ':amount': amount,
+        ':updatedAt': now.toISOString(),
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await dynamodb.send(command);
@@ -184,7 +184,7 @@ export class UsageLimitsRepository {
     amount: number = 1,
   ): Promise<UsageLimits> {
     const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     const existing = await this.getUsageLimits(userId, period);
     if (!existing) {
@@ -195,12 +195,12 @@ export class UsageLimitsRepository {
       TableName: TABLE_NAME,
       Key: { userId, period },
       UpdateExpression:
-        "SET apiCalls = apiCalls + :amount, updatedAt = :updatedAt",
+        'SET apiCalls = apiCalls + :amount, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ":amount": amount,
-        ":updatedAt": now.toISOString(),
+        ':amount': amount,
+        ':updatedAt': now.toISOString(),
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await dynamodb.send(command);
@@ -212,7 +212,7 @@ export class UsageLimitsRepository {
     bytes: number,
   ): Promise<UsageLimits> {
     const now = new Date();
-    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const period = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
     const existing = await this.getUsageLimits(userId, period);
     if (!existing) {
@@ -223,12 +223,12 @@ export class UsageLimitsRepository {
       TableName: TABLE_NAME,
       Key: { userId, period },
       UpdateExpression:
-        "SET storageUsed = storageUsed + :bytes, updatedAt = :updatedAt",
+        'SET storageUsed = storageUsed + :bytes, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ":bytes": bytes,
-        ":updatedAt": now.toISOString(),
+        ':bytes': bytes,
+        ':updatedAt': now.toISOString(),
       },
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await dynamodb.send(command);
@@ -247,16 +247,16 @@ export class UsageLimitsRepository {
     const exceeded: string[] = [];
 
     if (current.documentCount >= limits.maxDocuments) {
-      exceeded.push("documents");
+      exceeded.push('documents');
     }
     if (current.analysisCount >= limits.maxAnalyses) {
-      exceeded.push("analyses");
+      exceeded.push('analyses');
     }
     if (current.apiCalls >= limits.maxApiCalls) {
-      exceeded.push("api_calls");
+      exceeded.push('api_calls');
     }
     if (current.storageUsed >= limits.maxStorage) {
-      exceeded.push("storage");
+      exceeded.push('storage');
     }
 
     return {
@@ -268,7 +268,7 @@ export class UsageLimitsRepository {
   async resetPeriodicUsage(): Promise<void> {
     // This would typically be run as a scheduled job at the start of each month
     // For now, we'll just log that it should be done
-    console.log("Periodic usage reset should be performed by a scheduled job");
+    console.log('Periodic usage reset should be performed by a scheduled job');
   }
 
   async getUsageHistory(
@@ -283,7 +283,7 @@ export class UsageLimitsRepository {
       const date = new Date(now);
       date.setMonth(date.getMonth() - i);
       periods.push(
-        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
       );
     }
 

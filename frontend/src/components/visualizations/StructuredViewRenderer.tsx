@@ -1,13 +1,13 @@
-import { X } from "lucide-react";
+import { X } from 'lucide-react';
 import React, {
   useMemo,
   useState,
   useRef,
   useEffect,
   useCallback,
-} from "react";
+} from 'react';
 
-import { Section } from "../../../../shared/src/types";
+import { Section } from '../../../../shared/src/types';
 
 import {
   GraphViewerLayout,
@@ -15,7 +15,7 @@ import {
   GraphEdgeLayer,
   DynamicBezierPath,
   GraphNode,
-} from "./toolkit";
+} from './toolkit';
 
 interface StructuredViewProps {
   data: {
@@ -42,14 +42,14 @@ const convertSectionsToTree = (sections: Section[]): TreeNode[] => {
 // Helper to map Section to GraphNode
 const mapSectionToNode = (section: Section): GraphNode => ({
   id: section.id,
-  type: "Document Section",
+  type: 'Document Section',
   label: section.title,
   description: section.punchingMessage || section.summary,
   mentions: section.keywords || [],
-  importance: section.level === 1 ? "high" : "medium",
+  importance: section.level === 1 ? 'high' : 'medium',
   metadata: {
     level: section.level,
-    keywords: section.keywords?.join(", "),
+    keywords: section.keywords?.join(', '),
     content: section.content,
     range: `Chars ${section.startIndex} - ${section.endIndex}`,
     punchingMessage: section.punchingMessage,
@@ -98,10 +98,10 @@ const RenderTree = React.memo(
                   descriptionLabel="Key Takeaway"
                   // Override style to be relative
                   style={{
-                    position: "relative",
-                    width: "320px",
-                    left: "auto",
-                    top: "auto",
+                    position: 'relative',
+                    width: '320px',
+                    left: 'auto',
+                    top: 'auto',
                   }}
                   // Trigger layout update on interaction (e.g. expansion)
                   onMouseEnter={() => setTimeout(onLayoutUpdate, 350)} // Wait for animation
@@ -234,8 +234,8 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                   x2={end.x}
                   y2={end.y}
                   isActive={
-                    selectedNode?.id === edge.source ||
-                    selectedNode?.id === edge.target
+                    selectedNode?.id === edge.source
+                    || selectedNode?.id === edge.target
                   }
                 />
               );
@@ -278,11 +278,11 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                 <section aria-labelledby="detail-punching">
                   <h3
                     id="detail-punching"
-                    className="text-[10px] font-black text-[var(--color-accent)] uppercase tracking-[0.2em] block mb-2"
+                    className="text-[10px] font-black uppercase tracking-[0.2em] block mb-2 text-gradient"
                   >
                     Key Takeaway
                   </h3>
-                  <p className="text-sm leading-relaxed text-[var(--color-text-primary)] font-bold border-l-2 border-[var(--color-accent)] pl-3">
+                  <p className="text-sm leading-relaxed text-[var(--color-text-primary)] font-bold border-l-2 border-[var(--aurora-1)] pl-3">
                     {selectedNode.metadata.punchingMessage}
                   </p>
                 </section>
@@ -318,7 +318,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}
-                          className={`w-1 h-3 rounded-full ${i < (selectedNode.metadata?.level || 1) ? "bg-[var(--aurora-1)]" : "bg-[var(--color-border-subtle)]"}`}
+                          className={`w-1 h-3 rounded-full ${i < (selectedNode.metadata?.level || 1) ? 'bg-[var(--aurora-1)]' : 'bg-[var(--color-border-subtle)]'}`}
                         />
                       ))}
                     </div>
@@ -347,7 +347,7 @@ export const StructuredViewRenderer: React.FC<StructuredViewProps> = ({
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {selectedNode.metadata.keywords
-                      .split(", ")
+                      .split(', ')
                       .map((keyword: string) => (
                         <span
                           key={keyword}

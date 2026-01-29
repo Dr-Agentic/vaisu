@@ -1,8 +1,8 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { S3Client } from "@aws-sdk/client-s3";
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { S3Client } from '@aws-sdk/client-s3';
+import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
-import { env } from "./env.js";
+import { env } from './env.js';
 
 // Environment variables are now strictly loaded via env.ts
 export function getAWSRegion() {
@@ -22,8 +22,8 @@ export const S3_BUCKET_NAME = env.S3_BUCKET_NAME;
 
 // DynamoDB Configuration
 export const DYNAMODB_DOCUMENTS_TABLE = env.DYNAMODB_DOCUMENTS_TABLE;
-export const DYNAMODB_ANALYSES_TABLE =
-  env.DYNAMODB_ANALYSES_TABLE || "vaisu-analyses"; // Fallback allowed if env.ts allows it, but env.ts has defaults.
+export const DYNAMODB_ANALYSES_TABLE
+  = env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses'; // Fallback allowed if env.ts allows it, but env.ts has defaults.
 
 // Visualization tables (one per representation model)
 // Assuming these are added to env.ts or we pull them from process.env if not strict yet.
@@ -41,34 +41,34 @@ export const DYNAMODB_ANALYSES_TABLE =
 // BUT imports might fail if env.ts throws on load.
 // Since env.ts loads dotenv, importing it here guarantees dotenv is loaded.
 
-export const DYNAMODB_ARGUMENT_MAP_TABLE =
-  process.env.DYNAMODB_ARGUMENT_MAP_TABLE || "vaisu-argument-map";
-export const DYNAMODB_DEPTH_GRAPH_TABLE =
-  process.env.DYNAMODB_DEPTH_GRAPH_TABLE || "vaisu-depth-graph";
-export const DYNAMODB_UML_CLASS_TABLE =
-  process.env.DYNAMODB_UML_CLASS_TABLE || "vaisu-uml-class";
-export const DYNAMODB_MIND_MAP_TABLE =
-  process.env.DYNAMODB_MIND_MAP_TABLE || "vaisu-mind-map";
-export const DYNAMODB_FLOWCHART_TABLE =
-  process.env.DYNAMODB_FLOWCHART_TABLE || "vaisu-flowchart";
-export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE =
-  process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || "vaisu-executive-dashboard";
-export const DYNAMODB_TIMELINE_TABLE =
-  process.env.DYNAMODB_TIMELINE_TABLE || "vaisu-timeline";
-export const DYNAMODB_TERMS_DEFINITIONS_TABLE =
-  process.env.DYNAMODB_TERMS_DEFINITIONS_TABLE || "vaisu-terms-definitions";
-export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE =
-  process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || "vaisu-knowledge-graph";
-export const DYNAMODB_ENTITY_GRAPH_TABLE =
-  process.env.DYNAMODB_ENTITY_GRAPH_TABLE || "vaisu-entity-graph";
+export const DYNAMODB_ARGUMENT_MAP_TABLE
+  = process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map';
+export const DYNAMODB_DEPTH_GRAPH_TABLE
+  = process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph';
+export const DYNAMODB_UML_CLASS_TABLE
+  = process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class';
+export const DYNAMODB_MIND_MAP_TABLE
+  = process.env.DYNAMODB_MIND_MAP_TABLE || 'vaisu-mind-map';
+export const DYNAMODB_FLOWCHART_TABLE
+  = process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart';
+export const DYNAMODB_EXECUTIVE_DASHBOARD_TABLE
+  = process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE || 'vaisu-executive-dashboard';
+export const DYNAMODB_TIMELINE_TABLE
+  = process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline';
+export const DYNAMODB_TERMS_DEFINITIONS_TABLE
+  = process.env.DYNAMODB_TERMS_DEFINITIONS_TABLE || 'vaisu-terms-definitions';
+export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE
+  = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
+export const DYNAMODB_ENTITY_GRAPH_TABLE
+  = process.env.DYNAMODB_ENTITY_GRAPH_TABLE || 'vaisu-entity-graph';
 
 // User Management tables
-export const DYNAMODB_USERS_TABLE =
-  process.env.DYNAMODB_USERS_TABLE || "vaisu-users";
-export const DYNAMODB_SESSIONS_TABLE =
-  process.env.DYNAMODB_SESSIONS_TABLE || "vaisu-sessions";
-export const DYNAMODB_USER_LIMITS_TABLE =
-  process.env.DYNAMODB_USER_LIMITS_TABLE || "vaisu-user-limits";
+export const DYNAMODB_USERS_TABLE
+  = process.env.DYNAMODB_USERS_TABLE || 'vaisu-users';
+export const DYNAMODB_SESSIONS_TABLE
+  = process.env.DYNAMODB_SESSIONS_TABLE || 'vaisu-sessions';
+export const DYNAMODB_USER_LIMITS_TABLE
+  = process.env.DYNAMODB_USER_LIMITS_TABLE || 'vaisu-user-limits';
 /**
  * Validate AWS configuration
  * Throws error if persistence is enabled but configuration is invalid
@@ -79,24 +79,24 @@ export function validateAWSConfig(): void {
 
   if (!accessKeyId || !secretAccessKey) {
     throw new Error(
-      "AWS credentials not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY",
+      'AWS credentials not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY',
     );
   }
 
   if (!S3_BUCKET_NAME) {
-    throw new Error("S3_BUCKET_NAME not configured");
+    throw new Error('S3_BUCKET_NAME not configured');
   }
 
   if (!DYNAMODB_DOCUMENTS_TABLE || !DYNAMODB_ANALYSES_TABLE) {
-    throw new Error("DynamoDB table names not configured");
+    throw new Error('DynamoDB table names not configured');
   }
 
   if (
-    !DYNAMODB_USERS_TABLE ||
-    !DYNAMODB_SESSIONS_TABLE ||
-    !DYNAMODB_USER_LIMITS_TABLE
+    !DYNAMODB_USERS_TABLE
+    || !DYNAMODB_SESSIONS_TABLE
+    || !DYNAMODB_USER_LIMITS_TABLE
   ) {
-    throw new Error("User management table names not configured");
+    throw new Error('User management table names not configured');
   }
 
   // Validate all visualization table names exist
@@ -116,11 +116,11 @@ export function validateAWSConfig(): void {
   const invalidTables = allVisualizationTables.filter((table) => !table);
   if (invalidTables.length > 0) {
     throw new Error(
-      `Visualization table names not configured: ${invalidTables.join(", ")}`,
+      `Visualization table names not configured: ${invalidTables.join(', ')}`,
     );
   }
 
-  console.info("✅ AWS configuration:", {
+  console.info('✅ AWS configuration:', {
     region: getAWSRegion(),
     s3Bucket: S3_BUCKET_NAME,
     documentsTable: DYNAMODB_DOCUMENTS_TABLE,
@@ -157,9 +157,9 @@ export function createS3Client(): S3Client {
     credentials:
       accessKeyId && secretAccessKey
         ? {
-            accessKeyId,
-            secretAccessKey,
-          }
+          accessKeyId,
+          secretAccessKey,
+        }
         : undefined,
   });
 }
@@ -176,9 +176,9 @@ export function createDynamoDBClient(): DynamoDBDocumentClient {
     credentials:
       accessKeyId && secretAccessKey
         ? {
-            accessKeyId,
-            secretAccessKey,
-          }
+          accessKeyId,
+          secretAccessKey,
+        }
         : undefined,
   });
 

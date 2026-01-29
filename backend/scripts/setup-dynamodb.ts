@@ -5,173 +5,173 @@ import {
   CreateTableCommand,
   DescribeTableCommand,
   UpdateTableCommand,
-} from "@aws-sdk/client-dynamodb";
-import "dotenv/config";
+} from '@aws-sdk/client-dynamodb';
+import 'dotenv/config';
 
 // Environment variables
-const AWS_REGION = process.env.AWS_REGION || "us-east-1";
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';
 const AWS_ACCESS_KEY_ID = process.env.AWS_ACCESS_KEY_ID;
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
 
 // Table definitions
 const TABLES = [
   {
-    name: process.env.DYNAMODB_DOCUMENTS_TABLE || "vaisu-documents",
+    name: process.env.DYNAMODB_DOCUMENTS_TABLE || 'vaisu-documents',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
-      { AttributeName: "contentHash", AttributeType: "S" },
-      { AttributeName: "filename", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
+      { AttributeName: 'contentHash', AttributeType: 'S' },
+      { AttributeName: 'filename', AttributeType: 'S' },
     ],
     globalSecondaryIndexes: [
       {
-        IndexName: "GSI1",
+        IndexName: 'GSI1',
         KeySchema: [
-          { AttributeName: "contentHash", KeyType: "HASH" },
-          { AttributeName: "filename", KeyType: "RANGE" },
+          { AttributeName: 'contentHash', KeyType: 'HASH' },
+          { AttributeName: 'filename', KeyType: 'RANGE' },
         ],
-        Projection: { ProjectionType: "ALL" },
+        Projection: { ProjectionType: 'ALL' },
       },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_ANALYSES_TABLE || "vaisu-analyses",
+    name: process.env.DYNAMODB_ANALYSES_TABLE || 'vaisu-analyses',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   // Visualization tables (one per representation model)
   {
-    name: process.env.DYNAMODB_ARGUMENT_MAP_TABLE || "vaisu-argument-map",
+    name: process.env.DYNAMODB_ARGUMENT_MAP_TABLE || 'vaisu-argument-map',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_DEPTH_GRAPH_TABLE || "vaisu-depth-graph",
+    name: process.env.DYNAMODB_DEPTH_GRAPH_TABLE || 'vaisu-depth-graph',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_UML_CLASS_TABLE || "vaisu-uml-class",
+    name: process.env.DYNAMODB_UML_CLASS_TABLE || 'vaisu-uml-class',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_MIND_MAP_TABLE || "vaisu-mind-map",
+    name: process.env.DYNAMODB_MIND_MAP_TABLE || 'vaisu-mind-map',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_FLOWCHART_TABLE || "vaisu-flowchart",
+    name: process.env.DYNAMODB_FLOWCHART_TABLE || 'vaisu-flowchart',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
     name:
-      process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE ||
-      "vaisu-executive-dashboard",
+      process.env.DYNAMODB_EXECUTIVE_DASHBOARD_TABLE
+      || 'vaisu-executive-dashboard',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_TIMELINE_TABLE || "vaisu-timeline",
+    name: process.env.DYNAMODB_TIMELINE_TABLE || 'vaisu-timeline',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || "vaisu-knowledge-graph",
+    name: process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph',
     keySchema: [
-      { AttributeName: "PK", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'PK', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "PK", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'PK', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
   {
-    name: process.env.DYNAMODB_ENTITY_GRAPH_TABLE || "vaisu-entity-graph",
+    name: process.env.DYNAMODB_ENTITY_GRAPH_TABLE || 'vaisu-entity-graph',
     keySchema: [
-      { AttributeName: "documentId", KeyType: "HASH" },
-      { AttributeName: "SK", KeyType: "RANGE" },
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
     ],
     attributeDefinitions: [
-      { AttributeName: "documentId", AttributeType: "S" },
-      { AttributeName: "SK", AttributeType: "S" },
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
     ],
-    billingMode: "PAY_PER_REQUEST",
+    billingMode: 'PAY_PER_REQUEST',
   },
 ];
 
 async function main() {
-  console.log("🚀 Setting up DynamoDB tables for Vaisu (On-Demand)...\n");
+  console.log('🚀 Setting up DynamoDB tables for Vaisu (On-Demand)...\n');
 
   // Validate AWS credentials
   if (!AWS_ACCESS_KEY_ID || !AWS_SECRET_ACCESS_KEY) {
-    console.error("❌ AWS credentials not configured");
+    console.error('❌ AWS credentials not configured');
     console.error(
-      "Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables",
+      'Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables',
     );
     process.exit(1);
   }
@@ -199,16 +199,16 @@ async function main() {
         const { Table } = await client.send(describeCommand);
 
         if (Table) {
-          const currentBillingMode =
-            Table.BillingModeSummary?.BillingMode || "PROVISIONED";
+          const currentBillingMode
+            = Table.BillingModeSummary?.BillingMode || 'PROVISIONED';
 
-          if (currentBillingMode !== "PAY_PER_REQUEST") {
+          if (currentBillingMode !== 'PAY_PER_REQUEST') {
             console.log(
               `  ⚠️ Table exists but is ${currentBillingMode}. Updating to PAY_PER_REQUEST...`,
             );
             const updateCommand = new UpdateTableCommand({
               TableName: tableConfig.name,
-              BillingMode: "PAY_PER_REQUEST",
+              BillingMode: 'PAY_PER_REQUEST',
             });
             await client.send(updateCommand);
             console.log(
@@ -222,7 +222,7 @@ async function main() {
           continue;
         }
       } catch (error: any) {
-        if (error.name !== "ResourceNotFoundException") {
+        if (error.name !== 'ResourceNotFoundException') {
           throw error;
         }
         // Table doesn't exist, proceed to create
@@ -232,7 +232,7 @@ async function main() {
         TableName: tableConfig.name,
         KeySchema: tableConfig.keySchema,
         AttributeDefinitions: tableConfig.attributeDefinitions,
-        BillingMode: "PAY_PER_REQUEST",
+        BillingMode: 'PAY_PER_REQUEST',
         GlobalSecondaryIndexes: tableConfig.globalSecondaryIndexes,
       });
 
@@ -246,10 +246,10 @@ async function main() {
     }
   }
 
-  console.log("\n🎉 DynamoDB setup complete!");
+  console.log('\n🎉 DynamoDB setup complete!');
 }
 
 main().catch((error) => {
-  console.error("❌ Setup failed:", error);
+  console.error('❌ Setup failed:', error);
   process.exit(1);
 });

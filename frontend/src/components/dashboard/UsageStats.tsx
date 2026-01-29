@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
-import { BarChart3, HardDrive, AlertTriangle } from "lucide-react";
-import { useUserStore } from "../../stores/userStore";
-import { Card, CardHeader, CardTitle, CardContent } from "../primitives/Card";
-import { cn } from "../../lib/utils";
+import { BarChart3, HardDrive, AlertTriangle } from 'lucide-react';
+import React, { useEffect } from 'react';
+
+import { cn } from '../../lib/utils';
+import { useUserStore } from '../../stores/userStore';
+import { Card, CardHeader, CardTitle, CardContent } from '../primitives/Card';
 
 export const UsageStats: React.FC = () => {
   const { usageStats, fetchUsageStats } = useUserStore();
@@ -28,11 +29,11 @@ export const UsageStats: React.FC = () => {
   );
 
   const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 B";
+    if (bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ["B", "KB", "MB", "GB", "TB"];
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
   };
 
   return (
@@ -55,8 +56,8 @@ export const UsageStats: React.FC = () => {
           <div className="mt-4 h-2 w-full rounded-full bg-secondary">
             <div
               className={cn(
-                "h-full rounded-full transition-all duration-500",
-                analysisPercent > 90 ? "bg-red-500" : "bg-primary",
+                'h-full rounded-full transition-all duration-500',
+                analysisPercent > 90 ? 'bg-red-500' : 'bg-primary',
               )}
               style={{ width: `${analysisPercent}%` }}
             />
@@ -86,8 +87,8 @@ export const UsageStats: React.FC = () => {
           <div className="mt-4 h-2 w-full rounded-full bg-secondary">
             <div
               className={cn(
-                "h-full rounded-full transition-all duration-500",
-                storagePercent > 90 ? "bg-red-500" : "bg-blue-500",
+                'h-full rounded-full transition-all duration-500',
+                storagePercent > 90 ? 'bg-red-500' : 'bg-blue-500',
               )}
               style={{ width: `${storagePercent}%` }}
             />

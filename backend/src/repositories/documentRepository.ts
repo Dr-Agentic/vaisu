@@ -4,12 +4,13 @@ import {
   QueryCommand,
   UpdateCommand,
   DeleteCommand,
-} from "@aws-sdk/lib-dynamodb";
+} from '@aws-sdk/lib-dynamodb';
 
-import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from "../config/aws.js";
-import { usageLimitsRepository } from "./usageLimitsRepository.js";
+import { dynamoDBClient, DYNAMODB_DOCUMENTS_TABLE } from '../config/aws.js';
 
-import type { DocumentRecord } from "./types.js";
+import { usageLimitsRepository } from './usageLimitsRepository.js';
+
+import type { DocumentRecord } from './types.js';
 
 /**
  * Find document by content hash and filename (deduplication check)
@@ -20,11 +21,11 @@ export async function findByHashAndFilename(
 ): Promise<DocumentRecord | null> {
   const command = new QueryCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    IndexName: "GSI1",
-    KeyConditionExpression: "contentHash = :hash AND filename = :filename",
+    IndexName: 'GSI1',
+    KeyConditionExpression: 'contentHash = :hash AND filename = :filename',
     ExpressionAttributeValues: {
-      ":hash": hash,
-      ":filename": filename,
+      ':hash': hash,
+      ':filename': filename,
     },
     Limit: 1,
   });
@@ -46,7 +47,7 @@ export async function create(document: DocumentRecord): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Item: {
       ...document,
-      SK: "METADATA",
+      SK: 'METADATA',
     },
   });
 
@@ -63,7 +64,7 @@ export async function findById(
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: "METADATA",
+      SK: 'METADATA',
     },
   });
 
@@ -84,14 +85,14 @@ export async function updateAccessMetadata(documentId: string): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: "METADATA",
+      SK: 'METADATA',
     },
     UpdateExpression:
-      "SET lastAccessedAt = :now, accessCount = if_not_exists(accessCount, :zero) + :one",
+      'SET lastAccessedAt = :now, accessCount = if_not_exists(accessCount, :zero) + :one',
     ExpressionAttributeValues: {
-      ":now": new Date().toISOString(),
-      ":zero": 0,
-      ":one": 1,
+      ':now': new Date().toISOString(),
+      ':zero': 0,
+      ':one': 1,
     },
   });
 
@@ -106,7 +107,7 @@ export async function deleteDocument(documentId: string): Promise<void> {
     TableName: DYNAMODB_DOCUMENTS_TABLE,
     Key: {
       documentId,
-      SK: "METADATA",
+      SK: 'METADATA',
     },
   });
 
@@ -126,17 +127,17 @@ export async function listByUserId(
   documents: DocumentRecord[];
   total: number;
 }> {
-  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
 
   // Scan without Limit to find all user documents
   // Note: This scans up to 1MB of data. For production with large datasets,
   // we MUST add a GSI on userId and use QueryCommand.
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    FilterExpression: "userId = :userId AND SK = :sk",
+    FilterExpression: 'userId = :userId AND SK = :sk',
     ExpressionAttributeValues: {
-      ":userId": userId,
-      ":sk": "METADATA",
+      ':userId': userId,
+      ':sk': 'METADATA',
     },
   });
 
@@ -163,15 +164,15 @@ export async function listByUserId(
  * Count active documents for a user
  */
 export async function countByUserId(userId: string): Promise<number> {
-  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    FilterExpression: "userId = :userId AND SK = :sk",
+    FilterExpression: 'userId = :userId AND SK = :sk',
     ExpressionAttributeValues: {
-      ":userId": userId,
-      ":sk": "METADATA",
+      ':userId': userId,
+      ':sk': 'METADATA',
     },
-    Select: "COUNT",
+    Select: 'COUNT',
   });
 
   const response = await dynamoDBClient.send(command);
@@ -189,14 +190,14 @@ export async function getStatsByUserId(userId: string): Promise<{
   dailyAnalysisUsage: number;
   storageUsed: number;
 }> {
-  const { ScanCommand } = await import("@aws-sdk/lib-dynamodb");
+  const { ScanCommand } = await import('@aws-sdk/lib-dynamodb');
 
   const command = new ScanCommand({
     TableName: DYNAMODB_DOCUMENTS_TABLE,
-    FilterExpression: "userId = :userId AND SK = :sk",
+    FilterExpression: 'userId = :userId AND SK = :sk',
     ExpressionAttributeValues: {
-      ":userId": userId,
-      ":sk": "METADATA",
+      ':userId': userId,
+      ':sk': 'METADATA',
     },
   });
 

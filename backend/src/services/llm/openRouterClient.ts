@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+
 import axios, { AxiosInstance } from 'axios';
 
 import { env } from '../../config/env.js';
@@ -85,7 +86,7 @@ export class OpenRouterClient {
 
       // Estimate input tokens
       const estimatedInputTokens = this.estimateTokenCount(
-        config.messages.map((m) => m.content || "").join(" "),
+        config.messages.map((m) => m.content || '').join(' '),
       );
 
       // Smart max_tokens logic
@@ -94,12 +95,12 @@ export class OpenRouterClient {
       if (modelMeta && modelMeta.context_length) {
         const totalCapacity = modelMeta.context_length;
         const safetyBuffer = 1000;
-        const availableForOutput =
-          totalCapacity - estimatedInputTokens - safetyBuffer;
+        const availableForOutput
+          = totalCapacity - estimatedInputTokens - safetyBuffer;
 
         if (currentMaxTokens === undefined) {
           const providerMax = modelMeta.top_provider?.max_completion_tokens;
-          if (typeof providerMax === "number" && providerMax > 0) {
+          if (typeof providerMax === 'number' && providerMax > 0) {
             currentMaxTokens = Math.min(providerMax, availableForOutput);
           } else {
             currentMaxTokens = availableForOutput;
@@ -113,14 +114,14 @@ export class OpenRouterClient {
 
       if (continuationCount === 0) {
         console.log(
-          `Calling OpenRouter with model: ${config.model}, ` +
-          `input_est: ${estimatedInputTokens}, max_tokens: ${currentMaxTokens}, ` +
-          `total_est: ${estimatedInputTokens + currentMaxTokens}`,
+          `Calling OpenRouter with model: ${config.model}, `
+          + `input_est: ${estimatedInputTokens}, max_tokens: ${currentMaxTokens}, `
+          + `total_est: ${estimatedInputTokens + currentMaxTokens}`,
         );
       } else {
         console.log(
-          `Continuing ${config.model} (Turn ${continuationCount + 1}), ` +
-          `input_est: ${estimatedInputTokens}, max_tokens: ${currentMaxTokens}`,
+          `Continuing ${config.model} (Turn ${continuationCount + 1}), `
+          + `input_est: ${estimatedInputTokens}, max_tokens: ${currentMaxTokens}`,
         );
       }
 
@@ -134,17 +135,17 @@ export class OpenRouterClient {
       // Debug: Log request
       console.log(`[API_REQ] ${JSON.stringify(requestBody, (key, value) => {
         if (typeof value === 'string' && value.length > 200) {
-          return value.substring(0, 100) + '...[TRUNCATED]...' + value.substring(value.length - 100);
+          return `${value.substring(0, 100)}...[TRUNCATED]...${value.substring(value.length - 100)}`;
         }
         return value;
       })}`);
 
       const response = await this.client.post(
-        "/chat/completions",
+        '/chat/completions',
         requestBody,
         {
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
@@ -152,23 +153,23 @@ export class OpenRouterClient {
       const choice = response.data.choices[0];
       const usage = response.data.usage;
       const finishReason = choice.finish_reason;
-      const content = choice.message.content || "";
+      const content = choice.message.content || '';
 
       // Debug: Log response
       console.log(`[API_RES] ${JSON.stringify(response.data, (key, value) => {
         if (typeof value === 'string' && value.length > 200) {
-          return value.substring(0, 100) + '...[TRUNCATED]...' + value.substring(value.length - 100);
+          return `${value.substring(0, 100)}...[TRUNCATED]...${value.substring(value.length - 100)}`;
         }
         return value;
       })}`);
 
       console.log(
-        `✓ Success (${config.model}), tokens: ${usage.total_tokens}, ` +
-        `finish_reason: ${finishReason}, content_len: ${content.length}`,
+        `✓ Success (${config.model}), tokens: ${usage.total_tokens}, `
+        + `finish_reason: ${finishReason}, content_len: ${content.length}`,
       );
 
       // Debug: Print first and last non-empty lines
-      const outputLines = content.split("\n").filter((l: string) => l.trim().length > 0);
+      const outputLines = content.split('\n').filter((l: string) => l.trim().length > 0);
       if (outputLines.length > 0) {
         console.log(`[DEBUG] FIRST LINE: ${outputLines[0].substring(0, 150)}`);
         console.log(
@@ -177,18 +178,18 @@ export class OpenRouterClient {
       }
 
       // Handle truncation via recursive continuation
-      if (finishReason === "length" && continuationCount < 50) {
+      if (finishReason === 'length' && continuationCount < 50) {
         const updatedMessages = [
           ...config.messages,
-          { role: "assistant", content: content } as const,
+          { role: 'assistant', content } as const,
           {
-            role: "user",
+            role: 'user',
             content:
-              "IMPORTANT: Your previous response was truncated. " +
-              "Please continue precisely from the last character provided above. " +
-              "DO NOT repeat any of the previous text. " +
-              "DO NOT wrap your continuation in markdown code blocks if you already started one. " +
-              "Maintain JSON integrity so the full combined text is valid JSON.",
+              'IMPORTANT: Your previous response was truncated. '
+              + 'Please continue precisely from the last character provided above. '
+              + 'DO NOT repeat any of the previous text. '
+              + 'DO NOT wrap your continuation in markdown code blocks if you already started one. '
+              + 'Maintain JSON integrity so the full combined text is valid JSON.',
           } as const,
         ];
 
@@ -220,7 +221,7 @@ export class OpenRouterClient {
       };
     } catch (error: any) {
       console.error(
-        "OpenRouter API error:",
+        'OpenRouter API error:',
         error.response?.data || error.message,
       );
       throw new Error(`LLM call failed: ${error.message}`);
@@ -377,7 +378,7 @@ export class OpenRouterClient {
         const firstSquare = content.indexOf('[');
         const lastSquare = content.lastIndexOf(']');
 
-        let finalContent = "";
+        let finalContent = '';
         if (firstCurly !== -1 && (firstSquare === -1 || firstCurly < firstSquare)) {
           finalContent = content.substring(firstCurly, lastCurly + 1);
         } else if (firstSquare !== -1) {

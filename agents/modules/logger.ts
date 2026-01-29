@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from 'fs';
+import path from 'path';
 
 export class Logger {
   private logPath: string;
@@ -8,7 +8,7 @@ export class Logger {
     if (!fs.existsSync(logDir)) {
       fs.mkdirSync(logDir, { recursive: true });
     }
-    this.logPath = path.join(logDir, "orchestration.log");
+    this.logPath = path.join(logDir, 'orchestration.log');
   }
 
   log(message: string) {
@@ -19,7 +19,7 @@ export class Logger {
     console.log(message);
 
     // Append to file
-    fs.appendFileSync(this.logPath, logMessage + "\n");
+    fs.appendFileSync(this.logPath, `${logMessage}\n`);
   }
 
   error(message: string) {
@@ -27,7 +27,7 @@ export class Logger {
     const logMessage = `[${timestamp}] ERROR: ${message}`;
 
     console.error(`\x1b[31m${message}\x1b[0m`); // Red color for console
-    fs.appendFileSync(this.logPath, logMessage + "\n");
+    fs.appendFileSync(this.logPath, `${logMessage}\n`);
   }
 
   success(message: string) {
@@ -35,6 +35,6 @@ export class Logger {
     const logMessage = `[${timestamp}] SUCCESS: ${message}`;
 
     console.log(`\x1b[32m${message}\x1b[0m`); // Green color
-    fs.appendFileSync(this.logPath, logMessage + "\n");
+    fs.appendFileSync(this.logPath, `${logMessage}\n`);
   }
 }

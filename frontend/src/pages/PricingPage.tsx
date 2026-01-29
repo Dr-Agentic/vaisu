@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { Check, Loader2, Shield, Zap } from "lucide-react";
-import { useUserStore } from "../stores/userStore";
-import { apiClient } from "../services/apiClient";
+import { Check, Loader2, Shield, Zap } from 'lucide-react';
+import { useState } from 'react';
+
+import { apiClient } from '../services/apiClient';
+import { useUserStore } from '../stores/userStore';
 
 export default function PricingPage() {
   const { user } = useUserStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const isPro = user?.subscriptionStatus === "active";
+  const isPro = user?.subscriptionStatus === 'active';
 
   const handleUpgrade = async () => {
     try {
@@ -18,11 +19,11 @@ export default function PricingPage() {
       if (url) {
         window.location.href = url;
       } else {
-        throw new Error("Invalid checkout URL received");
+        throw new Error('Invalid checkout URL received');
       }
     } catch (err: any) {
-      console.error("Upgrade failed:", err);
-      setError(err.message || "Failed to initiate checkout");
+      console.error('Upgrade failed:', err);
+      setError(err.message || 'Failed to initiate checkout');
       setLoading(false);
     }
   };
@@ -64,10 +65,10 @@ export default function PricingPage() {
 
             <ul className="space-y-4 mb-8">
               {[
-                "Up to 10 documents per month",
-                "Basic text analysis",
-                "1GB Storage",
-                "Standard support",
+                'Up to 10 documents per month',
+                'Basic text analysis',
+                '1GB Storage',
+                'Standard support',
               ].map((feature, i) => (
                 <li key={i} className="flex items-center text-gray-300">
                   <Check className="text-green-400 mr-3" size={20} />
@@ -80,13 +81,13 @@ export default function PricingPage() {
               disabled
               className="w-full py-3 px-6 rounded-lg bg-gray-700 text-gray-400 font-medium cursor-default border border-gray-600"
             >
-              {isPro ? "Included" : "Current Plan"}
+              {isPro ? 'Included' : 'Current Plan'}
             </button>
           </div>
 
           {/* Pro Plan */}
           <div
-            className={`relative p-8 rounded-2xl bg-gray-800 border-2 ${isPro ? "border-green-500" : "border-blue-500"} shadow-xl shadow-blue-900/20`}
+            className={`relative p-8 rounded-2xl bg-gray-800 border-2 ${isPro ? 'border-green-500' : 'border-blue-500'} shadow-xl shadow-blue-900/20`}
           >
             <div className="absolute top-0 right-0 px-4 py-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-bl-xl rounded-tr-xl text-xs font-bold uppercase tracking-wider">
               Recommended
@@ -106,11 +107,11 @@ export default function PricingPage() {
 
             <ul className="space-y-4 mb-8">
               {[
-                "Unlimited documents",
-                "Advanced AI Analysis (GPT-4)",
-                "Unlimited Storage",
-                "Priority Email Support",
-                "Early access to new features",
+                'Unlimited documents',
+                'Advanced AI Analysis (GPT-4)',
+                'Unlimited Storage',
+                'Priority Email Support',
+                'Early access to new features',
               ].map((feature, i) => (
                 <li key={i} className="flex items-center text-gray-300">
                   <Check className="text-blue-400 mr-3" size={20} />
@@ -139,7 +140,7 @@ export default function PricingPage() {
                     Processing...
                   </>
                 ) : (
-                  "Upgrade to Pro"
+                  'Upgrade to Pro'
                 )}
               </button>
             )}

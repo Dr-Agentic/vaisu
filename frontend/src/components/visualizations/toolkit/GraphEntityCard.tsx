@@ -121,10 +121,10 @@ export const GraphEntityCard: React.FC<GraphEntityCardProps> = ({
               <div className="space-y-6 pb-2">
                 {(node.context || node.description) && (
                   <div>
-                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] block mb-2">
+                    <label className={`text-[10px] font-black uppercase tracking-[0.2em] block mb-2 ${descriptionLabel === 'Key Takeaway' ? 'text-gradient' : 'text-slate-300'}`}>
                       {descriptionLabel}
                     </label>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium italic">
+                    <p className={`text-sm leading-relaxed ${descriptionLabel === 'Key Takeaway' ? 'text-slate-900 dark:text-slate-100 font-bold' : 'text-slate-600 dark:text-slate-400 font-medium italic'}`}>
                       {node.context || node.description}
                     </p>
                   </div>

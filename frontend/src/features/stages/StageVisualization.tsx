@@ -1,12 +1,14 @@
-import { useEffect, useState, forwardRef, useCallback } from "react";
-import { useDocumentStore } from "../../stores/documentStore";
-import { VisualizationRenderer } from "../visualization/VisualizationRenderer";
+import { useEffect, useState, forwardRef, useCallback } from 'react';
+
+import { GraphViewerLayout } from '../../components/visualizations/toolkit';
+import { useDocumentStore } from '../../stores/documentStore';
+import { VisualizationRenderer } from '../visualization/VisualizationRenderer';
 import {
   VisualizationSidebar,
   type VisualizationType,
-} from "../visualization/VisualizationSidebar";
-import { StageHeader } from "./StageHeader";
-import { GraphViewerLayout } from "../../components/visualizations/toolkit";
+} from '../visualization/VisualizationSidebar';
+
+import { StageHeader } from './StageHeader';
 
 export interface StageVisualizationProps {
   /**
@@ -38,17 +40,17 @@ export const StageVisualization = forwardRef<
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       // Viz shortcuts: 1-9
-      if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(e.key)) {
+      if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(e.key)) {
         const vizTypes: VisualizationType[] = [
-          "executive-dashboard",
-          "mind-map",
-          "knowledge-graph",
-          "entity-graph",
-          "argument-map",
-          "uml-class-diagram",
-          "structured-view",
-          "terms-definitions",
-          "depth-graph",
+          'executive-dashboard',
+          'mind-map',
+          'knowledge-graph',
+          'entity-graph',
+          'argument-map',
+          'uml-class-diagram',
+          'structured-view',
+          'terms-definitions',
+          'depth-graph',
         ];
         const index = parseInt(e.key) - 1;
         if (vizTypes[index]) {
@@ -58,11 +60,11 @@ export const StageVisualization = forwardRef<
 
       // Sidebar toggle: S or s (only when not in input fields)
       if (
-        (e.key === "s" || e.key === "S") &&
-        !(
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement ||
-          e.target instanceof HTMLSelectElement
+        (e.key === 's' || e.key === 'S')
+        && !(
+          e.target instanceof HTMLInputElement
+          || e.target instanceof HTMLTextAreaElement
+          || e.target instanceof HTMLSelectElement
         )
       ) {
         e.preventDefault();
@@ -73,8 +75,8 @@ export const StageVisualization = forwardRef<
   );
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleKeyDown]);
 
   const toggleSidebar = () => setSidebarCollapsed(!sidebarCollapsed);
@@ -84,10 +86,10 @@ export const StageVisualization = forwardRef<
   const summary = document
     ? {
       tlrd: document.analysis?.tldr
-        ? typeof document.analysis.tldr === "string"
+        ? typeof document.analysis.tldr === 'string'
           ? document.analysis.tldr
           : document.analysis.tldr.text
-        : "",
+        : '',
       keyEntities:
         document.analysis?.entities?.slice(0, 5).map((e) => e.text) || [],
       wordCount: document.metadata.wordCount,
@@ -104,7 +106,6 @@ export const StageVisualization = forwardRef<
       </div>
     );
   }
-
 
 
   return (
@@ -147,4 +148,4 @@ export const StageVisualization = forwardRef<
   );
 });
 
-StageVisualization.displayName = "StageVisualization";
+StageVisualization.displayName = 'StageVisualization';

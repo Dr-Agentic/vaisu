@@ -1,6 +1,7 @@
-import { Router, Request, Response } from "express";
-import { authenticate, AuthenticatedRequest } from "../middleware/auth.js";
-import { stripeService } from "../services/billing/stripeService.js";
+import { Router, Request, Response } from 'express';
+
+import { authenticate, AuthenticatedRequest } from '../middleware/auth.js';
+import { stripeService } from '../services/billing/stripeService.js';
 
 const router = Router();
 
@@ -8,7 +9,7 @@ const router = Router();
 router.use(authenticate);
 
 // POST /api/billing/checkout-session
-router.post("/checkout-session", async (req: Request, res: Response) => {
+router.post('/checkout-session', async (req: Request, res: Response) => {
   try {
     const authReq = req as AuthenticatedRequest;
     const { userId, email } = authReq.user!;
@@ -16,16 +17,16 @@ router.post("/checkout-session", async (req: Request, res: Response) => {
     if (!email) {
       return res
         .status(400)
-        .json({ error: "User email is required for checkout" });
+        .json({ error: 'User email is required for checkout' });
     }
 
     const url = await stripeService.createCheckoutSession(userId, email);
     res.json({ url });
   } catch (error: any) {
-    console.error("Create checkout session error:", error);
+    console.error('Create checkout session error:', error);
     res
       .status(500)
-      .json({ error: error.message || "Failed to create checkout session" });
+      .json({ error: error.message || 'Failed to create checkout session' });
   }
 });
 

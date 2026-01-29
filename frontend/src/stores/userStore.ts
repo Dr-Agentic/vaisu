@@ -1,7 +1,7 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-import { apiClient } from "../services/apiClient";
+import { apiClient } from '../services/apiClient';
 
 interface User {
   userId: string;
@@ -68,7 +68,7 @@ export const useUserStore = create<UserState>()(
             isLoading: false,
           });
         } catch (error: any) {
-          const errorMsg = error.response?.data?.error || "Login failed";
+          const errorMsg = error.response?.data?.error || 'Login failed';
           set({
             error: errorMsg,
             isLoading: false,
@@ -84,7 +84,7 @@ export const useUserStore = create<UserState>()(
           set({ isLoading: false });
         } catch (error: any) {
           set({
-            error: error.response?.data?.error || "Registration failed",
+            error: error.response?.data?.error || 'Registration failed',
             isLoading: false,
           });
           throw error;
@@ -106,7 +106,7 @@ export const useUserStore = create<UserState>()(
           }));
         } catch (error: any) {
           set({
-            error: error.response?.data?.error || "Update failed",
+            error: error.response?.data?.error || 'Update failed',
             isLoading: false,
           });
           throw error;
@@ -149,14 +149,14 @@ export const useUserStore = create<UserState>()(
             },
           });
         } catch (error) {
-          console.error("Failed to fetch usage stats", error);
+          console.error('Failed to fetch usage stats', error);
         }
       },
 
       clearError: () => set({ error: null }),
     }),
     {
-      name: "user-storage",
+      name: 'user-storage',
       partialize: (state) => ({
         user: state.user,
         isAuthenticated: state.isAuthenticated,

@@ -1,0 +1,21 @@
+Issue #2: Structured View is not stored in the dynamodb. A new LLM request is placed each time.
+
+Description:
+The structured-view visualization is recalculated on every request instead of being cached in DynamoDB. This results in a full LLM round‑trip for each request, which is inefficient in terms of compute cost and latency.
+
+Details from the logs:
+- POST http://localhost:7001/api/documents/eb73fd25-57d1-4a44-9443-9a8928b95ed8/visualizations/structured-view
+- The system traces a full reconstruction of the document from DynamoDB, followed by generation of a new structured-view visualization each time.
+- The LLM invocation occurs repeatedly, producing the same structured‑view output.
+
+Impact:
+- Unnecessary LLM token consumption and cost.
+- Slower response times for users.
+- Redundant processing of the same visualization.
+
+Suggested mitigation:
+- Store the generated structured‑view result in DynamoDB after the first successful generation.
+- Keep the result as an entry in the DynamoDB table using a suitable key (e.g., document ID). No TTL is needed; the entry persists until manually cleared or versioned.
+- On subsequent requests, check the DynamoDB table first; if an entry exists, return it directly without invoking the LLM again.
+
+This change would eliminate the repeated LLM calls and significantly improve performance for the structured‑view feature.

@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import { usageLimitsRepository } from "../repositories/usageLimitsRepository.js";
-import { countByUserId } from "../repositories/documentRepository.js";
+import { Request, Response, NextFunction } from 'express';
+
+import { countByUserId } from '../repositories/documentRepository.js';
+import { usageLimitsRepository } from '../repositories/usageLimitsRepository.js';
 
 // Extend Request to include user
 interface AuthenticatedRequest extends Request {
@@ -25,10 +26,10 @@ const LIMITS = {
 
 const getLimits = (req: AuthenticatedRequest) => {
   const user = req.user;
-  const isPro =
-    user?.subscriptionStatus === "active" ||
-    user?.role === "pro" ||
-    user?.role === "admin";
+  const isPro
+    = user?.subscriptionStatus === 'active'
+    || user?.role === 'pro'
+    || user?.role === 'admin';
 
   return isPro ? LIMITS.PRO : LIMITS.FREE;
 };
@@ -42,7 +43,7 @@ export const checkAnalysisLimit = async (
     const userId = req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
@@ -52,11 +53,11 @@ export const checkAnalysisLimit = async (
 
     if (currentCount >= limits.dailyAnalysis) {
       res.status(403).json({
-        error: "Daily analysis limit exceeded",
+        error: 'Daily analysis limit exceeded',
         details: {
           current: currentCount,
           limit: limits.dailyAnalysis,
-          resetAt: "tomorrow",
+          resetAt: 'tomorrow',
         },
       });
       return;
@@ -64,8 +65,8 @@ export const checkAnalysisLimit = async (
 
     next();
   } catch (error) {
-    console.error("Error checking analysis limit:", error);
-    res.status(500).json({ error: "Internal server error checking limits" });
+    console.error('Error checking analysis limit:', error);
+    res.status(500).json({ error: 'Internal server error checking limits' });
   }
 };
 
@@ -78,7 +79,7 @@ export const checkStorageLimit = async (
     const userId = req.user?.userId;
 
     if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
       return;
     }
 
@@ -87,7 +88,7 @@ export const checkStorageLimit = async (
 
     if (totalDocs >= limits.totalDocuments) {
       res.status(403).json({
-        error: "Storage limit exceeded (maximum documents reached)",
+        error: 'Storage limit exceeded (maximum documents reached)',
         details: {
           current: totalDocs,
           limit: limits.totalDocuments,
@@ -98,7 +99,7 @@ export const checkStorageLimit = async (
 
     next();
   } catch (error) {
-    console.error("Error checking storage limit:", error);
-    res.status(500).json({ error: "Internal server error checking limits" });
+    console.error('Error checking storage limit:', error);
+    res.status(500).json({ error: 'Internal server error checking limits' });
   }
 };

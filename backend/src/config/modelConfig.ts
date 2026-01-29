@@ -30,8 +30,8 @@ export const MODEL_CONFIGS: Record<TaskType, ModelConfig> = {
     fallback: LLM_FALLBACK,
     temperature: TEMP_PRECISION,
     systemPrompt:
-      'Generate a concise TLDR summary of the following text. ' +
-      'Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
+      'Generate a concise TLDR summary of the following text. '
+      + 'Focus on the main point in 2-3 sentences maximum. Be clear and direct.',
   },
   executiveSummary: {
     primary: LLM_PRIMARY,
@@ -199,8 +199,8 @@ Return as JSON array with (no markdown): term, definition, domain, confidence.`,
     fallback: LLM_FALLBACK,
     temperature: TEMP_PRECISION,
     systemPrompt:
-      'Answer questions about the document content. Be helpful, accurate, and concise. ' +
-      'Cite specific parts of the text when relevant.',
+      'Answer questions about the document content. Be helpful, accurate, and concise. '
+      + 'Cite specific parts of the text when relevant.',
   },
   mindMapGeneration: {
     primary: LLM_PRIMARY,
@@ -509,8 +509,8 @@ Extract 10-50 entities and 15-40 relationships. Focus on meaningful connections.
     fallback: LLM_FALLBACK,
     temperature: TEMP_PRECISION,
     systemPrompt:
-      'You are a Lead Network Theorist specializing in the topology of arguments and ' +
-      'concept drift. Build a directed graph of Logical Units and Causal Links.',
+      'You are a Lead Network Theorist specializing in the topology of arguments and '
+      + 'concept drift. Build a directed graph of Logical Units and Causal Links.',
   } as ModelConfig,
 };
 

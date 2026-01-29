@@ -35,7 +35,7 @@ export class GraphyAgent {
     const guidelines = await Task({
       description: 'Read design guidelines',
       prompt: 'Read and analyze the graphical representation design guidelines at .context/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
-      subagent_type: 'general-purpose'
+      subagent_type: 'general-purpose',
     });
 
     // Analyze the request against guidelines
@@ -54,7 +54,7 @@ export class GraphyAgent {
         3. Recommended design approach
         4. Technical considerations
       `,
-      subagent_type: 'general-purpose'
+      subagent_type: 'general-purpose',
     });
 
     // Generate comprehensive design specification
@@ -105,7 +105,7 @@ export class GraphyAgent {
 
         Ensure the specification is actionable and follows the established design guidelines.
       `,
-      subagent_type: 'general-purpose'
+      subagent_type: 'general-purpose',
     });
 
     return this.parseDesignOutput(designSpec);
@@ -124,7 +124,7 @@ export class GraphyAgent {
       visualDesignSystem: this.extractSection(output, 'Visual Design System'),
       performanceStrategy: this.extractSection(output, 'Performance Strategy'),
       implementationPlan: this.extractSection(output, 'Implementation Plan'),
-      estimatedTimeline: this.extractSection(output, 'Estimated Timeline')
+      estimatedTimeline: this.extractSection(output, 'Estimated Timeline'),
     };
   }
 
@@ -144,7 +144,7 @@ export class GraphyAgent {
     const guidelines = await Task({
       description: 'Read design guidelines',
       prompt: 'Read the design guidelines at .context/GRAPHICAL_REPRESENTATIONS_GUIDE.md',
-      subagent_type: 'general-purpose'
+      subagent_type: 'general-purpose',
     });
 
     const validation = await Task({
@@ -165,7 +165,7 @@ export class GraphyAgent {
 
         Return a list of validation issues or confirmations.
       `,
-      subagent_type: 'general-purpose'
+      subagent_type: 'general-purpose',
     });
 
     return validation.split('\n').filter(line => line.trim().length > 0);

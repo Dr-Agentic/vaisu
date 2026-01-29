@@ -1,9 +1,17 @@
-import fs from "fs";
-import path from "path";
-import { loadConfig } from "../agents/modules/config.js";
-import { generateFeatureSlug } from "../agents/modules/llm.js";
-import { Logger } from "../agents/modules/logger.js";
-import { runAgent } from "../agents/modules/agentRunner.js";
+import fs from 'fs';
+import path from 'path';
+
+import { runAgent } from '../agents/modules/agentRunner.js';
+import { loadConfig } from '../agents/modules/config.js';
+import { generateFeatureSlug } from '../agents/modules/llm.js';
+import { Logger } from '../agents/modules/logger.js';
+
+const LLM_MODELS = {
+  GLM: 'z-ai/glm-4.5-air:free',
+  // Add other models here
+};
+
+const SELECTED_MODEL = LLM_MODELS.GLM;
 
 async function findLatestFile(
   dir: string,
@@ -27,24 +35,24 @@ async function main() {
 
   if (!promptFilePath) {
     console.error(
-      "Usage: npx tsx scripts/orchestrate.ts <path-to-prompt-file> [optional-slug]",
+      'Usage: npx tsx scripts/orchestrate.ts <path-to-prompt-file> [optional-slug]',
     );
     process.exit(1);
   }
 
   const config = loadConfig();
-  const rawPrompt = fs.readFileSync(promptFilePath, "utf-8");
+  const rawPrompt = fs.readFileSync(promptFilePath, 'utf-8');
 
   // 1. Identify Feature
   let slug = process.argv[3];
   if (!slug) {
-    console.log("🔮 Analyzing request to determine feature slug...");
-    slug = await generateFeatureSlug(rawPrompt, config);
+    console.log('🔮 Analyzing request to determine feature slug...');
+    slug = await generateFeatureSlug(rawPrompt, config, SELECTED_MODEL);
   }
   console.log(`Cb Identifier: ${slug}`);
 
   // 2. Setup Workspace
-  const featureDir = path.join(config.projectRoot, ".context/prd", slug);
+  const featureDir = path.join(config.projectRoot, '.context/prd', slug);
   if (!fs.existsSync(featureDir)) {
     fs.mkdirSync(featureDir, { recursive: true });
   }
@@ -68,7 +76,7 @@ async function main() {
     } else {
       const maestroSkill = path.join(
         config.projectRoot,
-        "agents/maestro/Maestro.md",
+        'agents/maestro/Maestro.md',
       );
       const maestroPrompt = `
         The user has submitted a new request.
@@ -81,16 +89,16 @@ async function main() {
         OUTPUT DIRECTORY: ${featureDir}
       `;
       await runAgent(
-        "Maestro",
+        'Maestro',
         maestroSkill,
         maestroPrompt,
         logger,
         config.projectRoot,
+        SELECTED_MODEL,
       );
 
       maestroFile = await findLatestFile(featureDir, /maestro-prompt.*\.json$/);
-      if (!maestroFile)
-        throw new Error("Maestro failed to generate output file.");
+      if (!maestroFile) throw new Error('Maestro failed to generate output file.');
       logger.success(`Maestro output found: ${path.basename(maestroFile)}`);
     }
 
@@ -104,7 +112,7 @@ async function main() {
     } else {
       const rearchySkill = path.join(
         config.projectRoot,
-        "agents/rearchy/Rearchy.md",
+        'agents/rearchy/Rearchy.md',
       );
       const rearchyPrompt = `
         Take the Maestro prompt file and decompose it into requirements.
@@ -113,16 +121,16 @@ async function main() {
         OUTPUT DIRECTORY: ${featureDir}
       `;
       await runAgent(
-        "Rearchy",
+        'Rearchy',
         rearchySkill,
         rearchyPrompt,
         logger,
         config.projectRoot,
+        SELECTED_MODEL,
       );
 
       rearchyFile = await findLatestFile(featureDir, /rearchy-reqs.*\.json$/);
-      if (!rearchyFile)
-        throw new Error("Rearchy failed to generate output file.");
+      if (!rearchyFile) throw new Error('Rearchy failed to generate output file.');
       logger.success(`Rearchy output found: ${path.basename(rearchyFile)}`);
     }
 
@@ -134,7 +142,7 @@ async function main() {
         `Skipping Daisy (Output exists: ${path.basename(daisyFile)})`,
       );
     } else {
-      const daisySkill = path.join(config.projectRoot, "agents/daisy/Daisy.md");
+      const daisySkill = path.join(config.projectRoot, 'agents/daisy/Daisy.md');
       const daisyPrompt = `
         Take the Requirements file and create a technical design and test plan.
         
@@ -142,15 +150,16 @@ async function main() {
         OUTPUT DIRECTORY: ${featureDir}
       `;
       await runAgent(
-        "Daisy",
+        'Daisy',
         daisySkill,
         daisyPrompt,
         logger,
         config.projectRoot,
+        SELECTED_MODEL,
       );
 
       daisyFile = await findLatestFile(featureDir, /daisy-design.*\.json$/);
-      if (!daisyFile) throw new Error("Daisy failed to generate output file.");
+      if (!daisyFile) throw new Error('Daisy failed to generate output file.');
       logger.success(`Daisy output found: ${path.basename(daisyFile)}`);
     }
 
@@ -162,7 +171,7 @@ async function main() {
         `Skipping Tasky (Output exists: ${path.basename(taskyFile)})`,
       );
     } else {
-      const taskySkill = path.join(config.projectRoot, "agents/tasky/Tasky.md");
+      const taskySkill = path.join(config.projectRoot, 'agents/tasky/Tasky.md');
       const taskyPrompt = `
         Take the Design file and break it down into atomic development tasks.
         
@@ -170,15 +179,16 @@ async function main() {
         OUTPUT DIRECTORY: ${featureDir}
       `;
       await runAgent(
-        "Tasky",
+        'Tasky',
         taskySkill,
         taskyPrompt,
         logger,
         config.projectRoot,
+        SELECTED_MODEL,
       );
 
       taskyFile = await findLatestFile(featureDir, /tasky-tasks.*\.json$/);
-      if (!taskyFile) throw new Error("Tasky failed to generate output file.");
+      if (!taskyFile) throw new Error('Tasky failed to generate output file.');
       logger.success(`Tasky output found: ${path.basename(taskyFile)}`);
     }
 
@@ -192,7 +202,7 @@ async function main() {
         `Skipping Devy (Output exists: ${path.basename(devyFile)})`,
       );
     } else {
-      const devySkill = path.join(config.projectRoot, "agents/devy/Devy.md");
+      const devySkill = path.join(config.projectRoot, 'agents/devy/Devy.md');
       const devyPrompt = `
         Take the Task Execution Plan and start implementing the feature.
         Execute the next PENDING task.
@@ -210,9 +220,9 @@ async function main() {
       const checkPending = () => {
         try {
           if (!fs.existsSync(taskyFile!)) return false;
-          const content = JSON.parse(fs.readFileSync(taskyFile!, "utf-8"));
+          const content = JSON.parse(fs.readFileSync(taskyFile!, 'utf-8'));
           return content.execution_plan.some(
-            (t: any) => t.status === "PENDING",
+            (t: any) => t.status === 'PENDING',
           );
         } catch (e) {
           logger.error(`Failed to parse tasky file: ${e}`);
@@ -229,11 +239,12 @@ async function main() {
 
         // We run Devy. It will exit after one task.
         await runAgent(
-          "Devy",
+          'Devy',
           devySkill,
           devyPrompt,
           logger,
           config.projectRoot,
+          SELECTED_MODEL,
         );
 
         // Re-check status
@@ -247,25 +258,26 @@ async function main() {
 
       // Let's run one final time to let Devy see "All Completed" and generate the report.
       if (!hasPendingTasks) {
-        logger.log("✅ All tasks completed. Generating final report...");
+        logger.log('✅ All tasks completed. Generating final report...');
         await runAgent(
-          "Devy",
+          'Devy',
           devySkill,
           devyPrompt,
           logger,
           config.projectRoot,
+          SELECTED_MODEL,
         );
       }
 
       devyFile = await findLatestFile(featureDir, /devy-report.*\.json$/);
       if (!devyFile) {
-        logger.error("Devy finished but no final report was found.");
+        logger.error('Devy finished but no final report was found.');
       } else {
         logger.success(`Devy output found: ${path.basename(devyFile)}`);
       }
     }
 
-    logger.success("🏁 Orchestration Complete!");
+    logger.success('🏁 Orchestration Complete!');
   } catch (error: any) {
     logger.error(`Orchestration failed: ${error.message}`);
     process.exit(1);

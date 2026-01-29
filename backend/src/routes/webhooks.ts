@@ -1,6 +1,7 @@
-import express from "express";
-import { stripeService } from "../services/billing/stripeService.js";
-import { userRepository } from "../repositories/userRepository.js";
+import express from 'express';
+
+import { userRepository } from '../repositories/userRepository.js';
+import { stripeService } from '../services/billing/stripeService.js';
 
 const router = express.Router();
 
@@ -11,13 +12,13 @@ const router = express.Router();
 // So this router must be mounted BEFORE express.json() in server.ts.
 
 router.post(
-  "/stripe",
-  express.raw({ type: "application/json" }),
+  '/stripe',
+  express.raw({ type: 'application/json' }),
   async (req, res) => {
-    const sig = req.headers["stripe-signature"];
+    const sig = req.headers['stripe-signature'];
 
-    if (!sig || typeof sig !== "string") {
-      return res.status(400).send("Webhook Error: Missing stripe-signature");
+    if (!sig || typeof sig !== 'string') {
+      return res.status(400).send('Webhook Error: Missing stripe-signature');
     }
 
     let event;
@@ -31,16 +32,16 @@ router.post(
 
     // Handle the event
     switch (event.type) {
-      case "checkout.session.completed": {
+      case 'checkout.session.completed': {
         const session = event.data.object as any;
         const userId = session.client_reference_id;
         const subscriptionId = session.subscription;
 
         if (userId && subscriptionId) {
           await userRepository.updateUser(userId, {
-            subscriptionStatus: "active",
-            subscriptionId: subscriptionId,
-            subscriptionProvider: "stripe",
+            subscriptionStatus: 'active',
+            subscriptionId,
+            subscriptionProvider: 'stripe',
             // currentPeriodEnd would be fetched from subscription object, but session doesn't have it directly usually.
             // We might need to fetch subscription details.
             // But for now, we just set active.

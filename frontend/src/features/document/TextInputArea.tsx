@@ -2,6 +2,7 @@ import { Send, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { useDocumentStore } from '../../stores/documentStore';
+
 import { Button, Badge } from '@/components/primitives';
 import { cn } from '@/lib/utils';
 
@@ -29,12 +30,12 @@ export function TextInputArea() {
           onChange={(e) => setText(e.target.value)}
           placeholder="Paste your text content here for analysis..."
           className={cn(
-            "w-full h-full min-h-[200px] p-4 rounded-xl border-2 transition-all duration-200 outline-none resize-none bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-primary)]",
-            "focus:border-[var(--color-border-strong)] focus:ring-1 focus:ring-[var(--color-border-strong)]",
-            "hover:border-[var(--color-border-strong)]"
+            'w-full h-full min-h-[200px] p-4 rounded-xl border-2 transition-all duration-200 outline-none resize-none bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-primary)]',
+            'focus:border-[var(--color-border-strong)] focus:ring-1 focus:ring-[var(--color-border-strong)]',
+            'hover:border-[var(--color-border-strong)]',
           )}
           style={{
-            '--tw-placeholder-color': 'var(--color-text-tertiary)'
+            '--tw-placeholder-color': 'var(--color-text-tertiary)',
           } as React.CSSProperties}
           disabled={isLoading}
         />

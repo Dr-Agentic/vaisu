@@ -8,36 +8,36 @@
  * Plus: UI Sampler route for design system exploration
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Routes,
   Route,
   Navigate,
   useLocation,
   useNavigate,
-} from "react-router-dom";
+} from 'react-router-dom';
 
-import { ThemeProvider } from "./design-system/ThemeProvider";
-import { ThemeSwitcher } from "./components/UISampler/ThemeSwitcher";
+import { ThemeProvider } from './design-system/ThemeProvider';
+import { ThemeSwitcher } from './components/UISampler/ThemeSwitcher';
 import {
   StageVisualization,
   ToastContainer,
-} from "./features";
-import UISamplerPage from "./pages/UISamplerPage";
-import { SimpleValidator } from "./components/UISampler/SimpleValidator";
-import { useDocumentStore } from "./stores/documentStore";
-import { useUserStore } from "./stores/userStore";
-import { UserMenu } from "./components/UserMenu";
+} from './features';
+import UISamplerPage from './pages/UISamplerPage';
+import { SimpleValidator } from './components/UISampler/SimpleValidator';
+import { useDocumentStore } from './stores/documentStore';
+import { useUserStore } from './stores/userStore';
+import { UserMenu } from './components/UserMenu';
 
 // Pages
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import ResetPasswordPage from "./pages/ResetPasswordPage";
-import VerifyEmailPage from "./pages/VerifyEmailPage";
-import ProfilePage from "./pages/ProfilePage";
-import DashboardPage from "./pages/dashboard/DashboardPage";
-import PricingPage from "./pages/PricingPage";
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ProfilePage from './pages/ProfilePage';
+import DashboardPage from './pages/dashboard/DashboardPage';
+import PricingPage from './pages/PricingPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -79,7 +79,7 @@ const SplashOrchestrator = () => {
       try {
         await Promise.all([fetchDocumentList(), fetchDashboardStats()]);
       } catch (e) {
-        console.error("Failed to preload data", e);
+        console.error('Failed to preload data', e);
       }
       setIsLoaded(true);
     };
@@ -103,8 +103,8 @@ const SplashOrchestrator = () => {
  * Main app component that manages navigation and authentication.
  */
 export default function App() {
-  const { toasts, removeToast } =
-    useDocumentStore();
+  const { toasts, removeToast }
+    = useDocumentStore();
 
   const checkAuth = useUserStore((state) => state.checkAuth);
 
@@ -117,7 +117,7 @@ export default function App() {
   const handleBackFromVisualization = () => {
     // Clear document and return to dashboard
     useDocumentStore.getState().clearDocument();
-    navigate("/dashboard");
+    navigate('/dashboard');
   };
 
   return (

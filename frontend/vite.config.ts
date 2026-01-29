@@ -1,5 +1,5 @@
 /* eslint-disable */
-/* eslint-disable-next-line import/namespace */
+ 
 
 import path from 'path';
 import react from '@vitejs/plugin-react';

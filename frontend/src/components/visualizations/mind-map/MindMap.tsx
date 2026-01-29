@@ -1,11 +1,11 @@
-import { MindMapData } from "@shared/types";
+import { MindMapData } from '@shared/types';
 import React, {
   useEffect,
   useMemo,
   useRef,
   useState,
   useCallback,
-} from "react";
+} from 'react';
 
 import {
   GraphViewerLayout,
@@ -13,11 +13,11 @@ import {
   GraphEdgeLayer,
   DynamicBezierPath,
   GraphEntityCard,
-} from "../toolkit";
-import { MindMapGraphNode } from "./types";
+} from '../toolkit';
 
-import { useMindMapStore } from "./stores/mindMapStore";
-import { transformMindMapData } from "./utils/dataTransformers";
+import { useMindMapStore } from './stores/mindMapStore';
+import { MindMapGraphNode } from './types';
+import { transformMindMapData } from './utils/dataTransformers';
 
 interface MindMapProps {
   data: MindMapData;
@@ -81,8 +81,8 @@ const MindMapNode = React.memo(
     }, [store.selectedNodeId, node.id, store.nodes]);
 
     const auroraClass = isAurora
-      ? "ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200"
-      : "";
+      ? 'ring-2 ring-teal-400/50 shadow-[0_0_15px_rgba(45,212,191,0.3)] border-teal-200'
+      : '';
 
     return (
       <div className="flex flex-row items-center">
@@ -100,10 +100,10 @@ const MindMapNode = React.memo(
               className={auroraClass}
               // Allow card to size itself naturally
               style={{
-                position: "relative",
-                width: "320px",
-                left: "auto",
-                top: "auto",
+                position: 'relative',
+                width: '320px',
+                left: 'auto',
+                top: 'auto',
               }}
               onMouseEnter={() => setTimeout(onLayoutUpdate, 350)}
               onMouseLeave={() => setTimeout(onLayoutUpdate, 350)}
@@ -121,14 +121,14 @@ const MindMapNode = React.memo(
               mt-2 z-20 flex items-center justify-center w-6 h-6 rounded-full 
               border shadow-sm transition-all duration-200
               ${
-                isExpanded
-                  ? "bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]"
-                  : "bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md"
-              }
+            isExpanded
+              ? 'bg-[var(--color-surface-base)] border-[var(--color-border-subtle)] text-[var(--color-text-tertiary)] hover:bg-[var(--color-background-secondary)]'
+              : 'bg-[var(--color-primary)] border-transparent text-white hover:brightness-110 shadow-md'
+            }
             `}
             >
               <span className="text-[10px] font-bold leading-none">
-                {isExpanded ? "−" : "+"}
+                {isExpanded ? '−' : '+'}
               </span>
             </button>
           )}
@@ -165,7 +165,7 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
   useEffect(() => {
     if (data && data.root) {
       const { nodes, edges, rootId } = transformMindMapData(data);
-      store.setGraphData(nodes, edges, rootId || "");
+      store.setGraphData(nodes, edges, rootId || '');
     }
   }, [data]);
 
@@ -237,7 +237,7 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
+            if (e.key === 'Enter' || e.key === ' ') {
               handleBackgroundClick();
             }
           }}
@@ -260,9 +260,9 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
                 const t = coords[edge.target];
                 if (!s || !t) return null;
 
-                const isSelected =
-                  store.selectedNodeId === edge.source ||
-                  store.selectedNodeId === edge.target;
+                const isSelected
+                  = store.selectedNodeId === edge.source
+                  || store.selectedNodeId === edge.target;
 
                 return (
                   <DynamicBezierPath
@@ -271,7 +271,7 @@ export const MindMap: React.FC<MindMapProps> = ({ data }) => {
                     y1={s.y}
                     x2={t.x}
                     y2={t.y}
-                    label={edge.type !== "relates-to" ? edge.type : undefined}
+                    label={edge.type !== 'relates-to' ? edge.type : undefined}
                     isActive={isSelected}
                   />
                 );

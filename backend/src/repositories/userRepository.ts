@@ -1,4 +1,4 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import {
   DynamoDBDocumentClient,
   PutCommand,
@@ -6,11 +6,11 @@ import {
   UpdateCommand,
   QueryCommand,
   DeleteCommand,
-} from "@aws-sdk/lib-dynamodb";
-import { v4 as uuidv4 } from "uuid";
+} from '@aws-sdk/lib-dynamodb';
+import { v4 as uuidv4 } from 'uuid';
 
-import { env } from "../config/env.js";
-import { calculateContentHash } from "../utils/hash.js";
+import { env } from '../config/env.js';
+import { calculateContentHash } from '../utils/hash.js';
 
 export interface User {
   userId: string;
@@ -20,7 +20,7 @@ export interface User {
   profilePictureUrl?: string;
   role?: string;
   passwordHash: string;
-  status: "active" | "inactive" | "suspended" | "pending_verification";
+  status: 'active' | 'inactive' | 'suspended' | 'pending_verification';
   emailVerified: boolean;
   verificationToken?: string;
   resetToken?: string;
@@ -34,11 +34,11 @@ export interface User {
   subscriptionProvider?: string;
   subscriptionId?: string;
   subscriptionStatus?:
-    | "active"
-    | "canceled"
-    | "past_due"
-    | "incomplete"
-    | "trialing";
+    | 'active'
+    | 'canceled'
+    | 'past_due'
+    | 'incomplete'
+    | 'trialing';
   currentPeriodEnd?: string;
 }
 
@@ -67,19 +67,19 @@ export interface UpdateUserInput {
   subscriptionProvider?: string;
   subscriptionId?: string;
   subscriptionStatus?:
-    | "active"
-    | "canceled"
-    | "past_due"
-    | "incomplete"
-    | "trialing";
+    | 'active'
+    | 'canceled'
+    | 'past_due'
+    | 'incomplete'
+    | 'trialing';
   currentPeriodEnd?: string;
 }
 
 const config = {
-  region: env.AWS_REGION || "us-east-1",
+  region: env.AWS_REGION || 'us-east-1',
   credentials: {
-    accessKeyId: env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: env.AWS_SECRET_ACCESS_KEY || "",
+    accessKeyId: env.AWS_ACCESS_KEY_ID || '',
+    secretAccessKey: env.AWS_SECRET_ACCESS_KEY || '',
   },
 };
 
@@ -92,7 +92,7 @@ export const dynamodb = DynamoDBDocumentClient.from(
     },
   },
 );
-const TABLE_NAME = "vaisu-users";
+const TABLE_NAME = 'vaisu-users';
 
 export class UserRepository {
   async createUser(input: CreateUserInput): Promise<User> {
@@ -105,8 +105,8 @@ export class UserRepository {
       firstName: input.firstName,
       lastName: input.lastName,
       passwordHash: input.passwordHash,
-      role: input.role || "free",
-      status: "pending_verification",
+      role: input.role || 'free',
+      status: 'pending_verification',
       emailVerified: false,
       verificationToken: uuidv4(),
       failedLoginAttempts: 0,
@@ -134,7 +134,7 @@ export class UserRepository {
 
     // Handle missing failedLoginAttempts for old records
     const user = result.Item as any;
-    if (typeof user.failedLoginAttempts === "undefined") {
+    if (typeof user.failedLoginAttempts === 'undefined') {
       user.failedLoginAttempts = 0;
     }
 
@@ -144,10 +144,10 @@ export class UserRepository {
   async getUserByEmail(email: string): Promise<User | null> {
     const command = new QueryCommand({
       TableName: TABLE_NAME,
-      IndexName: "GSI1",
-      KeyConditionExpression: "email = :email",
+      IndexName: 'GSI1',
+      KeyConditionExpression: 'email = :email',
       ExpressionAttributeValues: {
-        ":email": email.toLowerCase(),
+        ':email': email.toLowerCase(),
       },
     });
 
@@ -155,7 +155,7 @@ export class UserRepository {
     if (result.Items && result.Items.length > 0) {
       // Handle missing failedLoginAttempts for old records
       const user = result.Items[0] as any;
-      if (typeof user.failedLoginAttempts === "undefined") {
+      if (typeof user.failedLoginAttempts === 'undefined') {
         user.failedLoginAttempts = 0;
       }
       return user as User;
@@ -165,12 +165,12 @@ export class UserRepository {
 
   async updateUser(userId: string, updates: UpdateUserInput): Promise<User> {
     const now = new Date().toISOString();
-    const updateFields: string[] = ["#updatedAt = :updatedAt"];
+    const updateFields: string[] = ['#updatedAt = :updatedAt'];
     const expressionValues: Record<string, any> = {
-      ":updatedAt": now,
+      ':updatedAt': now,
     };
     const expressionAttributeNames: Record<string, string> = {
-      "#updatedAt": "updatedAt",
+      '#updatedAt': 'updatedAt',
     };
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -183,16 +183,16 @@ export class UserRepository {
     });
 
     if (updateFields.length === 0) {
-      throw new Error("No fields to update");
+      throw new Error('No fields to update');
     }
 
     const command = new UpdateCommand({
       TableName: TABLE_NAME,
       Key: { userId },
-      UpdateExpression: `SET ${updateFields.join(", ")}`,
+      UpdateExpression: `SET ${updateFields.join(', ')}`,
       ExpressionAttributeValues: expressionValues,
       ExpressionAttributeNames: expressionAttributeNames,
-      ReturnValues: "ALL_NEW",
+      ReturnValues: 'ALL_NEW',
     });
 
     const result = await dynamodb.send(command);
@@ -201,7 +201,7 @@ export class UserRepository {
 
   async deleteUser(userId: string): Promise<void> {
     const now = new Date().toISOString();
-    await this.updateUser(userId, { deletedAt: now, status: "inactive" });
+    await this.updateUser(userId, { deletedAt: now, status: 'inactive' });
   }
 
   async getActiveUsers(
@@ -210,13 +210,13 @@ export class UserRepository {
   ): Promise<{ users: User[]; lastKey?: string }> {
     const command = new QueryCommand({
       TableName: TABLE_NAME,
-      IndexName: "GSI2",
-      KeyConditionExpression: "#status = :status",
+      IndexName: 'GSI2',
+      KeyConditionExpression: '#status = :status',
       ExpressionAttributeNames: {
-        "#status": "status",
+        '#status': 'status',
       },
       ExpressionAttributeValues: {
-        ":status": "active",
+        ':status': 'active',
       },
       Limit: limit,
       ExclusiveStartKey: startKey ? { userId: startKey } : undefined,
@@ -237,7 +237,7 @@ export class UserRepository {
 
     await this.updateUser(userId, {
       emailVerified: true,
-      status: "active",
+      status: 'active',
       verificationToken: undefined,
     });
 

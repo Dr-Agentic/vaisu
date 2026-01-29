@@ -1,6 +1,7 @@
-import { spawn } from "child_process";
-import fs from "fs";
-import { Logger } from "./logger.js";
+import { spawn } from 'child_process';
+import fs from 'fs';
+
+import { Logger } from './logger.js';
 
 export async function runAgent(
   agentName: string,
@@ -8,12 +9,13 @@ export async function runAgent(
   taskPrompt: string,
   logger: Logger,
   projectRoot: string,
+  model?: string,
 ): Promise<void> {
   if (!fs.existsSync(skillPath)) {
     throw new Error(`Skill definition not found at: ${skillPath}`);
   }
 
-  const skillContent = fs.readFileSync(skillPath, "utf-8");
+  const skillContent = fs.readFileSync(skillPath, 'utf-8');
 
   const fullPrompt = `
 SYSTEM INSTRUCTION: 
@@ -35,15 +37,21 @@ ${taskPrompt}
 
   logger.log(`🤖 Awakening Agent: ${agentName}`);
 
+  const args = ['run'];
+  if (model) {
+    args.push('--model', model);
+  }
+  args.push(fullPrompt);
+
   return new Promise((resolve, reject) => {
     // stdio: ['ignore', 'inherit', 'inherit'] closes stdin
-    const cp = spawn("opencode", ["run", fullPrompt], {
-      stdio: ["ignore", "inherit", "inherit"],
+    const cp = spawn('opencode', args, {
+      stdio: ['ignore', 'inherit', 'inherit'],
       shell: false,
       cwd: projectRoot,
     });
 
-    cp.on("close", (code) => {
+    cp.on('close', (code) => {
       if (code === 0) {
         logger.success(`${agentName} completed its session.`);
         resolve();
@@ -53,7 +61,7 @@ ${taskPrompt}
       }
     });
 
-    cp.on("error", (err) => {
+    cp.on('error', (err) => {
       logger.error(`Failed to spawn opencode for ${agentName}: ${err.message}`);
       reject(err);
     });
