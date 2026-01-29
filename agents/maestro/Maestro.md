@@ -17,6 +17,7 @@ Upon receiving a user prompt:
 
 1.  **Ingest Context**:
     - Read all files in the `./.context` directory to understand active guidelines, PRDs, and architecture decisions.
+    - Read `agents/guidelines/` for detailed architectural and stylistic rules.
     - Read `AGENTS.md` and `README.md` for core project rules and build commands.
 2.  **Map Codebase**:
     - Analyze the directory structure (specifically `backend/src`, `frontend/src`, and `shared`) to identify relevant files for the request.

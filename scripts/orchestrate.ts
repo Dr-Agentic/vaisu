@@ -1,5 +1,7 @@
+import * as console from 'console';
 import fs from 'fs';
 import path from 'path';
+import * as process from 'process';
 
 import { runAgent } from '../agents/modules/agentRunner.js';
 import { loadConfig } from '../agents/modules/config.js';
@@ -53,8 +55,12 @@ async function main() {
 
   // 2. Setup Workspace
   const featureDir = path.join(config.projectRoot, '.context/prd', slug);
+  const logsDir = path.join(featureDir, 'logs');
   if (!fs.existsSync(featureDir)) {
     fs.mkdirSync(featureDir, { recursive: true });
+  }
+  if (!fs.existsSync(logsDir)) {
+    fs.mkdirSync(logsDir, { recursive: true });
   }
 
   // 3. Initialize Logger
@@ -83,7 +89,7 @@ async function main() {
         Analyze the request and generate the initial JSON prompt file.
         
         USER REQUEST:
-        "${rawPrompt}"
+        '${rawPrompt}'
         
         FEATURE SLUG: ${slug}
         OUTPUT DIRECTORY: ${featureDir}
@@ -95,6 +101,7 @@ async function main() {
         logger,
         config.projectRoot,
         SELECTED_MODEL,
+        path.join(logsDir, '01-maestro.log'),
       );
 
       maestroFile = await findLatestFile(featureDir, /maestro-prompt.*\.json$/);
@@ -127,6 +134,7 @@ async function main() {
         logger,
         config.projectRoot,
         SELECTED_MODEL,
+        path.join(logsDir, '02-rearchy.log'),
       );
 
       rearchyFile = await findLatestFile(featureDir, /rearchy-reqs.*\.json$/);
@@ -156,6 +164,7 @@ async function main() {
         logger,
         config.projectRoot,
         SELECTED_MODEL,
+        path.join(logsDir, '03-daisy.log'),
       );
 
       daisyFile = await findLatestFile(featureDir, /daisy-design.*\.json$/);
@@ -185,6 +194,7 @@ async function main() {
         logger,
         config.projectRoot,
         SELECTED_MODEL,
+        path.join(logsDir, '04-tasky.log'),
       );
 
       taskyFile = await findLatestFile(featureDir, /tasky-tasks.*\.json$/);
@@ -245,6 +255,7 @@ async function main() {
           logger,
           config.projectRoot,
           SELECTED_MODEL,
+          path.join(logsDir, '05-devy.log'),
         );
 
         // Re-check status
@@ -275,6 +286,83 @@ async function main() {
       } else {
         logger.success(`Devy output found: ${path.basename(devyFile)}`);
       }
+    }
+
+    // --- Step 6: Checky ---
+    let checkyFile = await findLatestFile(featureDir, /checky-.*\.json$/);
+
+    if (checkyFile) {
+      logger.success(
+        `Skipping Checky (Output exists: ${path.basename(checkyFile)})`,
+      );
+    } else {
+      const checkySkill = path.join(
+        config.projectRoot,
+        'agents/checky/Checky.md',
+      );
+      const checkyPrompt = `
+        Perform a comprehensive audit of the feature implementation.
+        
+        INPUTS:
+        - Original Request: '${rawPrompt}'
+        - Maestro File: ${maestroFile}
+        - Rearchy File: ${rearchyFile}
+        - Daisy File: ${daisyFile}
+        - Tasky File: ${taskyFile}
+        - Devy File: ${devyFile}
+        
+        OUTPUT DIRECTORY: ${featureDir}
+      `;
+      await runAgent(
+        'Checky',
+        checkySkill,
+        checkyPrompt,
+        logger,
+        config.projectRoot,
+        SELECTED_MODEL,
+        path.join(logsDir, '06-checky.log'),
+      );
+
+      checkyFile = await findLatestFile(featureDir, /checky-.*\.json$/);
+      if (!checkyFile) throw new Error('Checky failed to generate output file.');
+      logger.success(`Checky output found: ${path.basename(checkyFile)}`);
+    }
+
+    // --- Step 7: Guidy ---
+    let guidyFile = await findLatestFile(featureDir, /guidy-report.*\.json$/);
+
+    if (guidyFile) {
+      logger.success(
+        `Skipping Guidy (Output exists: ${path.basename(guidyFile)})`,
+      );
+    } else {
+      const guidySkill = path.join(config.projectRoot, 'agents/guidy/Guidy.md');
+      const guidyPrompt = `
+        Run quality checks, verify styles, and commit/push changes.
+        
+        INPUTS:
+        - Checky Audit: ${checkyFile}
+        - Feature Slug: ${slug}
+        
+        OUTPUT DIRECTORY: ${featureDir}
+        STYLE SKILL PATH: ${path.join(
+    config.projectRoot,
+    'agents/skills/style-consistency',
+  )}
+      `;
+      await runAgent(
+        'Guidy',
+        guidySkill,
+        guidyPrompt,
+        logger,
+        config.projectRoot,
+        SELECTED_MODEL,
+        path.join(logsDir, '07-guidy.log'),
+      );
+
+      guidyFile = await findLatestFile(featureDir, /guidy-report.*\.json$/);
+      if (!guidyFile) throw new Error('Guidy failed to generate output file.');
+      logger.success(`Guidy output found: ${path.basename(guidyFile)}`);
     }
 
     logger.success('🏁 Orchestration Complete!');

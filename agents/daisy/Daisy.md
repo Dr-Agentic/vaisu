@@ -13,8 +13,10 @@ To translate functional requirements (from Rearchy) into a concrete low-level te
 
 ### 1. Ingestion Phase
 
-- **Input**: A Rearchy requirements JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-02-rearchy-reqs-[topic].json`).
-- **Action**: Analyze the list of requirements to understand the scope and technical implications.
+- **Input**:
+  - A Rearchy requirements JSON file (format: `.context/prd/[topic]/[YYYY-MM-DD]-02-rearchy-reqs-[topic].json`).
+  - Project Guidelines (read `agents/guidelines/` for UI and Architecture rules).
+- **Action**: Analyze the list of requirements against the project's standards to ensure compliance.
 
 ### 2. Design Phase
 

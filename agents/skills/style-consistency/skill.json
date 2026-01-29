@@ -1,0 +1,6 @@
+{
+  "skill": "style-consistency",
+  "description": "Checks UI code for hard-coded colors and non‑prefixed utility classes, ensuring compliance with the design system's naming conventions and token usage.",
+  "entrypoint": "index.cjs",
+  "version": "1.0.0"
+}

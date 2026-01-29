@@ -10,6 +10,7 @@ export async function runAgent(
   logger: Logger,
   projectRoot: string,
   model?: string,
+  logFile?: string,
 ): Promise<void> {
   if (!fs.existsSync(skillPath)) {
     throw new Error(`Skill definition not found at: ${skillPath}`);
@@ -44,12 +45,43 @@ ${taskPrompt}
   args.push(fullPrompt);
 
   return new Promise((resolve, reject) => {
-    // stdio: ['ignore', 'inherit', 'inherit'] closes stdin
+    // Determine stdio mode
+    // If logFile is provided, we pipe stdout/stderr to capture them.
+    // Otherwise, we inherit to show in console (default behavior).
+    const stdioMode = logFile ? 'pipe' : 'inherit';
+
     const cp = spawn('opencode', args, {
-      stdio: ['ignore', 'inherit', 'inherit'],
+      stdio: ['ignore', stdioMode, stdioMode],
       shell: false,
       cwd: projectRoot,
     });
+
+    if (logFile && cp.stdout && cp.stderr) {
+      // Create write stream
+      // Ensure dir exists
+      const logDir = logFile.substring(0, logFile.lastIndexOf('/'));
+      if (logDir && !fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+      }
+
+      const fileStream = fs.createWriteStream(logFile, { flags: 'a' });
+
+      // Pipe stdout to console AND file
+      cp.stdout.on('data', (data) => {
+        process.stdout.write(data);
+        fileStream.write(data);
+      });
+
+      // Pipe stderr to console AND file
+      cp.stderr.on('data', (data) => {
+        process.stderr.write(data);
+        fileStream.write(data);
+      });
+
+      cp.on('close', () => {
+        fileStream.end();
+      });
+    }
 
     cp.on('close', (code) => {
       if (code === 0) {

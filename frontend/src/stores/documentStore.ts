@@ -6,6 +6,7 @@ import type { Document, DocumentAnalysis, VisualizationType, DashboardStats } fr
 import type { ToastType } from '../features/feedback/Toast';
 
 export type AppStage = 'welcome' | 'input' | 'analysis' | 'visualization';
+const DEFAULT_VISUALIZATION: VisualizationType = 'executive-dashboard';
 
 export interface ToastMessage {
   id: string;
@@ -75,7 +76,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
   isLoading: false,
   isAnalyzing: false,
   error: null,
-  currentVisualization: 'structured-view',
+  currentVisualization: DEFAULT_VISUALIZATION,
   visualizationData: new Map(),
   progressStep: '',
   progressPercent: 0,
@@ -111,8 +112,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       // Refresh document list
       get().fetchDocumentList();
 
-      // Load structured view immediately (doesn't need analysis)
-      get().loadVisualization('structured-view');
+      // Load default visualization immediately
+      get().loadVisualization(DEFAULT_VISUALIZATION);
 
       // Then analyze in background
       await get().analyzeDocument();
@@ -149,7 +150,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       get().fetchDocumentList();
 
       // Load default visualization
-      await get().loadVisualization('structured-view');
+      await get().loadVisualization(DEFAULT_VISUALIZATION);
     } catch (error: any) {
       set({ error: error.message || 'Failed to analyze text', isLoading: false });
       get().addToast({
@@ -211,9 +212,8 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         duration: 5000,
       });
 
-      // Load structured-view visualization immediately (priority visualization)
-      // This shows the document structure which is always available
-      get().loadVisualization('structured-view');
+      // Load default visualization immediately (priority visualization)
+      get().loadVisualization(DEFAULT_VISUALIZATION);
     } catch (error: any) {
       clearInterval(pollInterval);
       set({
@@ -332,7 +332,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
       isLoading: false,
       isAnalyzing: false,
       error: null,
-      currentVisualization: 'structured-view',
+      currentVisualization: DEFAULT_VISUALIZATION,
       visualizationData: new Map(),
       progressStep: '',
       progressPercent: 0,
@@ -393,7 +393,7 @@ export const useDocumentStore = create<DocumentStore>((set, get) => ({
         analysis: response.analysis || null,
         visualizationData: vizMap,
         isLoading: false,
-        currentVisualization: 'structured-view',
+        currentVisualization: DEFAULT_VISUALIZATION,
       });
 
       get().addToast({
