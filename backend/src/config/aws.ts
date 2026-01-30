@@ -61,6 +61,8 @@ export const DYNAMODB_KNOWLEDGE_GRAPH_TABLE
   = process.env.DYNAMODB_KNOWLEDGE_GRAPH_TABLE || 'vaisu-knowledge-graph';
 export const DYNAMODB_ENTITY_GRAPH_TABLE
   = process.env.DYNAMODB_ENTITY_GRAPH_TABLE || 'vaisu-entity-graph';
+export const DYNAMODB_STRUCTURED_VIEW_TABLE
+  = process.env.DYNAMODB_STRUCTURED_VIEW_TABLE || 'vaisu-structured-views';
 
 // User Management tables
 export const DYNAMODB_USERS_TABLE
@@ -111,6 +113,7 @@ export function validateAWSConfig(): void {
     DYNAMODB_TERMS_DEFINITIONS_TABLE,
     DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
     DYNAMODB_ENTITY_GRAPH_TABLE,
+    DYNAMODB_STRUCTURED_VIEW_TABLE,
   ];
 
   const invalidTables = allVisualizationTables.filter((table) => !table);
@@ -136,6 +139,7 @@ export function validateAWSConfig(): void {
       termsDefinitions: DYNAMODB_TERMS_DEFINITIONS_TABLE,
       knowledgeGraph: DYNAMODB_KNOWLEDGE_GRAPH_TABLE,
       entityGraph: DYNAMODB_ENTITY_GRAPH_TABLE,
+      structuredView: DYNAMODB_STRUCTURED_VIEW_TABLE,
     },
     userManagementTables: {
       users: DYNAMODB_USERS_TABLE,

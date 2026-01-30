@@ -86,19 +86,29 @@ export class VisualizationGenerator {
       // Create a unique lock key for this document and visualization type
       const lockKey = `visualization-lock:${document.id}:${type}`;
 
-      // Check if visualization already exists (skip for structured-view as it's stored in analyses table)
-      // If force is true, skip this check to regenerate
+      console.log(
+        `🔍 Checking cache for ${type} visualization on document ${document.id}`,
+        { force, type },
+      );
+
       let existingVisualization = null;
-      if (!force && type !== 'structured-view') {
+      if (!force) {
         try {
           existingVisualization
             = await visualizationService.findByDocumentIdAndType(document.id, type);
-          
+
           if (existingVisualization) {
             console.log(
-              `✅ Found existing ${type} visualization for document ${document.id}`,
+              `✅ CACHE HIT: Found existing ${type} visualization for document ${document.id}`,
             );
             return existingVisualization.visualizationData;
+          } else {
+            console.log(
+              `🚨 [GENERATOR] CACHE MISS: No existing ${type} visualization found for document ${document.id}.`,
+            );
+            console.log(
+              `⚠️  [GENERATOR] TRIGGERING NEW GENERATION (Potential LLM Cost) for ${type}`,
+            );
           }
         } catch (error) {
           console.error(
@@ -109,6 +119,10 @@ export class VisualizationGenerator {
             `Failed to check for existing ${type} visualization: ${error instanceof Error ? error.message : 'Unknown database error'}`,
           );
         }
+      } else {
+        console.log(
+          `⏭️  Skipping cache check: force=${force}, type=${type}`,
+        );
       }
 
       console.log(
@@ -213,8 +227,8 @@ export class VisualizationGenerator {
       // Calculate processing time
       llmMetadata.processingTime = Date.now() - startTime;
 
-      // Store the generated visualization in DynamoDB (skip for structured-view as it's stored in analyses table)
-      if (type !== 'structured-view') {
+      // Store the generated visualization in DynamoDB
+      {
         const visualizationRecord = {
           documentId: document.id,
           visualizationType: type,

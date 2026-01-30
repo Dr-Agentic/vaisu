@@ -4,10 +4,10 @@ import type { VisualizationRecord } from './types.js';
 // Import AWS SDK commands
 import { PutCommand, GetCommand, UpdateCommand, DeleteCommand } from '@aws-sdk/lib-dynamodb';
 
-// Import dynamoDB client
-import { dynamoDBClient } from '../config/aws.js';
+// Import dynamoDB client and table constant
+import { dynamoDBClient, DYNAMODB_STRUCTURED_VIEW_TABLE } from '../config/aws.js';
 
-const TABLE_NAME = process.env.DYNAMODB_STRUCTURED_VIEW_TABLE || 'vaisu-structured-views';
+const TABLE_NAME = DYNAMODB_STRUCTURED_VIEW_TABLE;
 
 /**
  * Create a new structured-view visualization record
