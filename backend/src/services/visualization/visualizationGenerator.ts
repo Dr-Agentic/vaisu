@@ -1,6 +1,4 @@
-import { DEPTH_ANALYSIS_PROMPT } from '../../prompts/depthAnalysisPrompt.js';
-import { ENTITY_GRAPH_PROMPT } from '../../prompts/entityGraphPrompt.js';
-import { STRUCTURE_ANALYSIS_PROMPT } from '../../prompts/structureAnalysisPrompt.js';
+import { loadPrompt } from '../llm/promptLoader.js';
 import { visualizationService } from '../../repositories/visualizationService.js';
 
 import type {
@@ -57,12 +55,12 @@ interface UMLExtractionResult {
     source: string;
     target: string;
     type:
-      | 'inheritance'
-      | 'realization'
-      | 'composition'
-      | 'aggregation'
-      | 'association'
-      | 'dependency';
+    | 'inheritance'
+    | 'realization'
+    | 'composition'
+    | 'aggregation'
+    | 'association'
+    | 'dependency';
     sourceMultiplicity?: string;
     targetMultiplicity?: string;
     sourceRole?: string;
@@ -85,19 +83,32 @@ export class VisualizationGenerator {
     force: boolean = false,
   ): Promise<any> {
     try {
-      // First, check if visualization already exists in DynamoDB (skip for structured-view as it's stored in analyses table)
+      // Create a unique lock key for this document and visualization type
+      const lockKey = `visualization-lock:${document.id}:${type}`;
+
+      // Check if visualization already exists (skip for structured-view as it's stored in analyses table)
       // If force is true, skip this check to regenerate
       let existingVisualization = null;
       if (!force && type !== 'structured-view') {
-        existingVisualization
-          = await visualizationService.findByDocumentIdAndType(document.id, type);
-      }
-
-      if (existingVisualization) {
-        console.log(
-          `✅ Found existing ${type} visualization for document ${document.id}`,
-        );
-        return existingVisualization.visualizationData;
+        try {
+          existingVisualization
+            = await visualizationService.findByDocumentIdAndType(document.id, type);
+          
+          if (existingVisualization) {
+            console.log(
+              `✅ Found existing ${type} visualization for document ${document.id}`,
+            );
+            return existingVisualization.visualizationData;
+          }
+        } catch (error) {
+          console.error(
+            `❌ Critical error checking for existing ${type} visualization: ${error}`,
+          );
+          // For database errors, we should not proceed with generation to avoid race conditions
+          throw new Error(
+            `Failed to check for existing ${type} visualization: ${error instanceof Error ? error.message : 'Unknown database error'}`,
+          );
+        }
       }
 
       console.log(
@@ -248,7 +259,7 @@ export class VisualizationGenerator {
 
       // Prepare content for LLM
       const contentSample = document.content.substring(0, 25000);
-      const prompt = `${STRUCTURE_ANALYSIS_PROMPT}\n\nDocument Title: ${document.title}\n\nContent:\n${contentSample}`;
+      const prompt = `${loadPrompt('structureAnalysis')}\n\nDocument Title: ${document.title}\n\nContent:\n${contentSample}`;
 
       const response = await llmClient.callWithFallback(
         'sectionSummary',
@@ -539,30 +550,7 @@ export class VisualizationGenerator {
     const llmClient = getOpenRouterClient();
 
     try {
-      const systemPrompt = `You are a knowledge graph generation expert. Analyze the document and create 
-a comprehensive knowledge graph JSON structure.
-Match the EXACT JSON schema provided below.
-Return ONLY valid JSON.
-DO NOT use markdown code blocks.
-Straight to the JSON data.
-
-Schema:
-{
-  "nodes": [
-    { "id": "string", "label": "string", "type": "string", "metadata": { "description": "string", "sourceQuote": "string", "sourceSpan": { "start": "number", "end": "number" } } }
-  ],
-  "edges": [
-    { "source": "string", "target": "string", "type": "string", "label": "string", "evidence": ["string"] }
-  ],
-  "clusters": [
-    { "id": "string", "label": "string", "nodeIds": ["string"] }
-  ],
-  "hierarchy": {
-    "rootNodes": ["string"],
-    "maxDepth": "number",
-    "nodeDepths": { "nodeId": "number" }
-  }
-}`;
+      const systemPrompt = loadPrompt('knowledge-graph-generation');
 
       // Compress content if it's too large (keeping intro and outro for context)
       // Limit to ~30k chars (approx 8k tokens) to leave room for the graph
@@ -1044,7 +1032,7 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
     const tldrText
       = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
-    const prompt = `${DEPTH_ANALYSIS_PROMPT}
+    const prompt = `${loadPrompt('depthAnalysis')}
 
 Input Document:
 Title: ${document.title}
@@ -1087,7 +1075,7 @@ ${contentSample}
     const tldrText
       = typeof analysis.tldr === 'string' ? analysis.tldr : analysis.tldr.text;
 
-    const prompt = `${ENTITY_GRAPH_PROMPT}
+    const prompt = `${loadPrompt('entityGraph')}
 
 Input Document:
 Title: ${document.title}
@@ -1143,47 +1131,13 @@ ${contentSample}
     const tldrText
       = typeof _analysis.tldr === 'string' ? _analysis.tldr : _analysis.tldr.text;
 
-    const prompt = `Document Title: ${_document.title}
+    const prompt = `${loadPrompt('argumentMapGeneration')}
+    
+Document Title: ${_document.title}
 TLDR: ${tldrText}
 
 Content:
 ${contentSample}
-
-You are an expert in argument analysis. Generate a comprehensive Argument Map from the text.
-
-CRITICAL INSTRUCTIONS:
-1. Identify the Main Claim and all supporting/attacking arguments and evidence.
-2. For EACH node, you MUST calculate "Depth Metrics" (0.0 - 1.0):
-   - Cohesion: Structural integrity and logical consistency.
-   - Nuance: Perspective diversity and complexity.
-   - Grounding: Quality of evidence and factual support.
-   - Tension: Degree of argumentative conflict or debate.
-   - Confidence: Your confidence in EACH of the above scores.
-3. Return a raw JSON object with "nodes" and "edges". Do not use markdown code blocks.
-
-Node Schema:
-{
-  "id": "string",
-  "type": "claim" | "argument" | "evidence" | "counterargument" | "rebuttal",
-  "label": "string (short title)",
-  "summary": "string (1-2 sentences)",
-  "polarity": "support" | "attack" | "neutral",
-  "confidence": number (0-1),
-  "impact": "low" | "medium" | "high",
-  "depthMetrics": {
-    "cohesion": number,
-    "nuance": number,
-    "grounding": number,
-    "tension": number,
-    "confidence": {
-      "cohesion": number,
-      "nuance": number,
-      "grounding": number,
-      "tension": number,
-      "composite": number
-    }
-  }
-}
 `;
 
     try {

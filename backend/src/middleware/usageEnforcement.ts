@@ -52,8 +52,9 @@ export const checkAnalysisLimit = async (
     const currentCount = dailyUsage?.analysisCount || 0;
 
     if (currentCount >= limits.dailyAnalysis) {
-      res.status(403).json({
+      res.status(429).json({
         error: 'Daily analysis limit exceeded',
+        code: 'DAILY_LIMIT_EXCEEDED',
         details: {
           current: currentCount,
           limit: limits.dailyAnalysis,
@@ -89,6 +90,7 @@ export const checkStorageLimit = async (
     if (totalDocs >= limits.totalDocuments) {
       res.status(403).json({
         error: 'Storage limit exceeded (maximum documents reached)',
+        code: 'STORAGE_LIMIT_EXCEEDED',
         details: {
           current: totalDocs,
           limit: limits.totalDocuments,

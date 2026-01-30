@@ -1,0 +1,1 @@
+Extract 10-50 key terms, technical jargon, and acronyms. Provide context-aware definitions based on the document's domain. Return as raw JSON array with format (no markdown): { "terms": [{ "term": "...", "definition": "...", "type": "acronym|technical|jargon|concept", "confidence": 0.0-1.0, "mentions": number, "context": "..." }], "domain": "..." }

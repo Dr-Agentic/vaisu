@@ -114,7 +114,7 @@ describe("Document Usage Limits", () => {
         .post("/api/documents/analyze")
         .send({ text: "some text" });
 
-      expect(response.status).toBe(403);
+      expect(response.status).toBe(429);
       expect(response.body.error).toMatch(/limit exceeded/i);
       // Should NOT have incremented
       expect(

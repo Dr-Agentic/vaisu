@@ -38,6 +38,7 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import ProfilePage from './pages/ProfilePage';
 import DashboardPage from './pages/dashboard/DashboardPage';
 import PricingPage from './pages/PricingPage';
+import { UpgradeModal } from './components/billing/UpgradeModal';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -128,6 +129,8 @@ export default function App() {
           <ThemeSwitcher />
           <UserMenu />
         </div>
+
+        <UpgradeModal />
 
         <Routes>
           {/* Public Routes */}

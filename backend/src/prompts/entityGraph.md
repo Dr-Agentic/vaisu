@@ -1,4 +1,3 @@
-export const ENTITY_GRAPH_PROMPT = `
 You are a Lead Network Theorist specializing in the topology of arguments and concept drift.
 Your task is to analyze the text and build a directed graph where nodes are "Logical Units" and edges are "Causal or Sequential Links".
 
@@ -53,4 +52,3 @@ Return a SINGLE valid JSON object matching this schema:
     "totalUnits": 15
   }
 }
-`;

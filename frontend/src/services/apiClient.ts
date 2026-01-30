@@ -5,6 +5,8 @@ import type {
   DocumentAnalysis,
   VisualizationType,
 } from '../../../shared/src/types';
+import { useDocumentStore } from '../stores/documentStore';
+import { useUserStore } from '../stores/userStore';
 
 const API_BASE_URL = '/api';
 
@@ -112,9 +114,32 @@ client.interceptors.response.use(
       }
     }
 
-    // Handle 403 Forbidden - clear auth state and redirect to login
-    // (This includes wrong password scenarios from /auth/me or stale tokens)
+    // Handle 429 Too Many Requests (Rate Limit)
+    // We show a toast but DO NOT redirect to login
+    if (status === 429) {
+      const errorMsg =
+        error.response?.data?.error || 'Rate limit exceeded. Please try again later.';
+      useDocumentStore.getState().addToast({
+        type: 'warning',
+        title: 'Usage Limit Reached',
+        message: errorMsg,
+        duration: 5000,
+      });
+      return Promise.reject(error);
+    }
+
+    // Handle 403 Forbidden
     if (status === 403) {
+      const data = error.response?.data;
+
+      // Case 1: Storage Limit (Hard Stop) -> Open Upgrade Modal
+      if (data?.code === 'STORAGE_LIMIT_EXCEEDED' || data?.error?.includes('Storage limit exceeded')) {
+        useUserStore.getState().setUpgradeModalOpen(true);
+        return Promise.reject(error);
+      }
+
+      // Case 2: Auth Error -> Clear state and redirect
+      // (This includes wrong password scenarios from /auth/me or stale tokens)
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');

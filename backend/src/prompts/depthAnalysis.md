@@ -1,4 +1,3 @@
-export const DEPTH_ANALYSIS_PROMPT = `
 You are a Lead Cognitive Analyst specializing in epistemology, causality, and discourse structure.
 Your task is to perform a granular True Depth Analysis of the provided text.
 
@@ -108,4 +107,3 @@ You must output a single valid JSON object. Do not wrap it in markdown code bloc
     }
   ]
 }
-`;

@@ -48,7 +48,12 @@ Scaffy must perform the following operations in the `TARGET_DIR`:
 4.  **Database Layer**:
     - _If DynamoDB_: Copy Vaisu's `repositories/` adapted for the new app name.
     - _If Postgres_: Generate a Drizzle ORM schema (`schema.ts`) for Users and Subscriptions. Create equivalent repository files implementing the same interfaces as Vaisu.
-5.  **Clean Up**: **DO NOT** copy Vaisu's specific domain logic (`documentParser`, `textAnalyzer`, `visualizationGenerator`).
+5.  **LLM Infrastructure**:
+    - Create `src/services/llm/` and copy `promptLoader.ts` from Vaisu.
+    - Create `src/prompts/` directory for storing markdown prompts.
+    - Add an example prompt file: `src/prompts/demo-task.md` with content: `You are a helpful assistant. Summarize: {{input}}`.
+    - Create `src/services/llm/llmService.ts` (simplified) that imports `loadPrompt`, reads the demo prompt, and exposes a basic `generateText(input: string)` function using the project's LLM provider (OpenRouter/OpenAI).
+6.  **Clean Up**: **DO NOT** copy Vaisu's specific domain logic (`documentParser`, `textAnalyzer`, `visualizationGenerator`).
 
 #### C. Web Frontend Scaffolding (`/frontend`)
 
@@ -59,7 +64,9 @@ Scaffy must perform the following operations in the `TARGET_DIR`:
     - _If New Theme_: Update `design-system/tokens.ts` with requested color palette.
 3.  **Core Pages**:
     - Scaffold `Login`, `Register`, `Settings` (User Profile + Stripe Billing Portal link).
-    - Create a blank `Dashboard` as the landing page.
+    - **Functional Requirement**: Ensure `Login` and `Register` pages are fully connected to the backend Auth API. The user MUST be able to create a new account and log in immediately after the scaffold is built.
+    - Create a `Dashboard` landing page.
+    - **User Menu**: Ensure the Dashboard and other protected pages include a Navigation Bar or Sidebar with a User Menu (Avatar/Dropdown) that allows navigation to `Settings` and a `Logout` action.
 4.  **Routing**: Setup `react-router` with protected routes.
 
 #### D. Mobile Frontend Scaffolding (`/mobile`)

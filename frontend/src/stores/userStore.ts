@@ -34,6 +34,9 @@ interface UserState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  isUpgradeModalOpen: boolean;
+
+  setUpgradeModalOpen: (isOpen: boolean) => void;
 
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -57,6 +60,9 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: false,
       isLoading: false,
       error: null,
+      isUpgradeModalOpen: false,
+
+      setUpgradeModalOpen: (isOpen) => set({ isUpgradeModalOpen: isOpen }),
 
       login: async (email, password) => {
         set({ isLoading: true, error: null });
