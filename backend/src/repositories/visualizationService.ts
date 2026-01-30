@@ -6,6 +6,7 @@ import * as executiveDashboardRepository from './executiveDashboardRepository.js
 import * as flowchartRepository from './flowchartRepository.js';
 import * as knowledgeGraphRepository from './knowledgeGraphRepository.js';
 import * as mindMapRepository from './mindMapRepository.js';
+import * as structuredViewRepository from './structuredViewRepository.js';
 import * as termsDefinitionsRepository from './termsDefinitionsRepository.js';
 import * as timelineRepository from './timelineRepository.js';
 import * as umlClassRepository from './umlClassRepository.js';
@@ -101,7 +102,7 @@ export class VisualizationService {
     const repository = this.getRepositoryForType(visualizationType);
     switch (visualizationType) {
       case 'structured-view':
-        await repository.deleteStructuredView(documentId);
+        await repository.deleteVisualization(documentId);
         break;
       case 'argument-map':
         await repository.deleteArgumentMap(documentId);
@@ -165,7 +166,7 @@ export class VisualizationService {
   private getRepositoryForType(type: string): any {
     switch (type) {
       case 'structured-view':
-        return analysisRepository; // Use analysis repository for structured-view
+        return structuredViewRepository; // Use dedicated repository
       case 'argument-map':
         return argumentMapRepository;
       case 'depth-graph':
