@@ -63,10 +63,10 @@ Scaffy must perform the following operations in the `TARGET_DIR`:
     - Copy `design-system/` (Tokens, ThemeProvider).
     - _If New Theme_: Update `design-system/tokens.ts` with requested color palette.
 3.  **Core Pages**:
-    - Scaffold `Login`, `Register`, `Settings` (User Profile + Stripe Billing Portal link).
+    - Scaffold `Login`, `Register`, `Settings` (User Profile + Stripe Billing Portal link), and `Pricing` (Subscription plans display).
     - **Functional Requirement**: Ensure `Login` and `Register` pages are fully connected to the backend Auth API. The user MUST be able to create a new account and log in immediately after the scaffold is built.
     - Create a `Dashboard` landing page.
-    - **User Menu**: Ensure the Dashboard and other protected pages include a Navigation Bar or Sidebar with a User Menu (Avatar/Dropdown) that allows navigation to `Settings` and a `Logout` action.
+    - **User Menu**: Ensure the Dashboard and other protected pages include a Navigation Bar or Sidebar with a User Menu (Avatar/Dropdown) that allows navigation to `Settings`, `Pricing`, and a `Logout` action.
 4.  **Routing**: Setup `react-router` with protected routes.
 
 #### D. Mobile Frontend Scaffolding (`/mobile`)

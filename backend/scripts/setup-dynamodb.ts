@@ -162,6 +162,19 @@ const TABLES = [
     ],
     billingMode: 'PAY_PER_REQUEST',
   },
+  {
+    name:
+      process.env.DYNAMODB_STRUCTURED_VIEW_TABLE || 'vaisu-structured-views',
+    keySchema: [
+      { AttributeName: 'documentId', KeyType: 'HASH' },
+      { AttributeName: 'SK', KeyType: 'RANGE' },
+    ],
+    attributeDefinitions: [
+      { AttributeName: 'documentId', AttributeType: 'S' },
+      { AttributeName: 'SK', AttributeType: 'S' },
+    ],
+    billingMode: 'PAY_PER_REQUEST',
+  },
 ];
 
 async function main() {
