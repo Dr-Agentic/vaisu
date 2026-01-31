@@ -868,6 +868,7 @@ export class VisualizationGenerator {
       );
       const parsed = llmClient.parseJSONResponse<UMLExtractionResult>(response);
 
+
       if (parsed.classes && parsed.classes.length > 0) {
         return this.processUMLExtraction(parsed, document);
       }
@@ -937,7 +938,7 @@ Output the result as a raw JSON object matching the defined schema. Do not use m
     const nameToId = new Map(classes.map((c) => [c.name, c.id]));
 
     // Process relationships
-    const relationships: UMLRelationship[] = parsed.relationships
+    const relationships: UMLRelationship[] = (parsed.relationships || [])
       .map((rel, index): UMLRelationship | null => {
         const sourceId = nameToId.get(rel.source);
         const targetId = nameToId.get(rel.target);

@@ -161,7 +161,7 @@ describe("VisualizationGenerator", () => {
     };
 
     mockAnalysis = {
-      tldr: "This is a test document summary",
+      tldr: { text: "This is a test document summary" } as any,
       executiveSummary: {
         headline: "Test Document",
         keyIdeas: ["Idea 1", "Idea 2"],
@@ -438,6 +438,28 @@ describe("VisualizationGenerator", () => {
 
       expect(result.classes).toHaveLength(1);
       expect(result.relationships).toHaveLength(0);
+    });
+
+    it("should handle missing/undefined relationships gracefully (regression fix)", async () => {
+      const umlResponse = {
+        classes: [{ name: "User", type: "class", attributes: [], methods: [] }],
+        // relationships undefined
+      };
+
+      mocks.callWithFallback.mockResolvedValue({
+        content: JSON.stringify(umlResponse),
+      });
+      // Also mock parseJSONResponse to return object without relationships
+      mocks.parseJSONResponse.mockImplementation(() => umlResponse);
+
+      const result = (await generator.generateVisualization(
+        "uml-class-diagram",
+        mockDocument,
+        mockAnalysis,
+      )) as UMLDiagramData;
+
+      expect(result.relationships).toBeDefined();
+      expect(result.relationships).toEqual([]);
     });
   });
 
